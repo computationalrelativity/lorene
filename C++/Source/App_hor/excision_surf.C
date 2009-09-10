@@ -114,6 +114,9 @@ void Excision_surf::del_deriv() const {
   if (p_get_BC_lapse_2 != 0x0) delete p_get_BC_lapse_2 ;
   if (p_get_BC_shift_2 != 0x0) delete p_get_BC_shift_2 ;
   if (p_get_BC_Npsi_2 != 0x0) delete p_get_BC_Npsi_2 ;
+  if (p_get_BC_Npsi_3 != 0x0) delete p_get_BC_Npsi_3 ;
+  if (p_get_BC_Npsi_4 != 0x0) delete p_get_BC_Npsi_4 ;
+  if (p_get_BC_Npsi_5 != 0x0) delete p_get_BC_Npsi_5 ;
   set_der_0x0() ;
 }
 
@@ -128,6 +131,9 @@ void Excision_surf::set_der_0x0() const {
   p_get_BC_lapse_2 = 0x0 ;
   p_get_BC_shift_2 = 0x0 ;
   p_get_BC_Npsi_2 = 0x0 ;
+  p_get_BC_Npsi_3 = 0x0 ;
+  p_get_BC_Npsi_4 = 0x0 ;
+  p_get_BC_Npsi_5 = 0x0 ;
 
 } 
 
@@ -138,22 +144,76 @@ void Excision_surf::set_der_0x0() const {
 //---------//
 
 
-// Source for the Neumann BC on the conformal factor
-const Scalar& Excision_surf::get_BC_conf_fact_1() const{
+// Source for the Neumann BC on the conformal factor, with arbitrary expansion
+const Scalar& Excision_surf::get_BC_conf_fact_1(bool isMOTS, Scalar* exppa) const{
   if (p_get_BC_conf_fact_1 == 0x0){
+
+    //Initialization of expa in the trivial case
+    Scalar expa(sph.theta_plus().get_mp());
+    if ( isMOTS == true)
+      {
+	expa.set_etat_zero();
+	
+      } 
+    else {
+      if (exppa == 0x0){
+      expa = sph.theta_plus();
+    }
+      else {
+	expa = *exppa;
+	expa.set_spectral_va().ylm();
+    }
+    }
+
+   // 3d interpolation for expa
+     Scalar expa_3 (lapse.get_mp()); 
+ 
+  expa_3.allocate_all();
+  expa_3.std_spectral_base();
+
+  int nz = (*lapse.get_mp().get_mg()).get_nzone();
+  int nr = (*lapse.get_mp().get_mg()).get_nr(1);
+  int nt = (*lapse.get_mp().get_mg()).get_nt(1);
+  int np = (*lapse.get_mp().get_mg()).get_np(1);
+
+
+  for (int f= 0; f<nz; f++)
+    for (int k=0; k<np; k++)
+      for (int j=0; j<nt; j++) {
+	for (int l=0; l<nr; l++) {
+
+	  expa_3.set_grid_point(f,k,j,l) = expa.val_grid_point(0,k,j,0);
+	
+	}
+      }
+  if (nz >2){
+  
+     expa_3.annule_domain(0);
+    expa_3.annule_domain(nz - 1);
+  }
+  expa_3.std_spectral_base();
+  expa_3.set_spectral_va().ylm();
+ // End Mapping interpolation
+
     Sym_tensor gamconfcov = gamij.cov()/pow(conf_fact, 4); 
     gamconfcov.std_spectral_base();
     Metric gamconf(gamconfcov);
     Vector tilde_s = gamconf.radial_vect();
     Scalar bound_psi =   -((1./conf_fact)*contract((contract(Kij,1,tilde_s,0)),0, tilde_s,0));    
     bound_psi += -conf_fact*tilde_s.divergence(gamconf);
+    bound_psi += (conf_fact*conf_fact*conf_fact)*Kij.trace(gamij);
     bound_psi = 0.25*bound_psi;
-    bound_psi += -contract(conf_fact.derive_cov(gamconf),0,tilde_s,0) + conf_fact.dsdr();
+
+    bound_psi = (bound_psi -contract(conf_fact.derive_cov(gamconf),0,tilde_s,0)) + conf_fact.dsdr();
+    Scalar bound_psi2 = expa_3*((conf_fact*conf_fact*conf_fact))/4.;
+    // Remark: the used expansion term is actually \frac{\theta^{+}}{N}, as it is not normalized by the lapse in the Spheroid class.
+ bound_psi2.annule_domain(nz -1);
+ bound_psi = bound_psi + bound_psi2;
     bound_psi.std_spectral_base();
     bound_psi.set_spectral_va().ylm();    
     p_get_BC_conf_fact_1 = new Scalar(bound_psi);
-    // WARNING: Implement Spheroid.expansion instead, only multiplying by \psi^{3} (check again)
-    //Generalize to non-zero expansions
+
+
 }
   return *p_get_BC_conf_fact_1 ;
 }
@@ -220,6 +280,7 @@ const Scalar& Excision_surf::get_BC_conf_fact_2(double c_psi_lap, double c_psi_f
   theta_int += psi_int*tilde_s.divergence(gamconf);
   theta_int += 4.*contract(psi_int.derive_cov(gamconf),0,tilde_s,0);
   theta_int = theta_int/pow(psi_int,3);
+  theta_int += -Kij.trace(gamij);
   theta_int.std_spectral_base();
  
   // Recalculation of ff with intermediate values. 
@@ -287,7 +348,11 @@ const Scalar& Excision_surf::get_BC_conf_fact_3(double c_theta_lap, double c_the
      expa_fin3.annule_domain(0);
     expa_fin3.annule_domain(nz - 1);
   }
+
     // End Mapping interpolation
+  cout << "convergence?" << endl;
+  cout << expa_fin3.val_grid_point(1,0,0,0) << endl;
+  cout << theta_plus3.val_grid_point(1,0,0,0) << endl;
   
 
   Scalar ff = lapse*(c_theta_lap*theta_plus3.lapang() + c_theta_fin*(theta_plus3 - expa_fin3));
@@ -311,7 +376,7 @@ const Scalar& Excision_surf::get_BC_conf_fact_3(double c_theta_lap, double c_the
   bound_theta.std_spectral_base();
   
   // Calculation of Neumann BC for Psi
-  Scalar bound_psi = get_BC_conf_fact_1() + bound_theta*pow(conf_fact,3)/4.;
+  Scalar bound_psi = get_BC_conf_fact_1(true) + bound_theta*pow(conf_fact,3)/4.;
   bound_psi.std_spectral_base();
   bound_psi.set_spectral_va().ylm();
 
@@ -331,9 +396,9 @@ const Scalar& Excision_surf::get_BC_conf_fact_4() const{
     // ================
     const Metric_flat& flat = lapse.get_mp().flat_met_spher() ; 
     
-
+ int nz = (*lapse.get_mp().get_mg()).get_nzone();
     Scalar ff = contract(shift, 0, conf_fact.derive_cov(flat), 0) 
-             + 1./6. * conf_fact * (shift.divergence(flat)) ; // Add he N K term
+      + 1./6. * (conf_fact * (shift.divergence(flat) - lapse*Kij.trace(gamij))) ; // Add he N K term
     // Divergence with respect to the conformal metric coincides with divergence withh respect to the
     // flat metric (from the unimodular condition on the conformal metric)
     // In this way, we do not need to recalculate a conformal metric in the intermediate RK step that would violated
@@ -343,21 +408,30 @@ const Scalar& Excision_surf::get_BC_conf_fact_4() const{
 
     // Definition of k_1
     Scalar k_1 =delta_t*ff;
+    k_1.annule_domain(nz-1);
+
     
     // Intermediate value of the expansion, for Runge-Kutta 2nd order scheme
     Scalar psi_int = conf_fact + k_1; psi_int.std_spectral_base();
-    
+    psi_int.annule_domain(nz-1);
+
     // Recalculation of ff with intermediate values. 
     Scalar ff_int =  contract(shift, 0, psi_int.derive_cov(flat), 0) 
-                    + 1./6. * conf_fact * (shift.divergence(flat)) ;  // Add he N K term
+                    + 1./6. * psi_int * (shift.divergence(flat) -  lapse*Kij.trace(gamij)) ;  // Add he N K term
 
  
     // Definition of k_2
     Scalar k_2 = delta_t*ff_int; 
+    
+    //  k_2 = k_2*1000; //TO REMOVE
+
     k_2.std_spectral_base();
 
+    k_2.annule_domain(nz-1);
     // Result of RK2 evolution
     Scalar bound_psi = conf_fact + k_2;
+
+
     bound_psi.std_spectral_base();
     bound_psi.set_spectral_va().ylm();
 
@@ -390,22 +464,22 @@ const Scalar& Excision_surf::get_BC_lapse_2(double lapse_fin, double c_lapse_lap
 
   
   
-  Scalar ff = lapse*(c_lapse_lap*lapse.lapang() + c_lapse_fin*lapse);
+    Scalar ff = lapse*(c_lapse_lap*lapse.lapang() + c_lapse_fin*lapse);
   ff.std_spectral_base();
-  ff += -lapse*c_lapse_fin*lapse_fin;
+  ff = ff -lapse*c_lapse_fin*lapse_fin;
   ff.std_spectral_base();
 
 
   // Definition of k_1
   Scalar k_1 =delta_t*ff;
    
-  // Intermediate value of Npsi, for Runge-Kutta 2nd order scheme
+  // Intermediate value of lapse, for Runge-Kutta 2nd order scheme
   Scalar lapse_int = lapse + k_1; lapse_int.std_spectral_base();
 
   // Recalculation of ff with intermediate values. 
   Scalar ff_int =  lapse*(c_lapse_lap*lapse_int.lapang() + c_lapse_fin*lapse_int);
   ff_int.std_spectral_base();
-  ff_int += -lapse*c_lapse_fin*lapse_fin;
+  ff_int = ff_int -lapse*c_lapse_fin*lapse_fin;
   ff_int.std_spectral_base();
   
  
@@ -428,38 +502,37 @@ const Scalar& Excision_surf::get_BC_lapse_2(double lapse_fin, double c_lapse_lap
 // Source for the Dirichlet BC on the shift
 const Vector& Excision_surf::get_BC_shift_1(double Omega) const{
   if (p_get_BC_shift_1 == 0x0){
-
+    
     // Radial vector for the full 3-metric.
     Vector sss = gamij.radial_vect();
-
+    
     // Boundary value for the radial part of the shift
-    Scalar bound = lapse ; 
- 
-
-      // Tangent part of the shift
-      // (For now, only axisymmetric configurations are envisaged)
-  
-      Vector V_par = shift;
-      Scalar V_phi = lapse; V_phi.annule_hard(); V_phi = 1.; // Rotation parameter for spacetime
-      V_phi.std_spectral_base() ; V_phi.mult_rsint();
-      V_par.set(1).annule_hard();
-      V_par.set(2).annule_hard();
-      V_par.set(3) = V_phi;
-
-      V_par = V_par*Omega;
-
-  
-      // Construction of the total shift boundary condition
-      Vector bound_shift = bound*sss + V_par;
-      bound_shift.std_spectral_base(); // Boundary is fixed by value of 3 components of a vector (rather than value of potentials) 
-      p_get_BC_shift_1 = new Vector(bound_shift);
-}
+    Scalar bound = lapse ;
+    
+    // Tangent part of the shift
+    // (For now, only axisymmetric configurations are envisaged)
+    
+    Vector V_par = shift;
+    Scalar V_phi = lapse; V_phi.annule_hard(); V_phi = 1.; // Rotation parameter for spacetime
+    V_phi.std_spectral_base() ; V_phi.mult_rsint();
+    V_par.set(1).annule_hard();
+    V_par.set(2).annule_hard();
+    V_par.set(3) = V_phi;
+    
+    V_par = V_par*Omega;
+    
+    
+    // Construction of the total shift boundary condition
+    Vector bound_shift = bound*sss + V_par;
+    bound_shift.std_spectral_base(); // Boundary is fixed by value of 3 components of a vector (rather than value of potentials) 
+    p_get_BC_shift_1 = new Vector(bound_shift);
+  }
   return *p_get_BC_shift_1 ;
 }
 
 
 // Source for the Dirichlet BC on the shift, based on a Parabolic driver
-const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, double c_V_lap ) const{
+const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, double c_V_lap, double epsilon) const{
   if (p_get_BC_shift_2 == 0x0){
 
     // Radial vector for the full 3-metric.
@@ -472,6 +545,7 @@ const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, do
    
   Scalar b_min_N = bb - lapse;
   Scalar ff = lapse*(c_bb_lap*b_min_N.lapang() + c_bb_fin*b_min_N);
+ 
   ff.std_spectral_base();
  
 
@@ -483,7 +557,7 @@ const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, do
 
   // Recalculation of ff with intermediate values. 
   Scalar ff_int =  lapse*(c_bb_lap*b_min_N_int.lapang() + c_bb_fin*b_min_N_int);
- 
+
   // Definition of k_2
   Scalar k_2 = delta_t*ff_int; 
   k_2.std_spectral_base();
@@ -505,9 +579,10 @@ const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, do
   
   // Calculation of the conformal 2d laplacian of V
   Tensor q_updown = q_upup.down(1, gamij); 
-  Tensor dd_V = V_par.derive_con(gamij);
-  dd_V = contract(q_updown, 1, contract(q_updown,1 ,dd_V, 0), 1);
-  Vector lap_V = contract(q_updown, 1, contract(dd_V.derive_cov(gamij),1,2), 0);
+  Tensor dd_V = V_par.derive_con(gamij).derive_cov(gamij);
+  // Vector lap_V = contract(dd_V.derive_cov(gamij),1,2);
+  dd_V = contract(q_updown, 1, contract(q_updown,1 ,contract(q_updown,0,dd_V, 2), 2), 2);
+  Vector lap_V = contract(dd_V, 1,2);
   
   // 3d interpolation of the Ricci scalar on the surface.
   
@@ -554,6 +629,10 @@ const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, do
   // Calculation of ff 
 
   Vector ffV = c_V_lap*lapse*(lap_V + contract(ricci_t_updown,1, V_par,0));
+  ffV.annule_domain(nz-1);
+   ffV = ffV + epsilon*lapse*contract(V_par,0,V_par.derive_cov(gamij),1); // Add of dragging term for time transport.
+  ffV.annule_domain(nz-1);
+
   ffV.std_spectral_base();
 
 
@@ -567,12 +646,15 @@ const Vector& Excision_surf::get_BC_shift_2(double c_bb_lap, double c_bb_fin, do
   Vector V_par_int = V_par + k_1V;// V_par_int.std_spectral_base();
 
   // Recalculation of ff with intermediate values.
-
-  Sym_tensor dd_V_int = V_par_int.derive_con(gamij);
-  dd_V_int = contract(q_updown, 1, contract(q_updown,1 ,dd_V_int, 0), 1);
-  Vector lap_V_int = contract(q_updown, 1, contract(dd_V_int.derive_cov(gamij),1,2), 0);
+  Tensor dd_V_int = V_par_int.derive_con(gamij).derive_cov(gamij);
+  // Vector lap_V = contract(dd_V.derive_cov(gamij),1,2);
+  dd_V_int = contract(q_updown, 1, contract(q_updown,1 ,contract(q_updown,0,dd_V_int, 2), 2), 2);
+  Vector lap_V_int = contract(dd_V_int, 1,2);
  
   Vector ffV_int =  c_V_lap*lapse*(lap_V_int + contract(ricci_t_updown,1, V_par_int,0));
+  ffV_int.annule_domain(nz-1);
+   ffV_int = ffV_int + epsilon*lapse*contract(V_par_int,0,V_par_int.derive_cov(gamij),1); // Add of dragging term for time transport.
+  ffV_int.annule_domain(nz-1);
  
   // Definition of k_2
   Vector k_2V = delta_t*ffV_int; 
@@ -611,9 +693,9 @@ const Scalar& Excision_surf::get_BC_Npsi_2(double npsi_fin, double c_npsi_lap, d
 
 
     Scalar npsi = lapse*conf_fact; npsi.std_spectral_base();
-  Scalar ff = lapse*(c_npsi_lap*npsi.lapang() + c_npsi_fin*npsi);
+    Scalar ff = lapse*(c_npsi_lap*npsi.lapang() + c_npsi_fin*npsi);
   ff.std_spectral_base();
-  ff += -lapse*c_npsi_fin*npsi_fin;
+  ff = ff -lapse*c_npsi_fin*npsi_fin;
   ff.std_spectral_base();
 
 
@@ -644,6 +726,100 @@ const Scalar& Excision_surf::get_BC_Npsi_2(double npsi_fin, double c_npsi_lap, d
 }
   return *p_get_BC_Npsi_2 ;
 }
+
+// Source for the Dirichlet BC on (N*Psi1), with a Kerr_Schild-like form for the lapse.
+const Scalar& Excision_surf::get_BC_Npsi_3(double n_0, double beta) const{
+  if (p_get_BC_Npsi_3 == 0x0){
+
+
+    const Coord& ct = lapse.get_mp().cost;
+    Scalar boundN(lapse.get_mp()); boundN = sqrt(n_0 + beta*ct*ct); // Kerr_Schild form for the lapse.
+    boundN.std_spectral_base();
+    Scalar bound_npsi = boundN*conf_fact;
+    bound_npsi.set_spectral_va().ylm();
+
+//     Scalar npsi = lapse*conf_fact; npsi.std_spectral_base();
+//   Scalar ff = lapse*(c_npsi_lap*npsi.lapang() + c_npsi_fin*npsi);
+//   ff.std_spectral_base();
+//   ff += -lapse*c_npsi_fin*npsi_fin;
+//   ff.std_spectral_base();
+
+
+//   // Definition of k_1
+//   Scalar k_1 =delta_t*ff;
+   
+//   // Intermediate value of Npsi, for Runge-Kutta 2nd order scheme
+//   Scalar npsi_int = npsi + k_1; npsi_int.std_spectral_base();
+
+//   // Recalculation of ff with intermediate values. 
+//   Scalar ff_int =  lapse*(c_npsi_lap*npsi_int.lapang() + c_npsi_fin*(npsi_int - npsi_fin));
+ 
+//   // Definition of k_2
+//   Scalar k_2 = delta_t*ff_int; 
+//   k_2.std_spectral_base();
+ 
+//   // Result of RK2 evolution
+//   Scalar bound_npsi = npsi + k_2;
+//   bound_npsi.std_spectral_base();
+//   bound_npsi.set_spectral_va().ylm();
+
+
+
+//     Scalar bound_Npsi = value*conf_fact;
+//     bound_Npsi.set_spectral_va().ylm();
+     p_get_BC_Npsi_3 = new Scalar(bound_npsi);
+    
+}
+  return *p_get_BC_Npsi_3 ;
+}
+
+
+// Source for a Dirichlet BC on (N*Psi1), fixing the surface gravity as a constant in space and time.
+const Scalar& Excision_surf::get_BC_Npsi_4(double Kappa) const{
+  if (p_get_BC_Npsi_4 == 0x0){
+
+
+    const Vector s_i = gamij.radial_vect();
+    Scalar bound_npsi = contract(s_i,0, lapse.derive_cov(gamij),0); bound_npsi.set_dzpuis(0);
+    bound_npsi = bound_npsi - Kappa;
+    bound_npsi.std_spectral_base();
+    bound_npsi = bound_npsi*(conf_fact/contract(contract(Kij,0,s_i,0),0,s_i,0));
+    bound_npsi.set_dzpuis(0); bound_npsi.std_spectral_base();
+    bound_npsi.set_spectral_va().ylm();
+
+     p_get_BC_Npsi_4 = new Scalar(bound_npsi);
+    
+}
+  return *p_get_BC_Npsi_4 ;
+}
+
+
+
+// Source for a Neumann BC on (N*Psi1), fixing the surface gravity as a constant in space and time.
+const Scalar& Excision_surf::get_BC_Npsi_5(double Kappa) const{
+  if (p_get_BC_Npsi_5 == 0x0){
+
+
+    const Vector s_i = gamij.radial_vect();
+  int nz = (*lapse.get_mp().get_mg()).get_nzone();
+    Scalar bound_npsi = lapse*contract(s_i,0, conf_fact.derive_cov(gamij),0); bound_npsi.annule_domain(nz -1);
+    Scalar bound_npsi2 = pow(conf_fact,3)*lapse*contract(contract(Kij,0,s_i,0),0,s_i,0);
+    bound_npsi2.annule_domain(nz-1);
+    bound_npsi += bound_npsi2;
+    bound_npsi = bound_npsi + pow(conf_fact,3)*(Kappa); bound_npsi.annule_domain(nz -1);
+    bound_npsi = bound_npsi -(conf_fact*conf_fact*contract(s_i,0, (conf_fact*lapse).derive_cov(gamij),0) - (conf_fact*lapse).dsdr());
+    //    bound_npsi = bound_npsi*(conf_fact/contract(contract(Kij,0,s_i,0),0,s_i,0));
+    bound_npsi.annule_domain(nz-1); bound_npsi.std_spectral_base();
+    bound_npsi.set_spectral_va().ylm();
+
+     p_get_BC_Npsi_5 = new Scalar(bound_npsi);
+    
+}
+  return *p_get_BC_Npsi_5 ;
+}
+
+
+
 
 
  void Excision_surf::sauve(FILE* ) const {
