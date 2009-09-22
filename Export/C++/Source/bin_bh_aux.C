@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/09/22 00:01:18  p_grandclement
+ * change for reading new bholes
+ *
  * Revision 1.6  2009/09/10 10:05:36  p_grandclement
  * slight change to read different mass BH
  *
@@ -73,7 +76,7 @@ double lagrange_parabol(double x, const double* xp, const double* yp) ;
 		    //----------------------------------------//
 
 Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
-	       const double* zi, int fill, const char* filename, int mdiff)
+	       const double* zi, int fill, const char* filename, bool mdiff)
 	       : np(nbpoints) {
 
     // Reading of data
@@ -92,8 +95,8 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
         map_deux = new Map_af (*grille_2, fich) ;
     else
 	map_deux = new Map_af (*grille_1, fich) ;
-    Bhole hole_un (*map_un, fich, true) ;
-    Bhole hole_deux (*map_deux, fich, true) ;
+    Bhole hole_un (*map_un, fich) ;
+    Bhole hole_deux (*map_deux, fich) ;
     fclose(fich) ;
 
     assert (hole_un.get_omega() == hole_deux.get_omega()) ;
