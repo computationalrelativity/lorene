@@ -34,6 +34,9 @@ char valeur_dsdt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2009/10/08 16:23:14  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.2  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -82,6 +85,8 @@ char valeur_dsdt_C[] = "$Header$" ;
 
 // Prototypage temporaire
 void _dsdtet_pas_prevu(Tbl *, int &) ;
+void _dsdtet_t_cos(Tbl *, int &) ;
+void _dsdtet_t_sin(Tbl *, int &) ;
 void _dsdtet_t_cos_p(Tbl *, int &) ;
 void _dsdtet_t_sin_p(Tbl *, int &) ;
 void _dsdtet_t_sin_i(Tbl *, int &) ;
@@ -150,6 +155,8 @@ static int nap = 0 ;
 	    _dsdtet[i] = _dsdtet_pas_prevu ;
 	}
 	// Les routines existantes
+	_dsdtet[T_COS >> TRA_T] = _dsdtet_t_cos ;
+	_dsdtet[T_SIN >> TRA_T] = _dsdtet_t_sin ;
 	_dsdtet[T_COS_P >> TRA_T] = _dsdtet_t_cos_p ;
 	_dsdtet[T_SIN_P >> TRA_T] = _dsdtet_t_sin_p ;
 	_dsdtet[T_SIN_I >> TRA_T] = _dsdtet_t_sin_i ;

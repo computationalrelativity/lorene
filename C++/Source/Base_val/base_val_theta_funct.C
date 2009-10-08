@@ -33,6 +33,9 @@ char base_val_theta_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/08 16:20:13  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.6  2007/10/23 17:15:12  j_novak
  * Added the bases T_COSSIN_C and T_COSSIN_S
  *
@@ -79,6 +82,8 @@ char base_val_theta_funct_C[] = "$Header$" ;
 
 // Local prototypes
 void theta_funct_pas_prevu(int, double*) ;
+void theta_funct_cos(int, double*) ;
+void theta_funct_sin(int, double*) ;
 void theta_funct_cos_p(int, double*) ;
 void theta_funct_cos_i(int, double*) ;
 void theta_funct_sin_p(int, double*) ;
@@ -118,6 +123,8 @@ const Tbl& Base_val::theta_functions(int l, int nt) const {
 	    dim2[i] = 0 ; 
 	}
 
+	vbasecol[T_COS >> TRA_T] = theta_funct_cos ;
+	vbasecol[T_SIN >> TRA_T] = theta_funct_sin ;
 	vbasecol[T_COS_P >> TRA_T] = theta_funct_cos_p ;
 	vbasecol[T_COS_I >> TRA_T] = theta_funct_cos_i ;
 	vbasecol[T_SIN_I >> TRA_T] = theta_funct_sin_i ;
@@ -129,6 +136,8 @@ const Tbl& Base_val::theta_functions(int l, int nt) const {
 	vbasecol[T_COSSIN_C >> TRA_T] = theta_funct_cossin_c ;
 	vbasecol[T_COSSIN_S >> TRA_T] = theta_funct_cossin_s ;
 
+	dim2[T_COS >> TRA_T] = 1 ;
+	dim2[T_SIN >> TRA_T] = 1 ;
 	dim2[T_COS_P >> TRA_T] = 1 ;
 	dim2[T_COS_I >> TRA_T] = 1 ;
 	dim2[T_SIN_P >> TRA_T] = 1 ;
@@ -197,6 +206,40 @@ void theta_funct_pas_prevu(int, double*) {
 	 << endl ; 
     abort() ; 
     
+}
+
+//==============================================
+//  Basis cos(j*theta)  T_COS
+//==============================================
+
+void theta_funct_cos(int nt, double* ff) {
+
+    double xx = ( nt > 1 ? M_PI / double(nt-1) : 0.) ;
+
+    for (int i = 0; i < nt ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt*i+ j] = cos(i * theta);	
+	}
+    }
+
+}
+
+//==============================================
+//  Basis sin(j* theta)  T_SIN
+//==============================================
+
+void theta_funct_sin(int nt, double* ff) {
+
+    double xx = ( nt > 1 ? M_PI / double(nt-1) : 0.) ;
+
+    for (int i = 0; i < nt ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt*i+ j] = sin(i * theta);	
+	}
+    }
+
 }
 
 //==============================================

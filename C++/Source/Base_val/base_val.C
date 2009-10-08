@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2009/10/08 16:20:13  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.11  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -244,6 +247,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_r[R_JACO02 >> TRA_R] =    "R_JACO02   " ;
   
     nom_t[T_COS >> TRA_T] =       "T_COS      " ; 
+    nom_t[T_SIN >> TRA_T] =       "T_SIN      " ; 
     nom_t[T_COS_P >> TRA_T] =     "T_COS_P    " ; 
     nom_t[T_COS_I >> TRA_T] =     "T_COS_I    " ; 
     nom_t[T_SIN_P >> TRA_T] =     "T_SIN_P    " ; 
@@ -255,6 +259,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_COSSIN_C >> TRA_T] =  "T_COSSIN_C " ;
     nom_t[T_COSSIN_S >> TRA_T] =  "T_COSSIN_S " ;
     nom_t[T_LEG >> TRA_T] =       "T_LEG      " ;
+    nom_t[T_LEG_MP >> TRA_T] =    "T_LEG_MP   " ;
     nom_t[T_LEG_P >> TRA_T] =     "T_LEG_P    " ;
     nom_t[T_LEG_PP >> TRA_T] =    "T_LEG_PP   " ;
     nom_t[T_LEG_I >> TRA_T] =     "T_LEG_I    " ;

@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2009/10/08 16:21:16  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.11  2007/12/20 09:11:08  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -346,6 +349,8 @@ static int premier_appel = 1 ;
 
 	switch (base_t) {
 	    	    
+	    case T_COS :
+	    case T_SIN :
 	    case T_SIN_P :
 	    case T_SIN_I :
 	    case T_COS_I : 

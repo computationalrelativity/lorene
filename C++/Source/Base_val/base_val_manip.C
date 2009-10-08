@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2009/10/08 16:20:13  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.8  2008/12/03 15:21:21  j_novak
  * New method mult_cost.
  *
@@ -77,285 +80,312 @@ char base_val_manip_C[] = "$Header$" ;
 
 void Base_val::dsdx() {
     
-  switch(get_base_r(0)) {
-  case R_CHEBP: 
-    set_base_r(0, R_CHEBI) ;
-    break ;
-  case R_CHEBI: 
-    set_base_r(0, R_CHEBP) ;
-    break ;
-  case R_CHEBPIM_P: 
-    set_base_r(0, R_CHEBPIM_I) ;
-    break ;
-  case R_CHEBPIM_I: 
-   set_base_r(0, R_CHEBPIM_P) ;
-    break ;
-  case R_CHEBPI_P: 
-    set_base_r(0, R_CHEBPI_I) ;
-    break ;
-  case R_CHEBPI_I: 
-   set_base_r(0, R_CHEBPI_P) ;
-    break ;    
-  default: 
-    break ;
-  }  
-  return ;
+    switch(get_base_r(0)) {
+	case R_CHEBP: 
+	    set_base_r(0, R_CHEBI) ;
+	    break ;
+	case R_CHEBI: 
+	    set_base_r(0, R_CHEBP) ;
+	    break ;
+	case R_CHEBPIM_P: 
+	    set_base_r(0, R_CHEBPIM_I) ;
+	    break ;
+	case R_CHEBPIM_I: 
+	    set_base_r(0, R_CHEBPIM_P) ;
+	    break ;
+	case R_CHEBPI_P: 
+	    set_base_r(0, R_CHEBPI_I) ;
+	    break ;
+	case R_CHEBPI_I: 
+	    set_base_r(0, R_CHEBPI_P) ;
+	    break ;    
+	default: 
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::sx() {
     
-  switch(get_base_r(0)) {
-  case R_CHEBP: 
-    set_base_r(0, R_CHEBI) ;
-    break ;
-  case R_CHEBI: 
-    set_base_r(0, R_CHEBP) ;
-    break ;
-  case R_CHEBPIM_P: 
-    set_base_r(0, R_CHEBPIM_I) ;
-    break ;
-  case R_CHEBPIM_I: 
-   set_base_r(0, R_CHEBPIM_P) ;
-    break ;
-  case R_CHEBPI_P: 
-    set_base_r(0, R_CHEBPI_I) ;
-    break ;
-  case R_CHEBPI_I: 
-   set_base_r(0, R_CHEBPI_P) ;
-   break ;
-  default: 
-    break ;
-  }  
-  return ;
+    switch(get_base_r(0)) {
+	case R_CHEBP: 
+	    set_base_r(0, R_CHEBI) ;
+	    break ;
+	case R_CHEBI: 
+	    set_base_r(0, R_CHEBP) ;
+	    break ;
+	case R_CHEBPIM_P: 
+	    set_base_r(0, R_CHEBPIM_I) ;
+	    break ;
+	case R_CHEBPIM_I: 
+	    set_base_r(0, R_CHEBPIM_P) ;
+	    break ;
+	case R_CHEBPI_P: 
+	    set_base_r(0, R_CHEBPI_I) ;
+	    break ;
+	case R_CHEBPI_I: 
+	    set_base_r(0, R_CHEBPI_P) ;
+	    break ;
+	default: 
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::mult_x() {
     
-  switch(get_base_r(0)) {
-  case R_CHEBP: 
-    set_base_r(0, R_CHEBI) ;
-    break ;
-  case R_CHEBI: 
-    set_base_r(0, R_CHEBP) ;
-    break ;
-  case R_CHEBPIM_P: 
-    set_base_r(0, R_CHEBPIM_I) ;
-    break ;
-  case R_CHEBPIM_I: 
-   set_base_r(0, R_CHEBPIM_P) ;
-    break ;
-  case R_CHEBPI_P: 
-    set_base_r(0, R_CHEBPI_I) ;
-    break ;
-  case R_CHEBPI_I: 
-   set_base_r(0, R_CHEBPI_P) ;
-   break ;
-  default: 
-    break ;
-  }  
-  return ;
+    switch(get_base_r(0)) {
+	case R_CHEBP: 
+	    set_base_r(0, R_CHEBI) ;
+	    break ;
+	case R_CHEBI: 
+	    set_base_r(0, R_CHEBP) ;
+	    break ;
+	case R_CHEBPIM_P: 
+	    set_base_r(0, R_CHEBPIM_I) ;
+	    break ;
+	case R_CHEBPIM_I: 
+	    set_base_r(0, R_CHEBPIM_P) ;
+	    break ;
+	case R_CHEBPI_P: 
+	    set_base_r(0, R_CHEBPI_I) ;
+	    break ;
+	case R_CHEBPI_I: 
+	    set_base_r(0, R_CHEBPI_P) ;
+	    break ;
+	default: 
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::dsdt() {
     
-  switch(get_base_t(0)) {
-  case T_COS_P:
-    set_base_t(T_SIN_P) ;
-    break ;
-  case T_COS_I:
-    set_base_t(T_SIN_I) ;
-    break ;
-  case T_SIN_P:
-    set_base_t(T_COS_P) ;
-    break ;
-  case T_SIN_I:
-    set_base_t(T_COS_I) ;
-    break ;
-  case T_COSSIN_CP:
-    set_base_t(T_COSSIN_SP) ;
-    break ;
-  case T_COSSIN_SP:
-    set_base_t(T_COSSIN_CP) ;
-    break ;
-  case T_COSSIN_CI:
-    set_base_t(T_COSSIN_SI) ;
-    break ;
-  case T_COSSIN_SI:
-    set_base_t(T_COSSIN_CI) ;
-    break ;
-  case T_COSSIN_C:
-    set_base_t(T_COSSIN_S) ;
-    break ;
-  case T_COSSIN_S:
-    set_base_t(T_COSSIN_C) ;
-    break ;
-  default: 
-    cout << "Wrong base in Base_val::dsdt()!" << endl ;
-    abort() ;
-    exit(-1) ;
-    break ;
-  }  
-  return ;
+    switch(get_base_t(0)) {
+	case T_COS_P:
+	    set_base_t(T_SIN_P) ;
+	    break ;
+	case T_COS_I:
+	    set_base_t(T_SIN_I) ;
+	    break ;
+	case T_SIN_P:
+	    set_base_t(T_COS_P) ;
+	    break ;
+	case T_SIN_I:
+	    set_base_t(T_COS_I) ;
+	    break ;
+	case T_COSSIN_CP:
+	    set_base_t(T_COSSIN_SP) ;
+	    break ;
+	case T_COSSIN_SP:
+	    set_base_t(T_COSSIN_CP) ;
+	    break ;
+	case T_COSSIN_CI:
+	    set_base_t(T_COSSIN_SI) ;
+	    break ;
+	case T_COSSIN_SI:
+	    set_base_t(T_COSSIN_CI) ;
+	    break ;
+	case T_COSSIN_C:
+	    set_base_t(T_COSSIN_S) ;
+	    break ;
+	case T_COSSIN_S:
+	    set_base_t(T_COSSIN_C) ;
+	    break ;
+	case T_COS:
+	    set_base_t(T_SIN) ;
+	    break ;
+	case T_SIN:
+	    set_base_t(T_COS) ;
+	    break ;
+	default: 
+	    cout << "Wrong base in Base_val::dsdt()!" << endl ;
+	    abort() ;
+	    exit(-1) ;
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::ssint() {
     
-  switch(get_base_t(0)) {
-  case T_COS_P:
-    set_base_t(T_SIN_I) ;
-    break ;
-  case T_COS_I:
-    set_base_t(T_SIN_P) ;
-    break ;
-  case T_SIN_P:
-    set_base_t(T_COS_I) ;
-    break ;
-  case T_SIN_I:
-    set_base_t(T_COS_P) ;
-    break ;
-  case T_COSSIN_CP:
-    set_base_t(T_COSSIN_SI) ;
-    break ;
-  case T_COSSIN_SP:
-    set_base_t(T_COSSIN_CI) ;
-    break ;
-  case T_COSSIN_CI:
-    set_base_t(T_COSSIN_SP) ;
-    break ;
-  case T_COSSIN_SI:
-    set_base_t(T_COSSIN_CP) ;
-    break ;
-   case T_COSSIN_C:
-    set_base_t(T_COSSIN_S) ;
-    break ;
-  case T_COSSIN_S:
-    set_base_t(T_COSSIN_C) ;
-    break ;  
-  default: 
-    cout << "Wrong base in Base_val::ssint()!" << endl ;
-    abort() ;
-    exit(-1) ;
-    break ;
-  }  
-  return ;
+    switch(get_base_t(0)) {
+	case T_COS_P:
+	    set_base_t(T_SIN_I) ;
+	    break ;
+	case T_COS_I:
+	    set_base_t(T_SIN_P) ;
+	    break ;
+	case T_SIN_P:
+	    set_base_t(T_COS_I) ;
+	    break ;
+	case T_SIN_I:
+	    set_base_t(T_COS_P) ;
+	    break ;
+	case T_COSSIN_CP:
+	    set_base_t(T_COSSIN_SI) ;
+	    break ;
+	case T_COSSIN_SP:
+	    set_base_t(T_COSSIN_CI) ;
+	    break ;
+	case T_COSSIN_CI:
+	    set_base_t(T_COSSIN_SP) ;
+	    break ;
+	case T_COSSIN_SI:
+	    set_base_t(T_COSSIN_CP) ;
+	    break ;
+	case T_COSSIN_C:
+	    set_base_t(T_COSSIN_S) ;
+	    break ;
+	case T_COSSIN_S:
+	    set_base_t(T_COSSIN_C) ;
+	    break ;  
+	case T_COS:
+	    set_base_t(T_SIN) ;
+	    break ;
+	case T_SIN:
+	    set_base_t(T_COS) ;
+	    break ;  
+	default: 
+	    cout << "Wrong base in Base_val::ssint()!" << endl ;
+	    abort() ;
+	    exit(-1) ;
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::mult_sint() {
     
-  switch(get_base_t(0)) {
-  case T_COS_P:
-    set_base_t(T_SIN_I) ;
-    break ;
-  case T_COS_I:
-    set_base_t(T_SIN_P) ;
-    break ;
-  case T_SIN_P:
-    set_base_t(T_COS_I) ;
-    break ;
-  case T_SIN_I:
-    set_base_t(T_COS_P) ;
-    break ;
-  case T_COSSIN_CP:
-    set_base_t(T_COSSIN_SI) ;
-    break ;
-  case T_COSSIN_SP:
-    set_base_t(T_COSSIN_CI) ;
-    break ;
-  case T_COSSIN_CI:
-    set_base_t(T_COSSIN_SP) ;
-    break ;
-  case T_COSSIN_SI:
-    set_base_t(T_COSSIN_CP) ;
-    break ;
-  case T_COSSIN_C:
-    set_base_t(T_COSSIN_S) ;
-    break ;
-  case T_COSSIN_S:
-    set_base_t(T_COSSIN_C) ;
-    break ;   
-  default: 
-    cout << "Wrong base in Base_val::mult_sint()!" << endl ;
-    abort() ;
-    exit(-1) ;
-    break ;
-  }  
-  return ;
+    switch(get_base_t(0)) {
+	case T_COS_P:
+	    set_base_t(T_SIN_I) ;
+	    break ;
+	case T_COS_I:
+	    set_base_t(T_SIN_P) ;
+	    break ;
+	case T_SIN_P:
+	    set_base_t(T_COS_I) ;
+	    break ;
+	case T_SIN_I:
+	    set_base_t(T_COS_P) ;
+	    break ;
+	case T_COSSIN_CP:
+	    set_base_t(T_COSSIN_SI) ;
+	    break ;
+	case T_COSSIN_SP:
+	    set_base_t(T_COSSIN_CI) ;
+	    break ;
+	case T_COSSIN_CI:
+	    set_base_t(T_COSSIN_SP) ;
+	    break ;
+	case T_COSSIN_SI:
+	    set_base_t(T_COSSIN_CP) ;
+	    break ;
+	case T_COSSIN_C:
+	    set_base_t(T_COSSIN_S) ;
+	    break ;
+	case T_COSSIN_S:
+	    set_base_t(T_COSSIN_C) ;
+	    break ;   
+	case T_COS:
+	    set_base_t(T_SIN) ;
+	    break ;
+	case T_SIN:
+	    set_base_t(T_COS) ;
+	    break ;  
+	default: 
+	    cout << "Wrong base in Base_val::mult_sint()!" << endl ;
+	    abort() ;
+	    exit(-1) ;
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::mult_cost() {
     
-  switch(get_base_t(0)) {
-  case T_COS_P:
-    set_base_t(T_COS_I) ;
-    break ;
-  case T_COS_I:
-    set_base_t(T_COS_P) ;
-    break ;
-  case T_SIN_P:
-    set_base_t(T_SIN_I) ;
-    break ;
-  case T_SIN_I:
-    set_base_t(T_SIN_P) ;
-    break ;
-  case T_COSSIN_CP:
-    set_base_t(T_COSSIN_CI) ;
-    break ;
-  case T_COSSIN_SP:
-    set_base_t(T_COSSIN_SI) ;
-    break ;
-  case T_COSSIN_CI:
-    set_base_t(T_COSSIN_CP) ;
-    break ;
-  case T_COSSIN_SI:
-    set_base_t(T_COSSIN_SP) ;
-    break ;
-  case T_COSSIN_C:
-    set_base_t(T_COSSIN_C) ;
-    break ;
-  case T_COSSIN_S:
-    set_base_t(T_COSSIN_S) ;
-    break ;   
-  default: 
-    cout << "Wrong base in Base_val::mult_cost()!" << endl ;
-    abort() ;
-    exit(-1) ;
-    break ;
-  }  
-  return ;
+    switch(get_base_t(0)) {
+	case T_COS_P:
+	    set_base_t(T_COS_I) ;
+	    break ;
+	case T_COS_I:
+	    set_base_t(T_COS_P) ;
+	    break ;
+	case T_SIN_P:
+	    set_base_t(T_SIN_I) ;
+	    break ;
+	case T_SIN_I:
+	    set_base_t(T_SIN_P) ;
+	    break ;
+	case T_COSSIN_CP:
+	    set_base_t(T_COSSIN_CI) ;
+	    break ;
+	case T_COSSIN_SP:
+	    set_base_t(T_COSSIN_SI) ;
+	    break ;
+	case T_COSSIN_CI:
+	    set_base_t(T_COSSIN_CP) ;
+	    break ;
+	case T_COSSIN_SI:
+	    set_base_t(T_COSSIN_SP) ;
+	    break ;
+	case T_COSSIN_C:
+	    set_base_t(T_COSSIN_C) ;
+	    break ;
+	case T_COSSIN_S:
+	    set_base_t(T_COSSIN_S) ;
+	    break ;   
+	case T_COS:
+	    set_base_t(T_COS) ;
+	    break ;
+	case T_SIN:
+	    set_base_t(T_SIN) ;
+	    break ;  
+	default: 
+	    cout << "Wrong base in Base_val::mult_cost()!" << endl ;
+	    abort() ;
+	    exit(-1) ;
+	    break ;
+    }  
+    return ;
 }
 
 void Base_val::ylm() {
     
-  switch(get_base_t(0)) {
-  case T_COS_P:
-    set_base_t(T_LEG_PP) ;
-    break ;
-  case T_COS_I:
-    set_base_t(T_LEG_IP) ;
-    break ;
-  case T_SIN_I:
-    set_base_t(T_LEG_PI) ;
-    break ;
-  case T_SIN_P:
-    set_base_t(T_LEG_II) ;
-    break ;
-  case T_COSSIN_CP:
-    set_base_t(T_LEG_P) ;
-    break ;
-  case T_COSSIN_CI:
-    set_base_t(T_LEG_I) ;
-    break ;
-  case T_COSSIN_C:
-    set_base_t(T_LEG) ;
-    break ;
-  case T_COSSIN_S:
-    set_base_t(T_LEG) ;
-    break ;
-  default: 
-    cout << "Wrong base in Base_val::ylm()!" << endl ;
-    abort() ;
-    exit(-1) ;
-    break ;
-  }  
-  return ;
+    switch(get_base_t(0)) {
+	case T_COS_P:
+	    set_base_t(T_LEG_PP) ;
+	    break ;
+	case T_COS_I:
+	    set_base_t(T_LEG_IP) ;
+	    break ;
+	case T_SIN_I:
+	    set_base_t(T_LEG_PI) ;
+	    break ;
+	case T_SIN_P:
+	    set_base_t(T_LEG_II) ;
+	    break ;
+	case T_COSSIN_CP:
+	    set_base_t(T_LEG_P) ;
+	    break ;
+	case T_COSSIN_CI:
+	    set_base_t(T_LEG_I) ;
+	    break ;
+	case T_COSSIN_C:
+	    set_base_t(T_LEG) ;
+	    break ;
+	case T_COSSIN_S:
+	    set_base_t(T_LEG) ;
+	    break ;
+	case T_COS:
+	    set_base_t(T_LEG_MP) ;
+	    break ;
+	default: 
+	    cout << "Wrong base in Base_val::ylm()!" << endl ;
+	    abort() ;
+	    exit(-1) ;
+	    break ;
+    }  
+    return ;
 }

@@ -30,6 +30,9 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/10/08 16:20:13  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.5  2004/12/17 13:35:01  m_forot
  * Add the case T_LEG
  *
@@ -68,6 +71,7 @@ char base_val_name_theta_C[] = "$Header$" ;
 // Local prototypes
 void basename_t_unknown(int, int, char*) ; 
 void basename_t_cos(int, int, char*) ; 
+void basename_t_sin(int, int, char*) ; 
 void basename_t_cos_p(int, int, char*) ; 
 void basename_t_sin_p(int, int, char*) ; 
 void basename_t_cos_i(int, int, char*) ; 
@@ -80,6 +84,7 @@ void basename_t_cossin_ci(int, int, char*) ;
 void basename_t_cossin_si(int, int, char*) ; 
 void basename_t_leg_p(int, int, char*) ; 
 void basename_t_leg(int, int, char*) ; 
+void basename_t_leg_mp(int, int, char*) ; 
 void basename_t_leg_pp(int, int, char*) ; 
 void basename_t_leg_i(int, int, char*) ; 
 void basename_t_leg_ip(int, int, char*) ; 
@@ -113,6 +118,7 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 		}
 
 		vbasename_t[T_COS >> TRA_T] = basename_t_cos ;
+		vbasename_t[T_SIN >> TRA_T] = basename_t_sin ;
 		vbasename_t[T_COS_P >> TRA_T] = basename_t_cos_p ;
 		vbasename_t[T_SIN_P >> TRA_T] = basename_t_sin_p ;
 		vbasename_t[T_COS_I >> TRA_T] = basename_t_cos_i ;
@@ -124,6 +130,7 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 		vbasename_t[T_COSSIN_C >> TRA_T] = basename_t_cossin_c ;
 		vbasename_t[T_COSSIN_S >> TRA_T] = basename_t_cossin_s ;
 		vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
+		vbasename_t[T_LEG_MP >> TRA_T] = basename_t_leg_mp ;
 		vbasename_t[T_LEG >> TRA_T] = basename_t_leg ;
 		vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
 		vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
@@ -164,6 +171,21 @@ void basename_t_cos(int , int j, char* name) {
 	assert( j>=0 ) ; 
 
 	strcpy(name, "cos") ; 
+		
+	int xt = j ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+void basename_t_sin(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "sin") ; 
 		
 	int xt = j ; 
 		
@@ -473,6 +495,33 @@ void basename_t_leg(int k, int j, char* name) {
 	assert( j>=0 ) ; 
 
 	int m = k / 2 ;
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = j; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+void basename_t_leg_mp(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = 2 * (k / 2) ;
 	 
 	if (j < m/2) {
 		strcpy (name, "unused") ; 

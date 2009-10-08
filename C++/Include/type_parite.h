@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2009/10/08 16:19:32  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.8  2008/10/17 10:48:28  j_novak
  * Increase of the macro MAX_DAL
  *
@@ -203,6 +206,8 @@
 #define T_CL_SIN_I 0x00001600
 /// fct. de Legendre associees 
 #define T_LEG 0x00001700
+/// fct. de Legendre associees avec m pair 
+#define T_LEG_MP 0x00001800
 
 
     /* Phi */

@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2009/10/08 16:19:32  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.16  2008/12/03 15:21:20  j_novak
  * New method mult_cost.
  *
@@ -217,6 +220,10 @@ class Mg3d ;
  *   \li \c T_COSSIN_S  (0x00000200) : \f$\sin(j \theta)\f$ for \e m even,
  *					      \f$\cos(j \theta)\f$ for \e m odd
  *						(\f$\theta\f$-sampling: \c NONSYM);
+ *   \li \c T_COS  (0x00000300) : \f$\cos(j \theta)\f$ \e m being always even and
+ *						(\f$\theta\f$-sampling: \c NONSYM);
+ *   \li \c T_SIN  (0x00000400) : \f$\sin(j \theta)\f$ \e m being always even,
+ *						(\f$\theta\f$-sampling: \c NONSYM);
  *   \li \c T_COS_P  (0x00000500) : \f$\cos(2j \theta)\f$
  *						(\f$\theta\f$-sampling: \c SYM);
  *   \li \c T_SIN_P  (0x00000600) : \f$\sin(2j \theta)\f$
@@ -262,7 +269,10 @@ class Mg3d ;
  *					   always odd
  *						(\f$\theta\f$-sampling: \c SYM);
  *   \li \c T_LEG  (0x00001700) : Associated Legendre functions 
- *                              \f$P_l^m(\cos\theta)\f$ of all types
+ *                              \f$P_l^m(\cos\theta)\f$ of all types ;
+ *   \li \c T_LEG_MP  (0x00001800) : Associated Legendre functions 
+ *                              \f$P_l^m(\cos\theta)\f$ \e m being always even 
+ *                              (\f$\theta\f$-sampling: \c NONSYM );
  *
  * The basis functions for expansion with respect to the azimuthal coordinate 
  * \f$\phi\f$ are coded as follows

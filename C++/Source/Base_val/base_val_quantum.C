@@ -25,6 +25,9 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/10/08 16:20:13  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.5  2007/12/11 15:28:09  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -149,6 +152,10 @@ void Base_val::give_quant_numbers (int l, int k, int j,
        l_quant = j ;
     break ;   
 
+  case T_COS :
+       l_quant = j ;
+    break ;
+    
   case T_LEG_P :
     if (m_quant%2 == 0)
       l_quant = 2*j ;
@@ -180,6 +187,10 @@ void Base_val::give_quant_numbers (int l, int k, int j,
     break ; 
 
   case T_LEG :
+   l_quant = j ;
+   break ;
+
+  case T_LEG_MP :
    l_quant = j ;
    break ;
 
@@ -323,6 +334,10 @@ int Base_val::give_lmax(const Mg3d& mgrid, int lz) const {
 	    l_max = ntm1 ;
 	    break ;   
 	    
+	case T_COS :
+	    l_max = ntm1 ;
+	    break ;   
+	    
 	case T_LEG_P :
 	    if (!m_odd)
 		l_max = 2*ntm1 ;
@@ -354,6 +369,10 @@ int Base_val::give_lmax(const Mg3d& mgrid, int lz) const {
 	    break ; 
 	    
 	case T_LEG :
+	    l_max = ntm1 ;
+	    break ;
+	    
+	case T_LEG_MP :
 	    l_max = ntm1 ;
 	    break ;
 	    

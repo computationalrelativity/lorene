@@ -30,6 +30,9 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/08 16:20:47  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.6  2008/08/27 08:48:05  jl_cornou
  * Added R_JACO02 case
  *
@@ -153,7 +156,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 		    }
 		    break ;
 		}
-		case T_COSSIN_C: {
+		case T_COSSIN_C: case T_COS: {
 		    // Summation : 
 		    for (int i=0 ; i<nr ; i++) s_tr[i] = 0 ;
 		    for (int j=0 ; j<nt ; j++) {

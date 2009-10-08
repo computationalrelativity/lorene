@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2009/10/08 16:23:14  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.10  2008/10/07 15:01:58  j_novak
  * The case nt=1 is now treated separately.
  *
@@ -146,6 +149,7 @@ void Valeur::coef_i() const {
 
 	invcf_t[NONDEF] = ibase_non_def_t ;
 	invcf_t[T_COS >> TRA_T] = citcos ;
+	invcf_t[T_SIN >> TRA_T] = citsin ;
 	invcf_t[T_COS_P >> TRA_T] = citcosp ;
 	invcf_t[T_COS_I >> TRA_T] = citcosi ;
 	invcf_t[T_SIN_P >> TRA_T] = citsinp ;

@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2009/10/08 16:22:53  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.9  2007/12/21 10:46:29  j_novak
  * In "from_spectral..." functions: better treatment of ETATZERO case.
  *
@@ -377,7 +380,6 @@ void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille
   assert(mpaff != 0x0) ;
 #endif
   const Mg3d* mg = mp.get_mg() ;
-  assert (mg->get_type_t() == SYM) ;
   int ntm = mg->get_nt(0) ;
   int npm = mg->get_np(0) ;
   int nz = mg->get_nzone() ;
@@ -392,7 +394,7 @@ void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille
   //-----------------------
   double* alpha = new double[nrv0*(npm+2)*ntm] ;
   double* p_coef = alpha ;
-  double* chebnri = 0x0 ; //size ~ nrv0 * (npm+2) * nr ...
+  double* chebnri = 0x0 ; //size ~ nrv0 * (npm+2) * nt * nr ...
   int* idom = 0x0 ;
   initialize_spectral_r(mp, meudon.get_spectral_va().get_base(), idom, chebnri) ;
   double* p_func = chebnri ;
@@ -425,9 +427,9 @@ void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille
 	  p_func++ ;
 	}
 	p_coef++ ;
-	p_func -= nrm ;      
+//	p_func -= nrm ;      
       }
-      p_func += nrm ; // Next m
+//      p_func += nrm ; // Next m
     }
   }
 
@@ -539,6 +541,7 @@ void Gval_spher::initialize_spectral_r(const Map& mp, const Base_val& base,
   int nrv0 = dim.dim[0] ;
   const Mg3d* mg = mp.get_mg() ;
   int npm = mg->get_np(0) ;
+  int ntm = mg->get_nt(0) ;
 
   assert (idom == 0x0) ;
   idom = new int[nrv0] ;
@@ -551,7 +554,7 @@ void Gval_spher::initialize_spectral_r(const Map& mp, const Base_val& base,
   }
 
   assert (chebnri == 0x0) ;
-  chebnri = new double[(npm+2)*nrmax] ;
+  chebnri = new double[(npm+2)*ntm*nrmax] ;
   double* p_out = chebnri ;
   for (int irv=0; irv<nrv0; irv++) {
     bool nucleus = (mg->get_type_r(idom[irv]) == RARE) ;
@@ -567,45 +570,57 @@ void Gval_spher::initialize_spectral_r(const Map& mp, const Base_val& base,
     int base_r = base.get_base_r(idom[irv]) ;
 
     for (int ip=0; ip<npm+2; ip++) {
-      int fact = 1 ;
-      int par = 0 ;
-      if (nucleus) {
-	fact = 2 ;
-	switch (base_r) {
+	int fact = 1; 
+	int par = 0 ;
+	for (int it=0; it<ntm; it++) {
 
-	case R_CHEBP : {
-	  break ;
-	}
-	  
-	case R_CHEBI : {
-	  par = 1 ;
-	  break ;
-	}
+	    if (nucleus) {
+	    switch (base_r) {
+		
+		case R_CHEBP : {
+		    break ;
+		}
+		    
+		case R_CHEBI : {
+		    par = 1 ;
+		    break ;
+		}
+		    
+		case R_CHEBPIM_P : {
+		    par = (ip/2) % 2 ;
+		    break ;
+		}
+		    
+		case R_CHEBPIM_I : {
+		    par = 1 - ((ip/2) % 2) ;
+		    break ;
+		}
+		    
+		case R_CHEBPI_P :{
+		    par = it % 2 ;
+		    break ;
+		}
+		    
+		case R_CHEBPI_I :{
+		    par = 1 - (it % 2) ;
+		    break ;
+		}
+		    
+		default : {
+		    cout << "Gval_spher::initialize_spectral_r : " << '\n' 
+			 << "Unexpected radial base !" << '\n' 
+			 << "Base : " << base_r << endl ;
+		    abort() ;
+		    break ;
+		}
+	    }
+	    }// if (nucleus)
 
-	case R_CHEBPIM_P : {
-	  par = (ip/2) % 2 ;
-	  break ;
-	}
-
-	case R_CHEBPIM_I : {
-	  par = 1 - ((ip/2) % 2) ;
-	  break ;
-	}
-
-	default : {
-	  cout << "Gval_spher::initialize_spectral_r : " << '\n' 
-	       << "Unexpected radial base !" << '\n' 
-	       << "Base : " << base_r << endl ;
-	  abort() ;
-	  break ;
-	}
-	}
-      }
-
-      for (int ir=0; ir<mg->get_nr(idom[irv]); ir++) {
-	*p_out = cheb[fact*ir+par] ;
-	p_out++ ;
-      }
+	    for (int ir=0; ir<mg->get_nr(idom[irv]); ir++) {
+		*p_out = cheb[fact*ir+par] ;
+		p_out++ ;
+	    }
+	} // Loop on it
 
     } // Loop on ip
     delete [] cheb ;
@@ -634,6 +649,14 @@ void Gval_spher::initialize_spectral_theta(const Map& mp, const Base_val& base,
     for (int mpm=0; mpm < npm+2; mpm++) {
       for (int ltm=0; ltm<ntm; ltm++) {
 	switch (base_t)  { //## One should use array of functions...
+	case T_COS : {
+	  *p_out = cos(ltm*teta) ;
+	  break ;
+	}
+	case T_SIN : {
+	  *p_out  = sin(ltm*teta) ;
+	  break ;
+	}
 	case T_COS_P : {
 	  *p_out  = cos(2*ltm*teta) ;
 	  break ;

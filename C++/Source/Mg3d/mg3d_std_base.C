@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2009/10/08 16:21:02  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.8  2008/10/29 08:21:35  jl_cornou
  * Spectral bases for pseudo vectors added
  *
@@ -369,6 +372,64 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		break ;	// fin du cas type_t = SYM
 		    
 		    
+		case NONSYM :  	
+// pas de symetrie en theta  :  theta dans [0, pi]	    
+//------------------------------------------------
+		base1 = base1 | T_SIN ; 
+		base2 = base2 | T_SIN ; 
+		base3 = base3 | T_COS ; 
+
+// Base en r :
+//------------
+		switch ( type_r0 ) {
+		    
+		    case FIN : 			 
+// echantillonnage fin
+		    
+		    base1 = base1 | R_CHEB  ;  
+		    base2 = base2 | R_CHEB  ;  
+		    base3 = base3 | R_CHEB  ;  
+		    break ;
+
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
+		    break ;
+
+		    case RARE : 		 
+// echantillonnage rarefie
+
+		    base1 = base1 | R_CHEBPI_P ;  
+		    base2 = base2 | R_CHEBPI_P ;  
+		    base3 = base3 | R_CHEBPI_P ;  
+		    
+		    break ;
+
+		    case UNSURR : 		    
+// echantillonnage fin (1/r)
+
+		    base1 = base1 | R_CHEBU  ;  
+		    base2 = base2 | R_CHEBU  ;  
+		    base3 = base3 | R_CHEBU  ;  
+		    break ;
+
+
+		    default : 
+			cout << 
+	    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
+			  << type_p<< " " << type_t<< " " <<type_r0 << endl ;
+			cout << 
+			  " dans la zone l = " << l << " n'est pas prevu ! " 
+			  << endl ;
+			  abort () ;
+		}
+
+		break ;	// fin du cas type_t = NONSYM
+		    
+
 		default : 
 		    cout << 
 	    "Mg3d::std_base_vect_cart : le cas type_p, type_t = " 
@@ -420,26 +481,26 @@ Base_val** Mg3d::std_base_vect_cart() const {
 
 Base_val** Mg3d::std_base_vect_spher() const {
      
-  // nbre de zones :
-  int nz = get_nzone() ;
-  
-  // Tableau contenant le resultat...
-  Base_val** bases = new (Base_val* [3]) ;
-  for (int i=0 ; i<3 ; i++)
-    bases[i] = new Base_val(nz) ;
-  
-  // Boucle sur les differentes zones :
-  for (int l=0; l<nzone; l++) {
+    // nbre de zones :
+    int nz = get_nzone() ;
     
-    // Type d'echantillonnage de la zone l :
-    int type_r0 = get_type_r(l) ;
+    // Tableau contenant le resultat...
+    Base_val** bases = new (Base_val* [3]) ;
+    for (int i=0 ; i<3 ; i++)
+	bases[i] = new Base_val(nz) ;
     
-    // Bases de developpement en (r,theta,phi) a determiner pour les 
-    // composantes (1,2,3) du vecteur : 
+    // Boucle sur les differentes zones :
+    for (int l=0; l<nzone; l++) {
 	
-    int base1,  base2, base3 ;	
-    switch ( type_p ) {
+	// Type d'echantillonnage de la zone l :
+	int type_r0 = get_type_r(l) ;
 	
+	// Bases de developpement en (r,theta,phi) a determiner pour les 
+	// composantes (1,2,3) du vecteur : 
+	
+	int base1,  base2, base3 ;	
+	switch ( type_p ) {
+	    
     case NONSYM : 	
 //---------------------------------------------------------
 // Cas sans symetrie sur phi : phi dans [0, 2 pi[
@@ -511,42 +572,42 @@ Base_val** Mg3d::std_base_vect_spher() const {
 
 	break ;	// fin du cas type_t = SYM
 		    
-      case NONSYM :  	
+	  case NONSYM :  	
 // pas de symetrie en theta  :  theta dans [0, pi]	    
 //------------------------------------------------
-
-	base1 = base1 | T_COSSIN_C ; 
-	base2 = base2 | T_COSSIN_S ; 
-	base3 = base3 | T_COSSIN_S ; 
-
+	      
+	      base1 = base1 | T_COSSIN_C ; 
+	      base2 = base2 | T_COSSIN_S ; 
+	      base3 = base3 | T_COSSIN_S ; 
+	      
 	// Base en r :
 	//------------
-	switch ( type_r0 ) {
-		    
-	case FIN : 			 
+	      switch ( type_r0 ) {
+		  
+		  case FIN : 			 
 // echantillonnage fin
-		    
-	  base1 = base1 | R_CHEB  ;  
-	  base2 = base2 | R_CHEB  ;  
-	  base3 = base3 | R_CHEB  ;  
-	  break ;
+		      
+		      base1 = base1 | R_CHEB  ;  
+		      base2 = base2 | R_CHEB  ;  
+		      base3 = base3 | R_CHEB  ;  
+		      break ;
 
-		    case FINJAC : 			 
+		  case FINJAC : 			 
 // echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
-
-	case RARE : 		 
+		      
+		      base1 = base1 | R_JACO02  ;  
+		      base2 = base2 | R_JACO02  ;  
+		      base3 = base3 | R_JACO02  ;  
+		      break ;
+		      
+		  case RARE : 		 
 // echantillonnage rarefie
-
-	  base1 = base1 | R_CHEBPI_I ;  
-	  base2 = base2 | R_CHEBPI_I ;  
-	  base3 = base3 | R_CHEBPI_P ;  
+		      
+		      base1 = base1 | R_CHEBPI_I ;  
+		      base2 = base2 | R_CHEBPI_I ;  
+		      base3 = base3 | R_CHEBPI_P ;  
 		    
-	  break ;
+		      break ;
 
 	case UNSURR : 		    
 // echantillonnage fin (1/r)
@@ -581,7 +642,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
       break ;	// fin du cas sans symetrie pour phi 
 
 
-    case SYM : 	
+	    case SYM : 	
 //---------------------------------------------------------
 // Cas symetrie phi -> phi + pi :  phi in [0, pi]
 //---------------------------------------------------------
@@ -652,13 +713,58 @@ Base_val** Mg3d::std_base_vect_spher() const {
 
 	break ;	// fin du cas type_t = SYM
 		    
+	  case NONSYM :  	
+// pas de symetrie en theta  :  theta dans [0, pi]	    
+//------------------------------------------------
+	      
+	      base1 = base1 | T_COS ; 
+	      base2 = base2 | T_SIN ; 
+	      base3 = base3 | T_SIN ; 
+	      
+	// Base en r :
+	//------------
+	      switch ( type_r0 ) {
+		  
+		  case FIN : 			 
+// echantillonnage fin
+		      
+		      base1 = base1 | R_CHEB  ;  
+		      base2 = base2 | R_CHEB  ;  
+		      base3 = base3 | R_CHEB  ;  
+		      break ;
+
+		  case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		      
+		      base1 = base1 | R_JACO02  ;  
+		      base2 = base2 | R_JACO02  ;  
+		      base3 = base3 | R_JACO02  ;  
+		      break ;
+		      
+		  case RARE : 		 
+// echantillonnage rarefie
+		      
+		      base1 = base1 | R_CHEBPI_I ;  
+		      base2 = base2 | R_CHEBPI_I ;  
+		      base3 = base3 | R_CHEBPI_P ;  
+		    
+		      break ;
+
+	case UNSURR : 		    
+// echantillonnage fin (1/r)
+
+	  base1 = base1 | R_CHEBU  ;  
+	  base2 = base2 | R_CHEBU  ;  
+	  base3 = base3 | R_CHEBU  ;  
+	  break ;
+
       default : 
 	cout << "Mg3d::std_base_vect_spher : le cas type_p, type_t = " 
 	     << type_p<< " " <<type_t << endl ;
 	cout << " dans la zone l = " << l << " n'est pas prevu ! " 
 	     << endl ;
 	abort () ;
-	
+	      }
       }	// fin des cas sur type_t 
 
       break ;	// fin du cas symetrie phi -> phi + pi
@@ -671,12 +777,12 @@ Base_val** Mg3d::std_base_vect_spher() const {
       abort () ;
 	    
 	    
-    }	// Fin des cas en phi
+	}	// Fin des cas en phi
 	
-    bases[0]->b[l] = base1 ;
-    bases[1]->b[l] = base2 ;
-    bases[2]->b[l] = base3 ;
-  }	//fin de la boucle sur les zones.
+	bases[0]->b[l] = base1 ;
+	bases[1]->b[l] = base2 ;
+	bases[2]->b[l] = base3 ;
+    }	//fin de la boucle sur les zones.
   
   return bases ;
 }
@@ -824,9 +930,9 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 		    case RARE : 		 
 // echantillonnage rarefie
 
-		    base1 = base1 | R_CHEBPI_I ;  
-		    base2 = base2 | R_CHEBPI_I ;  
-		    base3 = base3 | R_CHEBPI_I ;  
+		    base1 = base1 | R_CHEBPI_P ;  
+		    base2 = base2 | R_CHEBPI_P ;  
+		    base3 = base3 | R_CHEBPI_P ;  
 		    
 		    break ;
 
@@ -942,6 +1048,63 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 
 		break ;	// fin du cas type_t = SYM
 		    
+		    
+		case NONSYM :  	
+// pas de symetrie en theta  :  theta dans [0, pi]	    
+//------------------------------------------------
+		base1 = base1 | T_SIN ; 
+		base2 = base2 | T_SIN ; 
+		base3 = base3 | T_COS ; 
+
+// Base en r :
+//------------
+		switch ( type_r0 ) {
+		    
+		    case FIN : 			 
+// echantillonnage fin
+		    
+		    base1 = base1 | R_CHEB  ;  
+		    base2 = base2 | R_CHEB  ;  
+		    base3 = base3 | R_CHEB  ;  
+		    break ;
+
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
+		    break ;
+
+		    case RARE : 		 
+// echantillonnage rarefie
+
+		    base1 = base1 | R_CHEBPI_P ;  
+		    base2 = base2 | R_CHEBPI_P ;  
+		    base3 = base3 | R_CHEBPI_P ;  
+		    
+		    break ;
+
+		    case UNSURR : 		    
+// echantillonnage fin (1/r)
+
+		    base1 = base1 | R_CHEBU  ;  
+		    base2 = base2 | R_CHEBU  ;  
+		    base3 = base3 | R_CHEBU  ;  
+		    break ;
+
+
+		    default : 
+			cout << 
+	    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
+			  << type_p<< " " << type_t<< " " <<type_r0 << endl ;
+			cout << 
+			  " dans la zone l = " << l << " n'est pas prevu ! " 
+			  << endl ;
+			  abort () ;
+		}
+
+		break ;	// fin du cas type_t = NONSYM
 		    
 		default : 
 		    cout << 
@@ -1116,9 +1279,9 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 	case RARE : 		 
 // echantillonnage rarefie
 
-	  base1 = base1 | R_CHEBPI_P ;  
-	  base2 = base2 | R_CHEBPI_P ;  
-	  base3 = base3 | R_CHEBPI_I ;  
+	  base1 = base1 | R_CHEBPI_I ;  
+	  base2 = base2 | R_CHEBPI_I ;  
+	  base3 = base3 | R_CHEBPI_P ;  
 		    
 	  break ;
 
@@ -1140,7 +1303,7 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 	  abort () ;
 	}
 
-	break ;	// fin du cas type_t = SYM
+	break ;	// fin du cas type_t = NONSYM
 		    
 		    
       default : 
@@ -1226,6 +1389,60 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 
 	break ;	// fin du cas type_t = SYM
 		    
+	  case NONSYM :  	
+// pas de symetrie en theta  :  theta dans [0, pi]	    
+//------------------------------------------------
+	      
+	      base1 = base1 | T_COS ; 
+	      base2 = base2 | T_SIN ; 
+	      base3 = base3 | T_SIN ; 
+	      
+	// Base en r :
+	//------------
+	      switch ( type_r0 ) {
+		  
+		  case FIN : 			 
+// echantillonnage fin
+		      
+		      base1 = base1 | R_CHEB  ;  
+		      base2 = base2 | R_CHEB  ;  
+		      base3 = base3 | R_CHEB  ;  
+		      break ;
+
+		  case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		      
+		      base1 = base1 | R_JACO02  ;  
+		      base2 = base2 | R_JACO02  ;  
+		      base3 = base3 | R_JACO02  ;  
+		      break ;
+		      
+		  case RARE : 		 
+// echantillonnage rarefie
+		      
+		      base1 = base1 | R_CHEBPI_I ;  
+		      base2 = base2 | R_CHEBPI_I ;  
+		      base3 = base3 | R_CHEBPI_P ;  
+		    
+		      break ;
+
+	case UNSURR : 		    
+// echantillonnage fin (1/r)
+
+	  base1 = base1 | R_CHEBU  ;  
+	  base2 = base2 | R_CHEBU  ;  
+	  base3 = base3 | R_CHEBU  ;  
+	  break ;
+
+      default : 
+	cout << "Mg3d::std_base_vect_spher : le cas type_p, type_t = " 
+	     << type_p<< " " <<type_t << endl ;
+	cout << " dans la zone l = " << l << " n'est pas prevu ! " 
+	     << endl ;
+	abort () ;
+	
+      }	// fin des cas sur type_t 
+
       default : 
 	cout << "Mg3d::std_base_vect_spher : le cas type_p, type_t = " 
 	     << type_p<< " " <<type_t << endl ;

@@ -27,6 +27,9 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/08 16:20:13  j_novak
+ * Addition of new bases T_COS and T_SIN.
+ *
  * Revision 1.6  2008/08/27 08:46:30  jl_cornou
  * Added R_JACO02 base (Jacobi(0,2) polynomials)
  *
@@ -427,6 +430,40 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 		}
 		break ;
 	    
+	    case T_COS :
+		switch (b2_t) {
+		    case T_COS :
+			base = base | T_COS ;
+			indic_t = 1 ;
+			break ;
+		    
+		    case T_SIN :
+			base = base | T_SIN ;
+			indic_t = 1 ;
+			break ;
+
+		    default :
+			break ;
+		}
+		break ;
+	    
+	    case T_SIN :
+		switch (b2_t) {
+		    case T_SIN :
+			base = base | T_COS ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_COS :
+			base = base | T_SIN ;
+			indic_t = 1 ;
+			break ;
+
+		    default :
+			break ;
+		}
+		break ;
+
 	    case T_LEG_I :
 		switch (b2_t) {
 		    case T_LEG_P :
@@ -447,6 +484,18 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 		switch (b2_t) {
 		    case T_LEG :
 			base = base | T_LEG ;
+			indic_t = 1 ;
+			break ;
+		   
+		    default :
+			break ;
+		}
+		break ; 
+	    
+	    case T_LEG_MP :
+		switch (b2_t) {
+		    case T_LEG_MP :
+			base = base | T_LEG_MP ;
 			indic_t = 1 ;
 			break ;
 		   
