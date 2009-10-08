@@ -83,10 +83,10 @@ class Excision_surf {
 	mutable Scalar* p_get_BC_conf_fact_4 ; ///< Source of Birichlet boundary condition on \f$ \psi \f$, 
 	mutable Scalar* p_get_BC_lapse_2 ;   ///< Source of Dirichlet boundary condition of \f$ N \f$
 	mutable Vector* p_get_BC_shift_2 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$
-	mutable Scalar* p_get_BC_Npsi_2 ; ///<  Source of Dirichlet boundary condition on \f$ \Npsi \f$.
-	mutable Scalar* p_get_BC_Npsi_3 ; ///<  Source of Dirichlet boundary condition on \f$ \Npsi \f$.
-	mutable Scalar* p_get_BC_Npsi_4 ; ///<  Source of Dirichlet boundary condition on \f$ \Npsi \f$.
-	mutable Scalar* p_get_BC_Npsi_5 ; ///<  Source of Neumann boundary condition on \f$ \Npsi \f$.
+	mutable Scalar* p_get_BC_Npsi_2 ; ///<  Source of Dirichlet boundary condition on \f$ N\psi \f$.
+	mutable Scalar* p_get_BC_Npsi_3 ; ///<  Source of Dirichlet boundary condition on \f$ N\psi \f$.
+	mutable Scalar* p_get_BC_Npsi_4 ; ///<  Source of Dirichlet boundary condition on \f$ N\psi \f$.
+	mutable Scalar* p_get_BC_Npsi_5 ; ///<  Source of Neumann boundary condition on \f$ N\psi \f$.
 
     // Constructors - Destructor
     // -------------------------
