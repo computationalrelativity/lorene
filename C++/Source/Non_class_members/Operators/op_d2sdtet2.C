@@ -36,6 +36,9 @@ char op_d2dtet2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/10/09 14:00:54  j_novak
+ * New bases T_cos and T_SIN.
+ *
  * Revision 1.3  2006/03/10 12:45:38  j_novak
  * Use of C++-style cast.
  *
@@ -76,6 +79,152 @@ void _d2sdtet2_pas_prevu(Tbl* , int & b) {
     cout << "Unknown theta basis in Mtbl_cf::d2sdt2() !" << endl ;
     cout << " basis: " << hex << b << endl ;
     abort() ; 
+}
+
+// cas T_COS
+//----------
+void _d2sdtet2_t_cos(Tbl* tb, int &)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cx = 0 ;
+    static int nt_pre =0 ;
+
+    // Test sur nt pour initialisation eventuelle
+    if (nt > nt_pre) {
+	nt_pre = nt ;
+	cx = reinterpret_cast<double*>(realloc(cx, nt * sizeof(double))) ;
+	for (int i=0 ; i<nt ; i++) {
+	    cx[i] = - double(i * i) ;
+	    }
+	}
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }    
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    // k = 0
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cx[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+
+    // k = 1
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
+    // k >= 2
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
+    
+    for (int k=2 ; k<borne_phi ; k++) {
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cx[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}
+
+// cas T_SIN
+//----------
+void _d2sdtet2_t_sin(Tbl* tb, int &)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cx = 0 ;
+    static int nt_pre =0 ;
+
+    // Test sur nt pour initialisation eventuelle
+    if (nt > nt_pre) {
+	nt_pre = nt ;
+	cx = reinterpret_cast<double*>(realloc(cx, nt * sizeof(double))) ;
+	for (int i=0 ; i<nt ; i++) {
+	    cx[i] = - double(i * i) ;
+	}
+    }
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
+    
+    for (int k=0 ; k< borne_phi ; k++) {
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cx[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
 }
 
 // cas T_COS_P

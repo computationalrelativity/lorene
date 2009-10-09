@@ -25,6 +25,9 @@ char op_mult_st_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/10/09 14:00:54  j_novak
+ * New bases T_cos and T_SIN.
+ *
  * Revision 1.5  2007/12/21 10:43:37  j_novak
  * Corrected some bugs in the case nt=1 (1 point in theta).
  *
@@ -83,6 +86,320 @@ void _mult_st_pas_prevu(Tbl * tb, int& base) {
   exit(-1) ;
 }
 
+		    //--------------
+		    // cas T_COS
+		    //--------------
+		    
+void _mult_st_t_cos(Tbl* tb, int & b)
+{
+
+  // Peut-etre rien a faire ?
+  if (tb->get_etat() == ETATZERO) {
+    int base_r = b & MSQ_R ;
+    int base_p = b & MSQ_P ;
+    switch(base_r){
+    case(R_CHEBPI_P):
+      b = R_CHEBPI_I | base_p | T_SIN ;
+      break ;
+    case(R_CHEBPI_I):
+      b = R_CHEBPI_P | base_p | T_SIN ;
+      break ;  
+    default:
+      b = base_r | base_p | T_SIN ;
+      break;
+    }
+    return ;
+  }
+    
+  // Protection
+  assert(tb->get_etat() == ETATQCQ) ;
+  
+  // Pour le confort : nbre de points reels.
+  int nr = (tb->dim).dim[0] ;
+  int nt = (tb->dim).dim[1] ;
+  int np = (tb->dim).dim[2] ;
+  np = np - 2 ;
+  
+  // zone de travail
+  double* som = new double [nr] ;
+  
+  // pt. sur le tableau de double resultat
+  double* xo = new double[(tb->dim).taille] ;
+  
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+  // On y va...
+  double* xi = tb->t ;
+  double* xci = xi ;	// Pointeurs
+  double* xco = xo ;	//  courants
+  
+  // k = 0
+  
+  // Dernier j: j = nt-1
+  // Positionnement
+  xci += nr * (nt-1) ;
+  xco += nr * (nt-1) ;
+  
+  // Initialisation de som 
+  for (int i=0 ; i<nr ; i++) {
+    som[i] = -0.5*xci[i] ;
+    xco[i] = 0. ;	// mise a zero du dernier coef en theta
+  }
+  
+  // j suivants
+  for (int j=nt-2 ; j > 0 ; j--) {
+    // Positionnement
+    xci -= 2*nr ;
+    xco -= nr ;
+    // Calcul
+    for (int i=0 ; i<nr ; i++ ) {
+      som[i] += 0.5*xci[i] ;
+      xco[i] = som[i] ;
+    }	// Fin de la boucle sur r
+    xci += nr ;
+    for (int i=0; i<nr; i++) {
+      som[i] = -0.5*xci[i] ;
+    }
+  }   // Fin de la boucle sur theta
+      // j = 0 
+  xci -= nr ;
+  for (int i=0 ; i<nr ; i++ ) {
+    xco[i] += 0.5*xci[i] ;
+  }
+  xco -= nr ;
+  for (int i=0; i<nr; i++) {
+    xco[i] = 0 ;
+  }
+  // Positionnement phi suivant
+  xci += nr*nt ;
+  xco += nr*nt ;
+  
+  // k = 1
+  xci += nr*nt ;
+  xco += nr*nt ;
+  
+  // k >= 2
+  for (int k=2 ; k<np+1 ; k++) {
+    
+    // Dernier j: j = nt-1
+    // Positionnement
+    xci += nr * (nt-1) ;
+    xco += nr * (nt-1) ;
+    
+    // Initialisation de som
+    for (int i=0 ; i<nr ; i++) {
+      som[i] = -0.5*xci[i] ;
+      xco[i] = 0. ; // mise a zero dui dernier coefficient en theta.
+    }
+    
+    // j suivants
+    for (int j=nt-2 ; j > 0 ; j--) {
+      // Positionnement
+      xci -= 2*nr ;
+      xco -= nr ;
+      // Calcul
+      for (int i=0 ; i<nr ; i++ ) {
+	som[i] += 0.5*xci[i] ;
+	xco[i] = som[i] ;
+      }	// Fin de la boucle sur r
+      xci += nr ;
+      for (int i=0; i<nr; i++) {
+	som[i] = -0.5*xci[i] ;
+      }
+    }   // Fin de la boucle sur theta
+    // j = 0
+    xci -= nr ;
+    for (int i = 0; i<nr; i++) {
+      xco[i] += 0.5*xci[i] ;
+    }
+    xco -= nr ;
+    for (int i=0; i<nr; i++) {
+      xco[i] = 0 ;
+    }
+    // Positionnement phi suivant
+    xci += nr*nt ;
+    xco += nr*nt ;
+  }	// Fin de la boucle sur phi
+  
+  // On remet les choses la ou il faut
+  delete [] tb->t ;
+  tb->t = xo ;
+  
+  //Menage
+  delete [] som ;
+  
+  // base de developpement
+  int base_r = b & MSQ_R ;
+  int base_p = b & MSQ_P ;
+  switch(base_r){
+  case(R_CHEBPI_P):
+    b = R_CHEBPI_I | base_p | T_SIN ;
+    break ;
+  case(R_CHEBPI_I):
+    b = R_CHEBPI_P | base_p | T_SIN ;
+    break ;  
+  default:
+    b = base_r | base_p | T_SIN ;
+      break;
+  }
+}
+			
+			//------------
+			// cas T_SIN
+			//------------
+			
+void _mult_st_t_sin(Tbl* tb, int & b)
+{
+  // Peut-etre rien a faire ?
+  if (tb->get_etat() == ETATZERO) {
+    int base_r = b & MSQ_R ;
+    int base_p = b & MSQ_P ;
+    switch(base_r){
+    case(R_CHEBPI_P):
+      b = R_CHEBPI_I | base_p | T_COS ;
+      break ;
+    case(R_CHEBPI_I):
+      b = R_CHEBPI_P | base_p | T_COS ;
+      break ;  
+    default:
+      b = base_r | base_p | T_COS ;
+      break;
+    }
+    return ;
+  }
+  
+  // Protection
+  assert(tb->get_etat() == ETATQCQ) ;
+  
+  // Pour le confort : nbre de points reels.
+  int nr = (tb->dim).dim[0] ;
+  int nt = (tb->dim).dim[1] ;
+  int np = (tb->dim).dim[2] ;
+  np = np - 2 ;
+  
+  // zone de travail
+  double* som = new double [nr] ;
+  
+  // pt. sur le tableau de double resultat
+  double* xo = new double[(tb->dim).taille] ;
+  
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+  // On y va...
+  double* xi = tb->t ;
+  double* xci = xi ;	// Pointeurs
+  double* xco = xo ;	//  courants
+  
+  // k = 0
+  
+  // Dernier j: j = nt-1
+  // Positionnement
+  xci += nr * (nt-1) ;
+  xco += nr * (nt-1) ;
+  
+  // Initialisation de som
+  for (int i=0 ; i<nr ; i++) {
+    som[i] = 0.5*xci[i] ;
+    xco[i] = 0. ;
+  }
+  
+  // j suivants
+  for (int j=nt-2 ; j > 0 ; j--) {
+    // Positionnement
+    xci -= 2*nr ;
+    xco -= nr ;
+    // Calcul
+    for (int i=0 ; i<nr ; i++ ) {
+      som[i] -= 0.5*xci[i] ;
+      xco[i] = som[i] ;
+    }	// Fin de la boucle sur r
+    xci += nr ;
+    for (int i=0; i<nr; i++) {
+      som[i] = 0.5*xci[i] ;
+    }
+  }   // Fin de la boucle sur theta
+      // j = 0
+  xci -= nr ;
+  xco -= nr  ;
+  for (int i =0; i<nr ; i++) {
+    xco[i] = som[i] ;
+  }
+  // Positionnement phi suivant
+  xci += nr*nt ;
+  xco += nr*nt ;
+  
+  // k = 1
+  xci += nr*nt ;
+  xco += nr*nt ;
+  
+  // k >= 2
+  for (int k=2 ; k<np+1 ; k++) {
+    
+    // Dernier j: j = nt-1
+    // Positionnement
+    xci += nr * (nt-1) ;
+    xco += nr * (nt-1) ;
+    
+    // Initialisation de som
+    for (int i=0 ; i<nr ; i++) {
+      som[i] = 0.5*xci[i] ;
+      xco[i] = 0. ;
+    }
+    
+    // j suivants
+    for (int j=nt-2 ; j > 0 ; j--) {
+      // Positionnement
+      xci -= 2*nr ;
+      xco -= nr ;
+      // Calcul
+      for (int i=0 ; i<nr ; i++ ) {
+	som[i] -= 0.5*xci[i] ;
+	xco[i] = som[i] ;
+      }	// Fin de la boucle sur r
+	xci += nr ;
+	for (int i=0 ; i<nr ; i++ ) {
+	  som[i] = 0.5*xci[i] ;
+	}
+    }   // Fin de la boucle sur theta
+    // j = 0 
+    xci -= nr ;
+    xco -= nr ;
+    for (int i=0; i<nr; i++) {
+      xco[i] = som[i] ;
+    }
+    // Positionnement phi suivant
+    xci += nr*nt ;
+    xco += nr*nt ;
+  }	// Fin de la boucle sur phi
+  
+  // On remet les choses la ou il faut
+  delete [] tb->t ;
+  tb->t = xo ;
+  
+  //Menage
+  delete [] som ;
+  
+  // base de developpement
+  int base_r = b & MSQ_R ;
+  int base_p = b & MSQ_P ;
+  switch(base_r){
+  case(R_CHEBPI_P):
+    b = R_CHEBPI_I | base_p | T_COS ;
+    break ;
+  case(R_CHEBPI_I):
+    b = R_CHEBPI_P | base_p | T_COS ;
+    break ;  
+  default:
+    b = base_r | base_p | T_COS ;
+    break;
+  }
+}
 		    //----------------
 		    // cas T_COS_P
 		    //----------------

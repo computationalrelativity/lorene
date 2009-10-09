@@ -34,6 +34,9 @@ char valeur_mult_ct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2009/10/09 14:01:06  j_novak
+ * New bases T_cos and T_SIN.
+ *
  * Revision 1.2  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -69,6 +72,8 @@ char valeur_mult_ct_C[] = "$Header$" ;
 
 // Local prototypes
 void _mult_ct_pas_prevu (Tbl*, int&) ;
+void _mult_ct_t_cos (Tbl*, int&) ;
+void _mult_ct_t_sin (Tbl*, int&) ;
 void _mult_ct_t_sin_p (Tbl*, int&) ;
 void _mult_ct_t_sin_i (Tbl*, int&) ;
 void _mult_ct_t_cos_i (Tbl*, int&) ;
@@ -139,6 +144,8 @@ static int nap = 0 ;
 	    _mult_ct[i] = _mult_ct_pas_prevu ;
 	}
 	// Les routines existantes
+	_mult_ct[T_COS >> TRA_T] = _mult_ct_t_cos ;
+	_mult_ct[T_SIN >> TRA_T] = _mult_ct_t_sin ;
 	_mult_ct[T_COS_P >> TRA_T] = _mult_ct_t_cos_p ;
 	_mult_ct[T_COS_I >> TRA_T] = _mult_ct_t_cos_i ;
 	_mult_ct[T_SIN_P >> TRA_T] = _mult_ct_t_sin_p ;
