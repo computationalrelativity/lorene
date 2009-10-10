@@ -34,6 +34,9 @@ char valeur_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/10/10 18:28:11  j_novak
+ * New bases T_COS and T_SIN.
+ *
  * Revision 1.3  2004/12/17 13:35:05  m_forot
  * Add the case T_LEG
  *
@@ -83,6 +86,8 @@ char valeur_ssint_C[] = "$Header$" ;
 
 // Local prototypes
 void _ssint_pas_prevu (Tbl*, int&) ;
+void _ssint_t_cos (Tbl*, int&) ;
+void _ssint_t_sin (Tbl*, int&) ;
 void _ssint_t_sin_p (Tbl*, int&) ;
 void _ssint_t_sin_i (Tbl*, int&) ;
 void _ssint_t_cos_i (Tbl*, int&) ;
@@ -152,6 +157,8 @@ static int nap = 0 ;
 	    _ssint[i] = _ssint_pas_prevu ;
 	}
 	// Les routines existantes
+	_ssint[T_COS >> TRA_T] = _ssint_t_cos ;
+	_ssint[T_SIN >> TRA_T] = _ssint_t_sin ;
 	_ssint[T_COS_P >> TRA_T] = _ssint_t_cos_p ;
 	_ssint[T_COS_I >> TRA_T] = _ssint_t_cos_i ;
 	_ssint[T_SIN_P >> TRA_T] = _ssint_t_sin_p ;
