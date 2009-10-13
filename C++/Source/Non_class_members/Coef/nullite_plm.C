@@ -26,6 +26,9 @@ char nullite_plm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2009/10/13 19:45:01  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.4  2005/02/16 15:19:55  m_forot
  * Add the case T_LEG
  *
@@ -199,6 +202,19 @@ int nullite_plm_t_leg_ii(int j, int nt, int k, int np) {
     return 0 ; else return 1 ; 
 }
 
+	 //------------------------------------------------------
+	// Developpement en P_COSSIN_P pour phi et T_LEG_MP en theta
+       //------------------------------------------------------
+
+int nullite_plm_t_leg_mp (int j, int nt, int k, int np) {
+    
+    int m = (k%2 == 0) ? k : k-1 ;
+    int borne_inf = m ;
+    int borne_sup = nt-1 ;
+    if ((j<borne_inf) || (j>borne_sup) || (k==1) || (k>np)) 
+    return 0 ; else return 1 ; 
+}
+
 
 
 
@@ -247,6 +263,10 @@ int nullite_plm (int j, int nt, int k, int np, Base_val base) {
 	    
 		case T_LEG_IP :
 		  result = nullite_plm_t_leg_ip (j, nt, k, np) ;
+		  break ;  
+	    
+		case T_LEG_MP :
+		  result = nullite_plm_t_leg_mp (j, nt, k, np) ;
 		  break ;  
 	    
 		default :

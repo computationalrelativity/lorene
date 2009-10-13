@@ -33,6 +33,9 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/10/13 19:44:41  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.3  2005/04/04 21:32:13  e_gourgoulhon
  * Added argument lambda to method poisson_angu
  * to deal with the generalized angular Poisson equation:
@@ -64,6 +67,7 @@ void _poisangu_t_leg_pp(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_ip(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_pi(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_ii(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_mp(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg(Mtbl_cf *, int, double) ;
 
 //*****************************************************************************
@@ -86,6 +90,7 @@ void Mtbl_cf::poisson_angu(double lambda) {
 		poisangu[T_LEG_I >> TRA_T] = _poisangu_t_leg_i ;
 		poisangu[T_LEG_IP >> TRA_T] = _poisangu_t_leg_ip ;
 		poisangu[T_LEG_PI >> TRA_T] = _poisangu_t_leg_pi ;
+		poisangu[T_LEG_MP >> TRA_T] = _poisangu_t_leg_mp ;
 		poisangu[T_LEG >> TRA_T] = _poisangu_t_leg ;
     }
 

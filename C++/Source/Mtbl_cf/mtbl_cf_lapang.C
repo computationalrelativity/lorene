@@ -33,6 +33,9 @@ char mtbl_cf_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/10/13 19:44:41  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.3  2004/12/17 13:35:02  m_forot
  * Add the case T_LEG
  *
@@ -74,6 +77,7 @@ void _lapang_t_leg_pp(Mtbl_cf *, int) ;
 void _lapang_t_leg_ip(Mtbl_cf *, int) ;
 void _lapang_t_leg_pi(Mtbl_cf *, int) ;
 void _lapang_t_leg_ii(Mtbl_cf *, int) ;
+void _lapang_t_leg_mp(Mtbl_cf *, int) ;
 void _lapang_t_leg(Mtbl_cf *, int) ;
 
 //*****************************************************************************
@@ -98,6 +102,7 @@ static int nap = 0 ;
 	_lapang[T_LEG_IP >> TRA_T] = _lapang_t_leg_ip ;
 	_lapang[T_LEG_PI >> TRA_T] = _lapang_t_leg_pi ;
 	_lapang[T_LEG_II >> TRA_T] = _lapang_t_leg_ii ;
+	_lapang[T_LEG_MP >> TRA_T] = _lapang_t_leg_mp ;
 	_lapang[T_LEG >> TRA_T] = _lapang_t_leg ;
     }
 

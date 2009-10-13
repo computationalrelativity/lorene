@@ -28,6 +28,9 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/10/13 19:45:01  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.5  2005/02/18 13:14:13  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -162,6 +165,17 @@ void donne_lm_t_leg_ip (int j, int k, int &m_quant, int &l_quant) {
 }
 
 
+	 //------------------------------------------------------
+	// Developpement en P_COSSIN_P pour phi et T_LEG_MP en theta
+       //-------------------------------------------------------
+
+void donne_lm_t_leg_mp (int j, int k, int &m_quant, int &l_quant) {
+
+    m_quant = (k%2 == 0) ? k : k-1;
+    l_quant = j ;
+    
+}
+
 	 //-------------------------------------------------------
 	// Developpement en P_COSSIN_I pour phi et T_LEG_PI en theta
        //---------------------------------------------------------
@@ -242,6 +256,10 @@ void donne_lm (int nz, int zone, int j, int k, Base_val base,
 
 		case T_LEG_PP :
 		    donne_lm_sym (j, k, m_quant, l_quant) ;
+		    break ; 
+
+		case T_LEG_MP :
+		    donne_lm_t_leg_mp (j, k, m_quant, l_quant) ;
 		    break ; 
 
 		case T_LEG_IP :
