@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.44  2009/10/13 13:50:39  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.43  2009/08/31 19:39:07  n_vasset
  * removal of obsolete function get_kerr()
  *
@@ -317,6 +320,7 @@ void cftcossinci(const int*, const int*, double*, const int*, double*) ;
 void cftcossins(const int*, const int*, double*, const int*, double*) ;
 void cftcossinc(const int*, const int*, double*, const int*, double*) ;
 void cftleg(const int*, const int*, double*, const int*, double*) ;
+void cftlegmp(const int*, const int*, double*, const int*, double*) ;
 void cftlegp(const int*, const int*, double*, const int*, double*) ;
 void cftlegpp(const int*, const int*, double*, const int*, double*) ;
 void cftlegi(const int*, const int*, double*, const int*, double*) ;
@@ -344,6 +348,7 @@ void citcossinci(const int*, const int*, double*, const int*, double*) ;
 void citcossins(const int*, const int*, double*, const int*, double*) ;
 void citcossinc(const int*, const int*, double*, const int*, double*) ;
 void citleg(const int*, const int*, double*, const int*, double*) ;
+void citlegmp(const int*, const int*, double*, const int*, double*) ;
 void citlegp(const int*, const int*, double*, const int*, double*) ;
 void citlegpp(const int*, const int*, double*, const int*, double*) ;
 void citlegi(const int*, const int*, double*, const int*, double*) ;
@@ -362,25 +367,23 @@ double* legendre_norm(int , int ) ;
 double* mat_cossincp_legp(int, int) ;   
 double* mat_cossinci_legi(int, int) ; 
 double* mat_cossinc_leg(int, int) ;   
-double* mat_cossins_leg(int, int) ;   
 double* mat_cosp_legpp(int, int) ;   
 double* mat_cosi_legip(int, int) ;   
 double* mat_sini_legpi(int, int) ;   
 double* mat_sinp_legii(int, int) ;   
+double* mat_cos_legmp(int, int) ;   
 double* mat_legp_cossincp(int,  int) ;
 double* mat_legi_cossinci(int,  int) ;
 double* mat_leg_cossinc(int,  int) ;
-double* mat_leg_cossins(int,  int) ;
 double* mat_legpp_cosp(int, int) ;   
 double* mat_legip_cosi(int, int) ;   
 double* mat_legpi_sini(int, int) ;   
 double* mat_legii_sinp(int, int) ;   
+double* mat_legmp_cos(int, int) ;   
 void chb_cossincp_legp(const int* , const double* , double* ) ;
 void chb_legp_cossincp(const int* , const double* , double* ) ;
 void chb_cossinc_leg(const int* , const double* , double* ) ;
 void chb_leg_cossinc(const int* , const double* , double* ) ;
-void chb_cossins_leg(const int* , const double* , double* ) ;
-void chb_leg_cossins(const int* , const double* , double* ) ;
 void chb_cosp_legpp(const int* , const double* , double* ) ;
 void chb_legpp_cosp(const int* , const double* , double* ) ;
 void chb_cosi_legip(const int* , const double* , double* ) ;
@@ -391,6 +394,8 @@ void chb_cossinci_legi(const int* , const double* , double* ) ;
 void chb_legi_cossinci(const int* , const double* , double* ) ;
 void chb_sinp_legii(const int* , const double* , double* ) ;
 void chb_legii_sinp(const int* , const double* , double* ) ;
+void chb_cos_legmp(const int* , const double* , double* ) ;
+void chb_legmp_cos(const int* , const double* , double* ) ;
 
 double int1d_chebp(int, const double* ) ;
 double int1d_chebi(int, const double* ) ;
@@ -706,7 +711,7 @@ void evolve_outgoing_BC(double, int, const Scalar&, Scalar&, Tbl&, Tbl&, Tbl&, i
 void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
 void initialize_outgoing_BC(int, const Scalar& , const Scalar& , Tbl&) ;
 
-// Fonctions liees aux opérateurs elliptiques dégénérés: obtention d'espaces-temps de type Kerr
+// Fonctions liees aux operateurs elliptiques degeneres: obtention d'espaces-temps de type Kerr
 
 
  

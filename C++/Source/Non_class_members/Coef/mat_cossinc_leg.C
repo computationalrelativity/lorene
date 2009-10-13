@@ -66,6 +66,9 @@ char mat_cossinc_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2009/10/13 13:49:36  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.4  2005/02/18 13:14:13  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -198,14 +201,14 @@ int i, indice,  j,  j2,  m,  l ;
 			}
 
 //....... on passe en Tchebyshev vis-a-vis de x=cos(theta) pour	calculer
-//	    l'integrale (routine int1d_chebp) : 		
+//	    l'integrale (routine int1d_cheb) : 		
 			cfrcheb(deg, deg, yy, deg, yy) ;
 			tab[indice][ nt*nt* m + nt*l + j] = 
 					    int1d_cheb(nt2, yy) ;
 
 		    }	// fin de la boucle sur j  (indice de cos(j theta) )
 	    
-		}  // fin de la boucle sur l (indice de P_{l}^m)
+		}  // fin de la boucle sur l (indice de P_l^m)
 	    
 	    
 	    }   // fin du cas m pair

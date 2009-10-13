@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2009/10/13 13:49:58  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.11  2009/10/08 16:23:14  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -166,6 +169,7 @@ void Valeur::coef_i() const {
 	invcf_t[T_LEG_IP >> TRA_T] = citlegip ;
 	invcf_t[T_LEG_PI >> TRA_T] = citlegpi ;
 	invcf_t[T_LEG_II >> TRA_T] = citlegii ;	
+	invcf_t[T_LEG_MP >> TRA_T] = citlegmp ;
 	invcf_t[T_LEG >> TRA_T] = citleg ;
 
 	invcf_p[NONDEF] = ibase_non_def_p ;
@@ -266,14 +270,15 @@ void Valeur::coef_i() const {
 		if ((vbase_t == T_LEG_PP) || (vbase_t == T_LEG_PI) || 
 		    (vbase_t == T_LEG_IP) || (vbase_t == T_LEG_II) ||
 		    (vbase_t == T_LEG_P) || (vbase_t == T_LEG_I) ||
-		    (vbase_t == T_LEG)) {
+		    (vbase_t == T_LEG_MP) || (vbase_t == T_LEG) ) {
 		    
 		    *f /=sqrt(2.) ;		
 		}
 	    }
 	    
 	    else {
-	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
+	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)
+			  || (vbase_t == T_LEG_MP) ) ;
 	    bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
 	    
 	    if ((pair && (vbase_p == P_COSSIN_I)) ||
@@ -286,7 +291,8 @@ void Valeur::coef_i() const {
 	else {
 	  // Cas 3-D
 	  //  ...... Transformation inverse en theta:
-	  bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
+	  bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)
+			|| (vbase_t == T_LEG_MP) ) ;
 	  bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
 	  
 	  if ((pair && (vbase_p == P_COSSIN_I)) ||

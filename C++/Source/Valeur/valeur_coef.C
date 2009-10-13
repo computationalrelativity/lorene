@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2009/10/13 13:49:58  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.11  2008/10/07 15:01:58  j_novak
  * The case nt=1 is now treated separately.
  *
@@ -170,6 +173,7 @@ void Valeur::coef() const {
 	coef_t[T_LEG_IP >> TRA_T] = cftlegip ;
 	coef_t[T_LEG_PI >> TRA_T] = cftlegpi ;
 	coef_t[T_LEG_II >> TRA_T] = cftlegii ;
+	coef_t[T_LEG_MP >> TRA_T] = cftlegmp ;
 	coef_t[T_LEG >> TRA_T] = cftleg ;
 
 	coef_p[NONDEF] = base_non_def_p ;
@@ -278,7 +282,8 @@ void Valeur::coef() const {
 
 	if ( nt > 1 ) {
 	    assert( admissible_fft(nt-1) ) ; 
-	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
+	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)
+			  || (vbase_t == T_LEG_MP) ) ;
 	    bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
 
 	    if ((pair && (vbase_p == P_COSSIN_I)) ||
@@ -291,7 +296,7 @@ void Valeur::coef() const {
 	    if ((vbase_t == T_LEG_PP) || (vbase_t == T_LEG_PI) || 
 		(vbase_t == T_LEG_IP) || (vbase_t == T_LEG_II) ||
 		(vbase_t == T_LEG_P) || (vbase_t == T_LEG_I) ||
-		(vbase_t == T_LEG)) {
+		(vbase_t == T_LEG) || (vbase_t == T_LEG_MP)) {
 	       
 		      *c_cf->t[l] *=sqrt(2.) ;		
 	    }

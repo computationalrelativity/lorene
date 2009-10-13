@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *                 2009 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -20,15 +21,14 @@
  */
 
 
-char chb_leg_cossins_C[] = "$Header$" ;
+char chb_legmp_cos_C[] = "$Header$" ;
 
 /*
  *  Calcule les coefficients du developpement (suivant theta) 
- *  en cos(j*theta) [m impair] / sin(j*theta) [m pair]
+ *  en cos(j*theta) 
  *  a partir des coefficients du developpement en fonctions
- *  associees de Legendre P_l^m(cos(theta)) 
- *  pour une une fonction 3-D symetrique par rapport au plan equatorial
- *  z = 0.
+ *  associees de Legendre P_l^m(cos(theta)) (m pair)
+ *  pour une une fonction 3-D symetrique par le retournement (x, y, z) --> (-x, -y, z). 
  * 
  * Entree:
  * -------
@@ -41,11 +41,9 @@ char chb_leg_cossins_C[] = "$Header$" ;
  *  const double* cfi : tableau des coefficients a_l du develop. en fonctions de
  *		    Legendre associees P_n^m:
  *
- *	pour m impair:	f(theta) = 
- *			    som_{l=m}^{nt-1} a_l P_{l}^m( cos(theta) )
+ *		f(theta) =  som_{l=m}^{nt-1} a_l P_l^m( cos(theta) )
  *			  
- *	pour m pair:  f(theta) = 
- *			    som_{l=m}^{nt-1} a_l P_{l}^m( cos(theta) )
+ *		(m pair) 
  *
  *		    ou P_n^m(x) represente la fonction de Legendre associee
  *		       de degre n et d'ordre m normalisee de facon a ce que
@@ -59,22 +57,16 @@ char chb_leg_cossins_C[] = "$Header$" ;
  *		    tableau cfi comme suit
  *		          a_l = cfi[ nr*nt* k + i + nr* l ]
  *		    ou k et i sont les indices correspondant a phi et r 
- *		    respectivement: m = k/2.
- *		    NB: pour m pair et l < m,  a_l = 0
- *			pour m impair et l < m,  a_l = 0
-
- 
- 
+ *		    respectivement: m = 2 (k/2).
+ *		    NB: pour l < m,  a_l = 0
  *
  * Sortie:
  * -------
  *   double* cfo :  tableau des coefficients c_j du develop. en cos/sin definis
  *			  comme suit (a r et phi fixes) :
  *
- *	pour m pair:	f(theta) = som_{j=0}^{nt-1} c_j cos( j theta ) 
+ *		f(theta) = som_{j=0}^{nt-1} c_j cos( j theta ) 
  *			  
- *	pour m impair:	f(theta) = som_{j=0}^{nt-2} c_j sin( j theta ) 
- *
  * 		    L'espace memoire correspondant au pointeur cfo doit etre 
  *	            nr*nt*(np+2) et doit avoir ete alloue avant 
  *		    l'appel a la routine.	 
@@ -82,9 +74,9 @@ char chb_leg_cossins_C[] = "$Header$" ;
  *		    tableau cfo comme suit
  *		          c_j = cfo[ nr*nt* k + i + nr* j ]
  *		    ou k et i sont les indices correspondant a
- *		    phi et r respectivement: m = k/2.
+ *		    phi et r respectivement: m = 2 (k/2).
  *	            Pour m impair, c_0 = c_{nt-1} = 0.
- 
+ *
  *
  * NB:
  * ---
@@ -94,13 +86,8 @@ char chb_leg_cossins_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2005/02/18 13:14:10  j_novak
- * Changing of malloc/free to new/delete + suppression of some unused variables
- * (trying to avoid compilation warnings).
- *
- * Revision 1.1  2004/11/23 15:13:50  m_forot
- * Added the bases for the cases without any equatorial symmetry
- * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ * Revision 1.1  2009/10/13 13:49:36  j_novak
+ * New base T_LEG_MP.
  *
  *
  * $Header$
@@ -108,9 +95,10 @@ char chb_leg_cossins_C[] = "$Header$" ;
  */
 
 
+
 // headers du C
-#include <assert.h>
 #include <stdlib.h>
+#include <assert.h>
 
 // Prototypage
 #include "headcpp.h"
@@ -118,9 +106,9 @@ char chb_leg_cossins_C[] = "$Header$" ;
 
 //******************************************************************************
 
-void chb_leg_cossins(const int* deg , const double* cfi, double* cfo) {
+void chb_legmp_cos(const int* deg , const double* cfi, double* cfo) {
 
-int ip, k2, l, j, i, m ;
+int k2, l, j, i, m ;
  
 // Nombres de degres de liberte en phi et theta :
     int np = deg[0] ;
@@ -130,33 +118,13 @@ int ip, k2, l, j, i, m ;
     assert(np < 4*nt) ;
 
     // Tableau de travail
-    double* som = new double[nr] ; 
+    double* som = new double[nr] ;
 
 // Recherche de la matrice de passage  Legendre -->  cos/sin 
-    double* bb = mat_leg_cossins(np, nt) ;
+    double* bb = mat_legmp_cos(np, nt) ;
     
 // Increment en m pour la matrice bb :
     int mbb = nt * nt  ;
-
-//## Test
-//    double* bbt = bb ;
-//    cout << "chb_leg_cossins: matrice de passage : " << endl ; 
-//    for ( m=0; m < np/2+1 ; m++) {
-//	cout << "---------------------------------------" << endl ; 
-//	cout << " m = " << m << endl ; 
-//	cout << " " << endl ; 
-//
-//	for (j=0; j<nt; j++) {
-//	    cout << " j = " << j << " : " ; 	    
-//	    for (l=m/2; l<nt; l++) {	
-//		cout << bbt[nt*j + l] << " " ;
-//	    }
-//	    cout << endl ; 
-//	}
-//	arrete() ; 
-//	bbt += mbb ;	// pointeur sur la nouvelle matrice de passage	
-//    }			
-//##    
    
 // Pointeurs de travail :
     double* resu = cfo ;
@@ -168,25 +136,65 @@ int ip, k2, l, j, i, m ;
 // Indice courant en phi :
     int k = 0 ;
 
-// Ordre des harmoniques du developpement de Fourier en phi :
-    m = 0 ;	    
-      
-// --------------
-// Boucle sur phi  : k =    4*ip    4*ip+1   4*ip+2    4*ip+3
-// --------------    m =    2*ip     2*ip    2*ip+1    2*ip+1
-//		     k2 =     0	      1	       0	 1
+//----------------------------------------------------------------
+//		    Cas axisymetrique       
+//----------------------------------------------------------------
 
-    for (ip=0; ip < np/4 + 1 ; ip++) {	    
-    
-//--------------------------------
-//  Partie  m pair
-//--------------------------------
+    if (np == 1) {
 
+	m = 0 ; 
+
+// Boucle sur l'indice j du developpement en cos(j theta) 
+
+		for (j=0; j<nt; j++) {
+
+// ... produit matriciel (parallelise sur r)
+		    for (i=0; i<nr; i++) {
+			som[i] = 0 ; 
+		    }
+
+		    for (l=m; l<nt; l++) {
+		    
+			double bmjl = bb[nt*j + l] ;
+			for (i=0; i<nr; i++) {
+			    som[i] += bmjl * cc[nr*l + i] ;
+			}
+		    }
+		    
+		    for (i=0; i<nr; i++) {
+			*resu = som[i]  ;
+			resu++ ;  
+		    }
+		    
+		}  // fin de la boucle sur j 
+	
+	// Mise a zero des coefficients k=1 et k=2 :
+	// ---------------------------------------
+	
+	for (i=ntnr; i<3*ntnr; i++) {
+	    cfo[i] = 0 ;		 
+	}	    
+
+	// On sort
+	delete [] som ;
+	return ; 
+	
+    }	// fin du cas np=1
+
+
+//----------------------------------------------------------------
+//		    Cas 3-D     
+//----------------------------------------------------------------
+
+
+// Boucle sur phi  : 
+
+    for (m=0; m < np + 1 ; m+=2) {	    
 
 	for (k2=0; k2 < 2; k2++) {  // k2=0 : cos(m phi)  ;   k2=1 : sin(m phi)
 	
 	    if ( (k == 1) || (k == np+1) ) {	// On met les coef de sin(0 phi)
-						// et sin( np/2 phi)  a zero 
+						// et sin( np phi)  a zero 
 		for (j=0; j<nt; j++) {
 		    for (i=0; i<nr; i++) {
 			*resu = 0 ;
@@ -196,7 +204,7 @@ int ip, k2, l, j, i, m ;
 	    }
 	    else {
 
-// Boucle sur l'indice j du developpement en sin(j theta) 
+// Boucle sur l'indice j du developpement en cos(2 j theta) 
 
 		for (j=0; j<nt; j++) {
 
@@ -229,77 +237,15 @@ int ip, k2, l, j, i, m ;
 	}   // fin de la boucle sur k2 
 	
 // On passe a l'harmonique en phi suivante :
-	m++ ;
+
 	bb += mbb ;	// pointeur sur la nouvelle matrice de passage
 	
-//--------------------------------
-//  Partie m impair
-//--------------------------------
-
-	for (k2=0; k2 < 2; k2++) {  // k2=0 : cos(m phi)  ;   k2=1 : sin(m phi)
-	
-	    if ( k == np+1 ) {			// On met les coef de 
-						// sin( np/2 phi)  a zero 
-		for (j=0; j<nt; j++) {
-		    for (i=0; i<nr; i++) {
-			*resu = 0 ;
-			resu++ ; 
-		    }		    
-		}
-	    }
-
-	    if (k < np+1) {  
-
-// Boucle sur l'indice j du developpement en cos( j theta) 
-
-		for (j=0; j<nt-1; j++) {
-
-// ... produit matriciel (parallelise sur r)
-		    for (i=0; i<nr; i++) {
-			som[i] = 0 ; 
-		    }
-
-		    for (l=m; l<nt-1; l++) {
-			double bmjl = bb[nt*j + l] ;
-			for (i=0; i<nr; i++) {
-			    som[i] += bmjl * cc[nr*l + i] ;
-			}
-		    }
-		    
-		    for (i=0; i<nr; i++) {
-			*resu = som[i]  ;
-			resu++ ;  
-		    }
-		    
-		}  // fin de la boucle sur j 
-
-// Dernier coef en j=nt-1 mis a zero pour le cas m impair : 
-		for (i=0; i<nr; i++) {
-		    *resu = 0  ;
-		    resu++ ;  
-		}
-		
-// On passe au phi suivant :
-		cc = cc + ntnr	; 
-		k++ ;
-		
-	    }	// fin du cas k < np+1
-	    
-	}  //  fin de la boucle sur k2 
-	
-
-// On passe a l'harmonique en phi suivante :
-	m++ ;
-	bb += mbb ;	// pointeur sur la nouvelle matrice de passage 
-	
-    }	// fin de la boucle (ip) sur phi  
-
-// Mise a zero des coefficients de sin( np/2 phi ) (k=np+1)
+    }	// fin de la boucle (m) sur phi  
 
 //## verif : 
-//    assert(resu == cfo + (np+2)*ntnr) ;
+    assert(resu == cfo + (np+2)*ntnr) ;
 
     // Menage
     delete [] som ;
-
+    
 }

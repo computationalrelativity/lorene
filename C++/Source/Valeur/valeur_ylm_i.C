@@ -34,6 +34,9 @@ char valeur_ylm_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2009/10/13 13:49:58  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.8  2005/11/22 10:13:44  p_grandclement
  * Correction of the normalization in the case nt=1
  *
@@ -141,8 +144,8 @@ void Valeur::ylm_i() {
 	chbase_t[T_LEG >> TRA_T] = chb_leg_cossinc ;
 	nouv_base_t[T_LEG >> TRA_T] = T_COSSIN_C  ;
 
-	//chbase_t[T_LEG >> TRA_T] = chb_leg_cossins ;
-	//nouv_base_t[T_LEG >> TRA_T] = T_COSSIN_S  ;
+	chbase_t[T_LEG_MP >> TRA_T] = chb_legmp_cos ;
+	nouv_base_t[T_LEG_MP >> TRA_T] = T_COS  ;
 
 	chbase_t[T_LEG_PP >> TRA_T] = chb_legpp_cosp ;
 	nouv_base_t[T_LEG_PP >> TRA_T] = T_COS_P  ;
@@ -193,13 +196,16 @@ void Valeur::ylm_i() {
 	    int vbase_p = base.b[l] & MSQ_P  ;
 	    
 	    if ((vbase_t != T_COSSIN_CP) && (vbase_t != T_COS_I) &&
-	    (vbase_t != T_COS_P) && (vbase_t != T_COSSIN_CI) &&
-		(vbase_t != T_SIN_P) && (vbase_t != T_SIN_I) && (vbase_t != T_COSSIN_C) && (vbase_t != T_COSSIN_S)) 
+		(vbase_t != T_COS_P) && (vbase_t != T_COSSIN_CI) &&
+		(vbase_t != T_SIN_P) && (vbase_t != T_SIN_I) && 
+		(vbase_t != T_COSSIN_C) && (vbase_t != T_COSSIN_S) &&
+		(vbase_t != T_COS) && (vbase_t != T_SIN) ) 
 	      { // cas ou le calcul est necessaire
 	    
 		int vbase_t_tra =  vbase_t  >> TRA_T ;
 		assert(vbase_t_tra < MAX_BASE) ; 
-		bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
+		bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP) ||
+			      (vbase_t == T_LEG_MP) ) ;
 		bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
 
 // Nouvelle base : 

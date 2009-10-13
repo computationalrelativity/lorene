@@ -34,6 +34,9 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2009/10/13 13:49:58  j_novak
+ * New base T_LEG_MP.
+ *
  * Revision 1.8  2005/11/22 10:13:44  p_grandclement
  * Correction of the normalization in the case nt=1
  *
@@ -148,9 +151,6 @@ void Valeur::ylm() {
 	chbase_t[T_COSSIN_C >> TRA_T] = chb_cossinc_leg ;
 	nouv_base_t[T_COSSIN_C >> TRA_T] = T_LEG ;
 
-	chbase_t[T_COSSIN_S >> TRA_T] = chb_cossins_leg ;
-	nouv_base_t[T_COSSIN_S >> TRA_T] = T_LEG ;
-
 	chbase_t[T_COS_P >> TRA_T] = chb_cosp_legpp ;
 	nouv_base_t[T_COS_P >> TRA_T] = T_LEG_PP ;
 
@@ -162,6 +162,9 @@ void Valeur::ylm() {
 
 	chbase_t[T_SIN_P >> TRA_T] = chb_sinp_legii ;
 	nouv_base_t[T_SIN_P >> TRA_T] = T_LEG_II ;
+
+	chbase_t[T_COS >> TRA_T] = chb_cos_legmp ;
+	nouv_base_t[T_COS >> TRA_T] = T_LEG_MP ;
     }
 
 //---------------------------------------------------------------------------
@@ -198,8 +201,9 @@ void Valeur::ylm() {
 	    int vbase_p = base.b[l] & MSQ_P  ;
 
 	    if ((vbase_t != T_LEG_P) && (vbase_t != T_LEG_IP) &&
-	    (vbase_t != T_LEG_PP) && (vbase_t != T_LEG_I) &&
-	    (vbase_t != T_LEG_II) && (vbase_t != T_LEG_PI) && (vbase_t != T_LEG)) 
+		(vbase_t != T_LEG_PP) && (vbase_t != T_LEG_I) &&
+		(vbase_t != T_LEG_II) && (vbase_t != T_LEG_PI) && 
+		(vbase_t != T_LEG) && (vbase_t != T_LEG_MP) ) 
 		{ // cas ou le calcul est necessaire
 
 		int vbase_t_tra = vbase_t >> TRA_T ;
