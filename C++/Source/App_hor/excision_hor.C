@@ -32,23 +32,9 @@ char excision_hor_C[] = "$Header$" ;
 
 // C headers
 #include <math.h>
+#include <assert.h>
 
 // Lorene headers
-#include "metric.h"
-#include "spheroid.h"
-#include "utilitaires.h"
-#include "param.h"
-#include "itbl.h"
-#include "map.h"
-#include <assert.h>
-#include "nbr_spx.h"
-#include "math.h"
-#include "param_elliptic.h"
-#include "tensor.h"
-#include "sym_tensor.h"
-#include "diff.h"
-#include "proto.h"
-#include "param.h" 
 #include "excision_hor.h"
 
 //---------------//
@@ -204,16 +190,14 @@ const Scalar& Excision_hor::get_BC_bmN(int choice_bmN, double value) const{
     bound_bmN.std_spectral_base();
 
 // Radial vector for the full 3-metric.
-     Vector sss = gamij.radial_vect();
-     Vector sss_down = sss.up_down(gamij);
-      Scalar bb = contract (shift,0, sss_down,0);
-      Scalar bmN3 = bb - lapse; bmN3.set_spectral_va().ylm();
-      Scalar bpN3 = bb + lapse; bpN3.set_spectral_va().ylm();  
-      
-  int nz = (*lapse.get_mp().get_mg()).get_nzone();
-  int nr = (*lapse.get_mp().get_mg()).get_nr(1);
-  int nt = (*lapse.get_mp().get_mg()).get_nt(1);
-  int np = (*lapse.get_mp().get_mg()).get_np(1);
+    Vector sss = gamij.radial_vect();
+    Vector sss_down = sss.up_down(gamij);
+    Scalar bb = contract (shift,0, sss_down,0);
+    Scalar bmN3 = bb - lapse; bmN3.set_spectral_va().ylm();
+    Scalar bpN3 = bb + lapse; bpN3.set_spectral_va().ylm();  
+    
+    int nt = (*lapse.get_mp().get_mg()).get_nt(1);
+    int np = (*lapse.get_mp().get_mg()).get_np(1);
     
     Scalar bmN(sph.get_hsurf().get_mp());
     bmN.allocate_all();

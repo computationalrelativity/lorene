@@ -30,40 +30,24 @@ char sol_Dirac_A_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2009/10/23 13:18:46  j_novak
+ * Minor modifications
+ *
  * Revision 1.1  2008/08/27 09:01:27  jl_cornou
  * Methods for solving Dirac systems for divergence free vectors
- *
- * Revision 1.2  2006/10/24 13:03:19  j_novak
- * New methods for the solution of the tensor wave equation. Perhaps, first
- * operational version...
- *
- * Revision 1.1  2006/09/05 15:38:45  j_novak
- * The fuctions sol_Dirac... are in a seperate file, with new parameters to
- * control the boundary conditions.
- *
  *
  * $Header$
  *
  */
 
 
-// C++ headers
-#include "headcpp.h"
-
 // C headers
 #include <stdlib.h>
-
-// Lorene headers
-#include "metric.h"
-#include "nbr_spx.h"
-#include "utilitaires.h"
-
-// C headers
 #include <assert.h>
 #include <math.h>
 
 // Lorene headers
-#include "tensor.h"
+#include "metric.h"
 #include "diff.h"
 #include "proto.h"
 #include "param.h"
@@ -75,7 +59,7 @@ char sol_Dirac_A_poisson_C[] = "$Header$" ;
 //----------------------------------------------------------------------------------
 
 void Vector_divfree::sol_Dirac_A_poisson(const Scalar& aaa, Scalar& tilde_vr, Scalar& tilde_eta,
-				   const Param* par_bc) const {
+				   const Param* ) const {
 
 
     Scalar source1 = -aaa.lapang();

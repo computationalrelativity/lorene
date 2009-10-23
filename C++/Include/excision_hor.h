@@ -146,10 +146,10 @@ class Excision_hor {
 	const Sym_tensor& get_Kij() const {return Kij ; } ;
 
 	/// Returns the timestep used for evolution.
-	const double get_delta_t() const {return delta_t ;};
+	double get_delta_t() const {return delta_t ;};
 
 	/// Returns the internal number of timesteps for one iteration.
-	const double get_no_of_steps() const {return no_of_steps ;};
+	double get_no_of_steps() const {return no_of_steps ;};
  
         /// Returns the value of the impulsion-energy tensor 
         const Sym_tensor& get_Tij() const{return Tij; } ;
@@ -173,9 +173,9 @@ class Excision_hor {
         Sym_tensor& set_Tij() {del_deriv() ; return Tij; } ;
 	
 
-	double set_delta_t() {del_deriv() ; return delta_t ; } ;
+	double& set_delta_t() {del_deriv() ; return delta_t ; } ;
 
-	double set_no_of_steps() {del_deriv() ; return no_of_steps ; } ;
+	double& set_no_of_steps() {del_deriv() ; return no_of_steps ; } ;
 
 	
     // Computational functions
