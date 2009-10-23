@@ -25,6 +25,9 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/23 12:55:16  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.6  2009/10/08 16:20:13  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -74,10 +77,7 @@ void Base_val::give_quant_numbers (int l, int k, int j,
   
   switch (base_p) {
   case P_COSSIN :
-    if (k%2 == 0)
       m_quant = k/2 ;
-    else
-      m_quant = (k-1)/2 ;
     break;
     
   case P_COSSIN_P :
@@ -88,10 +88,7 @@ void Base_val::give_quant_numbers (int l, int k, int j,
     break;
 
   case P_COSSIN_I :
-    if (k%2 == 0)
-      m_quant = k+1 ;
-    else
-      m_quant = k ;
+      m_quant = 2*( (k-1) / 2) + 1 ;
     break;
   default:
     cout << "Unknown basis in phi in give_quant_numbers ..." << endl ;
@@ -191,6 +188,10 @@ void Base_val::give_quant_numbers (int l, int k, int j,
    break ;
 
   case T_LEG_MP :
+   l_quant = j ;
+   break ;
+
+  case T_LEG_MI :
    l_quant = j ;
    break ;
 
@@ -373,6 +374,10 @@ int Base_val::give_lmax(const Mg3d& mgrid, int lz) const {
 	    break ;
 	    
 	case T_LEG_MP :
+	    l_max = ntm1 ;
+	    break ;
+	    
+	case T_LEG_MI :
 	    l_max = ntm1 ;
 	    break ;
 	    

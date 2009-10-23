@@ -34,6 +34,9 @@ char valeur_ylm_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2009/10/23 12:56:29  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.9  2009/10/13 13:49:58  j_novak
  * New base T_LEG_MP.
  *
@@ -147,6 +150,9 @@ void Valeur::ylm_i() {
 	chbase_t[T_LEG_MP >> TRA_T] = chb_legmp_cos ;
 	nouv_base_t[T_LEG_MP >> TRA_T] = T_COS  ;
 
+	chbase_t[T_LEG_MI >> TRA_T] = chb_legmi_sin ;
+	nouv_base_t[T_LEG_MI >> TRA_T] = T_SIN  ;
+
 	chbase_t[T_LEG_PP >> TRA_T] = chb_legpp_cosp ;
 	nouv_base_t[T_LEG_PP >> TRA_T] = T_COS_P  ;
 
@@ -206,7 +212,8 @@ void Valeur::ylm_i() {
 		assert(vbase_t_tra < MAX_BASE) ; 
 		bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP) ||
 			      (vbase_t == T_LEG_MP) ) ;
-		bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
+		bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II) ||
+				(vbase_t == T_LEG_MI) ) ;
 
 // Nouvelle base : 
 		base.b[l] = ( vbase_p | nouv_base_t[vbase_t_tra] ) | vbase_r ;

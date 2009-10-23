@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2009/10/23 12:55:46  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.9  2009/10/08 16:19:32  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -208,6 +211,8 @@
 #define T_LEG 0x00001700
 /// fct. de Legendre associees avec m pair 
 #define T_LEG_MP 0x00001800
+/// fct. de Legendre associees avec m impair 
+#define T_LEG_MI 0x00001900
 
 
     /* Phi */

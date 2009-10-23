@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.45  2009/10/23 12:55:46  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.44  2009/10/13 13:50:39  j_novak
  * New base T_LEG_MP.
  *
@@ -321,6 +324,7 @@ void cftcossins(const int*, const int*, double*, const int*, double*) ;
 void cftcossinc(const int*, const int*, double*, const int*, double*) ;
 void cftleg(const int*, const int*, double*, const int*, double*) ;
 void cftlegmp(const int*, const int*, double*, const int*, double*) ;
+void cftlegmi(const int*, const int*, double*, const int*, double*) ;
 void cftlegp(const int*, const int*, double*, const int*, double*) ;
 void cftlegpp(const int*, const int*, double*, const int*, double*) ;
 void cftlegi(const int*, const int*, double*, const int*, double*) ;
@@ -349,6 +353,7 @@ void citcossins(const int*, const int*, double*, const int*, double*) ;
 void citcossinc(const int*, const int*, double*, const int*, double*) ;
 void citleg(const int*, const int*, double*, const int*, double*) ;
 void citlegmp(const int*, const int*, double*, const int*, double*) ;
+void citlegmi(const int*, const int*, double*, const int*, double*) ;
 void citlegp(const int*, const int*, double*, const int*, double*) ;
 void citlegpp(const int*, const int*, double*, const int*, double*) ;
 void citlegi(const int*, const int*, double*, const int*, double*) ;
@@ -372,6 +377,7 @@ double* mat_cosi_legip(int, int) ;
 double* mat_sini_legpi(int, int) ;   
 double* mat_sinp_legii(int, int) ;   
 double* mat_cos_legmp(int, int) ;   
+double* mat_sin_legmi(int, int) ;   
 double* mat_legp_cossincp(int,  int) ;
 double* mat_legi_cossinci(int,  int) ;
 double* mat_leg_cossinc(int,  int) ;
@@ -380,6 +386,7 @@ double* mat_legip_cosi(int, int) ;
 double* mat_legpi_sini(int, int) ;   
 double* mat_legii_sinp(int, int) ;   
 double* mat_legmp_cos(int, int) ;   
+double* mat_legmi_sin(int, int) ;   
 void chb_cossincp_legp(const int* , const double* , double* ) ;
 void chb_legp_cossincp(const int* , const double* , double* ) ;
 void chb_cossinc_leg(const int* , const double* , double* ) ;
@@ -396,6 +403,8 @@ void chb_sinp_legii(const int* , const double* , double* ) ;
 void chb_legii_sinp(const int* , const double* , double* ) ;
 void chb_cos_legmp(const int* , const double* , double* ) ;
 void chb_legmp_cos(const int* , const double* , double* ) ;
+void chb_sin_legmi(const int* , const double* , double* ) ;
+void chb_legmi_sin(const int* , const double* , double* ) ;
 
 double int1d_chebp(int, const double* ) ;
 double int1d_chebi(int, const double* ) ;
@@ -691,13 +700,6 @@ void sxpun_1d(int, double **, int)	;
 void _sxpun_1d_r_cheb(int, double* , double *);
 void _sxpun_1d_pas_prevu(int, double* , double *);
 Cmp division_xpun (const Cmp&, int) ;
-
-// Fonctions utilisees par le laplacien :
-void _lapang_pas_prevu(Mtbl_cf*, int) ;
-void _lapang_t_leg_p(Mtbl_cf*, int) ;
-void _lapang_t_leg_pp(Mtbl_cf*, int) ;
-void _lapang_t_leg_i(Mtbl_cf*, int) ;
-void _lapang_t_leg(Mtbl_cf*, int) ;
 
 // Fonctions liees a la resolution des l'equation des ondes
 void get_operateur_dal(const Param&, const int&, const int&, 

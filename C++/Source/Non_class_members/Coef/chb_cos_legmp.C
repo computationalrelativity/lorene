@@ -85,6 +85,9 @@ char chb_cos_legmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2009/10/23 12:54:47  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.1  2009/10/13 13:49:36  j_novak
  * New base T_LEG_MP.
  *
@@ -205,7 +208,8 @@ int k2, l, jmin, j, i, m ;
 
 // Boucle sur l'indice l du developpement en Legendre
 
-		for (l=0; l<m; l++) {
+		int lmax = (m<nt-1 ? m : nt-1) ;
+		for (l=0; l<lmax; l++) {
 		    for (i=0; i<nr; i++) {
 			*resu = 0 ;
 			resu++ ; 

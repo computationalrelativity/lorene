@@ -33,6 +33,9 @@ char poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/23 12:55:04  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.6  2009/10/13 19:45:01  j_novak
  * New base T_LEG_MP.
  *
@@ -709,6 +712,79 @@ void _poisangu_t_leg_mp(Mtbl_cf* mt, int l, double lambda)
 		}
 	    tuu  += nr ;
 	}     // Fin de boucle sur theta
+    }	// Fin de boucle sur phi	
+	    
+    // base de developpement inchangee 
+}
+
+			//----------------
+			// cas T_LEG_MI --
+			//----------------
+
+void _poisangu_t_leg_mi(Mtbl_cf* mt, int l, double lambda)
+{
+
+    Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
+    
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    int k, j, i ; 
+    // Pour le confort
+    int nr = mt->get_mg()->get_nr(l) ;   // Nombre
+    int nt = mt->get_mg()->get_nt(l) ;   //	de points
+    int np = mt->get_mg()->get_np(l) ;   //	    physiques
+    
+    int np1 = ( np == 1 ) ? 1 : np+1 ; 
+	
+    double* tuu = tb->t ; 
+
+    // k = 0  :
+     
+    for (j=0 ; j<nt-1 ; j++) {
+		int ll = j ;
+		double xl = - ll*(ll+1) + lambda ;
+
+		if (fabs(xl) < 1.e-14) {
+			for (i=0 ; i<nr ; i++) {
+	    		tuu[i] = 0 ;
+			}	
+		}
+		else {
+			for (i=0 ; i<nr ; i++) {
+	    		tuu[i] /= xl ;
+			}	
+		}
+	tuu  += nr ;
+    }     // Fin de boucle sur theta
+    tuu  += nr ; // On saute j=nt-1
+
+    // On saute k = 1 : 
+    tuu += nt*nr ; 
+	
+    // k=2,...
+    for (k=2 ; k<np1 ; k++) {
+	int m = 2*((k-1)/2) + 1 ;
+	tuu  += m*nr ;
+	for (j=m ; j<nt-1 ; j++) {
+	    int ll = j ;
+	    double xl = - ll*(ll+1) + lambda ;
+
+		if (fabs(xl) < 1.e-14) {
+			for (i=0 ; i<nr ; i++) {
+	    		tuu[i] = 0 ;
+			}	
+		}
+		else {
+			for (i=0 ; i<nr ; i++) {
+	    		tuu[i] /= xl ;
+			}	
+		}
+	    tuu  += nr ;
+	}     // Fin de boucle sur theta
+    tuu  += nr ; // On saute j=nt-1
     }	// Fin de boucle sur phi	
 	    
     // base de developpement inchangee 

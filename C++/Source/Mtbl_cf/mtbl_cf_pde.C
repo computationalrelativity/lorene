@@ -33,6 +33,9 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2009/10/23 12:56:19  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.4  2009/10/13 19:44:41  j_novak
  * New base T_LEG_MP.
  *
@@ -68,6 +71,7 @@ void _poisangu_t_leg_ip(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_pi(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_ii(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_mp(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_mi(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg(Mtbl_cf *, int, double) ;
 
 //*****************************************************************************
@@ -91,6 +95,7 @@ void Mtbl_cf::poisson_angu(double lambda) {
 		poisangu[T_LEG_IP >> TRA_T] = _poisangu_t_leg_ip ;
 		poisangu[T_LEG_PI >> TRA_T] = _poisangu_t_leg_pi ;
 		poisangu[T_LEG_MP >> TRA_T] = _poisangu_t_leg_mp ;
+		poisangu[T_LEG_MI >> TRA_T] = _poisangu_t_leg_mi ;
 		poisangu[T_LEG >> TRA_T] = _poisangu_t_leg ;
     }
 

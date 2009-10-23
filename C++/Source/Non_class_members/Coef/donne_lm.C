@@ -28,6 +28,9 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/23 12:54:47  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.6  2009/10/13 19:45:01  j_novak
  * New base T_LEG_MP.
  *
@@ -165,13 +168,24 @@ void donne_lm_t_leg_ip (int j, int k, int &m_quant, int &l_quant) {
 }
 
 
-	 //------------------------------------------------------
+	 //----------------------------------------------------------
 	// Developpement en P_COSSIN_P pour phi et T_LEG_MP en theta
-       //-------------------------------------------------------
+       //------------------------------------------------------------
 
 void donne_lm_t_leg_mp (int j, int k, int &m_quant, int &l_quant) {
 
     m_quant = (k%2 == 0) ? k : k-1;
+    l_quant = j ;
+    
+}
+
+	 //----------------------------------------------------------
+	// Developpement en P_COSSIN_I pour phi et T_LEG_MI en theta
+       //------------------------------------------------------------
+
+void donne_lm_t_leg_mi (int j, int k, int &m_quant, int &l_quant) {
+
+    m_quant = 2*((k-1)/2 ) + 1 ;
     l_quant = j ;
     
 }

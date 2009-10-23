@@ -27,6 +27,9 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2009/10/23 12:55:16  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.7  2009/10/08 16:20:13  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -495,6 +498,28 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 	    case T_LEG_MP :
 		switch (b2_t) {
 		    case T_LEG_MP :
+			base = base | T_LEG_MP ;
+			indic_t = 1 ;
+			break ;
+		   
+		    case T_LEG_MI :
+			base = base | T_LEG_MI ;
+			indic_t = 1 ;
+			break ;
+		   
+		    default :
+			break ;
+		}
+		break ; 
+	    
+	    case T_LEG_MI :
+		switch (b2_t) {
+		    case T_LEG_MP :
+			base = base | T_LEG_MI ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_LEG_MI :
 			base = base | T_LEG_MP ;
 			indic_t = 1 ;
 			break ;

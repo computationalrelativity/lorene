@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2009/10/23 12:55:46  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.17  2009/10/08 16:19:32  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -272,6 +275,9 @@ class Mg3d ;
  *                              \f$P_l^m(\cos\theta)\f$ of all types ;
  *   \li \c T_LEG_MP  (0x00001800) : Associated Legendre functions 
  *                              \f$P_l^m(\cos\theta)\f$ \e m being always even 
+ *                              (\f$\theta\f$-sampling: \c NONSYM );
+ *   \li \c T_LEG_MI  (0x00001900) : Associated Legendre functions 
+ *                              \f$P_l^m(\cos\theta)\f$ \e m being always odd 
  *                              (\f$\theta\f$-sampling: \c NONSYM );
  *
  * The basis functions for expansion with respect to the azimuthal coordinate 

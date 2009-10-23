@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2009/10/23 12:55:16  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.12  2009/10/08 16:20:13  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -260,6 +263,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_COSSIN_S >> TRA_T] =  "T_COSSIN_S " ;
     nom_t[T_LEG >> TRA_T] =       "T_LEG      " ;
     nom_t[T_LEG_MP >> TRA_T] =    "T_LEG_MP   " ;
+    nom_t[T_LEG_MI >> TRA_T] =    "T_LEG_MI   " ;
     nom_t[T_LEG_P >> TRA_T] =     "T_LEG_P    " ;
     nom_t[T_LEG_PP >> TRA_T] =    "T_LEG_PP   " ;
     nom_t[T_LEG_I >> TRA_T] =     "T_LEG_I    " ;

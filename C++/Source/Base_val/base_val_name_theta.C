@@ -30,6 +30,9 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/23 12:55:16  j_novak
+ * New base T_LEG_MI
+ *
  * Revision 1.6  2009/10/08 16:20:13  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -85,6 +88,7 @@ void basename_t_cossin_si(int, int, char*) ;
 void basename_t_leg_p(int, int, char*) ; 
 void basename_t_leg(int, int, char*) ; 
 void basename_t_leg_mp(int, int, char*) ; 
+void basename_t_leg_mi(int, int, char*) ; 
 void basename_t_leg_pp(int, int, char*) ; 
 void basename_t_leg_i(int, int, char*) ; 
 void basename_t_leg_ip(int, int, char*) ; 
@@ -131,6 +135,7 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 		vbasename_t[T_COSSIN_S >> TRA_T] = basename_t_cossin_s ;
 		vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
 		vbasename_t[T_LEG_MP >> TRA_T] = basename_t_leg_mp ;
+		vbasename_t[T_LEG_MI >> TRA_T] = basename_t_leg_mi ;
 		vbasename_t[T_LEG >> TRA_T] = basename_t_leg ;
 		vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
 		vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
@@ -522,6 +527,33 @@ void basename_t_leg_mp(int k, int j, char* name) {
 	assert( j>=0 ) ; 
 
 	int m = 2 * (k / 2) ;
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = j; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+void basename_t_leg_mi(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = 2 * ((k-1) / 2) + 1 ;
 	 
 	if (j < m/2) {
 		strcpy (name, "unused") ; 
