@@ -28,6 +28,9 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2009/10/26 10:48:37  j_novak
+ * Completed the T_LEG_MI case.
+ *
  * Revision 1.7  2009/10/23 12:54:47  j_novak
  * New base T_LEG_MI
  *
@@ -296,6 +299,10 @@ void donne_lm (int nz, int zone, int j, int k, Base_val base,
 
 		case T_LEG_II :
 		    donne_lm_t_leg_ii (j, k, m_quant, l_quant) ;
+		    break ; 
+
+		case T_LEG_MI :
+		    donne_lm_t_leg_mp (j, k, m_quant, l_quant) ;
 		    break ; 
 
 		default :
