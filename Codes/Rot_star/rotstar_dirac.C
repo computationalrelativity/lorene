@@ -1,7 +1,6 @@
 /*
  * Main code for computing stationary axisymmetric rotating stars in Dirac  
  * gauge and maximal slicing.
- * (*** Under development ***)
  *
  */
 
@@ -31,6 +30,9 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/10/26 10:42:30  j_novak
+ * Changed dzpuis handling in final test.
+ *
  * Revision 1.6  2008/08/22 06:34:13  j_novak
  * Now displaying \hat{A}^{ij} and \hat{A}^{ij}_{TT} (see paper by Cordero,
  * Cerda, Dimmelmeier et al.).
@@ -437,7 +439,9 @@ int main(){
  	Sym_tensor hat_aij = star.get_psi4()*star.get_psi2()*star.get_aa() ;
 	const Metric_flat& mets = mp.flat_met_spher() ;
 	cout << "Looking at \\hat{A}^{ij} and \\hat{A}^{ij}_{TT}: " << endl ;
- 	Vector www = hat_aij.divergence(mets).poisson(1./3., 6) ;
+ 	Vector wwws = hat_aij.divergence(mets) ;
+	wwws.inc_dzpuis() ;
+	Vector www = wwws.poisson(1./3., 6) ;
  	Sym_tensor prueba = hat_aij - www.ope_killing_conf(mets) ;
 	Tbl maxa = maxabs(hat_aij, "Max \\hat{A}^ij") ;
  	Tbl maxb = maxabs(prueba, "Max. \\hat{A}^{ij}_{TT}: ") ;
