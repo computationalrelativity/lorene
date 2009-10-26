@@ -30,6 +30,9 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2009/10/26 10:54:33  j_novak
+ * Added the case of a NONSYM base in theta.
+ *
  * Revision 1.10  2008/02/25 10:40:52  j_novak
  * Added the flag mer_hij to control the step from which the equation for h^{ij}
  * is being solved.
@@ -106,10 +109,11 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   int nzm1 = nz - 1 ;
 
   // Index of the point at phi=0, theta=pi/2 at the surface of the star:
-  assert(mg->get_type_t() == SYM) ; 
+  int type_t = mg->get_type_t() ; 
+  assert( ( type_t == SYM) || (type_t == NONSYM) ) ; 
   int l_b = nzet - 1 ; 
   int i_b = mg->get_nr(l_b) - 1 ; 
-  int j_b = mg->get_nt(l_b) - 1 ; 
+  int j_b = (type_t == SYM ? mg->get_nt(l_b) - 1 : mg->get_nt(l_b)/2 ) ; 
   int k_b = 0 ;
 
   // Value of the enthalpy defining the surface of the star

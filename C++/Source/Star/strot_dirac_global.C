@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2009/10/26 10:54:33  j_novak
+ * Added the case of a NONSYM base in theta.
+ *
  * Revision 1.8  2008/05/30 08:27:38  j_novak
  * New global quantities rp_circ and ellipt (circumferential polar coordinate and
  * ellipticity).
@@ -326,10 +329,9 @@ double Star_rot_Dirac::r_circ() const {
 
     // Index of the point at phi=0, theta=pi/2 at the surface of the star:
     const Mg3d* mg = mp.get_mg() ;
-    assert(mg->get_type_t() == SYM) ;
     int l_b = nzet - 1 ; 
     int i_b = mg->get_nr(l_b) - 1 ; 
-    int j_b = mg->get_nt(l_b) - 1 ; 
+    int j_b = (mg->get_type_t() == SYM ? mg->get_nt(l_b) - 1 : mg->get_nt(l_b) / 2) ; 
     int k_b = 0 ;
 
     double gamma_phi = gamma.cov()(3,3).val_grid_point(l_b, k_b, j_b, i_b) ;

@@ -29,6 +29,9 @@ char star_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/10/26 10:54:33  j_novak
+ * Added the case of a NONSYM base in theta.
+ *
  * Revision 1.3  2007/06/21 19:55:09  k_taniguchi
  * Introduction of a method to compute ray_eq_3pis2().
  *
@@ -107,23 +110,16 @@ double Star::ray_eq() const {
 #endif
 	int nt = mg.get_nt(0) ; 	
 	
-	if ( type_t == SYM ) {
-	    assert( (type_p == SYM) || (type_p == NONSYM) ) ; 
-	    int k = 0 ; 
-	    int j = nt-1 ; 
-	    int l = l_surf()(k, j) ; 
-	    double xi = xi_surf()(k, j) ; 
-	    double theta = M_PI / 2 ; 
-	    double phi = 0 ; 
+	assert( (type_t == SYM) || (type_t == NONSYM) ) ; 
+	assert( (type_p == SYM) || (type_p == NONSYM) ) ; 
+	int k = 0 ; 
+	int j = (type_t == SYM ? nt-1 : nt / 2); 
+	int l = l_surf()(k, j) ; 
+	double xi = xi_surf()(k, j) ; 
+	double theta = M_PI / 2 ; 
+	double phi = 0 ; 
 	    
-	    p_ray_eq = new double( mp.val_r(l, xi, theta, phi) ) ;
-
-	}
-	else {
-	    cout << "Star::ray_eq : the case type_t = " << type_t
-		 << " is not contemplated yet !" << endl ;
-	    abort() ; 
-	}
+	p_ray_eq = new double( mp.val_r(l, xi, theta, phi) ) ;
 
     }
     
@@ -143,44 +139,35 @@ double Star::ray_eq_pis2() const {
 	int nt = mg.get_nt(0) ; 	
 	int np = mg.get_np(0) ; 	
 	
-	if ( type_t == SYM ) {
-	
-	    int j = nt-1 ; 
-	    double theta = M_PI / 2 ; 
-	    double phi = M_PI / 2 ;
+	int j = (type_t == SYM ? nt-1 : nt / 2); 
+	double theta = M_PI / 2 ; 
+	double phi = M_PI / 2 ;
 	    
-	    switch (type_p) {
+	switch (type_p) {
 	    
-		case SYM : {
-		    int k = np / 2  ; 
-		    int l = l_surf()(k, j) ; 
-		    double xi = xi_surf()(k, j) ; 
-		    p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
-		    break ; 
-		}
+	    case SYM : {
+		int k = np / 2  ; 
+		int l = l_surf()(k, j) ; 
+		double xi = xi_surf()(k, j) ; 
+		p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+		break ; 
+	    }
 	    
-		case NONSYM : {
-		    assert( np % 4 == 0 ) ; 
-		    int k = np / 4  ; 
-		    int l = l_surf()(k, j) ; 
-		    double xi = xi_surf()(k, j) ; 
-		    p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
-		    break ; 
-		}
+	    case NONSYM : {
+		assert( np % 4 == 0 ) ; 
+		int k = np / 4  ; 
+		int l = l_surf()(k, j) ; 
+		double xi = xi_surf()(k, j) ; 
+		p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+		break ; 
+	    }
 	    
-		default : {
-		    cout << "Star::ray_eq_pis2 : the case type_p = " 
-			<< type_p << " is not contemplated yet !" << endl ;
-		    abort() ; 
-		}
-	    } 
-
-	}
-	else {
-	    cout << "Star::ray_eq_pis2 : the case type_t = " << type_t
-	         << " is not contemplated yet !" << endl ;
-	    abort() ; 
-	}
+	    default : {
+		cout << "Star::ray_eq_pis2 : the case type_p = " 
+		     << type_p << " is not contemplated yet !" << endl ;
+		abort() ; 
+	    }
+	} 
 
     }
     
@@ -200,35 +187,33 @@ double Star::ray_eq_pi() const {
 	int nt = mg.get_nt(0) ; 	
 	int np = mg.get_np(0) ; 	
 	
-	if ( type_t == SYM ) {
-
-	    switch (type_p) {
+	assert ( ( type_t == SYM ) || ( type_t == NONSYM ) ) ;
+	
+	switch (type_p) {
 		
-		case SYM : {
-		    p_ray_eq_pi = new double( ray_eq() ) ;
-		    break ; 
-		}		
+	    case SYM : {
+		p_ray_eq_pi = new double( ray_eq() ) ;
+		break ; 
+	    }		
 		
-		case NONSYM : {
-		    int k = np / 2  ; 
-		    int j = nt-1 ; 
-		    int l = l_surf()(k, j) ; 
-		    double xi = xi_surf()(k, j) ; 
-		    double theta = M_PI / 2 ; 
-		    double phi = M_PI ; 
+	    case NONSYM : {
+		int k = np / 2  ; 
+		int j = (type_t == SYM ? nt-1 : nt/2 ) ; 
+		int l = l_surf()(k, j) ; 
+		double xi = xi_surf()(k, j) ; 
+		double theta = M_PI / 2 ; 
+		double phi = M_PI ; 
 	    
-		    p_ray_eq_pi = new double( mp.val_r(l, xi, theta, phi) ) ;
-		    break ;
-		}
+		p_ray_eq_pi = new double( mp.val_r(l, xi, theta, phi) ) ;
+		break ;
+	    }
 		
-		default : {
+	    default : {
 
-	    cout << "Star::ray_eq_pi : the case type_t = " << type_t
-		 << " and type_p = " << type_p << endl ; 
+	    cout << "Star::ray_eq_pi : the case type_p = " << type_p << endl ; 
 	    cout << " is not contemplated yet !" << endl ;
 	    abort() ; 
 	    break ; 
-		}
 	    }
 	}
 
@@ -249,42 +234,34 @@ double Star::ray_eq_3pis2() const {
 	int nt = mg.get_nt(0) ; 	
 	int np = mg.get_np(0) ; 	
 	
-	if ( type_t == SYM ) {
+	assert( ( type_t == SYM ) || ( type_t == NONSYM ) ) ;
 	
-	    int j = nt-1 ; 
-	    double theta = M_PI / 2 ; 
-	    double phi = 3. * M_PI / 2 ;
+	int j = (type_t == SYM ? nt-1 : nt/2 ); 
+	double theta = M_PI / 2 ; 
+	double phi = 3. * M_PI / 2 ;
 	    
-	    switch (type_p) {
+	switch (type_p) {
 	    
-		case SYM : {
-		    p_ray_eq_3pis2 = new double( ray_eq_pis2() ) ;
-		    break ; 
+	    case SYM : {
+		p_ray_eq_3pis2 = new double( ray_eq_pis2() ) ;
+		break ; 
+	    }
+		
+	    case NONSYM : {
+		assert( np % 4 == 0 ) ; 
+		int k = 3 * np / 4  ; 
+		int l = l_surf()(k, j) ; 
+		double xi = xi_surf()(k, j) ; 
+		p_ray_eq_3pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+		break ; 
+	    }
+	    
+	    default : {
+		cout << "Star::ray_eq_3pis2 : the case type_p = " 
+		     << type_p << " is not implemented yet !" << endl ;
+		abort() ; 
 		}
-	    
-		case NONSYM : {
-		    assert( np % 4 == 0 ) ; 
-		    int k = 3 * np / 4  ; 
-		    int l = l_surf()(k, j) ; 
-		    double xi = xi_surf()(k, j) ; 
-		    p_ray_eq_3pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
-		    break ; 
-		}
-	    
-		default : {
-		    cout << "Star::ray_eq_3pis2 : the case type_p = " 
-			<< type_p << " is not contemplated yet !" << endl ;
-		    abort() ; 
-		}
-	    } 
-
-	}
-	else {
-	    cout << "Star::ray_eq_3pis2 : the case type_t = " << type_t
-	         << " is not contemplated yet !" << endl ;
-	    abort() ; 
-	}
-
+	} 
     }
     
     return *p_ray_eq_3pis2 ; 
