@@ -10,11 +10,12 @@ install: $(SRC) Objects Objects_g
 	mkdir -p $(DEPDIR)
 	echo *C | $(BIN_TOOLS)/pointCpointo > List_obj     # list of *.o files
 	mv Objects_g/*.o .
+	mv _rien.o Objects_g
 	$(MAKE) -f Makefile_lib_g
 	mv *.o Objects_g
 	mv Objects/*.o .
+	mv _rien.o Objects
 	$(MAKE) -f Makefile_lib
-	touch $(HOME_LORENE)/Lib/date_mark
 	mv *.o Objects
 
 uninstall:

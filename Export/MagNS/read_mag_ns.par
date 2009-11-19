@@ -1,0 +1,17 @@
+Name of the file containing the initial data on spectral grid :
+-------------------------------------------------------------
+test_data.d
+
+Parameters of the Cartesian grid :
+--------------------------------
+10		Number of points in the x direction
+10		Number of points in the y direction
+5		Number of points in the z direction
+-100	100	x_min, x_max	Range of x  [km]
+-100	100	y_min, y_max	Range of y  [km]
+-50	50	z_min, z_max	Range of z  [km]
+
+
+
+
+
