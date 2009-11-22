@@ -30,3 +30,4 @@ test:
 	cd Test; $(MAKE)
 
 
+.PHONY: all install doc cpp fortran export uninstall test

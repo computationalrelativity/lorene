@@ -89,6 +89,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2009/11/22 17:06:11  j_novak
+ * Patched to build on a Macbook Pro (thanks E. Schnetter)
+ *
  * Revision 1.4  2007/06/16 22:19:23  m_saijo
  * Add the case __i386__ for supporting Intel Mac.
  *
@@ -151,7 +154,12 @@
 #include <math.h>
 #define __infinity INFINITY
 #else
+#ifdef __x86_64__
+#include <math.h>
+#define __infinity INFINITY
+#else
 extern double __infinity ;
+#endif
 #endif
 #endif
 #endif
