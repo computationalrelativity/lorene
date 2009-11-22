@@ -1,5 +1,5 @@
 /*
- * Methods of class Mag_NS (binary neutron star exportation)
+ * Methods of class Mag_NS (magnetized neutron star exportation)
  *
  * (see file mag_ns.h for documentation).
  */
@@ -31,6 +31,9 @@ char mag_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2009/11/22 16:05:05  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.1  2009/11/19 16:15:21  j_novak
  * Export class for magnetized neutron stars.
  *
