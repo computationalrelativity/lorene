@@ -40,6 +40,9 @@ char facto_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2009/11/25 08:00:54  j_novak
+ * Removed a #pragma directive
+ *
  * Revision 1.1  2004/12/21 17:06:01  j_novak
  * Added all files for using fftw3.
  *
@@ -80,7 +83,7 @@ char facto_ini_C[] = "$Header$" ;
 #include "proto_f77.h"
 
 // Variable de loch
-int loch_facto_ini = 0 ;
+//int loch_facto_ini = 0 ;
 
 int *facto_ini( int n )
 {
@@ -95,7 +98,7 @@ static	int trois = 3 ;			// On aurait aime ecrire: "const int trois=3 ;"
 int indice ;
 
 
-#pragma critical (loch_facto_ini)
+//#pragma critical (loch_facto_ini)
 {
     // Ce nombre de points a-t-il deja ete utilise ?
     int i ;
