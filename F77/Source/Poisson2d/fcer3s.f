@@ -176,8 +176,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2009/12/01 08:45:21  j_novak
+C Shortened a line to 72 characters.
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.1  1997/10/23  08:11:21  eric
 c Initial revision
@@ -206,7 +209,7 @@ C
 C
 C		INITIALISATION.
 C
-	IF (NCY.EQ.NY1.AND.NCZ.EQ.NZ1.AND.NCR.EQ.NR1.AND.NEQ.EQ.NNN64) GO TO 800
+	IF (NCY.EQ.NY1.AND.NCZ.EQ.NZ1.AND.NCR.EQ.NR1.AND.NEQ.EQ.NNN64) GOTO 800
 C
 	NCR=NR1
 	NCY=NY1
