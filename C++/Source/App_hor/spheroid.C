@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2009/12/01 08:44:24  j_novak
+ * Added the missing operator=().
+ *
  * Revision 1.15  2008/12/10 13:55:55  jl_jaramillo
  * versions developed at Meudon in November 2008
  *
@@ -704,6 +707,32 @@ Spheroid::Spheroid (const Spheroid &sph_in) :h_surf(sph_in.h_surf),
   set_der_0x0() ; 
   
 }
+
+// Assignment to another Spheroid
+void Spheroid::operator=(const Spheroid& sph_in)
+{
+
+  h_surf = sph_in.h_surf ;
+  jac2d = sph_in.jac2d ;
+  proj = sph_in.proj ;
+  qq = sph_in.qq ;
+  ss  = sph_in.ss ;
+  ephi = sph_in.ephi ;
+  qab = sph_in.qab ;
+  ricci = sph_in.ricci ;
+  hh = sph_in.hh ;
+  trk = sph_in.trk ;
+  ll = sph_in.ll ;
+  jj = sph_in.jj ;
+  fff = sph_in.fff ;
+  ggg = sph_in.ggg ;
+  zeta = sph_in.zeta ;
+  issphere = sph_in.issphere ;
+
+  del_deriv() ;  // Deletes all derived quantities
+
+}
+
 //------------//
 //Destructor //
 //-----------//
