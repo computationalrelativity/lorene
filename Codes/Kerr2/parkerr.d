@@ -4,7 +4,7 @@
 33	nr: number of ponts in r (tentatively the same in all domains)
 17	nt: number of points in theta (the same in each domain)
 1	np: number of points in phi   (the same in each domain)
-1	1: use conformally flat approximation 0: Solve for all Einstein eqs.
+0	1: use conformally flat approximation 0: Solve for all Einstein eqs.
 0.2	relaxation on the main iteration solver (0 -> no relaxation)
 5e-10	seuil : Threshold on radial shift relative change for ending the computation
 3000	maximum of iterations in the main loop
