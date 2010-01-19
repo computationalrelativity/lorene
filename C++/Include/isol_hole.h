@@ -51,7 +51,7 @@ class Isol_hole {
     // Data : 
     // -----
     protected:
-	Map& mp ;	    ///< Mapping associated with the star
+	const Map& mp ;	    ///< Mapping associated with the star
 
         double Omega ;     /** Rotation rate of the horizon in the azimuthal
                             *direction.
@@ -89,19 +89,15 @@ class Isol_hole {
 	  */
 	
 	Sym_tensor hatA ; 
-  
-	/** Spheroid at the excised boundary associated with the black hole
-	* MOTS on the slice. Set by default at the position \f$ r=1 \f$.
-	*/
 
-	Spheroid hor ;
- 
    // Derived data : 
     // ------------
     protected:
 
     
+	/// Computation of the spheroid associated with the black hole horizon
 
+	mutable Spheroid* p_hor ;
 	///   Computation of the ADM mass of the BH spacetime.
 	mutable double* p_adm_mass ; 
 
@@ -135,7 +131,7 @@ class Isol_hole {
 	 *               TRUE: IWM approximation used in determination of the 
 	 *               spacetime geometry;
 	 */
-	Isol_hole(Map& mp_i, double Omega_i, bool NorKappa_i, Scalar NoK_i, bool isCF_i = false) ;			
+	Isol_hole(const Map& mp_i, double Omega_i, bool NorKappa_i, Scalar NoK_i, bool isCF_i = false) ;			
 	
 	
 	Isol_hole(const Isol_hole& ) ;		///< Copy constructor
@@ -154,7 +150,7 @@ class Isol_hole {
 	 * @param fich	input file (must have been created by the function
 	 *	\c sauve)
 	 */
-	Isol_hole(Map& mp_i, double Omega_i, bool NorKappa_i, Scalar NoK_i, bool isCF_i, FILE* fich) ;    		
+	Isol_hole(const Map& mp_i, double Omega_i, bool NorKappa_i, Scalar NoK_i, bool isCF_i, FILE* fich) ;    		
 
 	virtual ~Isol_hole() ;			///< Destructor
 
@@ -174,10 +170,6 @@ class Isol_hole {
     public:
 	/// Assignment to another \c Isol_hole
 	void operator=(const Isol_hole&) ;	
-	
-	/// Read/write of the mapping
-	Map& set_mp() {return mp; } ; 
-
 
 	/** Computes a quasi-stationary 3-slice from the chosen parameters. 
 	 *  
@@ -185,7 +177,16 @@ class Isol_hole {
 	 *	the radial shift for two consecutive steps
 	 *	to stop the iterative procedure (default value: 1.e-11)
 	 */
-	void compute_stat_metric(double precis = 1.e-11) ; 
+	void compute_stat_metric(double precis, double relax, int mer_max, int mer_max2, bool isvoid = true) ; 
+
+	/** Computes the rhs of hyperbolic equation for conformal metric
+	 *assuming statioarity; 
+	 *WARNING; up to now, we are only able to handle void spacetimes.
+	 */
+
+	void secmembre_kerr(Sym_tensor& source_hh);
+ 
+ 
 
     // Accessors
     // ---------
@@ -228,9 +229,6 @@ class Isol_hole {
 	/// Returns the rescaled tracefree extrinsic curvature \f$\hat{A}^{ij}\f$.
 	const Sym_tensor& get_hatA() const {return hatA;} ;
 
-	/// Returns the spheroid associated to the excised boundary (assumed to be a MOTS of a BH region in this slice).
-	
-	Spheroid& get_hor() {return hor;} ;
 
 
 
@@ -238,13 +236,21 @@ class Isol_hole {
     // -------
     public:
 	virtual void sauve(FILE* ) const ;	    ///< Save in a file
+
+        void Einstein_errors();                     ///< Prints out errors in Einstein equations for the data obtained.
+
  
     // Global quantities
     // -----------------
     public:
 
-    
+      
+	/** Spheroid at the excised boundary associated with the black hole
+	* MOTS on the slice. Set by default at the position \f$ r=1 \f$.
+	*/
 
+	Spheroid hor() ;
+ 
 	///   Computation of the ADM mass of the BH spacetime.
 	double adm_mass() ; 
 
