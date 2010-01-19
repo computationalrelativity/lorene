@@ -46,14 +46,25 @@
 #include "isol_hole.h"
 
 
-void Isol_hole::compute_stat_metric(double precis){
+void Isol_hole::compute_stat_metric(double precis, double relax, int mer_max, int mer_max2, bool isvoid){
     
     // Fundamental constants and units
     // -------------------------------
     using namespace Unites ;
-  
-  // Construction of a multi-grid (Mg3d)
-  // -----------------------------------
+
+    // Noticing the user that the iteration has started
+
+    cout << "================================================================" << endl;
+    cout << "STARTING THE MAIN ITERATION FOR COMPUTING METRIC FIELDS" << endl;
+    cout << "        iteration parameters are the following:        " << endl;
+    cout << "        convergence precision required:" << precis << endl;
+    cout << "        max number of global steps    :" << mer_max << endl;
+    cout << "        relaxation parameter          :" << relax   << endl;
+    cout << "================================================================" << endl;
+
+
+  // Construction of a multi-grid (Mg3d) and an affine mapping from the class mapping
+  // --------------------------------------------------------------------------------
   const Map_af* map = dynamic_cast<const Map_af*>(&mp) ;
   const Mg3d* mgrid = (*map).get_mg();
 	
@@ -69,11 +80,12 @@ void Isol_hole::compute_stat_metric(double precis){
   rrr.std_spectral_base();  
   assert((rrr.val_grid_point(1,0,0,0) - 1.) <= 1.e-9); // For now the code handles only horizons at r=1, corresponding to the first shell inner boundary. This test assures this is the case with our mapping.
  
+  // Angular mapping defined as well
+  //--------------------------------
   double r_limits2[] = {rrr.val_grid_point(1,0,0,0), rrr.val_grid_point(2,0,0,0)} ; 
   const Map_af map_2(*g_angu, r_limits2); //2D mapping; check if this is useful.
   const Metric_flat& mets = (*map).flat_met_spher() ;
  
-
     //----------------
     // Initializations
     // ---------------
@@ -161,9 +173,17 @@ void Isol_hole::compute_stat_metric(double precis){
    Scalar norm3(*map);
 
    
+   if (isvoid == false){
+   
+     cout <<"FAIL: case of non-void spacetime not treated yet" << endl;
+   }
+ 
+   else
+     {
+
   // Parameters for the iteration 
 
-  int mer_max = 5000 ; // 5000 iterations maximum
+
   double diff_ent = 1 ; // initialization of difference marker between two iterations; 
 
   int util = 0; // Tool used to stop tensorial iteration at any wished step "util"
@@ -176,8 +196,6 @@ void Isol_hole::compute_stat_metric(double precis){
   for(int mer=0 ;(diff_ent > precis) && (mer<mer_max) ; mer++) {    
 
    //Global relaxation coefficient
-
-    double relax = 0.1;
 
     // Scalar variables linked to the norm of normal vector to horizon.
     norm = sqrt(1. + hij(1,1)); norm.std_spectral_base();
@@ -245,14 +263,16 @@ void Isol_hole::compute_stat_metric(double precis){
       source_conf_fact = -(0.125* aa_quad_scal )/(psi4*conf_fact*conf_fact*conf_fact) +  conf_fact* 0.125* Rstar - d2logpsi; 
       
       source_conf_fact.std_spectral_base(); 
+
       if (source_conf_fact.get_etat() == ETATZERO) {
 	source_conf_fact.annule_hard() ;
 	source_conf_fact.set_dzpuis(4) ;
 	source_conf_fact.std_spectral_base() ;
       }
       source_conf_fact.set_spectral_va().ylm();
+    
       
-      
+
       ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       // System inversion   
@@ -382,8 +402,6 @@ void Isol_hole::compute_stat_metric(double precis){
        logn.std_spectral_base(); 
 
  
-
-      
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////:: 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////:: 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////:: 
@@ -518,8 +536,9 @@ void Isol_hole::compute_stat_metric(double precis){
 
     if (isCF == false){
    
-    if (diff_ent <=5.e-7) { // No resolution until we are close to the result.
-
+    if (diff_ent <=5.e-3) { // No resolution until we are close to the result.
+   
+   //WARNING; parameter maybe to be changed according to convergence parameters in Poisson-Hole/Kerr1.9/pplncp.C
       util = util+1; // Loop marker for NCF equation.
      
 
@@ -528,12 +547,10 @@ void Isol_hole::compute_stat_metric(double precis){
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
 	 // Local convergence can be asked for hij equation. Allows to satisfy integrability conditions.
-  int mer_max2 = 1 ; // maximum iterations allowed
-  double precis2 =  1.e5*precis ; // Here we ask for a local convergence; this can be improved later.
+  double precis2 =  1.e5*precis ; // Here we ask for a local convergence; this can be improved later. WARNING; parameter maybe to be changed according to convergence parameters in Poisson-Hole/Kerr1.9/pplncp.C
+
   double diff_ent2 = 1 ; // Local convergence marker
-  double relax2 = 1.; // Local relaxation parameter. If not 1, the determinant condition won't be satisfied on a particular iteration.
-
-
+  double relax2 = 0.5; // Local relaxation parameter. If not 1, the determinant condition won't be satisfied on a particular iteration.
 
 
   Sym_tensor sourcehij = hij; // Random initialization...
@@ -544,27 +561,25 @@ void Isol_hole::compute_stat_metric(double precis){
 
     // Calculation of the source
 
-    // ATTENTION!!!!!
-    // Sign in front of the source comes from the fact that it is calculated for a poisson-like operator, and not dalembertian.  
     // The double Lie derivative term is taken care of in the subroutine. 
 
-
- 
-        sourcehij =  -secmembre_kerr (hij, aa, lapse, conf_fact, shift);   
-   
+       secmembre_kerr(sourcehij);
+       
+      
    /////////////////////////////////////////////////////////////////////////////////////////////////
 	//System inversion (note that no boundary condition is imposed)
 
 
      Sym_tensor hij_new = hij;
- 
-     hij_new = boundfree_tensBC (sourcehij, shift , conf_fact, lapse, hij);
+
+     hij_new = boundfree_tensBC (sourcehij, shift , conf_fact, lapse, hij, precis2);
+
+     cout << "maximum of convergence marker for the subiteration" << endl;
+
      diff_ent2 = max(maxabs(hij - hij_new));
-   
       hij = relax2*hij_new + (1 - relax2)*hij;
 
-
-      cout << "mer2, diffent2" << endl;
+     cout << "mer2, diffent2" << endl;
  
       cout << mer2 << endl;
       cout << diff_ent2 << endl;
@@ -632,6 +647,9 @@ void Isol_hole::compute_stat_metric(double precis){
   
        aa_hat = aa*psi4*sqrt(psi4); // Rescaling of traceless exrinsic curvature.
        aa_hat.std_spectral_base();
+
+
+       hatA = aa_hat; // Probably obsolete very soon... replace aa_hat by hatA.
 
        Sym_tensor aaud = aa.up_down(gamt);
        Sym_tensor aaud_hat = aa_hat.up_down(gamt);
@@ -754,7 +772,12 @@ void Isol_hole::compute_stat_metric(double precis){
 
   }
 
- 
+     
+
+    cout << "================================================================" << endl;
+    cout << "                THE ITERATION HAS NOW CONVERGED" << endl;
+    cout << "================================================================" << endl;
+     }
   return; 
 }
 
