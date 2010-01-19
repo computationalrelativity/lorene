@@ -15,7 +15,13 @@
 // Here assumption is made that no boundary condition has to be enforced, mainly Beta^i*s_i = N/psi^2
 
 Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar Nn, Sym_tensor hij_guess, double precision, int loopmax) {
- 
+  cout << "================================================================" << endl;
+    cout << "STARTING THE SUBITERATION FOR THE CONFORMAL METRIC" << endl;
+    cout << "        iteration parameters are the following:        " << endl;
+    cout << "        convergence precision required:" << precision << endl;
+    cout << "        max number of global steps    :" << loopmax << endl;
+    cout << "================================================================" << endl;
+
   // Construction of a multi-grid (Mg3d)
   // -----------------------------------
   const int nz = (*source.get_mp().get_mg()).get_nzone(); 	// Number of domains
@@ -29,7 +35,7 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
  
   //// Initialisation of iteration variables.
 
-  Sym_tensor hij  = hij_guess;
+  Sym_tensor hij  = hij_guess;    
   Sym_tensor hij_new = hij;
 
   Scalar n2sp4 = (Nn/(Psi*Psi))*(Nn/(Psi*Psi)) ; // Scale factor in front of Poisson Equation.
@@ -37,15 +43,46 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
 
   // Resolution variables
   Scalar khi = hij(1,1);
-  khi.annule_hard(); 
+   if (khi.get_etat() == ETATZERO) {
+	khi.annule_hard() ;
+	khi.set_dzpuis(4) ;
+	khi.std_spectral_base() ;
+      }
+      khi.set_spectral_va().ylm();
   khi.mult_r();
   khi.mult_r_dzpuis(1);
   Scalar mmu = hij.mu();
+   if (mmu.get_etat() == ETATZERO) {
+	mmu.annule_hard() ;
+	mmu.std_spectral_base() ;
+      }
+      mmu.set_spectral_va().ylm();
   Scalar etta = hij.eta();
+   if (etta.get_etat() == ETATZERO) {
+	etta.annule_hard() ;
+	etta.std_spectral_base() ;
+      }
+      etta.set_spectral_va().ylm();
   Scalar Aa = hij.compute_A();
+   if (Aa.get_etat() == ETATZERO) {
+	Aa.annule_hard() ;
+	Aa.std_spectral_base() ;
+      }
+      Aa.set_spectral_va().ylm();
   Scalar Bt = hij.compute_tilde_B();
+   if (Bt.get_etat() == ETATZERO) {
+	Bt.annule_hard() ;
+	Bt.std_spectral_base() ;
+      }
+      Bt.set_spectral_va().ylm();
   Scalar hh = hij.trace(mets);
+   if (hh.get_etat() == ETATZERO) {
+	hh.annule_hard() ;
+	hh.std_spectral_base() ;
+      }
 
+  //Fitting scalar
+  Scalar fit1(source.get_mp()); fit1.set_etat_qcq(); 
 
   // For storing the result of inversion
   Scalar Aanew (source.get_mp()); Aanew.annule_hard(); Aanew.std_spectral_base();
@@ -92,13 +129,14 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
   source_Bt2.annule_domain(0);
   source_eta2.annule_domain(0);
   
-  source_A2.set_spectral_va().set_base( Aa.set_spectral_va().get_base());
-  source_Bt2.set_spectral_va().set_base( Bt.set_spectral_va().get_base());
+  //  source_A2.set_spectral_va().set_base( Aa.set_spectral_va().get_base());
+  //  source_Bt2.set_spectral_va().set_base( Bt.set_spectral_va().get_base());
 
  
 
  //////////////// // Approximation of (Beta/(N^²/psi^4))^2, for input in degenerate operator parameters.
   Scalar Betacarre = (Beta(1)*Beta(1))/n2sp4 ;
+
   double  fitd1 = (Betacarre.val_grid_point(1,0,0,nr-1) - Betacarre.val_grid_point(1,0,0,0))/(rrr.val_grid_point(1,0,0,nr-1) - rrr.val_grid_point(1,0,0,0)) ;
 
 //   double error = 0.; // Voluntary error on fit.  
@@ -112,32 +150,47 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
   approx.annule_hard();
   approx.std_spectral_base();
   
-  approx.set_domain(1)= ((1 + (fitd1)*(rrr - 1))).set_domain(1);
-  
-  // First order approximation
+
+
+  fit1 = fitd1*(rrr-1.) +1.;
+ // First order approximation
+  approx.set_domain(1)= fit1.set_domain(1); // MAKE PARTICULAR FOR ETATUN; DECLARE FIT1?2?3 FIRST TO BE CLEAN.
+
+ 
+ 
+  //Second order approximation
   Scalar firststep = Betacarre - approx;
   
   double ampli = firststep.val_grid_point(1,0,0,nrint);
   double  fit2d1 = - ampli/(ampl_r* ampl_r);
-  
+ 
+
+ 
   approx.set_domain(1) += (fit2d1*(rrr - 1.)*(rrr - rrr.val_grid_point(1,0,0,nr-1))).set_domain(1);
-  
+
+
   double fit0d2 = approx.val_grid_point(1,0,0,nr -1); 
   double fit1d2 = (Betacarre.val_grid_point(2,0,0,nr-1) - fit0d2)/(rrr.val_grid_point(2,0,0,nr-1)- rrr.val_grid_point(2,0,0,0));
   double fit0d3 = Betacarre.val_grid_point(3,0,0,0);
   double fit1d3 = ( - fit0d3)/(rrr.val_grid_point(3,0,0,nr-1)- rrr.val_grid_point(3,0,0,0));
   
-  
   approx.set_domain(2) = (fit0d2 + fit1d2*(rrr - rrr.val_grid_point(2,0,0,0))).set_domain(2);
   approx.set_domain(3) = (fit0d3 + fit1d3*(rrr - rrr.val_grid_point(3,0,0,0))).set_domain(3);
   
 
+
   for(int ii=1; ii<=3; ii++){
+
    source_khi2.set_domain(ii) += (-approx*(khi.dsdr().dsdr())).set_domain(ii);
+
    source_mu2.set_domain(ii) += (-approx*(mmu.dsdr().dsdr())).set_domain(ii);
+
    source_eta2.set_domain(ii) += (-approx*(etta.dsdr().dsdr())).set_domain(ii);
+
    source_A2.set_domain(ii) += (-approx*(Aa.dsdr().dsdr())).set_domain(ii);
+
    source_Bt2.set_domain(ii) += (-approx*(Bt.dsdr().dsdr())).set_domain(ii);
+
   } 
   
 
@@ -148,6 +201,9 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
  
        
   // Parameters for the iteration
+    cout <<"==================================================================================" << endl;
+    cout << "amplitude for the tensor equation source (used as scaling for convergence marker)" << endl;
+   cout <<"==================================================================================" << endl;
   double scale = max(maxabs(source));
   double diff_ent = 0.15 ; // Initialisation of the difference marker between two iterations on some value
 
@@ -202,7 +258,7 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
       Scalar musrsr = mmuAsr; musrsr.div_r_dzpuis(2);
       Aanew = xxA.dsdr() - musrsr;
       Scalar xxsr = xxA; xxsr.div_r_dzpuis(2);     
-      Scalar Hmut = 3.*musrsr + mmuAsr.dsdr() + 2.*xxsr + xxsr.lapang(); 
+      //  Scalar Hmut = 3.*musrsr + mmuAsr.dsdr() + 2.*xxsr + xxsr.lapang(); 
 
       ////////////
     //Electric part
@@ -234,7 +290,6 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
       khi.mult_r_dzpuis(0);    
       mmu = hij.mu();
       etta = hij.eta();
-
          
       Aa = hij.compute_A();  
       Bt = hij.compute_tilde_B();
