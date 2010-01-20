@@ -73,7 +73,8 @@ class Excision_surf {
 
     // Derived data : 
     // ------------
-    protected:
+ protected:
+
 	mutable Scalar* p_get_BC_conf_fact_1 ; ///< Source of Neumann boundary condition on \f$ \psi \f$, 
 	mutable Scalar* p_get_BC_lapse_1 ;   ///< Source of Dirichlet boundary condition of \f$ N \f$
 	mutable Vector* p_get_BC_shift_1 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$
@@ -81,12 +82,19 @@ class Excision_surf {
 	mutable Scalar* p_get_BC_conf_fact_2 ; ///< Source of Neumann boundary condition on \f$ \psi \f$,  
 	mutable Scalar* p_get_BC_conf_fact_3 ; ///< Source of Neumann boundary condition on \f$ \psi \f$, 
 	mutable Scalar* p_get_BC_conf_fact_4 ; ///< Source of Birichlet boundary condition on \f$ \psi \f$, 
+	mutable Scalar* p_get_BC_expa ; ///< gives a new value for expansion (rescaled with lapse) obtained by parabolic evolution.
 	mutable Scalar* p_get_BC_lapse_2 ;   ///< Source of Dirichlet boundary condition of \f$ N \f$
+	mutable Scalar* p_get_BC_lapse_3 ;   ///< Source of Dirichlet condtion on  \f$ N \f$, based on einstein equations.
+	mutable Scalar* p_get_BC_lapse_4 ;   ///< Source of Dirichlet condtion on  \f$ N \f$, based on einstein equations (conservation of isotropic gauge)
+	mutable Scalar* p_new_expa_from_ID ;   ///< Computation of an updated expansion scalar.
 	mutable Vector* p_get_BC_shift_2 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$
-	mutable Scalar* p_get_BC_Npsi_2 ; ///<  Source of Dirichlet boundary condition on \f$ N\psi \f$.
-	mutable Scalar* p_get_BC_Npsi_3 ; ///<  Source of Dirichlet boundary condition on \f$ N\psi \f$.
-	mutable Scalar* p_get_BC_Npsi_4 ; ///<  Source of Dirichlet boundary condition on \f$ N\psi \f$.
-	mutable Scalar* p_get_BC_Npsi_5 ; ///<  Source of Neumann boundary condition on \f$ N\psi \f$.
+	mutable Vector* p_get_BC_shift_3 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$, partly derived from kinematical relation
+	mutable Vector* p_get_BC_shift_4 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$, partly from projection of Einstein Equations
+	mutable Scalar* p_get_BC_Npsi_2 ; ///<  Source of Dirichlet boundary condition on \f$ N \psi \f$.
+	mutable Scalar* p_get_BC_Npsi_3 ; ///<  Source of Dirichlet boundary condition on \f$ N \psi \f$.
+	mutable Scalar* p_get_BC_Npsi_4 ; ///<  Source of Dirichlet boundary condition on \f$ N \psi \f$.
+	mutable Scalar* p_get_BC_Npsi_5 ; ///<  Source of Neumann boundary condition on \f$ N \psi \f$.
+
 
     // Constructors - Destructor
     // -------------------------
@@ -97,7 +105,7 @@ class Excision_surf {
 	 * This is done from the \c Time_slice data.
 	 * @param h_in : the location of the surface \e r = h_in (WARNING:must be 
 	                    defined on a mono-domain angular grid)
-	 * @param gij : the 3-metric on the 3-slice
+	 * @param gij : the 3-metric on the 3slice
 	 * @param Kij : the extrinsic curvature of the 3-slice 
 	 *                 (covariant representation)
 	 * @param timestep : time interval associated with the parabolic-driven boundary conditions.
@@ -194,14 +202,26 @@ class Excision_surf {
 	const Scalar& get_BC_Npsi_1(double value) const ;
 	/// Source for the Dirichlet BC on the conformal factor, based on a parabolic driver for the conformal factor
 	const Scalar& get_BC_conf_fact_2(double c_psi_lap, double c_psi_fin, Scalar& expa_fin) const ;
-/// Source for the Neumann BC on the conformal factor, based on a parabolic driver for the expansion
+/// Source for the Neumann BC on the conformal factor, based on a parabolic driver for the expansio
 	const Scalar& get_BC_conf_fact_3(double c_theta_lap, double c_theta_fin, Scalar& expa_fin) const ;
 /// Source for the Dirchlet BC on the conformal factor, based on the consistency condition derived from the trace
 	const Scalar& get_BC_conf_fact_4() const ;
+	///Gets a new value for expansion rescaled over lapse, obtained by parabolic evolution.
+	const Scalar& get_BC_expa(double c_theta_lap, double c_theta_fin, Scalar& expa_fin) const ;
 /// Source for Dirichlet BC on the lapse, based on a parabolic driver towards arbitrary constant value
 	const Scalar& get_BC_lapse_2(double lapse_fin, double c_lapse_lap, double c_lapse_fi) const ;
+/// Source for Dirichlet BC on the lapse, based on einstein equations
+	const Scalar& get_BC_lapse_3(Scalar& dttheta, Scalar& Ee, Vector& Jj, Sym_tensor& Sij, bool sph_sym = true) const ;
+/// Source for Dirichlet BC on the lapse, based on einstein equations (conservation of isotropic gauge)
+	const Scalar& get_BC_lapse_4 (Scalar& old_nn, Vector& beta_point, Sym_tensor& strain_tens) const ;
+	/// Forms new value  (at the next timestep) for the expansion from Initial data and Einstein equations
+	const Scalar& new_expa_from_ID(Scalar& Ee, Vector& Jj, Sym_tensor& Sij) const;
 /// Source for a Dirichlet BC on the shift, based on a Parabolic driver; no assumptions are made except a global conformal Killing symmetry.
 	const Vector& get_BC_shift_2(double c_bb_lap, double c_bb_fin, double c_V_lap, double epsilon) const ;
+/// Source for a Dirichlet BC on the shift, based on a Parabolic driver; Radial part is dealt with using a kinematical relation.
+	const Vector& get_BC_shift_3(Scalar& dtpsi, double c_V_lap, double epsilon) const ;
+/// Source for a Dirichlet BC on the shift, based on a Parabolic driver; Radial part is dealt with using projection of Einstein Equations.
+	const Vector & get_BC_shift_4(Scalar& dttheta, Scalar& Ee, Vector& Jj, Sym_tensor& Sij, double c_V_lap, double epsilon, bool sph_sym= true) const ;
 /// Source for the Dirichlet BC on (N*Psi1), based on a parabolic driver.
 	const Scalar& get_BC_Npsi_2(double value, double c_npsi_lap, double c_npsi_fin) const ;        
 
