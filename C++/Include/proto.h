@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.46  2010/01/20 14:53:50  n_vasset
+ * Adding spectral cutoff functions for use in elliptic tensor equations.
+ *
  * Revision 1.45  2009/10/23 12:55:46  j_novak
  * New base T_LEG_MI
  *
@@ -724,7 +727,7 @@ void tensorellipticCt ( Scalar source, Scalar& resu, double fitd1, double fit2d1
 
  Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb);
 
- Sym_tensor boundfree_tensBC( Sym_tensor source, Vector Beta, Scalar Psi, Scalar Nn, Sym_tensor hij_guess, double precision = 1.e-9, int loopmax = 250) ;
+ Sym_tensor boundfree_tensBC( Sym_tensor source, Vector Beta, Scalar Psi, Scalar Nn, Sym_tensor hij_guess, double precision , int loopmax = 250) ;
 
 // Fonctions diverses : 
 void c_est_pas_fait(char * ) ;
@@ -818,6 +821,11 @@ void set_lindquist (Cmp& psi_un, Cmp& psi_deux, double rayon, double precision) 
 
 void separation (const Cmp& c1, const Cmp& c2, Cmp& res1, Cmp& res2, int decrois, 
     int puiss, int lmax, double precision, const double relax = 0.5, const int itemax = 100, const int flag = 1) ;
+
+// Spectral cutoff used in tensor elliptic solvers, and solving for stationary black hole spacetimes
+ 
+void coupe_l_tous( Sym_tensor& hij,Sym_tensor& aa, Scalar& nn,Scalar& ppsi, Vector& bb, int ntt, int cutoff);
+void tensor_coupe_l( Sym_tensor& ten, int ntt, int cutoff);
 
 
 #endif
