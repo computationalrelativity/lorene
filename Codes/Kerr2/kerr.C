@@ -169,6 +169,8 @@ int main(){
   // The computed metric fields are saved as a whole in Isol_hole data. 
   
   FILE* Kerr_holedata = fopen("Kerr_data.d", "w");
+  Kerr_hole.get_mp().get_mg()->sauve(nndata) ;		// writing of the grid
+  Kerr_hole.get_mp().sauve(nndata) ;      
   Kerr_hole.sauve(Kerr_holedata);
 
   fclose(Kerr_holedata);
