@@ -54,7 +54,7 @@ int main(){
     //	    Parameters of the computation 
     //------------------------------------------------------------------
 
-       int nz, nr, nt, np, CFornot, mer_max, mer_max2;
+       int nr, nt, np, CFornot, mer_max, mer_max2;
   double relax, precis, Omega, N_hor;
   bool isCF;
  
@@ -62,12 +62,13 @@ int main(){
     ifstream fpar("parkerr.d") ;
     fpar.ignore(1000, '\n') ;
     fpar.ignore(1000, '\n') ;
-    fpar >> nz; fpar.ignore(1000, '\n');
     fpar >> nr; fpar.ignore(1000, '\n');
     fpar >> nt; fpar.ignore(1000, '\n');
     fpar >> np; fpar.ignore(1000, '\n');
     fpar >> CFornot; fpar.ignore(1000, '\n');
     isCF = (CFornot == 1) ;
+
+    int nz=6; // Number of domain; unable to change it in parameter file until now, bu can be changed inside the code.
 
     cout << "==========GRID PARAMETERS========" << endl;
     cout << "total number of domains :   nz = " << nz << endl ;
@@ -96,6 +97,7 @@ int main(){
     // Note that the horizon radius is set by default to 1, which is
     // the inner boundary of the first shell.
 
+ 
   int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
   int symmetry_phi = SYM ; // symmetry in phi
   int nbr[] = {nr, nr, nr, nr, nr, nr};
@@ -169,8 +171,8 @@ int main(){
   // The computed metric fields are saved as a whole in Isol_hole data. 
   
   FILE* Kerr_holedata = fopen("Kerr_data.d", "w");
-  Kerr_hole.get_mp().get_mg()->sauve(nndata) ;		// writing of the grid
-  Kerr_hole.get_mp().sauve(nndata) ;      
+  Kerr_hole.get_mp().get_mg()->sauve(Kerr_holedata) ;		// writing of the grid
+  Kerr_hole.get_mp().sauve(Kerr_holedata) ;      
   Kerr_hole.sauve(Kerr_holedata);
 
   fclose(Kerr_holedata);
