@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2010/01/23 16:27:11  e_gourgoulhon
+ * Improved documentation.
+ *
  * Revision 1.14  2005/05/22 20:49:12  k_taniguchi
  * Introduction of a new class Eos_fit_AkmalPR.
  *
@@ -221,27 +224,28 @@ class Eos {
 	/** Construction of an EOS from a formatted file.
 	 * 
 	 *  The fist line of the file must start by the EOS number, according 
-	 *  to the following conventions: \\
-	 *	1 = relativistic polytropic EOS (class \c Eos_poly ). \\
-	 *      2 = Newtonian polytropic EOS (class \c Eos_poly_newt ). \\
-	 *	3 = Relativistic incompressible EOS (class \c Eos_incomp ). \\
-	 *	4 = Newtonian incompressible EOS 
-	 *		    (class \c Eos_incomp_newt ). \\
-	 *	5 = Strange matter (MIT Bag model) \\
-	 *	6 = Strange matter (MIT Bag model) with crust \\
-	 *     10 = SLy4 (Douchin \& Haensel 2001)  \\
-	 *     11 = FPS (Friedman-Pandharipande + Skyrme) \\
-	 *     12 = BPAL12 (Bombaci et al. 1995) \\
-	 *     13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) \\
-	 *     14 = BBB2 (Baldo, Bombaci \& Burgio 1997) \\
-	 *     15 = BalbN1H1 (Balberg 2000) \\
-         *     16 = GlendNH3 (Glendenning 1985, case 3) \\ 
-	 *     100 = Multi-domain EOS (class \c MEos ) \\
-	 *     110 = Multi-polytropic EOS (class \c Eos_multi_poly ) \\
-	 *     120 = Fitted SLy4 (Shibata 2004) \\
-	 *     121 = Fitted FPS (Shibata 2004) \\
-	 *     122 = Fitted AkmalPR (Taniguchi 2005) \\
-	 *  The second line in the file must be the EOS name.
+	 *  to the following conventions:
+	 *	- 1 = relativistic polytropic EOS (class \c Eos_poly ). 
+	 *	- 2 = Newtonian polytropic EOS (class \c Eos_poly_newt ). 
+	 *	- 3 = Relativistic incompressible EOS (class \c Eos_incomp ). 
+	 *	- 4 = Newtonian incompressible EOS 
+	 *		    (class \c Eos_incomp_newt ). 
+	 *	- 5 = Strange matter (MIT Bag model) 
+	 *	- 6 = Strange matter (MIT Bag model) with crust 
+	 *	- 10 = SLy4 (Douchin \& Haensel 2001)  
+	 *	- 11 = FPS (Friedman-Pandharipande + Skyrme) 
+	 *	- 12 = BPAL12 (Bombaci et al. 1995) 
+	 *	- 13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) 
+	 *	- 14 = BBB2 (Baldo, Bombaci \& Burgio 1997) 
+	 *	- 15 = BalbN1H1 (Balberg 2000) 
+         *	- 16 = GlendNH3 (Glendenning 1985, case 3)  
+	 *	- 100 = Multi-domain EOS (class \c MEos ) 
+	 *	- 110 = Multi-polytropic EOS (class \c Eos_multi_poly ) 
+	 *	- 120 = Fitted SLy4 (Shibata 2004) 
+	 *	- 121 = Fitted FPS (Shibata 2004) 
+	 *	- 122 = Fitted AkmalPR (Taniguchi 2005) 
+	 *
+	 *  The second line in the file should contain a name given by the user to the EOS.
 	 *  The following lines should contain the EOS parameters (one
 	 *  parameter per line), in the same order than in the class declaration.
 	 */
@@ -689,41 +693,41 @@ ostream& operator<<(ostream& , const Eos& ) ;
  * This equation of state (EOS) corresponds to identical relativistic
  * particles of rest mass is \f$m_0\f$,  whose total energy density \e e  is
  * related to their numerical density \e n  by
- * \f[ \label{eeospolye}
- *   e(n) = {\kappa \over \gamma-1} n^\gamma + \mu_0 \, n \ ,
+ * \f[ 
+ *   e(n) = {\kappa \over \gamma-1} n^\gamma + \mu_0 \, n \ , \qquad \qquad (1)
  * \f]
  * where \f$\mu_0\f$ is the chemical potential at zero pressure.
  * The relativistic (i.e. including rest mass energy) chemical potential is
  * then
- * \f[  \label{eeospolymu}
+ * \f[  
  *   \mu(n) := {de\over dn} = {\kappa \gamma \over \gamma-1} n^{\gamma-1}
- *		+ \mu_0 \ .
+ *		+ \mu_0 \ .\qquad \qquad (2)
  * \f]
  * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
  * \f$p = \mu n - e\f$, so that
- * \f[ \label{eeospolyp}
- *   p(n) = \kappa n^\gamma  \ .
+ * \f[ 
+ *   p(n) = \kappa n^\gamma  \ . \qquad \qquad (3)
  * \f]
  * The log-enthalpy is defined as the logarithm of the ratio of the enthalpy
  * par particle by the partical rest mass energy :
- * \f[ \label{eeospolyh}
- *   H(n) := c^2 \ln \left( {e+p \over m_0 c^2\, n} \right)   \ .
+ * \f[ 
+ *   H(n) := c^2 \ln \left( {e+p \over m_0 c^2\, n} \right)   \ . \qquad \qquad (4)
  * \f]
  * According to the (zero-temperature) First Law of Thermodynamics, the
  * log-enthalpy is related to the chemical potential by
  * \f[
- *   H = c^2 \ln \left( {\mu \over m_0 c^2} \right) \ .
+ *   H = c^2 \ln \left( {\mu \over m_0 c^2} \right) \ .  \qquad \qquad (5)
  * \f]
- * From this expression and relation (\ref{eeospolymu}), the expression
+ * From this expression and relation (2), the expression
  * of the particle density in term of the log-enthalpy is
  * \f[
  *   n(H) = \left[ {\gamma-1\over \gamma} {m_0 c^2 \over \kappa}
                 \left( \exp(H) - {\mu_0\over m_0 c^2} \right)
- *	    \right] ^{1/(\gamma-1)}  \ .
+ *	    \right] ^{1/(\gamma-1)}  \ .  	\qquad \qquad (6)
  * \f]
  * The energy density and pressure as functions of \e H  can then be obtained
- * by inserting this relation into Eqs.~(\ref{eeospolye}) and
- * (\ref{eeospolyp}).
+ * by inserting this relation into Eqs. (1) and (3).
+ *
  *\ingroup (eos)
  */
 class Eos_poly : public Eos {
@@ -732,17 +736,17 @@ class Eos_poly : public Eos {
     // -----
 
     protected:
-	/// Adiabatic index \f$\gamma\f$ (cf. Eq.~(\ref{eeospolyp}))
+	/// Adiabatic index \f$\gamma\f$ (cf. Eq. (3))
 	double gam ;
 
-	/** Pressure coefficient \f$\kappa\f$  (cf. Eq.~(\ref{eeospolyp}))
+	/** Pressure coefficient \f$\kappa\f$  (cf. Eq. (3))
 	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$], where
 	 *  \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *  \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
 	 */
 	double kap ; 
 
-	/** Individual particule mass \f$m_0\f$  (cf. Eq.~(\ref{eeospolye}))
+	/** Individual particule mass \f$m_0\f$  (cf. Eq. (1))
 	 *  [unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
 	 */
 	double m_0 ;
@@ -771,9 +775,9 @@ class Eos_poly : public Eos {
 	 *  mass \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$.
 	 *
 	 *  @param gamma  adiabatic index \f$\gamma\f$
-	 *				(cf. Eq.~(\ref{eeospolyp}))
+	 *				(cf. Eq. (3))
 	 *  @param kappa  pressure coefficient \f$\kappa\f$  
-	 *		(cf. Eq.~(\ref{eeospolyp}))
+	 *		(cf. Eq. (3))
 	 *		[unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$], where
 	 *		\f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *		\f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$
@@ -782,14 +786,14 @@ class Eos_poly : public Eos {
 
 	/** Standard constructor with individual particle mass
 	*   (sets \c mu_0  to 1).
-	 *  @param gamma  adiabatic index \f$\gamma\f$ (cf. Eq.~(\ref{eeospolyp}))
+	 *  @param gamma  adiabatic index \f$\gamma\f$ (cf. Eq. (3))
 	 *  @param kappa  pressure coefficient \f$\kappa\f$
-	 *		(cf. Eq.~(\ref{eeospolyp}))
+	 *		(cf. Eq. (3))
 	 *		[unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$], where
 	 *		\f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *		\f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$
 	 *  @param mass  individual particule mass \f$m_0\f$
-	 *		 (cf. Eq.~(\ref{eeospolye}))
+	 *		 (cf. Eq. (1)
 	 *		[unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$]
 	 */
 	Eos_poly(double gamma, double kappa, double mass) ;
@@ -797,14 +801,14 @@ class Eos_poly : public Eos {
 	/** Standard constructor with individual particle mass and zero-pressure
          * chemical potential
 	 *
-	 *  @param gamma  adiabatic index \f$\gamma\f$ (cf. Eq.~(\ref{eeospolyp}))
+	 *  @param gamma  adiabatic index \f$\gamma\f$ (cf. Eq. (3))
 	 *  @param kappa  pressure coefficient \f$\kappa\f$
-	 *		(cf. Eq.~(\ref{eeospolyp}))
+	 *		(cf. Eq. (3))
 	 *		[unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$], where
 	 *		\f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *		\f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$
 	 *  @param mass  individual particule mass \f$m_0\f$
-	 *		 (cf. Eq.~(\ref{eeospolye}))
+	 *		 (cf. Eq. (1))
 	 *		[unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$]
         *  @param mu_zero  Relativistic chemical potential at zero pressure
 	 *  [unit: \f$m_B c^2\f$, with \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
@@ -858,10 +862,10 @@ class Eos_poly : public Eos {
 	 */
 	virtual int identify() const ; 
 
-	/// Returns the adiabatic index \f$\gamma\f$ (cf. Eq.~(\ref{eeospolyp}))
+	/// Returns the adiabatic index \f$\gamma\f$ (cf. Eq. (3))
 	double get_gam() const ;
 
-	/** Returns the pressure coefficient \f$\kappa\f$  (cf. Eq.~(\ref{eeospolyp}))
+	/** Returns the pressure coefficient \f$\kappa\f$  (cf. Eq. (3))
 	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$], where
 	 *  \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *  \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
@@ -869,7 +873,7 @@ class Eos_poly : public Eos {
 	double get_kap() const ;
 	
 	/** Return the individual particule mass \f$m_0\f$
-	 *  (cf. Eq.~(\ref{eeospolye}))
+	 *  (cf. Eq. (1))
 	 *  [unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
 	 */
 	double get_m_0() const ;
@@ -903,7 +907,7 @@ class Eos_poly : public Eos {
 	/** Computes the baryon density from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
@@ -914,7 +918,7 @@ class Eos_poly : public Eos {
  	/** Computes the total energy density from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
@@ -925,7 +929,7 @@ class Eos_poly : public Eos {
  	/** Computes the pressure from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
@@ -937,7 +941,7 @@ class Eos_poly : public Eos {
 	 * from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return dln(n)/dln(H)
@@ -948,7 +952,7 @@ class Eos_poly : public Eos {
 	 * from the log-enthalpy.
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return dln(e)/dln(H)
@@ -959,7 +963,7 @@ class Eos_poly : public Eos {
 	 * from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return dln(p)/dln(H)
@@ -980,38 +984,37 @@ class Eos_poly : public Eos {
  * This equation of state (EOS) corresponds to identical non relativistic
  * particles of rest mass is \f$m_0\f$,  whose internal energy density \f$\epsilon\f$ is
  * related to their numerical density \e n  by
- * \f[ \label{eeospolynewte}
- *   \epsilon(n) = {\kappa \over \gamma-1} n^\gamma  \ .
+ * \f[ 
+ *   \epsilon(n) = {\kappa \over \gamma-1} n^\gamma  \ . \qquad\qquad (1)
  * \f]
  * The (non-relativistic) chemical potential is
  * then
- * \f[  \label{eeospolynewtmu}
+ * \f[  
  *   \mu(n) := {d\epsilon\over dn} = {\kappa \gamma \over \gamma-1} n^{\gamma-1}
- *		  \ .
+ *		  \ . \qquad\qquad (2)
  * \f]
  * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
  * \f$p = \mu n - \epsilon\f$, so that
- * \f[ \label{eeospolynewtp}
- *   p(n) = \kappa n^\gamma  \ .  
+ * \f[ 
+ *   p(n) = \kappa n^\gamma  \ .  \qquad\qquad (3)
  * \f]
  * The (non-relativistic) specific enthalpy is  :
- * \f[ \label{eeospolynewth}
- *   h(n) := {\epsilon + p \over m_0 n}   \ .  
+ * \f[ 
+ *   h(n) := {\epsilon + p \over m_0 n}   \ .  \qquad\qquad (4)
  * \f]
  * According to the (zero-temperature) First Law of Thermodynamics, the
  * specific enthalpy is related to the chemical potential by
  * \f[
- *   h = {\mu \over m_0}  \ . 
+ *   h = {\mu \over m_0}  \ . \qquad\qquad (5)
  * \f]
- * From this expression and relation (\ref{eeospolynewtmu}), the expression
+ * From this expression and relation (2), the expression
  * of the particle density in term of the  specific enthalpy is 
  * \f[
  *   n(h) = \left[ {\gamma-1\over \gamma} {m_0 \over \kappa} h
- *	    \right] ^{1/(\gamma-1)}  \ .  
+ *	    \right] ^{1/(\gamma-1)}  \ .  \qquad\qquad (6)
  * \f]
  * The energy density and pressure as functions of \e H  can then be obtained
- * by inserting this relation into Eqs.~(\ref{eeospolynewte}) and 
- * (\ref{eeospolynewtp}). 
+ * by inserting this relation into Eq. (1) and (3). 
  *
  */
 class Eos_poly_newt : public Eos_poly {
@@ -1031,9 +1034,9 @@ class Eos_poly_newt : public Eos_poly {
 	 *  mass \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$. 
 	 *  
 	 *  @param gamma  adiabatic index \f$\gamma\f$ 
-	 *				(cf. Eq.~(\ref{eeospolynewtp}))
+	 *				(cf. Eq. (3))
 	 *  @param kappa  pressure coefficient \f$\kappa\f$  
-	 *		(cf. Eq.~(\ref{eeospolynewtp}))
+	 *		(cf. Eq. (3))
 	 *		[unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$], where
 	 *		\f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *		\f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$
@@ -1103,7 +1106,7 @@ class Eos_poly_newt : public Eos_poly {
 	/** Computes the baryon density from the specific enthalpy.
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolynewth})
+	 *				     Eq. (4)
 	 *
 	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
 	 * 
@@ -1113,7 +1116,7 @@ class Eos_poly_newt : public Eos_poly {
  	/** Computes the total energy density from the specific enthalpy. 
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolynewth})
+	 *				     Eq. (4)
 	 *
 	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
 	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
@@ -1123,7 +1126,7 @@ class Eos_poly_newt : public Eos_poly {
  	/** Computes the pressure from the specific enthalpy. 
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolynewth})
+	 *				     Eq. (4)
 	 *
 	 *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
 	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
@@ -1134,7 +1137,7 @@ class Eos_poly_newt : public Eos_poly {
 	 * from the specific enthalpy. 
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolynewth})
+	 *				     Eq. (4)
 	 *
 	 *  @return dln(n)/dln(h)
 	 */
@@ -1144,7 +1147,7 @@ class Eos_poly_newt : public Eos_poly {
 	 * from the specific enthalpy. 
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolynewth})
+	 *				     Eq. (4)
 	 *
 	 *  @return dln(e)/dln(h)
 	 */
@@ -1154,7 +1157,7 @@ class Eos_poly_newt : public Eos_poly {
 	 * from the specific enthalpy. 
 	 * 
 	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolynewth})
+	 *				     Eq. (4)
 	 *
 	 *  @return dln(p)/dln(h)
 	 */
@@ -2150,7 +2153,7 @@ class MEos : public Eos {
 	/** Computes the baryon density from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
@@ -2161,7 +2164,7 @@ class MEos : public Eos {
  	/** Computes the total energy density from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
@@ -2172,7 +2175,7 @@ class MEos : public Eos {
  	/** Computes the pressure from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
@@ -2184,7 +2187,7 @@ class MEos : public Eos {
 	 * from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return dln(n)/dln(H)
@@ -2195,7 +2198,7 @@ class MEos : public Eos {
 	 * from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return dln(e)/dln(H)
@@ -2206,7 +2209,7 @@ class MEos : public Eos {
 	 * from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-	 *				     Eq. (\ref{eeospolyh})
+	 *				     Eq. (4)
 	 *
         *  @param par possible extra parameters of the EOS
 	 *  @return dln(p)/dln(H)
