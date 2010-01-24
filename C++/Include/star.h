@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2010/01/24 16:07:45  e_gourgoulhon
+ * New class Star_rot.
+ *
  * Revision 1.24  2007/11/06 16:22:03  j_novak
  * The data member stress_euler is now a Sym_tensor instead of a Tensor.
  *
@@ -117,12 +120,12 @@ class Eos ;
 			//---------------------------//
 
 /**
- * Base class for stars. *** UNDER DEVELOPMENT ***  \ingroup (star)
+ * Base class for stars. \ingroup (star)
  * 
  * A \c Star is constructed upon (i) a mapping 
  * (derived class of \c Map), the center of which defines the center of the 
  * star, and (ii) an equation of state (derived class of \c Eos).  
- * It contains tensor fields (class \c Tensor) which describle the
+ * It contains tensor fields (class \c Tensor) which describe the
  * hydrodynamical quantities as well as the gravitational field (spacetime
  * metric). 
  * 
@@ -131,9 +134,9 @@ class Eos ;
  *   ds^2 = - N^2  dt^2 + \gamma_{ij} ( dx^i + \beta^i dt )
  *               (dx^j + \beta^j dt )
  * \f]
- * where \f$\gamma_{ij}\f$ is the 3-metric.
+ * where \f$\gamma_{ij}\f$ is the 3-metric, described by a Lorene object of class \c Metric. 
  * 
- * The 3+1 formalism introduces two kinds of priviledged observers: the
+ * The 3+1 formalism introduces two kinds of privileged observers: the
  * fluid comoving observer and the Eulerian observer, whose 4-velocity
  * is the unit future directed normal to the \e t = const hypersurfaces. 
  * The hydrodynamical quantities measured by the fluid observer correspond
@@ -142,7 +145,7 @@ class Eos ;
  * to the members \c ener_euler,  \c s_euler, \c gam_euler, and 
  * \c u_euler.  
  * 
- * @version #$Id$#
+ * \version $Id$
  */
 class Star {
 
@@ -186,23 +189,23 @@ class Star {
 	// Metric potentials
 	// -----------------
 	
-	/** Total of the logarithm of the lapse \e N .
+	/** Logarithm of the lapse \e N .
 	 *   In the Newtonian case, 
 	 *   this is the Newtonian gravitational potential
 	 *   (in units of \f$c^2\f$). 
 	 */
 	Scalar logn ;
 
-	/// Total lapse function 
+	/// Lapse function \e N .
 	Scalar nn ; 
 	
-	/// Total shift vector
+	/// Shift vector.
 	Vector beta ;
 	
-	/// Total \f$\ln Q = \ln(\psi^2  N)\f$
-    Scalar lnq ;
+	/// Scalar field \f$\ln Q = \ln(\psi^2  N)\f$
+	Scalar lnq ;
 	
-	/// Total 3-metric 
+	/// 3-metric 
 	Metric gamma ;
 
 
@@ -356,22 +359,22 @@ class Star {
 	  */
 	const Tensor& get_stress_euler() const {return stress_euler;} ;
 
-	/** Returns the logarithm of the total lapse \e N.
+	/** Returns the logarithm of the lapse \e N.
 	 *   In the Newtonian case, this is the Newtonian
 	 *   gravitational potential (in units of \f$c^2\f$). 
 	 */
 	const Scalar& get_logn() const {return logn;} ;
 
-	/// Returns the total lapse function \e N
+	/// Returns the lapse function \e N
 	const Scalar& get_nn() const {return nn;} ;
 
-	/// Returns the total shift vector \f$\beta^i\f$.
+	/// Returns the shift vector \f$\beta^i\f$.
 	const Vector& get_beta() const {return beta;} ;
 
-	/// Returns the total scalar field \f$\ln Q\f$.
+	/// Returns the scalar field \f$\ln Q\f$.
 	const Scalar& get_lnq() const {return lnq;} ;
 
-	/// Returns the total metric \f$\gamma\f$.
+	/// Returns the 3-metric \f$\gamma\f$.
 	const Metric& get_gamma() const {return gamma;} ;
 
     // Outputs
@@ -907,7 +910,7 @@ class Star_bin : public Star {
 	 *  \c wit_w and \c loggam.  
 	 *
 	 *  The calculation is performed starting from the quantities
-	 *  \c ent, \c ener, \c press, \c a_car and \c bsn,  
+	 *  \c ent, \c ener, \c press and \c bsn,  
 	 *  which are supposed to be up to date.  
 	 *  From these,  the following fields are updated:
 	 *  \c gam_euler, \c u_euler, \c ener_euler, 
