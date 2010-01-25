@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/01/25 22:34:15  e_gourgoulhon
+ * On avance...
+ *
  * Revision 1.1  2010/01/25 18:16:39  e_gourgoulhon
  * First version.
  *
@@ -280,6 +283,63 @@ int main(){
 	cout << "=====================" << endl ;
     }
  
+    //-----------------------------------------------------------------------
+    //		Initialization of the enthalpy field
+    //-----------------------------------------------------------------------
+
+
+    const Coord& r = mp.r ;
+    double ray0 = mp.val_r(nzet-1, 1., 0., 0.) ;  
+    Scalar ent0(mp) ; 
+    ent0 = ent_c * ( 1 - r*r / (ray0*ray0) ) ; 
+    ent0.annule_domain(nz-1) ; 
+    ent0.std_spectral_base() ; 
+    star.set_enthalpy(ent0) ;  
+    
+    // Initialization of (n,e,p) from H
+    star.equation_of_state() ; 
+
+    // Initialization of (E,S,U,etc...) (quantities relative to the Eulerian obs)
+    star.hydro_euler() ; 
+
+    cout << endl << "Initial star : " 
+	 << endl << "============   " << endl ;
+
+    cout << star << endl ; 
+     
+    //-----------------------------------------------------------------------
+    //		Computation of the rotating equilibrium
+    //-----------------------------------------------------------------------
+
+    double omega = 2 * M_PI * freq_si / f_unit ; 
+    double omega_ini = 2 * M_PI * freq_ini_si / f_unit ; 
+
+    Itbl icontrol(8) ;
+    icontrol.set_etat_qcq() ; 
+    icontrol.set(0) = mer_max ; 
+    icontrol.set(1) = mer_rot ; 
+    icontrol.set(2) = mer_change_omega ; 
+    icontrol.set(3) = mer_fix_omega ; 
+    icontrol.set(4) = mer_mass ; 
+    icontrol.set(5) = mermax_poisson ; 
+    icontrol.set(6) = mer_triax ; 
+    icontrol.set(7) = delta_mer_kep ; 
+    
+    Tbl control(7) ; 
+    control.set_etat_qcq() ; 
+    control.set(0) = precis ; 
+    control.set(1) = omega_ini ; 
+    control.set(2) = relax ; 
+    control.set(3) = relax_poisson ; 
+    control.set(4) = thres_adapt ; 
+    control.set(5) = ampli_triax ; 
+    control.set(6) = precis_adapt ; 
+
+    Tbl diff(8) ;     
+
+    star.equilibrium(ent_c, omega, fact_omega, nzadapt, ent_limit, icontrol, control,
+    		     mbar_wanted, aexp_mass, diff) ;
+
     // Cleaning
     // --------
 
