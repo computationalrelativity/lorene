@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/01/25 18:14:05  e_gourgoulhon
+ * Added member unsurc2
+ * Added method is_relativistic()
+ * Suppressed method f_eccentric
+ *
  * Revision 1.1  2010/01/24 16:07:45  e_gourgoulhon
  * New class Star_rot.
  *
@@ -74,6 +79,11 @@ class Star_rot : public Star {
 	 *	\c false  for a Newtonian one. 
 	 */
 	bool relativistic ;
+
+	/** \f$1/c^2\f$ : \c unsurc2=1 for a relativistic star,
+	 *  0 for a Newtonian one. 
+	 */
+	double unsurc2 ; 	     
 
 	double omega ;	    ///< Rotation angular velocity (\c [f_unit] ) 
 
@@ -278,6 +288,11 @@ class Star_rot : public Star {
     // Accessors
     // ---------
     public:
+	/** Returns \c true  for a relativistic star, \c false  for 
+	 *  a Newtonian one
+	 */
+	bool is_relativistic() const {return relativistic; } ; 	
+
 	/** Returns the central value of the rotation angular velocity 
 	 *  (\c [f_unit] )
 	 */ 
@@ -455,20 +470,6 @@ class Star_rot : public Star {
 	/// Angular momentum of a particle on the ISCO
  	virtual double lspec_isco() const ;	
 
-
-	/** Computation of frequency of eccentric orbits.
-	 * 
-	 *  @param ecc eccentricity of the orbit
-	 *  @param periasrt periastron of the orbit
-	 *  @param ost output stream to give details of the computation;
-	 *		if set to 0x0 [default value], no details will be
-	 *		given.
-	 * 
-	 *  @return orbital frequency
-	 */
-	virtual double f_eccentric(double ecc, double periast, 
-				   ostream* ost = 0x0) const ; 
-
         /// Orbital frequency at the equator.
 	virtual double f_eq() const ;
 	
@@ -494,7 +495,8 @@ class Star_rot : public Star {
 	 *  \c logn ,  \c dzeta , \c tggg  and \c shift , 
 	 *  which are supposed to be up to date.  
 	 *  From these,  the following fields are updated:
-	 *  \c nnn , \c a_car ,  \c bbb  and \c b_car . 
+	 *  \c nnn , \c a_car ,  \c bbb  and \c b_car, as well as 
+	 *  the 3-metric \c gamma. 
 	 * 
 	 */
 	void update_metric() ; 
