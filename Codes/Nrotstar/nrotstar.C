@@ -1,0 +1,292 @@
+/*
+ * Main code for computing stationary axisymmetric rotating stars. 
+ * 
+ */
+
+/*
+ *   Copyright (c) 2010 Eric Gourgoulhon
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char nrotstar_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2010/01/25 18:16:39  e_gourgoulhon
+ * First version.
+ *
+ *
+ * $Header$
+ *
+ */
+
+// headers C
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+// headers Lorene
+#include "star_rot.h"
+#include "eos.h"
+#include "utilitaires.h"
+#include "graphique.h"
+#include "nbr_spx.h"
+#include "unites.h"	    
+
+// Local prototype (for drawings only)
+Cmp raccord_c1(const Cmp& uu, int l1) ; 
+
+//******************************************************************************
+
+int main(){
+
+  using namespace Unites ; 
+
+    // Identification of all the subroutines called by the code : 
+    
+    system("ident nrotstar > identif.d") ; 
+
+    // For the display : 
+    char display_bold[]="x[1m" ; display_bold[0] = 27 ;
+
+    //------------------------------------------------------------------
+    //	    Parameters of the computation 
+    //------------------------------------------------------------------
+
+    char blabla[120] ;
+
+    int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
+	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
+	nt, np, mer_triax ; 
+    double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
+	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
+	   precis_adapt ;  
+    
+    ifstream fich("par_rot.d") ;
+    fich.getline(blabla, 120) ;
+    fich >> relat_i ; fich.getline(blabla, 120) ;
+    bool relat = (relat_i == 1) ; 
+    fich >> ent_c ; fich.getline(blabla, 120) ;
+    fich >> freq_si ; fich.getline(blabla, 120) ;
+    fich >> fact_omega ; fich.getline(blabla, 120) ;
+    fich >> mbar_wanted ; fich.getline(blabla, 120) ;
+    mbar_wanted *= msol ; 
+    fich.getline(blabla, 120) ;
+    fich >> mer_max ; fich.getline(blabla, 120) ;
+    fich >> precis ; fich.getline(blabla, 120) ;
+    fich >> mer_rot ; fich.getline(blabla, 120) ;
+    fich >> freq_ini_si ; fich.getline(blabla, 120) ;
+    fich >> mer_change_omega ; fich.getline(blabla, 120) ;
+    fich >> mer_fix_omega ; fich.getline(blabla, 120) ;
+    fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
+    fich >> thres_adapt ; fich.getline(blabla, 120) ;
+    fich >> mer_triax ; fich.getline(blabla, 120) ;
+    fich >> ampli_triax ; fich.getline(blabla, 120) ;
+    fich >> mer_mass ; fich.getline(blabla, 120) ;
+    fich >> aexp_mass ; fich.getline(blabla, 120) ;
+    fich >> relax ; fich.getline(blabla, 120) ;
+    fich >> mermax_poisson ; fich.getline(blabla, 120) ;
+    fich >> relax_poisson ; fich.getline(blabla, 120) ;
+    fich >> precis_adapt ; fich.getline(blabla, 120) ;
+    fich >> graph ; fich.getline(blabla, 120) ;
+    fich.getline(blabla, 120) ;
+    fich >> nz ; fich.getline(blabla, 120) ;
+    fich >> nzet; fich.getline(blabla, 120) ;
+    fich >> nzadapt; fich.getline(blabla, 120) ;
+    fich >> nt; fich.getline(blabla, 120) ;
+    fich >> np; fich.getline(blabla, 120) ;
+
+    int* nr = new int[nz];
+    int* nt_tab = new int[nz];
+    int* np_tab = new int[nz];
+    double* bornes = new double[nz+1];
+     
+    fich.getline(blabla, 120);
+    for (int l=0; l<nz; l++) {
+	fich >> nr[l]; 
+	fich >> bornes[l]; fich.getline(blabla, 120) ;
+	np_tab[l] = np ; 
+	nt_tab[l] = nt ; 
+    }
+    bornes[nz] = __infinity ;
+
+    Tbl ent_limit(nzet) ;
+    ent_limit.set_etat_qcq() ;
+    ent_limit.set(nzet-1) = 0 ; 	// enthalpy at the stellar surface
+    for (int l=0; l<nzet-1; l++) {
+    	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
+    }
+
+
+    fich.close();
+
+    // Particular cases
+    // ----------------
+
+    // Initial frequency = final frequency
+    if ( freq_ini_si < 0 ) {
+	freq_ini_si = freq_si ; 
+	mer_change_omega = mer_rot ; 
+	mer_fix_omega = mer_rot + 1 ;  
+    }
+
+    
+    //-----------------------------------------------------------------------
+    //		Equation of state
+    //-----------------------------------------------------------------------
+
+    fich.open("par_eos.d") ;
+
+    Eos* peos = Eos::eos_from_file(fich) ;
+    Eos& eos = *peos ;
+
+    fich.close() ;
+
+
+    // Special treatment of crust - liquid core boundary in the case
+    //  of Eos_strange
+    if (eos.identify() == 6) {
+    	assert( nzet == 2 ) ;    	
+    	const Eos_strange_cr* peos_cr = dynamic_cast<const Eos_strange_cr*>(peos) ;
+    	if (peos_cr == 0x0) {
+    	       cout << "nrotstar: problem : peos is not of type Eos_strange_cr !" << endl ;
+    	       abort() ;
+    	}
+    	
+    	ent_limit.set(0) = peos_cr->get_ent_nd() ;  // enthalpy at core/crust transition
+
+    }
+
+    //-----------------------------------------------------------------------
+    //		Construction of the multi-grid and the mapping
+    //-----------------------------------------------------------------------
+
+    // Rescale of bornes in the case where there more than 1 domain inside
+    //   the star
+
+    for (int l=0; l<nzet-1; l++) {
+
+    	bornes[l+1] = bornes[nzet] * sqrt(1 - ent_limit(l) / ent_c) ;
+
+    }
+
+    // Type of r sampling :
+    int* type_r = new int[nz];
+    type_r[0] = RARE ; 
+    for (int l=1; l<nz-1; l++) {
+	type_r[l] = FIN ; 
+    }
+    type_r[nz-1] = UNSURR ; 
+    
+    // Type of sampling in theta and phi :
+    int type_t = SYM ; 
+    int type_p = SYM ; 
+    
+    Mg3d mg(nz, nr, type_r, nt_tab, type_t, np_tab, type_p) ;
+
+    Map_et mp(mg, bornes) ;
+   
+    // Cleaning
+    // --------
+
+    delete [] nr ; 
+    delete [] nt_tab ; 
+    delete [] np_tab ; 
+    delete [] type_r ; 
+    delete [] bornes ; 
+       
+
+
+    cout << endl 
+	 << "==========================================================" << endl
+	 << "                    Physical parameters                   " << endl
+	 << "=========================================================="
+	 << endl ; 
+    cout << endl ;
+
+    cout << endl << "Equation of state : " 
+	 << endl << "=================   " << endl ;
+    cout << eos << endl ; 
+
+    cout << "Central enthalpy : " << ent_c << " c^2" << endl ; 
+    cout << "Rotation frequency : " << freq_si << " Hz" << endl ; 
+    if ( abs(mer_mass) < mer_max ) {
+	cout << "Required Baryon mass [M_sol] : " 
+	     << mbar_wanted / msol << endl ; 
+    }
+    
+    cout << endl 
+	 << "==========================================================" << endl
+	 << "               Computational parameters                   " << endl
+	 << "=========================================================="
+	 << endl << endl ; 
+
+    cout << "Maximum number of steps in the main iteration : " 
+	 << mer_max << endl ; 
+    cout << "Relaxation factor in the main iteration  : " 
+	 << relax << endl ; 
+    cout << "Threshold on the enthalpy relative change for ending the computation : " 
+	 << precis << endl ; 
+    cout << "Maximum number of steps in Map_et::poisson : " 
+	 << mermax_poisson << endl ; 
+    cout << "Relaxation factor in Map_et::poisson : " 
+	 << relax_poisson << endl ; 
+    cout << "Step from which the baryon mass is forced to converge : " 
+	 << mer_mass << endl ; 
+    cout << "Exponent for the increase factor of the central enthalpy : " 
+	 << aexp_mass << endl ; 
+    cout << 
+    "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping"
+    << endl << thres_adapt << endl ; 
+
+
+    cout << endl << "Multi-grid : " 
+	 << endl << "==========" << endl << mg << endl ; 
+    cout << "Mapping : " 
+	 << endl << "=======" << endl << mp << endl ; 
+
+
+    //-----------------------------------------------------------------------
+    //		Construction of the star
+    //-----------------------------------------------------------------------
+    
+    Star_rot star(mp, nzet, relat, eos) ; 
+    
+    if ( star.is_relativistic() ) {
+	cout << "========================" << endl ;
+	cout << "Relativistic computation" << endl ;
+	cout << "========================" << endl ;
+    }
+    else {
+	cout << "=====================" << endl ;
+	cout << "Newtonian computation" << endl ;
+	cout << "=====================" << endl ;
+    }
+ 
+    // Cleaning
+    // --------
+
+    delete peos ;    
+
+    exit(EXIT_SUCCESS) ; 
+    
+    return EXIT_SUCCESS ; 
+   
+}
