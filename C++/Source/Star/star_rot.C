@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/01/25 18:15:32  e_gourgoulhon
+ * Added member unsurc2
+ *
  * Revision 1.1  2010/01/24 16:09:39  e_gourgoulhon
  * New class Star_rot.
  *
@@ -83,6 +86,9 @@ Star_rot::Star_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
 			 ssjm1_wshift(mpi, CON, mp.get_bvect_cart())			 
 {
 
+    // Parameter 1/c^2 is deduced from relativistic:
+    unsurc2 = relativistic ? double(1) : double(0) ; 
+
     // Initialization to a static state : 
     omega = 0 ; 
     uuu = 0 ; 
@@ -97,11 +103,7 @@ Star_rot::Star_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
     nuq = 0 ; 
     tggg = 0 ;   
 
-    w_shift.set_etat_qcq() ; 
-    for (int i=0; i<3; i++) {
-	w_shift.set(i) = 0 ; 
-    }
-
+    w_shift.set_etat_zero() ; 
     khi_shift =  0 ; 
 
     tkij.set_etat_zero() ; 
@@ -114,10 +116,7 @@ Star_rot::Star_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
     ssjm1_tggg = 0 ; 
     ssjm1_khi = 0 ; 
 
-    ssjm1_wshift.set_etat_qcq() ; 
-    for (int i=0; i<3; i++) {
-	ssjm1_wshift.set(i) = 0 ; 
-    }
+    ssjm1_wshift.set_etat_zero() ; 
     
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -130,6 +129,8 @@ Star_rot::Star_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
 Star_rot::Star_rot(const Star_rot& et)
 		       : Star(et), 
 			 relativistic(et.relativistic),
+			 unsurc2(et.unsurc2),
+			 omega(et.omega),
 			 a_car(et.a_car), 
 			 bbb(et.bbb), 
 			 b_car(et.b_car), 
@@ -151,8 +152,6 @@ Star_rot::Star_rot(const Star_rot& et)
 			 ssjm1_khi(et.ssjm1_khi), 
 			 ssjm1_wshift(et.ssjm1_wshift)			 
 {
-    omega = et.omega ; 
-
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
 }    
@@ -189,6 +188,9 @@ Star_rot::Star_rot(Map& mpi, const Eos& eos_i, FILE* fich)
 
     // relativistic is read in the file: 
     fread(&relativistic, sizeof(bool), 1, fich) ;	//## to be checked !	
+
+    // Parameter 1/c^2 is deduced from relativistic:
+    unsurc2 = relativistic ? double(1) : double(0) ; 
 
     // omega is read in the file:     
     fread_be(&omega, sizeof(double), 1, fich) ;		
@@ -327,11 +329,12 @@ void Star_rot::del_hydro_euler() {
 // --------------------------------
 void Star_rot::operator=(const Star_rot& et) {
 
-    // Assignment of quantities common to all the derived classes of Etoile
+    // Assignment of quantities common to all the derived classes of Star
     Star::operator=(et) ;	    
 
-    // Assignement of proper quantities of class Etoile_rot
+    // Assignement of proper quantities of class Star_rot
     relativistic = et.relativistic ; 
+    unsurc2 = et.unsurc2 ; 
     omega = et.omega ; 
 
     a_car = et.a_car ; 
