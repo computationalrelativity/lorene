@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/01/25 22:33:35  e_gourgoulhon
+ * Debugging...
+ *
  * Revision 1.2  2010/01/25 18:15:32  e_gourgoulhon
  * Added member unsurc2
  *
@@ -96,15 +99,20 @@ Star_rot::Star_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
     // Initialization to a flat metric : 
     a_car = 1 ;
     bbb = 1 ;
+    bbb.std_spectral_base() ; 
     b_car = 1 ;
     nphi = 0 ;   
     tnphi = 0 ;   
     nuf = 0 ; 
-    nuq = 0 ; 
+    nuq = 0 ;
+    dzeta = 0 ; 
     tggg = 0 ;   
 
     w_shift.set_etat_zero() ; 
     khi_shift =  0 ; 
+
+    beta.set_etat_zero() ; 
+    beta.set_triad( mp.get_bvect_cart() ) ;
 
     tkij.set_etat_zero() ; 
 

@@ -31,6 +31,9 @@ char star_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/01/25 22:33:35  e_gourgoulhon
+ * Debugging...
+ *
  * Revision 1.1  2010/01/25 18:15:52  e_gourgoulhon
  * First version.
  * 
@@ -121,6 +124,7 @@ double Star_rot::mass_g() const {
 				+ 2 * bbb * (ener_euler + press)
 				    * tnphi * uuu ; 
 	    source = a_car * bbb * source ;
+	    source.std_spectral_base() ; 
 
 	    p_mass_g = new double( source.integrale() ) ;
 
@@ -312,6 +316,8 @@ double Star_rot::grv3(ostream* ost) const {
       source = qpig * ( 3 * press + nbar * uuu * uuu ) ; 
     }
     
+    source.std_spectral_base() ; 
+
     double int_mat = source.integrale() ; 
     
     // Virial error
@@ -479,6 +485,8 @@ double Star_rot::mom_quad() const {
 	else {
 	    source = qpig * nbar ; 
 	}
+	
+	source.std_spectral_base() ;
 
 	// Multiplication by -r^2 P_2(cos(theta))
 	//  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
