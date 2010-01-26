@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2010/01/26 16:49:03  e_gourgoulhon
+ * Commented the test on the relativistic character of the EOS: the
+ * relativity parameter is not defined (yet !) in the base class Star.
+ *
  * Revision 1.17  2007/11/06 16:22:03  j_novak
  * The data member stress_euler is now a Sym_tensor instead of a Tensor.
  *
@@ -128,29 +132,29 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     
  
     // Check of the EOS
-    const Eos_poly_newt* p_eos_poly_newt = 
-			    dynamic_cast<const Eos_poly_newt*>( &eos ) ; 
-	  
-    const Eos_incomp_newt* p_eos_incomp_newt = 
-			    dynamic_cast<const Eos_incomp_newt*>( &eos ) ; 
-	  
-
-    
-    if (p_eos_poly_newt != 0x0) {
-	cout << 
-	    "Star::Star : the EOS Eos_poly_newt must not be employed"
-	     << " for a relativistic star ! " << endl ; 
-	cout << "(Use Eos_poly instead)" << endl ; 
-	abort() ; 
-	}
-    if (p_eos_incomp_newt != 0x0) {
-	cout << 
-	    "Star::Star : the EOS Eos_incomp_newt must not be employed"
-	     << " for a relativistic star ! " << endl ; 
-	cout << "(Use Eos_incomp instead)" << endl ; 
-	abort() ; 
-    }
- 
+//     const Eos_poly_newt* p_eos_poly_newt = 
+// 			    dynamic_cast<const Eos_poly_newt*>( &eos ) ; 
+// 	  
+//     const Eos_incomp_newt* p_eos_incomp_newt = 
+// 			    dynamic_cast<const Eos_incomp_newt*>( &eos ) ; 
+// 	  
+// 
+//     
+//     if (p_eos_poly_newt != 0x0) {
+// 	cout << 
+// 	    "Star::Star : the EOS Eos_poly_newt must not be employed"
+// 	     << " for a relativistic star ! " << endl ; 
+// 	cout << "(Use Eos_poly instead)" << endl ; 
+// 	abort() ; 
+// 	}
+//     if (p_eos_incomp_newt != 0x0) {
+// 	cout << 
+// 	    "Star::Star : the EOS Eos_incomp_newt must not be employed"
+// 	     << " for a relativistic star ! " << endl ; 
+// 	cout << "(Use Eos_incomp instead)" << endl ; 
+// 	abort() ; 
+//     }
+//  
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
 
