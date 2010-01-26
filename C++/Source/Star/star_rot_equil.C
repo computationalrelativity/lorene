@@ -32,6 +32,9 @@ char star_rot_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/01/26 16:49:53  e_gourgoulhon
+ * Reformated some outputs to the screen.
+ *
  * Revision 1.3  2010/01/26 10:49:43  e_gourgoulhon
  * First working version.
  *
@@ -107,13 +110,13 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 
     // Protections:
     if (mer_change_omega < mer_rot) {
-	cout << "Etoile_rot::equilibrium: mer_change_omega < mer_rot !" << endl ;
+	cout << "Star_rot::equilibrium: mer_change_omega < mer_rot !" << endl ;
 	cout << " mer_change_omega = " << mer_change_omega << endl ; 
 	cout << " mer_rot = " << mer_rot << endl ; 
 	abort() ; 
     }
     if (mer_fix_omega < mer_change_omega) {
-	cout << "Etoile_rot::equilibrium: mer_fix_omega < mer_change_omega !" 
+	cout << "Star_rot::equilibrium: mer_fix_omega < mer_change_omega !" 
 	     << endl ;
 	cout << " mer_fix_omega = " << mer_fix_omega << endl ; 
 	cout << " mer_change_omega = " << mer_change_omega << endl ; 
@@ -422,7 +425,7 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 	
 	    if ( mg->get_np(0) == 1 ) {
 		cout << 
-		"Etoile_rot::equilibrium: np must be stricly greater than 1"
+		"Star_rot::equilibrium: np must be stricly greater than 1"
 		<< endl << " to set a triaxial perturbation !" << endl ; 
 		abort() ; 
 	    }
