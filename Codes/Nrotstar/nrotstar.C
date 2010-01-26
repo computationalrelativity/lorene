@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/01/26 16:52:37  e_gourgoulhon
+ * Added the graphical outputs at the end.
+ *
  * Revision 1.3  2010/01/26 10:54:07  e_gourgoulhon
  * First complete version.
  *
@@ -57,7 +60,7 @@ char nrotstar_C[] = "$Header$" ;
 #include "unites.h"	    
 
 // Local prototype (for drawings only)
-Cmp raccord_c1(const Cmp& uu, int l1) ; 
+Scalar raccord_c1(const Scalar& uu, int l1) ; 
 
 //******************************************************************************
 
@@ -461,70 +464,66 @@ int main(){
     
    if (graph == 1) {
 
-// 	// des_map_et(mp, 0) ; 
-// 
-// 
-// 	char title[80] ;
-// 	char bslash[2] = {92, '\0'} ;  // 92 is the ASCII code for backslash 
-// 
-// 	// Cmp defining the surface of the star (via the enthalpy field)
-// 	Cmp surf( star.get_ent() ); 
-// 	Cmp surf_ext(mp) ; 
-// 	surf_ext = - 0.2 * surf(0, 0, 0, 0) ; 
-// 	surf_ext.annule(0, star.get_nzet()-1) ; 
-// 	surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
-// 	surf = surf + surf_ext ;
-// 	surf = raccord_c1(surf, star.get_nzet()) ; 
-// 
-// 	int nzdes = star.get_nzet() ; 
-// 
-// 	// des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
-// 
-// 	if (mer_triax < mer_max) { 
-// 	//    des_coupe_z(star.get_ent()(), 0., nzdes, "Enthalpy (equatorial plane)", 
-// //			&surf) ; 
-// 	}
-// 	    
-// 	char partit[] = {92, 'g', 'n', '\0'} ; 
-// 	strcpy(title, "Gravitational potential ") ; 
-// 	strcat(title, partit) ; 
-// 
-// 	// des_coupe_y(star.get_logn()(), 0., nzdes, title, &surf) ; 
-// 	
-// 	
-// 	strcpy(title, "Azimuthal shift N") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "u") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "gf") ; 
-// 	// des_coupe_y(star.get_nphi()(), 0., nzdes, title, &surf) ; 
-// 	
-// 	strcpy(title, "Metric potential ") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "gz") ; 
-// 	// des_coupe_y(star.get_dzeta()(), 0., nzdes, title, &surf) ; 
-// 	
-// 	strcpy(title, "Metric potential (NB-1) r sin") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "gh") ; 
-// 	// des_coupe_y(star.get_tggg()(), 0., nzdes, title, &surf) ; 
-// 	
-// 
-// 	char debtit[] = {'A', 92, 'u', '2', 92, 'd', ' ', 'K', 92, 'u', '\0'} ; 
-// 	strcpy(title, debtit) ; 
-// 	strcat(title, "ij") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "d K") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "dij") ; 
-// 	strcat(title, bslash) ; 
-// 	strcat(title, "u") ; 
-// 
-// 	// des_coupe_y(star.get_ak_car()(), 0., nzdes, title, &surf) ; 
+	des_map_et(mp, 0) ; 
+
+	char title[80] ;
+	char bslash[2] = {92, '\0'} ;  // 92 is the ASCII code for backslash 
+
+	// Scalar defining the surface of the star (via the enthalpy field)
+	Scalar surf( star.get_ent() ); 
+	Scalar surf_ext(mp) ; 
+	surf_ext = - 0.2 * surf.val_grid_point(0, 0, 0, 0) ; 
+	surf_ext.annule(0, star.get_nzet()-1) ; 
+	surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
+	surf = surf + surf_ext ;
+	surf = raccord_c1(surf, star.get_nzet()) ; 
+
+	int nzdes = star.get_nzet() ; 
+
+	des_coupe_y(star.get_ent(), 0., nzdes, "Enthalpy", &surf) ; 
+
+	if (mer_triax < mer_max) { 
+	    des_coupe_z(star.get_ent(), 0., nzdes, "Enthalpy (equatorial plane)", 
+			&surf) ; 
+	}
+	    
+	char partit[] = {92, 'g', 'n', '\0'} ; 
+	strcpy(title, "Gravitational potential ") ; 
+	strcat(title, partit) ; 
+
+	des_coupe_y(star.get_logn(), 0., nzdes, title, &surf) ; 
+	
+	
+	strcpy(title, "Azimuthal shift N") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "u") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "gf") ; 
+	des_coupe_y(star.get_nphi(), 0., nzdes, title, &surf) ; 
+	
+	strcpy(title, "Metric potential ") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "gz") ; 
+	des_coupe_y(star.get_dzeta(), 0., nzdes, title, &surf) ; 
+	
+	strcpy(title, "Metric potential (NB-1) r sin") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "gh") ; 
+	des_coupe_y(star.get_tggg(), 0., nzdes, title, &surf) ; 
+	
+	char debtit[] = {'A', 92, 'u', '2', 92, 'd', ' ', 'K', 92, 'u', '\0'} ; 
+	strcpy(title, debtit) ; 
+	strcat(title, "ij") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "d K") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "dij") ; 
+	strcat(title, bslash) ; 
+	strcat(title, "u") ; 
+
+	des_coupe_y(star.get_ak_car(), 0., nzdes, title, &surf) ; 
 
     }
-
-
 
 	
     // Cleaning
