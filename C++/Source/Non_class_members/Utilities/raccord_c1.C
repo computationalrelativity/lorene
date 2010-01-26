@@ -25,6 +25,9 @@ char raccord_c1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/01/26 16:47:40  e_gourgoulhon
+ * Added the Scalar version.
+ *
  * Revision 1.2  2003/12/19 16:21:49  j_novak
  * Shadow hunt
  *
@@ -41,6 +44,7 @@ char raccord_c1_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "cmp.h"
+#include "scalar.h"
 
 Cmp raccord_c1(const Cmp& uu, int l1) {
     
@@ -121,4 +125,14 @@ Cmp raccord_c1(const Cmp& uu, int l1) {
     
     return resu ; 
     
+}
+
+/*
+ * Scalar version 
+ */
+Scalar raccord_c1(const Scalar& uu, int l1) {
+
+    Cmp cuu(uu) ; 
+    return Scalar( raccord_c1(cuu, l1) ) ; 
+   
 }
