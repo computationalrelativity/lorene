@@ -32,6 +32,9 @@ char star_rot_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/01/26 10:49:43  e_gourgoulhon
+ * First working version.
+ *
  * Revision 1.2  2010/01/25 22:32:38  e_gourgoulhon
  * Start of real implementation
  *
@@ -49,7 +52,7 @@ char star_rot_equil_C[] = "$Header$" ;
 // Headers Lorene
 #include "star_rot.h"
 #include "param.h"
-#include "cmp.h"
+#include "tenseur.h"
 
 #include "graphique.h"
 #include "utilitaires.h"
@@ -200,6 +203,27 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
     Cmp cssjm1_nuq(ssjm1_nuq) ; 
     Cmp cssjm1_tggg(ssjm1_tggg) ; 
     Cmp cssjm1_khi(ssjm1_khi) ; 
+    Tenseur cssjm1_wshift(mp, 1, CON, mp.get_bvect_cart() ) ;
+    cssjm1_wshift.set_etat_qcq() ;
+    for (int i=1; i<=3; i++) {
+	cssjm1_wshift.set(i-1) = ssjm1_wshift(i) ; 
+    }
+
+    Tenseur cshift(mp, 1, CON, mp.get_bvect_cart() ) ;
+    cshift.set_etat_qcq() ;
+    for (int i=1; i<=3; i++) {
+      cshift.set(i-1) = -beta(i) ; 
+    }
+
+    Tenseur cw_shift(mp, 1, CON, mp.get_bvect_cart() ) ;
+    cw_shift.set_etat_qcq() ;
+    for (int i=1; i<=3; i++) {
+      cw_shift.set(i-1) = w_shift(i) ; 
+    }
+
+    Tenseur ckhi_shift(mp) ;
+    ckhi_shift.set_etat_qcq() ;
+    ckhi_shift.set() = khi_shift ; 
 
     Param par_poisson_nuf ; 
     par_poisson_nuf.add_int(mermax_poisson,  0) ;  // maximum number of iterations
@@ -237,7 +261,7 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
     par_poisson_vect.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson_vect.add_double(precis_poisson, 1) ; // required precision
     par_poisson_vect.add_cmp_mod( cssjm1_khi ) ; 
-    par_poisson_vect.add_tensor_mod( ssjm1_wshift ) ; 
+    par_poisson_vect.add_tenseur_mod( cssjm1_wshift ) ; 
     par_poisson_vect.add_int_mod(niter, 0) ;   
 
  					   
@@ -473,19 +497,29 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 		}
 	    }
 
-	    
-	    //##
-	    // source_shift.dec2_dzpuis() ;    // dzpuis 4 -> 2
-
 	    double lambda_shift = double(1) / double(3) ; 
 
 	    if ( mg->get_np(0) == 1 ) {
 		lambda_shift = 0 ; 
 	    }
 	
-	    //source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
-	    //			      shift, w_shift, khi_shift) ;      
-	    
+	    Tenseur csource_shift(mp, 1, CON, mp.get_bvect_cart() ) ;
+	    csource_shift.set_etat_qcq() ;
+	    for (int i=1; i<=3; i++) {
+		csource_shift.set(i-1) = source_shift(i) ; 
+	    }
+	    csource_shift.set(2).set_etat_zero() ;  //## bizarre...
+
+	    csource_shift.poisson_vect(lambda_shift, par_poisson_vect, 
+	    			      cshift, cw_shift, ckhi_shift) ;      	    
+
+	    for (int i=1; i<=3; i++) {
+		beta.set(i) = - cshift(i-1) ;
+		beta.set(i).set_dzpuis(0) ;     //## bizarre...
+		w_shift.set(i) = cw_shift(i-1) ; 
+	    }
+	    khi_shift = ckhi_shift() ; 
+
 	    cout << "Test of the Poisson equation for shift_x :" << endl ; 
 	    err = source_shift(1).test_poisson(-beta(1), cout, true) ;
 	    diff_shift_x = err(0, 0) ; 
@@ -502,7 +536,330 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 	
 	}
 
+	//-----------------------------------------
+	// Determination of the fluid velociy U
+	//-----------------------------------------
+	
+	if (mer > mer_fix_omega + delta_mer_kep) {
+		
+    	    omega *= fact_omega ;  // Increase of the angular velocity if 
+	}			   //  fact_omega != 1
+	
+	bool omega_trop_grand = false ; 
+	bool kepler = true ; 
 
+	while ( kepler ) {
+	
+	    // Possible decrease of Omega to ensure a velocity < c 
+	
+	    bool superlum = true ; 
+	
+	    while ( superlum ) {
+	
+		// New fluid velocity U :
+	
+		Scalar tmp = omega - nphi ; 
+		tmp.annule_domain(nzm1) ; 
+		tmp.std_spectral_base() ;
+    
+		tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
+
+		uuu = bbb / nn * tmp ; 
+    
+		if (uuu.get_etat() == ETATQCQ) {
+		    // Same basis as (Omega -N^phi) r sin(theta) :
+		    (uuu.set_spectral_va()).set_base( tmp.get_spectral_va().get_base() ) ;   
+		}
+
+		// Is the new velocity larger than c in the equatorial plane ?
+	
+		superlum = false ; 
+	
+		for (int l=0; l<nzet; l++) {
+		    for (int i=0; i<mg->get_nr(l); i++) {
+		
+			double u1 = uuu.val_grid_point(l, 0, j_b, i) ; 
+			if (u1 >= 1.) {	    // superluminal velocity
+			    superlum = true ; 
+			    cout << "U > c  for l, i : " << l << "  " << i 
+				 << "   U = " << u1 << endl ;  
+			}
+		    }
+		}
+		if ( superlum ) {
+		    cout << "**** VELOCITY OF LIGHT REACHED ****" << endl ; 
+		    omega /= fact_omega ;    // Decrease of Omega
+		    cout << "New rotation frequency : " 
+			 << omega/(2.*M_PI) * f_unit <<  " Hz" << endl ; 
+		    omega_trop_grand = true ;  
+		}
+	    }	// end of while ( superlum )
+
+	
+	    // New computation of U (which this time is not superluminal)
+	    //  as well as of gam_euler, ener_euler, etc...
+	    // -----------------------------------
+
+	    hydro_euler() ; 
+	
+
+	    //------------------------------------------------------
+	    //	First integral of motion 
+	    //------------------------------------------------------
+	
+	    // Centrifugal potential : 
+	    if (relativistic) {
+		mlngamma = - log( gam_euler ) ;
+	    }
+	    else {
+		mlngamma = - 0.5 * uuu*uuu ; 
+	    }
+	
+	    // Equatorial values of various potentials :
+	    double nuf_b  = nuf.val_grid_point(l_b, k_b, j_b, i_b) ; 
+	    double nuq_b  = nuq.val_grid_point(l_b, k_b, j_b, i_b) ; 
+	    double mlngamma_b  = mlngamma.val_grid_point(l_b, k_b, j_b, i_b) ; 
+
+	    // Central values of various potentials :
+	    double nuf_c = nuf.val_grid_point(0,0,0,0) ; 
+	    double nuq_c = nuq.val_grid_point(0,0,0,0) ; 
+	    double mlngamma_c = 0 ;
+	
+	    // Scale factor to ensure that the enthalpy is equal to ent_b at 
+	    //  the equator
+	    double alpha_r2 = ( ent_c - ent_b + mlngamma_c - mlngamma_b
+				+ nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+	    alpha_r = sqrt(alpha_r2) ;
+	    cout << "alpha_r = " << alpha_r << endl ; 
+
+	    // Readjustment of nu :
+	    // -------------------
+
+	    logn = alpha_r2 * nuf + nuq ;
+	    double nu_c =  logn.val_grid_point(0,0,0,0) ;
+
+	    // First integral	--> enthalpy in all space
+	    //-----------------
+
+	    ent = (ent_c + nu_c + mlngamma_c) - logn - mlngamma ;
+
+	    // Test: is the enthalpy negative somewhere in the equatorial plane
+	    //  inside the star ? If yes, this means that the Keplerian velocity
+	    //  has been overstep.
+
+	    kepler = false ; 
+	    for (int l=0; l<nzet; l++) {
+		int imax = mg->get_nr(l) - 1 ;
+		if (l == l_b) imax-- ;	// The surface point is skipped
+		for (int i=0; i<imax; i++) { 
+		    if ( ent.val_grid_point(l, 0, j_b, i) < 0. ) {
+			kepler = true ;
+			cout << "ent < 0 for l, i : " << l << "  " << i 
+			     << "   ent = " << ent.val_grid_point(l, 0, j_b, i) << endl ;  
+		    } 
+		}
+	    }
+	
+	    if ( kepler ) {
+		cout << "**** KEPLERIAN VELOCITY REACHED ****" << endl ; 
+		omega /= fact_omega ;    // Omega is decreased
+		cout << "New rotation frequency : " 
+			 << omega/(2.*M_PI) * f_unit << " Hz" << endl ; 
+		omega_trop_grand = true ;  
+	    }
+
+	}   // End of while ( kepler )
+	
+	if ( omega_trop_grand ) {	// fact_omega is decreased for the
+					//  next step 
+	    fact_omega = sqrt( fact_omega ) ; 
+	    cout << "**** New fact_omega : " << fact_omega << endl ; 
+	}
+
+	//----------------------------------------------------
+	// Adaptation of the mapping to the new enthalpy field
+	//----------------------------------------------------
+    
+	// Shall the adaptation be performed (cusp) ?
+	// ------------------------------------------
+	
+	double dent_eq = ent.dsdr().val_grid_point(l_b, k_b, j_b, i_b) ; 
+	double dent_pole = ent.dsdr().val_grid_point(l_b, k_b, 0, i_b) ;
+	double rap_dent = fabs( dent_eq / dent_pole ) ; 
+	cout << "| dH/dr_eq / dH/dr_pole | = " << rap_dent << endl ; 
+	
+	if ( rap_dent < thres_adapt ) {
+	    adapt_flag = 0 ;	// No adaptation of the mapping 
+	    cout << "******* FROZEN MAPPING  *********" << endl ; 
+	}
+	else{
+	    adapt_flag = 1 ;	// The adaptation of the mapping is to be
+				//  performed
+	}
+
+	mp_prev = mp_et ; 
+
+	Cmp cent(ent) ; 
+	mp.adapt(cent, par_adapt) ; 
+
+ 	//----------------------------------------------------
+	// Computation of the enthalpy at the new grid points
+	//----------------------------------------------------
+	
+	mp_prev.homothetie(alpha_r) ; 
+	
+	mp.reevaluate(&mp_prev, nzet+1, cent) ;
+	ent = cent ; 
+
+	//----------------------------------------------------
+	// Equation of state  
+	//----------------------------------------------------
+	
+	equation_of_state() ; 	// computes new values for nbar (n), ener (e) 
+				// and press (p) from the new ent (H)
+	
+	//---------------------------------------------------------
+	// Matter source terms in the gravitational field equations	
+	//---------------------------------------------------------
+
+	//## Computation of tnphi and nphi from the Cartesian components
+	//  of the shift for the test in hydro_euler():
+	    
+        fait_nphi() ; 
+
+	hydro_euler() ;		// computes new values for ener_euler (E), 
+				// s_euler (S) and u_euler (U^i)
+
+	if (relativistic) {
+
+	    //-------------------------------------------------------
+	    //	2-D Poisson equation for tggg
+	    //-------------------------------------------------------
+
+	    Cmp csource_tggg(source_tggg) ; 
+	    Cmp ctggg(tggg) ; 
+	    mp.poisson2d(csource_tggg, mp.cmp_zero(), par_poisson_tggg,
+			 ctggg) ; 
+	    tggg = ctggg ; 
+
+	    
+	    //-------------------------------------------------------
+	    //	2-D Poisson equation for dzeta
+	    //-------------------------------------------------------
+
+	    Cmp csource_dzf(source_dzf) ; 
+	    Cmp csource_dzq(source_dzq) ; 
+	    Cmp cdzeta(dzeta) ; 
+	    mp.poisson2d(csource_dzf, csource_dzq, par_poisson_dzeta,
+			 cdzeta) ;
+	    dzeta = cdzeta ; 
+	    
+	    err_grv2 = lbda_grv2 - 1; 
+	    cout << "GRV2: " << err_grv2 << endl ; 
+	    
+	}
+	else {
+		err_grv2 = grv2() ; 
+	}
+
+
+	//---------------------------------------
+	// Computation of the metric coefficients (except for N^phi)
+	//---------------------------------------
+
+	// Relaxations on nu and dzeta :  
+
+	if (mer >= 10) {
+		logn = relax * logn + relax_prev * logn_prev ;
+
+		dzeta = relax * dzeta + relax_prev * dzeta_prev ; 
+	}
+
+	// Update of the metric coefficients N, A, B and computation of K_ij :
+
+	update_metric() ; 
+	
+	//-----------------------
+	//  Informations display
+	//-----------------------
+
+	partial_display(cout) ; 
+	fichfreq << "  " << omega / (2*M_PI) * f_unit ; 
+	fichevol << "  " << rap_dent ; 
+	fichevol << "  " << ray_pole() / ray_eq() ; 
+	fichevol << "  " << ent_c ; 
+
+	//-----------------------------------------
+	// Convergence towards a given baryon mass 
+	//-----------------------------------------
+
+	if (mer > mer_mass) {
+	    
+	    double xx ; 
+	    if (mbar_wanted > 0.) {
+		xx = mass_b() / mbar_wanted - 1. ;
+		cout << "Discrep. baryon mass <-> wanted bar. mass : " << xx 
+		     << endl ; 
+	    }
+	    else{
+		xx = mass_g() / fabs(mbar_wanted) - 1. ;
+		cout << "Discrep. grav. mass <-> wanted grav. mass : " << xx 
+		     << endl ; 
+	    }
+	    double xprog = ( mer > 2*mer_mass) ? 1. : 
+				 double(mer-mer_mass)/double(mer_mass) ; 
+	    xx *= xprog ; 
+	    double ax = .5 * ( 2. + xx ) / (1. + xx ) ; 
+	    double fact = pow(ax, aexp_mass) ; 
+	    cout << "  xprog, xx, ax, fact : " << xprog << "  " <<
+			xx << "  " << ax << "  " << fact << endl ; 
+
+	    if ( change_ent ) {
+		ent_c *= fact ; 
+	    }
+	    else {
+		if (mer%4 == 0) omega *= fact ; 
+	    }
+	}
+	
+
+	//------------------------------------------------------------
+	//  Relative change in enthalpy with respect to previous step 
+	//------------------------------------------------------------
+
+	Tbl diff_ent_tbl = diffrel( ent, ent_prev ) ; 
+	diff_ent = diff_ent_tbl(0) ; 
+	for (int l=1; l<nzet; l++) {
+	    diff_ent += diff_ent_tbl(l) ; 
+	}
+	diff_ent /= nzet ; 
+	
+	fichconv << "  " << log10( fabs(diff_ent) + 1.e-16 ) ;
+	fichconv << "  " << log10( fabs(err_grv2) + 1.e-16 ) ;
+	fichconv << "  " << log10( fabs(max_triax) + 1.e-16 ) ;
+
+	vit_triax = 0 ;
+	if ( (mer > mer_triax+1) && (max_triax_prev > 1e-13) ) {
+		vit_triax = (max_triax - max_triax_prev) / max_triax_prev ; 
+	}
+
+	fichconv << "  " << vit_triax ;
+	
+	//------------------------------
+	//  Recycling for the next step
+	//------------------------------
+	
+	ent_prev = ent ; 
+	logn_prev = logn ; 
+	dzeta_prev = dzeta ; 
+	max_triax_prev = max_triax ; 
+	
+	fichconv << endl ;
+	fichfreq << endl ;
+	fichevol << endl ;
+	fichconv.flush() ; 
+	fichfreq.flush() ; 
+	fichevol.flush() ; 
 	
     } // End of main loop
     
@@ -510,17 +867,16 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
     // 			End of iteration
     //=========================================================================
 
-    fichconv.close() ; 
-    fichfreq.close() ; 
-    fichevol.close() ; 
-    
     ssjm1_nuf = cssjm1_nuf ; 
     ssjm1_nuq = cssjm1_nuq ; 
     ssjm1_tggg = cssjm1_tggg ; 
     ssjm1_khi = cssjm1_khi ; 
+    for (int i=1; i<=3; i++) {
+	ssjm1_wshift.set(i) = cssjm1_wshift(i-1) ; 
+    }
 
-	cout << "Star_rot::equilibrium : not finished ! " << endl ; 
-	abort() ; 
-
-
+    fichconv.close() ; 
+    fichfreq.close() ; 
+    fichevol.close() ; 
+    
 }
