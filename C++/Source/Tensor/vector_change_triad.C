@@ -29,6 +29,9 @@ char vector_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/01/26 16:47:10  e_gourgoulhon
+ * Suppressed the assert on np >= 4 (too strong ?).
+ *
  * Revision 1.6  2005/09/15 15:51:26  j_novak
  * The "rotation" (change of triad) methods take now Scalars as default
  * arguments.
@@ -144,7 +147,7 @@ void Vector::change_triad(const Base_vect& new_triad) {
 #ifndef NDEBUG
       int nz = mp->get_mg()->get_nzone() ;
       for (int i=0; i<nz; i++) {
-	  assert( mp->get_mg()->get_np(i) >= 4) ;
+//##	  assert( mp->get_mg()->get_np(i) >= 4) ;
 	  assert( mp->get_mg()->get_nt(i) >= 5) ;
       }
 #endif
@@ -181,7 +184,7 @@ void Vector::change_triad(const Base_vect& new_triad) {
 #ifndef NDEBUG
       int nz = mp->get_mg()->get_nzone() ;
       for (int i=0; i<nz; i++) {
-	  assert( mp->get_mg()->get_np(i) >= 4) ;
+//##	  assert( mp->get_mg()->get_np(i) >= 4) ;
 	  assert( mp->get_mg()->get_nt(i) >= 5) ;
       }
 #endif
