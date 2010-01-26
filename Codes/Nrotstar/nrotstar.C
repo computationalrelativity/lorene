@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/01/26 10:54:07  e_gourgoulhon
+ * First complete version.
+ *
  * Revision 1.2  2010/01/25 22:34:15  e_gourgoulhon
  * On avance...
  *
@@ -340,6 +343,190 @@ int main(){
     star.equilibrium(ent_c, omega, fact_omega, nzadapt, ent_limit, icontrol, control,
     		     mbar_wanted, aexp_mass, diff) ;
 
+    cout << endl << "Final star : " 
+	 << endl << "==========   " << endl ;
+
+    cout.precision(10) ; 
+    cout << star << endl ;
+
+    double rho_c = star.get_ener().val_grid_point(0,0,0,0) ;
+
+    cout << "r_p/r_eq :" << star.aplat() << endl ;
+    cout << "Omega rho0^{-1/2} : " << star.get_omega_c() /
+    	sqrt( ggrav * rho_c ) << endl ;
+
+    cout << "M rho0^{1/2} : " << star.mass_g() * pow(ggrav,1.5) *
+    	sqrt( rho_c ) << endl ;
+
+    cout << "M_B rho0^{1/2} : " << star.mass_b() * pow(ggrav,1.5) *
+    	sqrt( rho_c ) << endl ;
+
+    cout << "R_circ rho0^{1/2} : " << star.r_circ() *
+    	sqrt( ggrav * rho_c ) << endl ;
+    	
+    cout << "J rho0 : " << star.angu_mom() * ggrav * ggrav * rho_c  << endl ;
+    	
+    cout << "Z_p :      " << star.z_pole() << endl ;
+    cout << "Z_eq^f :   " << star.z_eqf() << endl ;
+    cout << "Z_eq^b :   " << star.z_eqb() << endl ;
+
+    cout << "GRV2: " << star.grv2() << endl ;
+    cout << "GRV3: " << star.grv3() << endl ;
+
+    double vit_triax = diff(7) ;
+
+    //-----------------------------------------------
+    //  General features of the final configuration
+    //  saved in a file
+    //-----------------------------------------------
+
+    ofstream fichfinal("calcul.d") ;
+    fichfinal.precision(10) ; 
+    
+    if ( star.is_relativistic() ) {
+	fichfinal << "Relativistic computation" << endl ;
+    }
+    else {
+	fichfinal << "Newtonian computation" << endl ;
+    }
+    
+    fichfinal << star.get_eos() << endl ;
+    
+    fichfinal << endl << "Total CPU time  : " << endl ;
+    fichfinal << "Memory size : " << endl << endl ; 
+
+    fichfinal << endl << endl ; 
+    fichfinal << "Grid : " << endl ; 
+    fichfinal << "------ " << endl ; 
+    fichfinal << *(star.get_mp().get_mg()) << endl ; 
+    fichfinal << endl << "Physical characteristics : " << endl ; 
+    fichfinal	  << "-------------------------" << endl ; 
+    fichfinal << star << endl ;
+    fichfinal << "Growing rate of triaxial perturbation: " << vit_triax 
+	      << endl ; 
+
+    fichfinal << endl <<
+    "===================================================================" 
+    << endl ; 
+    fichfinal << "Diff_ent : " << diff(0) << endl ; 
+    fichfinal << "Relative error on the virial theorem GRV2 : "
+	      << star.grv2() << endl ;   
+    fichfinal << "Relative error on the virial theorem GRV3 : "
+	      << star.grv3() << endl ;   
+    
+    fichfinal << endl <<
+    "================================================================" << endl ;
+    fichfinal <<
+    "   PARAMETERS USED FOR THE COMPUTATION (file parrot.d) : " << endl ;
+    fichfinal <<
+    "================================================================" << endl ;
+    fichfinal.close() ;
+    system("cat par_rot.d >> calcul.d") ; 
+
+    fichfinal.open("calcul.d", ios::app) ;
+    fichfinal << endl <<
+    "================================================================" << endl ;
+    fichfinal <<
+    "	           EOS PARAMETERS (file par_eos.d) : " << endl ;
+    fichfinal <<
+    "================================================================" << endl ;
+    fichfinal.close() ;
+    system("cat par_eos.d >> calcul.d") ;
+
+    // Identification du code et de ses sous-routines (no. de version RCS) :     	
+    fichfinal.open("calcul.d", ios::app) ; 
+    fichfinal << endl <<
+    "================================================================" << endl ; 
+    fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
+    fichfinal << 
+    "================================================================" << endl ; 
+    fichfinal.close() ; 
+    system("ident nrotstar >> calcul.d") ; 
+
+
+    // Saveguard of the whole configuration
+    // ------------------------------------
+
+	FILE* fresu = fopen("resu.d", "w") ;
+
+	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
+	star.get_mp().sauve(fresu) ;                // writing of the mapping
+	star.get_eos().sauve(fresu) ;  				// writing of the EOS
+	star.sauve(fresu) ;                         // writing of the star
+	
+	fclose(fresu) ;
+	
+    // Drawings
+    // --------
+    
+   if (graph == 1) {
+
+// 	// des_map_et(mp, 0) ; 
+// 
+// 
+// 	char title[80] ;
+// 	char bslash[2] = {92, '\0'} ;  // 92 is the ASCII code for backslash 
+// 
+// 	// Cmp defining the surface of the star (via the enthalpy field)
+// 	Cmp surf( star.get_ent() ); 
+// 	Cmp surf_ext(mp) ; 
+// 	surf_ext = - 0.2 * surf(0, 0, 0, 0) ; 
+// 	surf_ext.annule(0, star.get_nzet()-1) ; 
+// 	surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
+// 	surf = surf + surf_ext ;
+// 	surf = raccord_c1(surf, star.get_nzet()) ; 
+// 
+// 	int nzdes = star.get_nzet() ; 
+// 
+// 	// des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
+// 
+// 	if (mer_triax < mer_max) { 
+// 	//    des_coupe_z(star.get_ent()(), 0., nzdes, "Enthalpy (equatorial plane)", 
+// //			&surf) ; 
+// 	}
+// 	    
+// 	char partit[] = {92, 'g', 'n', '\0'} ; 
+// 	strcpy(title, "Gravitational potential ") ; 
+// 	strcat(title, partit) ; 
+// 
+// 	// des_coupe_y(star.get_logn()(), 0., nzdes, title, &surf) ; 
+// 	
+// 	
+// 	strcpy(title, "Azimuthal shift N") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "u") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "gf") ; 
+// 	// des_coupe_y(star.get_nphi()(), 0., nzdes, title, &surf) ; 
+// 	
+// 	strcpy(title, "Metric potential ") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "gz") ; 
+// 	// des_coupe_y(star.get_dzeta()(), 0., nzdes, title, &surf) ; 
+// 	
+// 	strcpy(title, "Metric potential (NB-1) r sin") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "gh") ; 
+// 	// des_coupe_y(star.get_tggg()(), 0., nzdes, title, &surf) ; 
+// 	
+// 
+// 	char debtit[] = {'A', 92, 'u', '2', 92, 'd', ' ', 'K', 92, 'u', '\0'} ; 
+// 	strcpy(title, debtit) ; 
+// 	strcat(title, "ij") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "d K") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "dij") ; 
+// 	strcat(title, bslash) ; 
+// 	strcat(title, "u") ; 
+// 
+// 	// des_coupe_y(star.get_ak_car()(), 0., nzdes, title, &surf) ; 
+
+    }
+
+
+
+	
     // Cleaning
     // --------
 
