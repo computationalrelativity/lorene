@@ -246,11 +246,11 @@ void Excision_surf::get_evol_params_from_ID(double alpha, double beta, double ga
     cout << "nb_m:   " << nb_m << endl;
       
     if (nb_m==1){
-    alpha =  2.*abs(beta - (*tfz).val_in_bound_jk(0,1,0));
+    alpha =  2.*fabs(beta - (*tfz).val_in_bound_jk(0,1,0));
     }
     else{
      for (int ii=0; ii <nb_m; ii++){
-     alpha_aux = 2.*abs(beta - (*tfz).val_in_bound_jk(0,1,ii));
+     alpha_aux = 2.*fabs(beta - (*tfz).val_in_bound_jk(0,1,ii));
      if (alpha_aux >=alpha){
        alpha = alpha_aux;
        }
