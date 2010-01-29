@@ -46,8 +46,7 @@ char kerr_C[] = "$Header$" ;
 #include "proto.h"
 #include "utilitaires.h"
 #include "spheroid.h"
-#include "isol_hole.h"
-
+#include "excised_slice.h"
 int main(){  
        using namespace Unites ; 
     //------------------------------------------------------------------
@@ -134,10 +133,10 @@ int main(){
 
   Scalar lapse_hor(map); lapse_hor = N_hor; lapse_hor.std_spectral_base();
   
-  Isol_hole Kerr_hole(*(dynamic_cast<const Map*>(&map)), Omega, false, lapse_hor, isCF);
+  Excised_slice Kerr_hole(*(dynamic_cast<const Map*>(&map)), 1 ,1);
   
   // Compute the metric data using the Isol_hole class  
-  Kerr_hole.compute_stat_metric(precis, relax, mer_max, mer_max2);
+  Kerr_hole.compute_stat_metric(precis, Omega, false, lapse_hor, isCF, relax, mer_max, mer_max2);
 
   // Once metric fields are calculated, it is possible to perform several diagnostics on the data.
 
@@ -170,7 +169,7 @@ int main(){
 
   // The computed metric fields are saved as a whole in Isol_hole data. 
   
-  FILE* Kerr_holedata = fopen("Kerr_data.d", "w");
+  FILE* Kerr_holedata = fopen("Kerr_data_Om0.05_N0.55.d", "w");
   Kerr_hole.get_mp().get_mg()->sauve(Kerr_holedata) ;		// writing of the grid
   Kerr_hole.get_mp().sauve(Kerr_holedata) ;      
   Kerr_hole.sauve(Kerr_holedata);
