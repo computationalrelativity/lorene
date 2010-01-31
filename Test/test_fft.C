@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/01/31 16:37:29  e_gourgoulhon
+ * The number of points is no longer asked to the user but set to 16.
+ *
  * Revision 1.4  2005/11/02 13:04:28  p_grandclement
  * small change in test_fft.C
  *
@@ -54,11 +57,12 @@ int main(){
   // Nombre de points
   // ----------------
   int np ; 
-  cout << "Nombre de points ? " ; 
-  cin >> np ; 
-  cout << endl ;
-  while ( cin.get()!='\n' ) ;
+  // cout << "Nombre de points ? " ; 
+  // cin >> np ; 
+  // cout << endl ;
+  //while ( cin.get()!='\n' ) ;
 
+  np = 16 ; 
 
   // Construction de la grille
   // -------------------------
@@ -100,7 +104,7 @@ int main(){
   
   ff.coef() ; // effectue la transformation de Fourier
   
-  cout << "Coefficients de la transformation de Fourier de f : " << endl ; 
+  cout << "Coefficients of the Fourier transform of f : " << endl ; 
   
   ff.affiche_seuil(cout) ; 
   
