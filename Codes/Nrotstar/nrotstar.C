@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/01/31 18:27:38  e_gourgoulhon
+ * Better reading of parameter files.
+ *
  * Revision 1.4  2010/01/26 16:52:37  e_gourgoulhon
  * Added the graphical outputs at the end.
  *
@@ -46,12 +49,12 @@ char nrotstar_C[] = "$Header$" ;
  *
  */
 
-// headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+// C headers
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
-// headers Lorene
+// Lorene headers
 #include "star_rot.h"
 #include "eos.h"
 #include "utilitaires.h"
@@ -66,7 +69,7 @@ Scalar raccord_c1(const Scalar& uu, int l1) ;
 
 int main(){
 
-  using namespace Unites ; 
+    using namespace Unites ; 
 
     // Identification of all the subroutines called by the code : 
     
@@ -79,8 +82,6 @@ int main(){
     //	    Parameters of the computation 
     //------------------------------------------------------------------
 
-    char blabla[120] ;
-
     int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
 	nt, np, mer_triax ; 
@@ -88,49 +89,55 @@ int main(){
 	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
 	   precis_adapt ;  
     
-    ifstream fich("par_rot.d") ;
-    fich.getline(blabla, 120) ;
-    fich >> relat_i ; fich.getline(blabla, 120) ;
+    ifstream fpar("par_rot.d") ;
+    if ( !fpar.good() ) {
+        cerr << "Problem in opening the file par_rot.d ! " << endl ;
+        abort() ;
+    }
+    
+
+    fpar.ignore(1000,'\n') ;    // skip title
+    fpar >> relat_i ; fpar.ignore(1000,'\n') ;
     bool relat = (relat_i == 1) ; 
-    fich >> ent_c ; fich.getline(blabla, 120) ;
-    fich >> freq_si ; fich.getline(blabla, 120) ;
-    fich >> fact_omega ; fich.getline(blabla, 120) ;
-    fich >> mbar_wanted ; fich.getline(blabla, 120) ;
+    fpar >> ent_c ; fpar.ignore(1000,'\n') ;
+    fpar >> freq_si ; fpar.ignore(1000,'\n') ;
+    fpar >> fact_omega ; fpar.ignore(1000,'\n') ;
+    fpar >> mbar_wanted ; fpar.ignore(1000,'\n') ;
     mbar_wanted *= msol ; 
-    fich.getline(blabla, 120) ;
-    fich >> mer_max ; fich.getline(blabla, 120) ;
-    fich >> precis ; fich.getline(blabla, 120) ;
-    fich >> mer_rot ; fich.getline(blabla, 120) ;
-    fich >> freq_ini_si ; fich.getline(blabla, 120) ;
-    fich >> mer_change_omega ; fich.getline(blabla, 120) ;
-    fich >> mer_fix_omega ; fich.getline(blabla, 120) ;
-    fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
-    fich >> thres_adapt ; fich.getline(blabla, 120) ;
-    fich >> mer_triax ; fich.getline(blabla, 120) ;
-    fich >> ampli_triax ; fich.getline(blabla, 120) ;
-    fich >> mer_mass ; fich.getline(blabla, 120) ;
-    fich >> aexp_mass ; fich.getline(blabla, 120) ;
-    fich >> relax ; fich.getline(blabla, 120) ;
-    fich >> mermax_poisson ; fich.getline(blabla, 120) ;
-    fich >> relax_poisson ; fich.getline(blabla, 120) ;
-    fich >> precis_adapt ; fich.getline(blabla, 120) ;
-    fich >> graph ; fich.getline(blabla, 120) ;
-    fich.getline(blabla, 120) ;
-    fich >> nz ; fich.getline(blabla, 120) ;
-    fich >> nzet; fich.getline(blabla, 120) ;
-    fich >> nzadapt; fich.getline(blabla, 120) ;
-    fich >> nt; fich.getline(blabla, 120) ;
-    fich >> np; fich.getline(blabla, 120) ;
+    fpar.ignore(1000,'\n') ;	// skip title
+    fpar >> mer_max ; fpar.ignore(1000,'\n') ;
+    fpar >> precis ; fpar.ignore(1000,'\n') ;
+    fpar >> mer_rot ; fpar.ignore(1000,'\n') ;
+    fpar >> freq_ini_si ; fpar.ignore(1000,'\n') ;
+    fpar >> mer_change_omega ; fpar.ignore(1000,'\n') ;
+    fpar >> mer_fix_omega ; fpar.ignore(1000,'\n') ;
+    fpar >> delta_mer_kep ; fpar.ignore(1000,'\n') ;
+    fpar >> thres_adapt ; fpar.ignore(1000,'\n') ;
+    fpar >> mer_triax ; fpar.ignore(1000,'\n') ;
+    fpar >> ampli_triax ; fpar.ignore(1000,'\n') ;
+    fpar >> mer_mass ; fpar.ignore(1000,'\n') ;
+    fpar >> aexp_mass ; fpar.ignore(1000,'\n') ;
+    fpar >> relax ; fpar.ignore(1000,'\n') ;
+    fpar >> mermax_poisson ; fpar.ignore(1000,'\n') ;
+    fpar >> relax_poisson ; fpar.ignore(1000,'\n') ;
+    fpar >> precis_adapt ; fpar.ignore(1000,'\n') ;
+    fpar >> graph ; fpar.ignore(1000,'\n') ;
+    fpar.ignore(1000,'\n') ; // skip title
+    fpar >> nz ; fpar.ignore(1000,'\n') ;
+    fpar >> nzet; fpar.ignore(1000,'\n') ;
+    fpar >> nzadapt; fpar.ignore(1000,'\n') ;
+    fpar >> nt; fpar.ignore(1000,'\n') ;
+    fpar >> np; fpar.ignore(1000,'\n') ;
 
     int* nr = new int[nz];
     int* nt_tab = new int[nz];
     int* np_tab = new int[nz];
     double* bornes = new double[nz+1];
      
-    fich.getline(blabla, 120);
+    fpar.ignore(1000,'\n'); 	// skip title
     for (int l=0; l<nz; l++) {
-	fich >> nr[l]; 
-	fich >> bornes[l]; fich.getline(blabla, 120) ;
+	fpar >> nr[l]; 
+	fpar >> bornes[l]; fpar.ignore(1000,'\n') ;
 	np_tab[l] = np ; 
 	nt_tab[l] = nt ; 
     }
@@ -140,11 +147,10 @@ int main(){
     ent_limit.set_etat_qcq() ;
     ent_limit.set(nzet-1) = 0 ; 	// enthalpy at the stellar surface
     for (int l=0; l<nzet-1; l++) {
-    	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
+    	fpar >> ent_limit.set(l) ; fpar.ignore(1000,'\n') ;
     }
 
-
-    fich.close();
+    fpar.close();
 
     // Particular cases
     // ----------------
@@ -161,12 +167,16 @@ int main(){
     //		Equation of state
     //-----------------------------------------------------------------------
 
-    fich.open("par_eos.d") ;
+    fpar.open("par_eos.d") ;
+    if ( !fpar.good() ) {
+        cerr << "Problem in opening the file par_eos.d ! " << endl ;
+        abort() ;
+    }
 
-    Eos* peos = Eos::eos_from_file(fich) ;
+    Eos* peos = Eos::eos_from_file(fpar) ;
     Eos& eos = *peos ;
 
-    fich.close() ;
+    fpar.close() ;
 
 
     // Special treatment of crust - liquid core boundary in the case
