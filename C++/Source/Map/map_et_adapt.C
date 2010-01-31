@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/01/31 16:58:39  e_gourgoulhon
+ * Back to rev. 1.7 (1.8 has been committed by mistake).
+ *
  * Revision 1.8  2010/01/31 16:51:47  e_gourgoulhon
  * File local_settings_linux is now called local_settings_linux_old (for
  * it is quite old and not compatible with the gcc 4.x series).
@@ -120,7 +123,7 @@ void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
     
     // Protections 
     // -----------
-//    assert(ent.get_mp() == this) ; 
+    assert(ent.get_mp() == this) ; 
     assert(nzadapt < nz) ;
     assert(nzadapt > 0) ;
     assert(nz_search >= nzadapt) ; 
