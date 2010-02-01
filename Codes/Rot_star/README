@@ -10,12 +10,17 @@
    ================================
 
 rotstar:            Code for rigidly rotating stars in GR 
-                    (quasi-isotropic gauge)
+                    (quasi-isotropic gauge) 
+		    ** OBSOLETE : use Lorene/Codes/Nrotstar/nrotstar instead **
+
 rotdiff:            Code for differentially rotating stars in GR 
                     (quasi-isotropic gauge)
+
 rotseq:             Code for computing sequences of either rigidly or 
                     differentially rotating stars in GR (quasi-isotropic gauge)
+
 rotstar_dirac:      Code for rigidly rotating stars in GR in the Dirac gauge.
+
 rotstar_dirac_diff: Code for differentially rotating stars in GR 
                     in the Dirac gauge.
 
