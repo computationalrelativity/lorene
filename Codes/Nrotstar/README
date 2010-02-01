@@ -1,0 +1,53 @@
+	      *************************************************
+ 	      *	Lorene codes for rotating relativistic stars  *
+	      *************************************************
+
+1/ Description of the various codes
+   ================================
+
+nrotstar:	Code for rigidly rotating stars in GR (quasi-isotropic gauge) 
+
+
+2/ Compilation
+   ===========
+
+Typing
+
+	make 
+
+will produce the executable in a non-optimized version for debugging purposes.  
+To get an optimized version for production purposes type instead
+
+	make -f Makefile_O2
+
+You can clear everything by
+
+	make uninstall
+
+
+3/ Input parameters
+   ================
+
+The code nrotstar needs two input files:
+
+par_rot.d :  parameters of the computation
+par_eos.d : description of the equation of state
+
+Templates files are provided in the directory Parameters ("GR" stands for general 
+relativity and "Newt" for Newtonian gravitation). For instance
+to compute a relativistic polytropic (gamma=2) star rotating at the
+Keplerian limit, do
+
+	cp Parameters/GR/Kepler/*.d .
+
+
+4/ Running
+   =======
+
+Simply type
+
+	nrotstar
+
+Setting the parameter graph to 1 in the file par_rot.d ensures that some graphical outputs are produced at the end of the computation. 
+The main characteristics of the computed star are summarized in the file calcul.d
+Some output files like convergence.d can be visualized via xmgrace.
