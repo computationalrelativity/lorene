@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/02/02 13:35:00  e_gourgoulhon
+ * Remove the "under construction" mark.
+ *
  * Revision 1.2  2010/01/25 18:14:05  e_gourgoulhon
  * Added member unsurc2
  * Added method is_relativistic()
@@ -54,7 +57,7 @@ class Eos ;
 			//--------------------------//
 
 /**
- * Class for isolated rotating stars *** UNDER CONSTRUCTION ***. \ingroup (star)
+ * Class for isolated rotating stars. \ingroup (star)
  * 
  * The metric is
  * \f[
