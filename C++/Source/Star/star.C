@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2010/02/02 12:45:16  e_gourgoulhon
+ * Improved the display (operator>>)
+ *
  * Revision 1.18  2010/01/26 16:49:03  e_gourgoulhon
  * Commented the test on the relativistic character of the EOS: the
  * relativity parameter is not defined (yet !) in the base class Star.
@@ -425,7 +428,7 @@ ostream& Star::operator>>(ostream& ost) const {
     
     ost << endl ;
     ost << "Central lapse N :      " << nn.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of lnq : " << lnq.val_grid_point(0,0,0,0) <<  endl ; 
+//    ost << "Central value of lnq : " << lnq.val_grid_point(0,0,0,0) <<  endl ; 
   
     ost << endl 
 	<< "Coordinate equatorial radius (phi=0) a1 =    " 

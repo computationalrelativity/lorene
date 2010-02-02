@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/02/02 12:45:16  e_gourgoulhon
+ * Improved the display (operator>>)
+ *
  * Revision 1.3  2010/01/25 22:33:35  e_gourgoulhon
  * Debugging...
  *
@@ -413,14 +416,6 @@ ostream& Star_rot::operator>>(ostream& ost) const {
     double omega_c = get_omega_c() ; 
     
     ost << endl ; 
-    if (relativistic) {
-	ost << "Relativistic star" << endl ; 
-	ost << "-----------------" << endl ; 
-    }
-    else {
-	ost << "Newtonian star" << endl ; 
-	ost << "--------------" << endl ; 
-    }
     
     if (omega != __infinity) {
 	ost << "Uniformly rotating star" << endl ; 
@@ -442,9 +437,15 @@ ostream& Star_rot::operator>>(ostream& ost) const {
 	    << " rad/s     f : " << freq * f_unit << " Hz" << endl ; 
 	ost << "Central rotation period : " << 1000. / (freq * f_unit) << " ms"
 	    << endl ;
-	
     }
-    
+    if (relativistic) {
+	ost << "Relativistic star" << endl ; 
+    }
+    else {
+	ost << "Newtonian star" << endl ; 
+    }
+    double compact = qpig/(4.*M_PI) * mass_g() / r_circ() ; 
+    ost << "Compactness G M_g /(c^2 R_circ) : " << compact << endl ;     
        
     double nphi_c = nphi.val_grid_point(0, 0, 0, 0) ;
     if ( (omega_c==0) && (nphi_c==0) ) {
@@ -454,11 +455,9 @@ ostream& Star_rot::operator>>(ostream& ost) const {
 		ost << "Central N^phi/Omega :         " << nphi_c / omega_c << endl ;
     }
 	    
-    ost << "Error on the virial identity GRV2 : " << endl ; 
-    ost << "GRV2 = " << grv2() << endl ; 
-    ost << "Error on the virial identity GRV3 : " << endl ; 
+    ost << "Error on the virial identity GRV2 : " <<  grv2() << endl ; 
     double xgrv3 = grv3(&ost) ; 
-    ost << "GRV3 = " << xgrv3 << endl ; 
+    ost << "Error on the virial identity GRV3 : " << xgrv3 << endl ; 
 
     double mom_quad_38si = mom_quad() * rho_unit * (pow(r_unit, double(5.)) 
  							/ double(1.e38) ) ;
@@ -491,8 +490,6 @@ ostream& Star_rot::operator>>(ostream& ost) const {
 	 << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 
 
-    double compact = qpig/(4.*M_PI) * mass_g() / r_circ() ; 
-    ost << "Compaction parameter M_g / R_circ : " << compact << endl ; 
 
     int lsurf = nzet - 1; 
     int nt = mp.get_mg()->get_nt(lsurf) ; 
