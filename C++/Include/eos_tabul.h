@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2010/02/02 14:26:10  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.9  2010/02/02 13:21:52  j_novak
  * New class Eos_Compstar.
  *
@@ -897,7 +900,12 @@ class Eos_GlendNH3 : public Eos_tabul {
  * Equation of state for the 2010 CompStar school. 
  *
  * General tabulated EOS, reading a table passed as an argument to the 
- * constructor
+ * constructor. When built with \c Eos::eos_from_file(), the file must contain
+ * the following lines:
+ * \verbatim 17	Type of the EOS 
+/full/path/to/the/eos/table/name_of_the_table.d 
+/full/path/to/the/eos/table/name_of_the_table.d \endverbatim
+ * (Note the two identical lines).
  */
 class Eos_Compstar : public Eos_tabul {
 
