@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2010/02/02 13:21:52  j_novak
+ * New class Eos_Compstar.
+ *
  * Revision 1.15  2010/01/23 16:27:11  e_gourgoulhon
  * Improved documentation.
  *
@@ -239,6 +242,7 @@ class Eos {
 	 *	- 14 = BBB2 (Baldo, Bombaci \& Burgio 1997) 
 	 *	- 15 = BalbN1H1 (Balberg 2000) 
          *	- 16 = GlendNH3 (Glendenning 1985, case 3)  
+         *	- 17 = Compstar (Tabulated EOS for 2010 CompStar school)  
 	 *	- 100 = Multi-domain EOS (class \c MEos ) 
 	 *	- 110 = Multi-polytropic EOS (class \c Eos_multi_poly ) 
 	 *	- 120 = Fitted SLy4 (Shibata 2004) 

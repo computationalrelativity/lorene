@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/02/02 13:22:16  j_novak
+ * New class Eos_Compstar.
+ *
  * Revision 1.8  2004/03/25 10:29:02  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -116,6 +119,17 @@ Eos_tabul::Eos_tabul(const char* name_i, const char* table,
 
 }
 
+// Standard constructor with full filename
+// ---------------------------------------
+Eos_tabul::Eos_tabul(const char* name_i, const char* file_name) 
+  : Eos(name_i) {	
+
+	strcpy(tablename, file_name) ;
+	
+	read_table() ; 	
+
+}
+
 
 // Constructor from binary file
 // ----------------------------
@@ -140,6 +154,18 @@ Eos_tabul::Eos_tabul(ifstream& fich, const char* table) : Eos(fich) {
 	strcpy(tablename, path) ;
 	strcat(tablename, "/") ;
 	strcat(tablename, table) ;
+	
+	read_table() ; 	
+
+}
+
+Eos_tabul::Eos_tabul(ifstream& fich) : Eos(fich) {
+
+	char file_name[160] ; 	
+	
+	fich.getline(file_name, 160) ;
+	
+	strcpy(tablename, file_name) ;
 	
 	read_table() ; 	
 

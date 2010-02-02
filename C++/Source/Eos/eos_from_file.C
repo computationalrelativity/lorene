@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/02/02 13:22:16  j_novak
+ * New class Eos_Compstar.
+ *
  * Revision 1.8  2005/05/22 20:51:41  k_taniguchi
  * Add a new Eos Eos_fit_AkmalPR.
  *
@@ -127,6 +130,8 @@ int Eos_BalbN1H1::identify() const	{ return 15; }
 
 int Eos_GlendNH3::identify() const	{ return 16; }
 
+int Eos_Compstar::identify() const	{ return 17; }
+
 int MEos::identify() const	{ return 100; }
 
 int Eos_multi_poly::identify() const	{ return 110; }
@@ -213,6 +218,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 16 : {
 	    p_eos = new Eos_GlendNH3(fich) ;
+	    break ;
+	}
+
+	case 17 : {
+	    p_eos = new Eos_Compstar(fich) ;
 	    break ;
 	}
 
@@ -332,6 +342,11 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 
 	case 16 : {
 	    p_eos = new Eos_GlendNH3(fich) ;
+	    break ;
+	}
+
+	case 17 : {
+	    p_eos = new Eos_Compstar(fich) ;
 	    break ;
 	}
 

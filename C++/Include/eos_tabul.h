@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/02/02 13:21:52  j_novak
+ * New class Eos_Compstar.
+ *
  * Revision 1.8  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -167,6 +170,14 @@ class Eos_tabul : public Eos {
 	 */
 	Eos_tabul(const char* name_i, const char* table, const char* path) ;	
 
+	/** Standard constructor from the full filename.
+	 *
+	 * @param name_i Name of the equation of state
+	 * @param table Full name of the file containing the EOS table
+	 *              (including the absolute path).
+	 */
+	Eos_tabul(const char* name_i, const char* file_name) ;
+
 	Eos_tabul(const Eos_tabul& ) ;	///< Copy constructor	
 	
     protected:
@@ -190,6 +201,18 @@ class Eos_tabul : public Eos {
 	 *   @param table Name of the file containing the EOS table
 	 */
 	Eos_tabul(ifstream& ist, const char* table) ;
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
+	 *
+	 *   @param ist input file stream containing a name as first line
+	 *		and the full filename (including the path) containing 
+	 *              the EOS file as second line
+	 *   @param table Name of the file containing the EOS table
+	 */
+	Eos_tabul(ifstream& ist) ;
 	
 	/// The construction functions from a file
 	friend Eos* Eos::eos_from_file(FILE* ) ;
@@ -852,6 +875,86 @@ class Eos_GlendNH3 : public Eos_tabul {
 	virtual bool operator!=(const Eos& ) const ;
 
 	/** Returns a number to identify the sub-classe of \c Eos  the
+	 *  object belongs to.
+	 */
+	virtual int identify() const ;
+
+    // Outputs
+    // -------
+
+    protected:
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+};
+
+		    //------------------------------------//
+		    //	     class Eos_Compstar        	  //
+		    //------------------------------------//
+
+
+/**
+ * Equation of state for the 2010 CompStar school. 
+ *
+ * General tabulated EOS, reading a table passed as an argument to the 
+ * constructor
+ */
+class Eos_Compstar : public Eos_tabul {
+
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+
+	/** Standard constructor.
+	 *
+	 * @param file_name Absolute name (including path) containing 
+	 *                  the EOS file
+	 */
+	Eos_Compstar(const char* file_name) ;	
+
+	
+    protected:
+	/** Constructor from a binary file (created by the function
+	 *  \c sauve(FILE*) ).
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function
+	 * \c Eos::eos_from_file(FILE*) .
+	 */
+	Eos_Compstar(FILE* ) ;
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
+	 */
+	Eos_Compstar(ifstream& ) ;
+
+    private:	
+	/** Copy constructor (private to make \c  Eos_Compstar 
+	 *  a non-copiable class)
+	 */	
+	Eos_Compstar(const Eos_Compstar& ) ;	
+	
+	
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ;
+	friend Eos* Eos::eos_from_file(ifstream& ) ;
+
+    public:
+	virtual ~Eos_Compstar() ;			///< Destructor
+
+    // Miscellaneous
+    // -------------
+
+    public :
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ;
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ;
+
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
