@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2010/02/02 13:34:12  e_gourgoulhon
+ * Marked DEPRECATED (in the documentation).
+ *
  * Revision 1.28  2008/11/14 13:51:08  e_gourgoulhon
  * Added the parameter ent_limit to Etoile::equilibrium_spher and
  * Etoile_bin::equilibrium.
@@ -359,7 +362,7 @@ class Bhole ;
 			//---------------------------//
 
 /**
- * Base class for stars. \ingroup (star)
+ * Base class for stars *** DEPRECATED : use class \c Star instead ***. \ingroup (star)
  * 
  * An \c Etoile  is constructed upon (i) a mapping 
  * (derived class of \c Map ), the center of which defines the center of the 
@@ -1368,12 +1371,13 @@ class Etoile_bin : public Etoile {
 	 *			    equation for \c shift_auto  (z comp.)
 	 * @param ent_limit [input] : array of enthalpy values to be set at the boundaries between 
 	 *			the domains; if set to 0x0 (default), the initial values will be kept.
+	 * @param method_khi [input] : determines whether one of the Einstein equations is solved for \f$\sqrt{A} N\f$ or for \f$\beta := \ln(A N)\f$. 
 	 */
 	void equilibrium(double ent_c, 
                          int mermax, int mermax_poisson, 
 			 double relax_poisson, int mermax_potvit, 
 			 double relax_potvit, double thres_adapt, 
-			 const Tbl& fact, Tbl& diff, const Tbl* ent_limit = 0x0 ) ;
+			 const Tbl& fact, Tbl& diff, const Tbl* ent_limit = 0x0, bool method_khi = false ) ;
 
 	/** Computes an equilibrium configuration by regularizing
 	 *  the diverging source.
@@ -1458,7 +1462,7 @@ class Etoile_bin : public Etoile {
 			//---------------------------//
 
 /**
- * Class for isolated rotating stars. \ingroup (star)
+ * Class for isolated rotating stars *** DEPRECATED : use class \c Star_rot instead ***. \ingroup (star)
  * 
  * The metric is
  * \f[

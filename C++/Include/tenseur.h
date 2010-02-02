@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2010/02/02 13:34:12  e_gourgoulhon
+ * Marked DEPRECATED (in the documentation).
+ *
  * Revision 1.16  2005/08/30 08:35:10  p_grandclement
  * Addition of the Tau version of the vectorial Poisson equation for the Tensors
  *
@@ -272,7 +275,7 @@ class Tenseur_sym ;
 			
 
 /**
- * Tensor handling. \ingroup (otens)
+ * Tensor handling *** DEPRECATED : use class \c Tensor instead ***. \ingroup (otens)
  * 
  * This class is intended to store the components of a tensorial field in 
  * a specific basis. \a Tensor \a densities can also be stored. A tensor
@@ -1241,7 +1244,7 @@ Tenseur pow(const Tenseur&, double ) ;	///< Power (for a scalar only)
 			//---------------------------------//
 			
 /**
- * Class intended to describe tensors with a symmetry on the two last indices.
+ * Class intended to describe tensors with a symmetry on the two last indices *** DEPRECATED : use class \c Tensor_sym instead ***.
  * The storage and the calculations are different and quicker than with an 
  * usual \c Tenseur . \ingroup (otens)
  * 

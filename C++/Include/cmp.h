@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2010/02/02 13:34:12  e_gourgoulhon
+ * Marked DEPRECATED (in the documentation).
+ *
  * Revision 1.18  2005/08/30 08:35:10  p_grandclement
  * Addition of the Tau version of the vectorial Poisson equation for the Tensors
  *
@@ -424,7 +427,7 @@
 class Param ; 
 
 /**
- * Component of a tensorial field. \ingroup (otens)
+ * Component of a tensorial field *** DEPRECATED : use class \c Scalar instead ***. \ingroup (otens)
  */
 
 class Cmp {
