@@ -32,6 +32,9 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2010/02/04 16:44:35  j_novak
+ * Reformulation of the parabolic interpolation, to have better accuracy
+ *
  * Revision 1.11  2005/06/23 13:40:08  j_novak
  * The tests on the number of dimensions have been changed to handle better the
  * axisymmetric case.
@@ -352,26 +355,34 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
    }
     
    case 2:
-     int im, ip, is ;
-     double xr, xm, xp, xs, ym, yp, ys ;
-     ip = 0 ;
-     is = 1 ;
+     int i1, i2, i3 ;
+     double xr, x1, x2, x3, y1, y2, y3 ;
+     i2 = 0 ;
+     i3 = 1 ;
     assert(ndep > 2) ;
     for (int i=0; i<narr; i++) {
       xr = rarr(i) ;
-      while(rdep.t[is] < xr) is++ ;
-      assert(is<ndep) ;
-      ip = is - 1 ;
-      im = (ip == 0)? is+1 : ip-1 ;
-      xm = rdep(im) ;
-      xp = rdep(ip) ;
-      xs = rdep(is) ;
-      ym = fdep(im) ;
-      yp = fdep(ip) ;
-      ys = fdep(is) ;
-      farr.t[i] = ys * (xp-xr)*(xm-xr) / ((xp-xs)*(xm-xs))
-	+ ym * (xp-xr)*(xs-xr) / ((xp-xm)*(xs-xm))
-	+ yp * (xs-xr)*(xm-xr) / ((xs-xp)*(xm-xp)) ;
+      while(rdep.t[i3] < xr) i3++ ;
+      assert(i3<ndep) ;
+      if (i3 == 1) {
+	  i1 = 0 ;
+	  i2 = 1 ;
+	  i3 = 2 ;
+      }
+      else {
+	  i2 = i3 - 1 ;
+	  i1 = i2 - 1 ;
+      }
+      x1 = rdep(i1) ;
+      x2 = rdep(i2) ;
+      x3 = rdep(i3) ;
+      y1 = fdep(i1) ;
+      y2 = fdep(i2) ;
+      y3 = fdep(i3) ;
+      double c = y1 ;
+      double b = (y2 - y1) / (x2 - x1) ;
+      double a = ( (y3 - y2)/(x3 - x2) - (y2 - y1)/(x2 - x1) ) / (x3 - x1) ;
+      farr.t[i] = c + b*(xr - x1) + a*(xr - x1)*(xr - x2) ;
     }
     break ;
     
