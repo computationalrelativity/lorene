@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/02/08 11:45:58  j_novak
+ * Better computation of fait_shift()
+ *
  * Revision 1.5  2010/02/08 10:56:30  j_novak
  * Added a few things missing for the reading from resulting file.
  *
@@ -691,18 +694,33 @@ void Star_rot::fait_shift() {
       Scalar xx(mp) ; 
       Scalar yy(mp) ; 
       Scalar zz(mp) ; 
+      Scalar sintcosp(mp) ;
+      Scalar sintsinp(mp) ;
+      Scalar cost(mp) ;
       xx = mp.x ; 
       yy = mp.y ; 
       zz = mp.z ; 
+      sintcosp = mp.sint * mp.cosp ;
+      sintsinp = mp.sint * mp.sinp ;
+      cost = mp.cost ;
 
+      int nz = mp.get_mg()->get_nzone() ;
+      Vector xk(mp, COV, mp.get_bvect_cart()) ;
+      xk.set(1) = xx ;
+      xk.set(1).set_domain(nz-1) = sintcosp.domain(nz-1) ;
+      xk.set(1).set_dzpuis(-1) ;
+      xk.set(2) = yy ;
+      xk.set(2).set_domain(nz-1) = sintsinp.domain(nz-1) ;
+      xk.set(2).set_dzpuis(-1) ;
+      xk.set(3) = zz ;
+      xk.set(3).set_domain(nz-1) = cost.domain(nz-1) ;
+      xk.set(3).set_dzpuis(-1) ;
+      xk.std_spectral_base() ;
+      
       Tensor d_w = w_shift.derive_con( mp.flat_met_cart() ) ;
       
-      Vector x_d_w(mp, CON, mp.get_bvect_cart()) ;
-      x_d_w.set(1) = xx*d_w(1,1) + yy*d_w(2,1) + zz*d_w(3,1) ; 
-      x_d_w.set(2) = xx*d_w(1,2) + yy*d_w(2,2) + zz*d_w(3,2) ; 
-      x_d_w.set(3) = xx*d_w(1,3) + yy*d_w(2,3) + zz*d_w(3,3) ; 
-      x_d_w.std_spectral_base() ;
-      x_d_w.dec_dzpuis(2) ;
+      Vector x_d_w = contract(xk, 0, d_w, 0) ;
+      x_d_w.dec_dzpuis() ;
 
       double lambda = double(1) / double(3) ; 
 
