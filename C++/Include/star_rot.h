@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/02/08 10:56:30  j_novak
+ * Added a few things missing for the reading from resulting file.
+ *
  * Revision 1.3  2010/02/02 13:35:00  e_gourgoulhon
  * Remove the "under construction" mark.
  *
@@ -303,6 +306,9 @@ class Star_rot : public Star {
 
 	/// Returns the metric factor \e B 
 	const Scalar& get_bbb() const {return bbb;} ; 
+
+	/// Returns the square of the metric factor \e A 
+	const Scalar& get_a_car() const {return a_car;} ; 
 
 	/// Returns the square of the metric factor \e B 
 	const Scalar& get_b_car() const {return b_car;} ; 

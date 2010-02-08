@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/02/08 10:56:30  j_novak
+ * Added a few things missing for the reading from resulting file.
+ *
  * Revision 1.4  2010/02/02 12:45:16  e_gourgoulhon
  * Improved the display (operator>>)
  *
@@ -698,8 +701,9 @@ void Star_rot::fait_shift() {
       x_d_w.set(1) = xx*d_w(1,1) + yy*d_w(2,1) + zz*d_w(3,1) ; 
       x_d_w.set(2) = xx*d_w(1,2) + yy*d_w(2,2) + zz*d_w(3,2) ; 
       x_d_w.set(3) = xx*d_w(1,3) + yy*d_w(2,3) + zz*d_w(3,3) ; 
-      x_d_w.dec_dzpuis() ;
-    
+      x_d_w.std_spectral_base() ;
+      x_d_w.dec_dzpuis(2) ;
+
       double lambda = double(1) / double(3) ; 
 
       beta = - (lambda+2)/2./(lambda+1) * w_shift
