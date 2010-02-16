@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2010/02/16 11:14:50  j_novak
+ * More verbose opeining of the file.
+ *
  * Revision 1.9  2010/02/02 13:22:16  j_novak
  * New class Eos_Compstar.
  *
@@ -204,20 +207,32 @@ void Eos_tabul::read_table() {
 
   using namespace Unites ;
     	
-    	char blabla[120] ;
-    	
-	ifstream fich(tablename) ;
-	
+ 	ifstream fich(tablename) ;
+
+	if (!fich) {
+	  cout << "Eos_tabul::read_table(): " << endl ;
+	  cout << "Problem in opening the EOS file!" << endl ;
+	  cout << "Aborting..." << endl ;
+	  abort() ;
+	}
+
 	for (int i=0; i<5; i++) {		//  jump over the file
-    		fich.getline(blabla, 120) ;     //  header
+	  fich.ignore(1000, '\n') ;             // header
     	}                                       //
 
     	int nbp ;
-    	fich >> nbp ; fich.getline(blabla, 120) ;   // number of data
+    	fich >> nbp ; fich.ignore(1000, '\n') ;   // number of data
+	if (nbp<=0) {
+	  cout << "Eos_tabul::read_table(): " << endl ;
+	  cout << "Wrong value for the number of lines!" << endl ;
+	  cout << "nbp = " << nbp << endl ;
+	  cout << "Aborting..." << endl ;
+	  abort() ;
+	}
 
 	for (int i=0; i<3; i++) {		//  jump over the table
-    		fich.getline(blabla, 120) ;     //  header
-    	}                                       //
+	  fich.ignore(1000, '\n') ;
+    	}                                      
 
         press = new double[nbp] ;
         nb    = new double[nbp] ;
@@ -248,7 +263,15 @@ void Eos_tabul::read_table() {
     		fich >> no ;
     		fich >> nb_fm3 ;
     		fich >> rho_cgs ;
-    		fich >> p_cgs ; fich.getline(blabla, 120) ;    		
+    		fich >> p_cgs ; fich.ignore(1000,'\n') ;    		
+		if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
+		  cout << "Eos_tabul::read_table(): " << endl ;
+		  cout << "Negative value in table!" << endl ;
+		  cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
+		    ", p = " << p_cgs << endl ;
+		  cout << "Aborting..." << endl ;
+		  abort() ;
+		}
     		double psc2_cgs = p_cgs / c2_cgs ;
     		double h = log( (rho_cgs + psc2_cgs) /
     		                    (10 * nb_fm3 * rhonuc_cgs) ) ;
