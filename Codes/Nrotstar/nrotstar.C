@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/03/29 14:36:13  e_gourgoulhon
+ * Change of name of the output file calcul.d --> result.txt
+ *
  * Revision 1.6  2010/03/29 14:07:27  e_gourgoulhon
  * Added file outputs prof_*.d for various radial profile plots.
  *
@@ -396,7 +399,7 @@ int main(){
     //  saved in a file
     //-----------------------------------------------
 
-    ofstream fichfinal("calcul.d") ;
+    ofstream fichfinal("result.txt") ;
     fichfinal.precision(10) ; 
     
     if ( star.is_relativistic() ) {
@@ -437,9 +440,9 @@ int main(){
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat par_rot.d >> calcul.d") ; 
+    system("cat par_rot.d >> result.txt") ; 
 
-    fichfinal.open("calcul.d", ios::app) ;
+    fichfinal.open("result.txt", ios::app) ;
     fichfinal << endl <<
     "================================================================" << endl ;
     fichfinal <<
@@ -447,17 +450,17 @@ int main(){
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat par_eos.d >> calcul.d") ;
+    system("cat par_eos.d >> result.txt") ;
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("calcul.d", ios::app) ; 
+    fichfinal.open("result.txt", ios::app) ; 
     fichfinal << endl <<
     "================================================================" << endl ; 
     fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
     fichfinal << 
     "================================================================" << endl ; 
     fichfinal.close() ; 
-    system("ident nrotstar >> calcul.d") ; 
+    system("ident nrotstar >> result.txt") ; 
 
 
     // Saveguard of the whole configuration
@@ -573,8 +576,6 @@ int main(){
     
    if (graph == 1) {
 
-	des_map_et(mp, 0) ; 
-
 	char title[80] ;
 	char bslash[2] = {92, '\0'} ;  // 92 is the ASCII code for backslash 
 
@@ -589,12 +590,15 @@ int main(){
 
 	int nzdes = star.get_nzet() ; 
 
-	des_coupe_y(star.get_ent(), 0., nzdes, "Enthalpy", &surf) ; 
+	des_coupe_y(star.get_ent(), 0., nzdes, "Log-enthalpy", &surf) ; 
 
-	des_coupe_y(star.get_ener(), 0., nzdes, "", &surf) ; 
+	cout << endl << "Plot of the coefficients of the cos(j theta) expansion of the function G(theta) defining the stellar surface:" << endl ; 
+	des_map_et(mp, star.get_nzet()-1) ; 
+
+	des_coupe_y(star.get_ener(), 0., nzdes, "Fluid Proper energy density", &surf) ; 
 
 	if (mer_triax < mer_max) { 
-	    des_coupe_z(star.get_ent(), 0., nzdes, "Enthalpy (equatorial plane)", 
+	    des_coupe_z(star.get_ent(), 0., nzdes, "Log-enthalpy (equatorial plane)", 
 			&surf) ; 
 	}
 	    
