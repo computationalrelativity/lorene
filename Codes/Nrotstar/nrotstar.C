@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/03/29 14:07:27  e_gourgoulhon
+ * Added file outputs prof_*.d for various radial profile plots.
+ *
  * Revision 1.5  2010/01/31 18:27:38  e_gourgoulhon
  * Better reading of parameter files.
  *
@@ -471,6 +474,102 @@ int main(){
 	
     // Drawings
     // --------
+
+    ofstream fichdes("prof_n.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       N(theta=0)	N(theta=pi/2)" << endl ; 
+    int npd = 300 ;
+    double r_max = 3 ;
+    double h = r_max/double(npd-1) ;
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << star.get_nn().val_point(rr,0.,0.) << "   " 
+	  << star.get_nn().val_point(rr, M_PI/2.,0.) << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_omega.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       omega(theta=0)	  omega(theta=pi/2)" << endl ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << star.get_nphi().val_point(rr,0.,0.) << "   " 
+	  << star.get_nphi().val_point(rr, M_PI/2.,0.) << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_omega.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       omega(theta=0)/Omega	  omega(theta=pi/2)/Omega" << endl ; 
+    double omega_rot = star.get_omega_c() ; 
+    if (omega_rot == double(0)) omega_rot = 1 ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << star.get_nphi().val_point(rr,0.,0.) / omega_rot << "   " 
+	  << star.get_nphi().val_point(rr, M_PI/2.,0.) / omega_rot << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_a.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       A(theta=0)	  A(theta=pi/2)" << endl ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << sqrt( star.get_a_car().val_point(rr,0.,0.) ) << "   " 
+	  << sqrt( star.get_a_car().val_point(rr, M_PI/2.,0.) ) << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_bma.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       B-A(theta=0)	  B-A(theta=pi/2)" << endl ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << sqrt( star.get_b_car().val_point(rr,0.,0.) ) 
+	   - sqrt( star.get_a_car().val_point(rr,0.,0.) ) << "   " 
+	  << sqrt( star.get_b_car().val_point(rr, M_PI/2.,0.) ) 
+	   - sqrt( star.get_a_car().val_point(rr, M_PI/2.,0.) ) << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_ener.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       ener(theta=0)	  ener(theta=pi/2)" << endl ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << star.get_ener().val_point(rr,0.,0.) << "   " 
+	  << star.get_ener().val_point(rr, M_PI/2.,0.) << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_h.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       H(theta=0)	  H(theta=pi/2)" << endl ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << star.get_ent().val_point(rr,0.,0.) << "   " 
+	  << star.get_ent().val_point(rr, M_PI/2.,0.) << endl ; 
+    }
+    fichdes.close() ; 
+
+    fichdes.open("prof_u.d") ;
+    fichdes.precision(10) ; 
+    fichdes << "#   r [km]       U(theta=0)/c	  U(theta=pi/2)/c" << endl ; 
+    for (int i=0; i<npd; i++) {
+	double rr = h * i ;
+	fichdes << rr*10 << "  " 
+	  << star.get_uuu().val_point(rr,0.,0.) << "   " 
+	  << star.get_uuu().val_point(rr, M_PI/2.,0.) << endl ; 
+    }
+    fichdes.close() ; 
+
     
    if (graph == 1) {
 
@@ -491,6 +590,8 @@ int main(){
 	int nzdes = star.get_nzet() ; 
 
 	des_coupe_y(star.get_ent(), 0., nzdes, "Enthalpy", &surf) ; 
+
+	des_coupe_y(star.get_ener(), 0., nzdes, "", &surf) ; 
 
 	if (mer_triax < mer_max) { 
 	    des_coupe_z(star.get_ent(), 0., nzdes, "Enthalpy (equatorial plane)", 
@@ -535,6 +636,11 @@ int main(){
 
     }
 
+    ofstream seq("seq.d", ios::app) ; 
+    seq << star.get_ent().val_grid_point(0,0,0,0) << "   " << star.mass_g() / msol 
+    << "    " << qpig/(4.*M_PI) * star.mass_g() / star.r_circ() << endl ; 
+   
+    seq.close() ; 
 	
     // Cleaning
     // --------
