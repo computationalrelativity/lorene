@@ -34,6 +34,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2010/03/29 12:00:25  e_gourgoulhon
+ * Removed lnq from documentation
+ * (lnq has to be removed from base class Star; it is meaningfull only
+ * for Star_bin).
+ *
  * Revision 1.25  2010/01/24 16:07:45  e_gourgoulhon
  * New class Star_rot.
  *
@@ -202,7 +207,8 @@ class Star {
 	/// Shift vector.
 	Vector beta ;
 	
-	/// Scalar field \f$\ln Q = \ln(\psi^2  N)\f$
+	// Scalar field \f$\ln Q = \ln(\psi^2  N)\f$ 
+	//## to be removed from base class Star
 	Scalar lnq ;
 	
 	/// 3-metric 
@@ -371,7 +377,8 @@ class Star {
 	/// Returns the shift vector \f$\beta^i\f$.
 	const Vector& get_beta() const {return beta;} ;
 
-	/// Returns the scalar field \f$\ln Q\f$.
+	// Returns the scalar field \f$\ln Q\f$.
+	//## to be removed from base class Star
 	const Scalar& get_lnq() const {return lnq;} ;
 
 	/// Returns the 3-metric \f$\gamma\f$.
