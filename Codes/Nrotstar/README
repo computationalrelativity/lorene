@@ -35,10 +35,11 @@ par_eos.d : description of the equation of state
 
 Templates files are provided in the directory Parameters ("GR" stands for general 
 relativity and "Newt" for Newtonian gravitation). For instance
-to compute a relativistic polytropic (gamma=2) star rotating at the
-Keplerian limit, do
+  (i) to get the model displayed in Figs. 3.1 to 3.7 of http://arxiv.org/abs/1003.5015, do 
+      cp Parameters/GR/APR_1.4Msol_716Hz/*.d .
 
-	cp Parameters/GR/Kepler/*.d .
+  (ii)  to compute a relativistic polytropic (gamma=2) star rotating at the Keplerian limit, do
+      cp Parameters/GR/Kepler/*.d .
 
 
 4/ Running
@@ -50,4 +51,5 @@ Simply type
 
 Setting the parameter graph to 1 in the file par_rot.d ensures that some graphical outputs are produced at the end of the computation. 
 The main characteristics of the computed star are summarized in the file calcul.d
-Some output files like convergence.d can be visualized via xmgrace.
+Some output files like convergence.d or prof_*.d can be visualized via xmgrace.
+Profiles of various fields are in the files prof_X.d where X is the name of the field. 
