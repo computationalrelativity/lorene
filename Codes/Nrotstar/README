@@ -50,6 +50,7 @@ Simply type
 	nrotstar
 
 Setting the parameter graph to 1 in the file par_rot.d ensures that some graphical outputs are produced at the end of the computation. 
-The main characteristics of the computed star are summarized in the file calcul.d
+The main characteristics of the computed star are summarized in the file result.txt (human readable format). 
+The full final configuration is saved in the file resu.d (binary format). 
 Some output files like convergence.d or prof_*.d can be visualized via xmgrace.
 Profiles of various fields are in the files prof_X.d where X is the name of the field. 
