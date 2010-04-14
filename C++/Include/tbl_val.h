@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/04/14 11:45:24  j_novak
+ * Changed comments
+ *
  * Revision 1.8  2007/11/02 15:45:56  j_novak
  * Added an ugly method "append_array", which substitutes the argument to the
  * main array t.
@@ -516,8 +519,8 @@ class Tbl_val {
   void operator/=(double) ;	
 
   /**
-   * Interpolation from a \c Tbl_val to a \c Cmp . The 
-   * \c Cmp  is evaluated only in zones [lmin, lmax[. 
+   * Interpolation from a \c Tbl_val to a \c Scalar . The 
+   * \c Scalar  is evaluated only in zones [lmin, lmax[. 
    * @param map [input] The \c Mapping  to which the \c Tbl_val is 
    *                    interpolated. The symetries of both grids must be
    *                    the same (see \c Mg3d  and \c Grille_val 
@@ -534,16 +537,16 @@ class Tbl_val {
    *    1 -> linear interpolation\\
    *    2 -> parabolic interpolation\\
    *    3 -> spline interpolation (not implemented yet)\\
-   * @return Cmp containing the value of the field at spectral collocation
+   * @return Scalar containing the value of the field at spectral collocation
    * points.
    */
   Scalar to_spectral(const Map& map, const int lmax, const int lmin=0, 
 		      int type_inter = 2) const ;
   
   /**
-   * Interpolation from a \c Cmp  to a \c Tbl_val (spectral
-   * summation). The \c Cmp  is considered only in zones [lmin,lmax[.
-   * @param meudon [input] The \c Cmp  from which the interpolation is done
+   * Interpolation from a \c Scalar  to a \c Tbl_val (spectral
+   * summation). The \c Scalar  is considered only in zones [lmin,lmax[.
+   * @param meudon [input] The \c Scalar  from which the interpolation is done
    * @param lmax [input] index of the outer zone \b +1
    * @param lmin [input] index of the inner zone 
    */
