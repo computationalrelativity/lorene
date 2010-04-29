@@ -1,0 +1,37 @@
+SHELL=/bin/sh
+
+include $(HOME_LORENE)/local_settings		  # defines which compiler,...
+
+LIB = -L$(HOME_LORENE)/Lib -llorene -llorenef77 
+LIBLOR = $(HOME_LORENE)/Lib/liblorene.a $(HOME_LORENE)/Lib/liblorenef77.a 
+
+.SUFFIXES : .o .C
+
+SRC1 = coal.C
+OBJ1 = $(SRC1:.C=.o)
+EXE1 = $(SRC1:.C=)
+
+SRC2 = lit_bin.C
+OBJ2 = $(SRC2:.C=.o)
+EXE2 = $(SRC2:.C=)
+
+SRC3 = init_bin.C
+OBJ3 = $(SRC3:.C=.o)
+EXE3 = $(SRC3:.C=)
+
+$(EXE1): $(OBJ1) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+$(EXE2): $(OBJ2) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ2) $(LIB) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+$(EXE3): $(OBJ3) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ3) $(LIB) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+
+.C.o:
+	$(CXX)  -c $(CXXFLAGS) $(INC) $<
+
+uninstall:
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3)
+	rm -f $(EXE1) $(EXE2) $(EXE3)
