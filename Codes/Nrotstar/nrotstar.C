@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2010/04/29 14:28:00  m_bejger
+ * initial revision: directory for frontend codes
+ *
  * Revision 1.7  2010/03/29 14:36:13  e_gourgoulhon
  * Change of name of the output file calcul.d --> result.txt
  *
@@ -73,7 +76,7 @@ Scalar raccord_c1(const Scalar& uu, int l1) ;
 
 //******************************************************************************
 
-int main(){
+int main(int argc, char **argv){
 
     using namespace Unites ; 
 
@@ -173,7 +176,9 @@ int main(){
     //		Equation of state
     //-----------------------------------------------------------------------
 
-    fpar.open("par_eos.d") ;
+    if(argv[1]) fpar.open(argv[1]) ;
+    else fpar.open("par_eos.d") ;
+
     if ( !fpar.good() ) {
         cerr << "Problem in opening the file par_eos.d ! " << endl ;
         abort() ;
@@ -462,6 +467,11 @@ int main(){
     fichfinal.close() ; 
     system("ident nrotstar >> result.txt") ; 
 
+    double f_schw = 0.5/M_PI*sqrt( ggrav*star.mass_g()/pow(star.r_circ(), 3.) )*f_unit ; 
+    double f_real = 0.5*star.get_omega_c()/M_PI*f_unit ; 
+
+    cout << "!! Comparison: " << f_schw << "   " << f_real << "   " 
+         << (f_real - f_schw)/f_real << endl ; 
 
     // Saveguard of the whole configuration
     // ------------------------------------
