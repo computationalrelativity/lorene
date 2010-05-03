@@ -24,11 +24,14 @@
  *
  */
 
-char name_of_this_file_C[] = "$Header$" ;
+char init_bin_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/05/03 13:39:14  m_bejger
+ * File handler fixed
+ *
  * Revision 1.1  2010/04/29 15:05:17  m_bejger
  * Initial version
  *
