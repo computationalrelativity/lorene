@@ -17,6 +17,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Bin_ns_bh; $(MAKE)
 	cd Source/Binaire; $(MAKE)
 	cd Source/Binary; $(MAKE)
+	cd Source/Binary_xcts; $(MAKE)
 	cd Source/Black_hole; $(MAKE)
 	cd Source/Change_var; $(MAKE)
 	cd Source/Cmp; $(MAKE)
@@ -80,6 +81,7 @@ uninstall:
 	cd Source/Bin_ns_bh; $(MAKE) -i uninstall
 	cd Source/Binaire; $(MAKE) -i uninstall
 	cd Source/Binary; $(MAKE) -i uninstall
+	cd Source/Binary_xcts; $(MAKE) -i uninstall
 	cd Source/Black_hole; $(MAKE) -i uninstall
 	cd Source/Change_var; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
