@@ -1,9 +1,10 @@
 /*
- *  Definition of Lorene classes Star and Star_bin
+ *  Definition of Lorene classes Star, Star_bin and Star_bin_xcts
  *				 
  */
 
 /*
+ *   Copyright (c) 2010 Michal Bejger
  *   Copyright (c) 2004 Francois Limousin
  *
  *   Copyright (c) 2000-2001 Eric Gourgoulhon (for preceding class Etoile)
@@ -34,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2010/05/04 07:53:32  m_bejger
+ * Class Star_bin_xcts added (initial version)
+ *
  * Revision 1.26  2010/03/29 12:00:25  e_gourgoulhon
  * Removed lnq from documentation
  * (lnq has to be removed from base class Star; it is meaningfull only
@@ -443,7 +447,7 @@ ostream& operator<<(ostream& , const Star& ) ;
 
 
 			//---------------------------//
-			//    class Star_bin       //
+			//    class Star_bin         //
 			//---------------------------//
 
 /**
@@ -498,12 +502,12 @@ class Star_bin : public Star {
 
 
 	/** Part of the lapse logarithm (gravitational potential at the
-	 *  Newtonian limit) generated principaly by the star. 
+	 *  Newtonian limit) generated principally by the star. 
 	 */
 	Scalar logn_auto ; 
 
 	/** Part of the lapse logarithm (gravitational potential at the
-	 *  Newtonian limit) generated principaly by the companion star. 
+	 *  Newtonian limit) generated principally by the companion star. 
 	 */
 	Scalar logn_comp ; 
 
@@ -513,12 +517,12 @@ class Star_bin : public Star {
 	/// Contravariant derivative of the total logarithm of the lapse. 
 	Vector dcon_logn ;
 	
-	/** Scalar field \f$ Q = \psi^2 N \f$ generated principaly by the
+	/** Scalar field \f$ Q = \psi^2 N \f$ generated principally by the
 	 *  star.
 	 */
 	Scalar lnq_auto ;
 
-	/** Scalar field \f$ Q = \psi^2 N \f$ generated principaly by the
+	/** Scalar field \f$ Q = \psi^2 N \f$ generated principally by the
 	 *  companion star.
 	 */
 	Scalar lnq_comp ;
@@ -540,12 +544,12 @@ class Star_bin : public Star {
 	/// Conformal metric \f$\tilde \gamma_{ij}\f$
 	Metric gtilde ;
 
-	/** Part of the shift vector generated principaly by the star
+	/** Part of the shift vector generated principally by the star
 	 *  (Spherical components with respect to the mapping of the star)
 	 */
 	Vector beta_auto ; 
 
-	/** Part of the shift vector generated principaly by the star
+	/** Part of the shift vector generated principally by the star
 	 *  (Spherical components with respect to the mapping of the star)
 	 */
 	Vector beta_comp ; 
@@ -559,13 +563,13 @@ class Star_bin : public Star {
 
 	/** Deviation of the inverse conformal metric 
 	 *  \f$\tilde \gamma^{ij}\f$ from the inverse flat metric generated
-	 *  principaly by the star. 
+	 *  principally by the star. 
 	 */
 	Sym_tensor hij_auto ;
 
 	/** Deviation of the inverse conformal metric 
 	 *  \f$\tilde \gamma^{ij}\f$ from the inverse flat metric generated
-	 *  principaly by the companion star. 
+	 *  principally by the companion star. 
 	 */
 	Sym_tensor hij_comp ;
 
@@ -718,8 +722,8 @@ class Star_bin : public Star {
 	/// Read/write the centrifugal potential
 	Scalar& set_pot_centri() ;
 	
-        /** Read/write of the logarithm of the lapse generated 
-	 *  principaly by the companion.
+    /** Read/write of the logarithm of the lapse generated 
+	 *  principally by the companion.
 	 */ 
 	Scalar& set_logn_comp() ;
 
@@ -777,33 +781,33 @@ class Star_bin : public Star {
 	const Scalar& get_pot_centri() const {return pot_centri;} ;
 
 	/** Returns the part of the lapse logarithm (gravitational potential 
-	 *  at the Newtonian limit) generated principaly by the star. 
+	 *  at the Newtonian limit) generated principally by the star. 
 	 */
 	const Scalar& get_logn_auto() const {return logn_auto;} ;
 
 	/** Returns the part of the lapse logarithm (gravitational potential 
-	 *  at the Newtonian limit) generated principaly by the companion star.
+	 *  at the Newtonian limit) generated principally by the companion star.
  	 */
 	const Scalar& get_logn_comp() const {return logn_comp;} ;
 
 	/** Returns the part of the shift vector \f$\beta^i\f$ generated 
-	 *  principaly by the star.
+	 *  principally by the star.
 	 *  (Spherical components with respect to the mapping of the star)
 	 */
 	const Vector& get_beta_auto() const {return beta_auto;} ;
 
 	/** Returns the part of the shift vector \f$\beta^i\f$ generated 
-	 *  principaly by the star.
+	 *  principally by the star.
 	 *  (Spherical components with respect to the mapping of the star)
 	 */
 	const Vector& get_beta_comp() const {return beta_comp;} ;
 
-	/** Returns the part of the vector field \f$Q\f$ generated principaly 
+	/** Returns the part of the vector field \f$Q\f$ generated principally 
 	 *   by the star. 
 	 */
 	const Scalar& get_lnq_auto() const {return lnq_auto;} ;
 
-	/** Returns the part of the vector field \f$Q\f$ generated principaly 
+	/** Returns the part of the vector field \f$Q\f$ generated principally 
 	 *   by the companion star. 
 	 */
 	const Scalar& get_lnq_comp() const {return lnq_comp;} ;
@@ -844,14 +848,14 @@ class Star_bin : public Star {
 	const Sym_tensor& get_hij() const {return hij;} ;
 
 	/** Return the deviation of the inverse conformal metric 
-	 *  \f$\tilde \gamma^{ij}\f$ from the inverse flat metric principaly
+	 *  \f$\tilde \gamma^{ij}\f$ from the inverse flat metric principally
 	 *  generated by the star.
 	 */
 	const Sym_tensor& get_hij_auto() const {return hij_auto;} ;
 
 	/** Return the deviation of the inverse conformal metric 
 	 *  \f$\tilde \gamma^{ij}\f$ from the inverse flat metric generated
-	 *  principaly by the companion star.
+	 *  principally by the companion star.
 	 */
 	const Sym_tensor& get_hij_comp() const {return hij_comp;} ;
 
@@ -1050,5 +1054,512 @@ class Star_bin : public Star {
 	friend class Binary ;
 
 };
+
+			//---------------------------//
+			//    class Star_bin_xcts    //
+			//---------------------------//
+
+/**
+ * Class for stars in binary system in eXtended Conformal Thin Sandwich
+ * formulation. *** UNDER DEEVELOPMENT *** \ingroup (star)
+ *
+ * A \c Star_bin_xcts can be construted in two states, represented by
+ * the \c bool member \c irrotational: (i) irrotational
+ * (i.e. the fluid motion is irrotational) or (ii) rigidly corotating 
+ * with respect to the orbital motion (synchronized binary). 
+ *
+ */
+class Star_bin_xcts : public Star {
+
+    // Data : 
+    // -----
+    protected:
+	/** \c true for an irrotational star, \c false for a
+	 *  corotating one
+	 */
+	bool irrotational ; 
+	
+	/** Scalar potential \f$\Psi_0\f$ of the non-translational part of
+	 *  fluid 4-velocity (in the irrotational case)
+	 */
+	Scalar psi0 ; 
+
+	/** Gradient of \f$\Psi\f$ (in the irrotational case)
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Vector d_psi ; 
+	
+	/** Spatial projection of the fluid 3-velocity with respect to  
+	 *  the co-orbiting observer. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Vector wit_w ; 
+	
+	/** Logarithm of the Lorentz factor between the fluid and 
+	 *  the co-orbiting observer.
+	 */
+	Scalar loggam ; 
+
+	/** 3-vector shift, divided by \e N, of the rotating coordinates,
+	 *  \f$\beta^i/N\f$. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Vector bsn ; 
+	
+	/// Centrifugal potential
+	Scalar pot_centri ; 	
+
+	/** Scalar field \f$ \chi_{auto} = (N\Psi)_{auto} \f$ generated 
+	 * principally by the star.
+	 */
+	Scalar chi_auto ;
+
+	/** Scalar field \f$ \chi_{comp} = (N\Psi)_{comp} \f$ generated 
+	 *  principally by the companion star.
+	 */
+	Scalar chi_comp ;
+
+	/** Scalar field \f$\Psi_{auto}\f$ generated principally by the
+	 *  star.
+	 */
+	Scalar Psi_auto ;
+
+	/** Scalar field \f$\Psi_{comp}\f$ generated principally by the
+	 *  companion star.
+	 */
+	Scalar Psi_comp ;
+
+	/// Total conformal factor \f$\Psi\f$
+	Scalar Psi ;
+	
+	/// Total function \f$\chi\f$
+	Scalar chi ;
+		
+	/** Solution for the vector part of the vector Poisson equation 
+	 *  for \f$\beta^i\f$
+	 */
+	Vector w_beta ;	
+
+	/** Solution for the scalar part of the vector Poisson equation 
+	 *  for \f$\beta^i\f$
+	 */
+	Scalar khi ;	
+
+	/// Covariant derivative of the conformal factor \f$\Psi\f$
+	Vector dcov_Psi ;
+
+	/// Covariant derivative of the function \f$\chi\f$
+	Vector dcov_chi ;
+
+	///Flat metric defined on the mapping (Spherical components with respect to the mapping of the star) .
+	Metric_flat flat ;
+	
+   /** Part of the shift vector generated principally by the star
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Vector beta_auto ; 
+	
+	/** Part of the shift vector generated principally by the star
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Vector beta_comp ; 
+
+	/** Part of the extrinsic curvature tensor \f$\hat{A}^{ij}\f$
+	 *  generated by \c beta_auto. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Sym_tensor haij_auto ;
+	
+	/** Part of the extrinsic curvature tensor \f$\hat{A}^{ij}\f$
+	 *  generated by \c beta_comp. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	Sym_tensor haij_comp ;
+	
+	/** Part of the scalar \f$\hat{A}_{ij}\hat{A}^{ij}\f$
+	 *  generated by \c beta_auto, i.e. 
+	 *    \f$\hat{A}_{ij}^{\rm auto}\hat{A}^{ij}_{\rm auto}\f$ 
+	 */
+	Scalar hacar_auto ;
+	
+	/** Part of the scalar \f$\hat{A}_{ij}\hat{A}^{ij}\f$
+	 *  generated by \c beta_auto and \c beta_comp, i.e. 
+	 *    \f$\hat{A}_{ij}^{\rm auto}\hat{A}^{ij}_{\rm comp}\f$ 
+	 */
+	Scalar hacar_comp ;
+
+	/** Effective source at the previous step for the resolution of 
+	 *  the Poisson equation for \c \chi_auto.
+	 */
+	Scalar ssjm1_chi ;
+
+	/** Effective source at the previous step for the resolution of 
+	 *  the Poisson equation for \c \Psi_auto.
+	 */
+	Scalar ssjm1_psi ;
+		
+	/** Effective source at the previous step for the resolution of 
+	 *  the Poisson equation for \c khi. (second scalar equation 
+	 *  for the resolution of the vectorial poisson equation for the shift)
+	 */
+	Scalar ssjm1_khi ;
+
+    /** Effective source at the previous step for wbeta of 
+	 *  the vector Poisson equation for \c wbeta (needed for the 
+	 *  solution of the vector Poisson equation for the shift 
+	 *  \f$\beta^i\f$)
+     */      
+	Vector ssjm1_wbeta ;
+	
+	/**
+	  * Function used to construct the part \f$lnq_auto\f$ generated by 
+	  * the star  from the total \f$lnq\f$.
+	  * Mainly this \c Scalar is 1 around the star and 0 around 
+	  * the companion
+	  * and the sum of \c decouple for the star and his companion is 1 
+	  * everywhere.
+	  */
+	 Scalar decouple ;
+	
+    // Derived data : 
+    // ------------
+    protected:
+	/// Absolute coordinate X of the barycenter of the baryon density
+	mutable double* p_xa_barycenter ; 
+	 
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+	/** Standard constructor. 
+	 * 
+	 * @param mp_i Mapping on which the star will be defined
+	 * @param nzet_i Number of domains occupied by the star
+	 * @param eos_i Equation of state of the stellar matter
+	 * @param irrot should be \c true for an irrotational star, 
+	 *		    \c false for a corotating one
+	 */
+	Star_bin_xcts(Map& mp_i, int nzet_i, const Eos& eos_i, bool irrot) ;			
+		
+	Star_bin_xcts(const Star_bin_xcts& ) ;		///< Copy constructor
+
+	/** Constructor from a file (see \c sauve(FILE* )). 
+	 * 
+	 * @param mp_i Mapping on which the star will be defined
+	 * @param eos_i Equation of state of the stellar matter
+	 * @param fich	input file (must have been created by the function
+	 *	\c sauve)
+	 */
+	Star_bin_xcts(Map& mp_i, const Eos& eos_i, FILE* fich) ;
+    		
+	virtual ~Star_bin_xcts() ;			///< Destructor
+
+
+    // Memory management
+    // -----------------
+    protected:
+	/// Deletes all the derived quantities
+	virtual void del_deriv() const ; 
+	
+	/// Sets to \c 0x0 all the pointers on derived quantities
+	virtual void set_der_0x0() const ; 
+
+	/** Sets to \c ETATNONDEF (undefined state) the hydrodynamical 
+	 *  quantities relative to the Eulerian observer.
+	 */
+	virtual void del_hydro_euler() ; 
+	
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/// Assignment to another \c Star_bin_xcts
+	void operator=(const Star_bin_xcts& ) ;	
+	
+	/// Read/write the centrifugal potential
+	Scalar& set_pot_centri() ;
+	
+	/// Read/write the conformal factor \f$\Psi_{auto}\f$ 
+	Scalar& set_Psi_auto() ; 
+
+	/// Read/write the conformal factor \f$\Psi_{comp}\f$ 
+	Scalar& set_Psi_comp() ; 
+
+	/// Read/write the conformal factor \f$\chi_{auto}\f$ 
+	Scalar& set_chi_auto() ; 
+	
+	/// Read/write of \f$\beta_{auto}\f$
+	Vector& set_beta_auto() ;	
+
+	/// Read/write of \f$\beta\f$
+	Vector& set_beta() ;	
+	
+    // Accessors
+    // ---------
+    public:
+	/** Returns \c true for an irrotational motion, \c false for 
+	 *  a corotating one. 
+	 */
+	bool is_irrotational() const {return irrotational; } ; 
+
+	/// Returns the non-translational part of the velocity potential
+	const Scalar& get_psi0() const {return psi0;} ;
+
+	/** Returns the covariant derivative of the velocity potential 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Vector& get_d_psi() const {return d_psi;} ;
+
+	/** Returns the spatial projection of the fluid 3-velocity with 
+	 *  respect to the co-orbiting observer. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Vector& get_wit_w() const {return wit_w;} ;
+
+	/** Returns the logarithm of the Lorentz factor between the fluid and 
+	 *  the co-orbiting observer.
+	 */
+	const Scalar& get_loggam() const {return loggam;} ;
+
+	/** Returns the shift vector, divided by \e N, of the rotating 
+	 *   coordinates, \f$\beta^i/N\f$. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Vector& get_bsn() const {return bsn;} ;
+
+	/// Returns the centrifugal potential
+	const Scalar& get_pot_centri() const {return pot_centri ; } ;
+
+	/** Returns the part of the shift vector \f$\beta^i\f$ generated 
+	 *  principally by the star (\f$\beta^i_{auto}\f$).
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Vector& get_beta_auto() const {return beta_auto ; } ;
+
+	/** Returns the part of the shift vector \f$\beta^i\f$ generated 
+	 *  principally by the companion (\f$\beta^i_{comp}\f$).
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Vector& get_beta_comp() const {return beta_comp ; } ;
+	
+   /**  Returns the scalar field \f$\Psi_{auto}\f$ generated principally 
+     *  by the star.
+	 */
+    const Scalar& get_Psi_auto() const {return Psi_auto ; } ;
+
+   /**  Returns the scalar field \f$\Psi_{comp}\f$ generated principally 
+     *  by the companion star.
+	 */
+    const Scalar& get_Psi_comp() const {return Psi_comp ; } ;
+
+   /**  Returns the scalar field \f$\chi_{auto} = (N\Psi)_{auto}\f$ 
+     *  generated principally by the star.
+	 */
+    const Scalar& get_chi_auto() const {return chi_auto ; } ;
+
+   /**  Returns the scalar field \f$\chi_{comp} = (N\Psi)_{comp}\f$ 
+     *  generated principally by the companion star.
+	 */
+    const Scalar& get_chi_comp() const {return chi_comp ; } ;
+        
+	 /** Returns the covariant derivative of \f$\chi\f$. 
+	 */
+	const Vector& get_dcov_chi() const {return dcov_chi ; } ;
+
+	/** Returns the covariant derivative of 
+	 *  the conformal factor \f$\Psi\f$
+     */
+    const Vector& get_dcov_Psi() const {return dcov_Psi ; } ;
+
+	/// Return the conformal factor \f$\Psi\f$
+	const Scalar& get_Psi() const {return Psi ; } ;
+
+	/// Return the function \f$\chi\f$
+	const Scalar& get_chi() const {return chi ; } ;
+	
+   /** Return the flat metric defined on the mapping (Spherical
+	 *  components  with respect to the mapping of the star)
+	 */
+	const Metric& get_flat() const {return flat;} ;	
+
+	/** Returns the part of the extrinsic curvature tensor 
+	 *  \f$\hat{A}^{ij}\f$ generated by \c beta_auto. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Sym_tensor& get_haij_auto() const {return haij_auto ;} ;
+
+	/** Returns the part of the extrinsic curvature tensor 
+	 *  \f$\hat{A}^{ij}\f$ generated by \c beta_comp. 
+	 *  (Spherical components with respect to the mapping of the star)
+	 */
+	const Sym_tensor& get_haij_comp() const {return haij_comp ;} ;
+
+	/** Returns the part of 
+	 *  \f$\hat{A}^{ij}\hat{A}_{ij}\f$ generated by \c beta_auto. 
+	 */
+	const Scalar& get_hacar_auto() const {return hacar_auto ;} ;
+
+	/** Returns the part of 
+	 *  \f$\hat{A}^{ij}\hat{A}_{ij}\f$ generated by \c beta_comp. 
+	 */
+	const Scalar& get_hacar_comp() const {return hacar_comp ;} ;
+
+	/**
+	 * Returns the function used to construct \c beta_auto 
+	 from \c beta.
+	*/
+	const Scalar get_decouple() const {return decouple ;}
+
+    // Outputs
+    // -------
+    public:
+	virtual void sauve(FILE* ) const ;	    ///< Save in a file
+    
+    protected:
+	/// Operator >> (virtual function called by the operator <<). 
+	virtual ostream& operator>>(ostream& ) const ;    
+
+    // Global quantities
+    // -----------------
+    public:
+	/// Baryon mass
+    	virtual double mass_b() const ;
+	
+	/// Gravitational mass
+    	virtual double mass_g() const ;
+	
+	/// Absolute coordinate X of the barycenter of the baryon density, 
+    	virtual double xa_barycenter() const ;
+
+
+    // Computational routines
+    // ----------------------
+    public: 
+
+	/** Computes the hydrodynamical quantities relative to the Eulerian
+	 *  observer from those in the fluid frame, as well as 
+	 *  \c wit_w and \c loggam.  
+	 *
+	 *  The calculation is performed starting from the quantities
+	 *  \c ent, \c ener, \c press and \c bsn,  
+	 *  which are supposed to be up to date.  
+	 *  From these,  the following fields are updated:
+	 *  \c gam_euler, \c u_euler, \c ener_euler, 
+	 *  \c s_euler, \c stress_euler,  
+	 *  \c wit_w and \c loggam. 
+	 * 
+	 */
+	virtual void hydro_euler() ; 
+	
+	/** Computes metric coefficients from known potentials,
+	 * when the companion is another star.
+	 *
+	 *  The calculation is performed starting from the quantities
+	 *  \c Psi_auto,  \c chi_auto, \c beta_auto, 
+	 *  \c comp.Psi_auto,  \c comp.chi_auto,
+	 *  \c comp.beta_auto 
+	 *  which are supposed to be up to date.
+	 *  From these,  the following fields are updated:
+	 *  \c Psi_comp, \c chi_comp, \c beta_comp,
+	 *  \c nn,  \c psi4,  \c beta.
+	 *  
+	 *  @param comp companion star.
+	 *  @param omega  angular velocity with respect to an asymptotically 
+	 *		  inertial observer
+	 */
+	void update_metric(const Star_bin_xcts& comp) ;
+	
+	/** Same as \c update_metric(const Star_bin_xcts\& ) but with
+	 *  relaxation.
+	 *
+	 *  @param comp companion star.
+	 *  @param star_prev previous value of the star. 
+	 *  @param relax relaxation parameter. 
+	 *  @param omega  angular velocity with respect to an asymptotically 
+	 *		  inertial observer
+	 */
+	void update_metric(const Star_bin_xcts& comp,
+					   const Star_bin_xcts& star_prev, 
+			   		   double relax) ; 
+	
+	/** Computes the derivative of metric functions related to the
+	 *  companion star
+	 */
+	 void update_metric_der_comp(const Star_bin_xcts& comp) ;
+
+	/** Computes the quantities \c bsn and \c pot_centri.
+	 * 
+	 *  The calculation is performed starting from the quantities
+	 *  \c nn, \c beta,  \c Psi,  
+	 *  which are supposed to be up to date.  
+	 * 
+	 *  @param omega  angular velocity with respect to an asymptotically 
+	 *		  inertial observer
+	 *  @param x_axe  absolute X coordinate of the rotation axis
+	 */
+	void kinematics(double omega, double x_axe) ; 
+	
+	/** Computes the gradient of the total velocity potential \f$\psi\f$. 
+	 * 
+	 */
+	void fait_d_psi() ; 
+	
+   /** Computes \c haij_auto  and \c hacar_auto  from 
+	 *  \c beta_auto, \c nn and \c Psi .
+	 */
+	void extrinsic_curvature() ; 
+	
+	/** Computes an equilibrium configuration.
+	 * 
+	 *  @param ent_c  [input] Central enthalpy
+	 *  @param mermax [input] Maximum number of steps 
+	 *  @param mermax_poisson [input]   Maximum number of steps in 
+	 *				    poisson scalar
+	 *  @param relax_poisson [input]  Relaxation factor in poisson scalar
+	 *  @param mermax_potvit [input]  Maximum number of steps in 
+	 *				  Map_radial::poisson_compact
+	 *  @param relax_potvit [input]   Relaxation factor in 
+	 *				  Map_radial::poisson_compact
+	 *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
+	 *				  of the mapping
+	 *  @param diff [output]   1-D \c Tbl for the storage of some
+	 *			    error indicators 
+	 */
+	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
+			 int mermax_poisson, double relax_poisson, 
+			 double relax_potvit, double thres_adapt, Tbl& diff) ;
+
+	/** Computes the non-translational part of the velocity scalar potential
+	 *  \f$\psi0\f$ by solving the continuity equation.
+	 *  
+	 *  @param mermax  [input] Maximum number of steps in the iteration
+	 *  @param precis  [input] Required precision: the iteration will
+	 *			   be stopped when the relative difference
+	 *			   on \f$\psi0\f$ between two successive steps
+	 *			   is lower than \c precis.
+	 *  @param relax   [input] Relaxation factor.  
+	 *
+	 *  @return Relative error of the resolution obtained by comparing
+	 *	    the operator acting on the solution with the source.
+	 */
+	 double velocity_potential(int mermax, double precis, double relax) ;
+
+	/** Performs a relaxation on \c ent, \c Psi_auto,
+	 *  \c chi_auto and \c beta_auto. 
+	 * 
+	 *  @param star_prev   [input] star at the previous step.
+	 *  @param relax_ent   [input] Relaxation factor for \c ent 
+	 *  @param relax_met   [input] Relaxation factor for \c logn_auto,
+	 *			       \c lnq_auto, \c beta_auto, 
+	 *			       only if \c (mer \% fmer_met == 0).
+	 *  @param mer	       [input] Step number
+	 *  @param fmer_met    [input] Step interval between metric updates
+	 */
+	void relaxation(const Star_bin_xcts& star_prev, double relax_ent, 
+			double relax_met, int mer, int fmer_met) ;
+
+	friend class Binary_xcts ;
+
+}; 
 
 #endif
