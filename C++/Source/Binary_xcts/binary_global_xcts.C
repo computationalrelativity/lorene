@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/04 19:54:19  m_bejger
+ * Minor corrections, mass volume integrals need to be checked out
+ *
  * Revision 1.1  2010/05/04 07:35:54  m_bejger
  * Initial version
  *
@@ -81,35 +84,38 @@ double Binary_xcts::mass_adm_vol() const {
 
   using namespace Unites ;
 
-  double massadm ;
-  massadm = 1. ;
+  double massadm = 0. ;
 
   //## : to be done 
   
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
     // Declaration of all fields
-      const Scalar& psi(et[i]->get_Psi()) ;
+      const Scalar& Psi_auto(et[i]->get_Psi_auto()) ;
+      const Scalar& Psi_comp(et[i]->get_Psi_comp()) ;
 
-      Scalar psi4 = pow(psi, 4.) ; 
+      Scalar psi = Psi_auto + Psi_comp ; 
+      psi.std_spectral_base() ; 
+      Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
       psi4.std_spectral_base() ;
 	  
-	  Scalar spsi20 = pow(psi, -20.) ; 
-      spsi20.std_spectral_base() ;
+	  Scalar spsi8 = pow(Psi_auto*Psi_comp, -8.) ; 
+      spsi8.std_spectral_base() ;
 
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
       const Scalar& hacar_comp = et[i]->get_hacar_comp() ;
  
       // Source in IWM approximation 
-	  Scalar source =  psi4 % psi % ener_euler ; 
-	                + spsi20 % (hacar_auto + hacar_comp)/(4.*qpig) ;  
+	  Scalar source = psi4 % ener_euler 
+	  			    + spsi8 % (hacar_auto + hacar_comp)/(4.*qpig) ;  
 	  
+      source *= psi ; 
+ 
       source.std_spectral_base() ;
 
       massadm += source.integrale() ;
   }
-
   
   return massadm ;
 }
@@ -123,21 +129,25 @@ double Binary_xcts::mass_kom() const {
   using namespace Unites ;
 
   if (p_mass_kom == 0x0) {	    // a new computation is requireed
-    
-    p_mass_kom = new double ; 
+
+    p_mass_kom = new double ;    
+    *p_mass_kom = 0 ; 
    
     Map_af map0 (et[0]->get_mp()) ; 
+    const Metric& flat = (et[0]->get_flat()) ; 
     
-    Vector vect = (et[0]->get_dcov_chi())/(et[0]->get_chi()) 
-                - (et[0]->get_dcov_Psi())/(et[0]->get_Psi()) ;
+    Scalar logn = log((et[0]->get_chi_auto())*(et[0]->get_chi_comp())
+    			/((et[0]->get_Psi_auto())*(et[0]->get_Psi_comp()))) ; 
+
+    logn.std_spectral_base() ; 
     
+    Vector vect = logn.derive_con(flat) ; 
+
     vect.change_triad(map0.get_bvect_spher()) ;
     Scalar integrant (vect(1)) ;
     
     *p_mass_kom = map0.integrale_surface_infini (integrant) / qpig ;
-   
-   
-    
+       
   }	// End of the case where a new computation was necessary
         
   return *p_mass_kom ; 
@@ -148,36 +158,37 @@ double Binary_xcts::mass_kom_vol() const {
     
   using namespace Unites ;
 
-  double masskom ;
-  masskom = 1. ;
+  double masskom = 0.;
 
   //## : to be done 
-  /*
+
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
      // Declaration of all fields
-      const Scalar& psi4 = et[i]->get_psi4() ;
+      
+      const Scalar& Psi_auto(et[i]->get_Psi_auto()) ;
+      const Scalar& Psi_comp(et[i]->get_Psi_comp()) ;
+      
+      const Scalar& chi_auto(et[i]->get_chi_auto()) ;
+      const Scalar& chi_comp(et[i]->get_chi_comp()) ;
+      
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& s_euler = et[i]->get_s_euler() ;
-      const Scalar& kcar_auto = et[i]->get_kcar_auto() ;
-      const Scalar& kcar_comp = et[i]->get_kcar_comp() ;
-      const Metric& flat = et[i]->get_flat() ;
-      const Sym_tensor& hij = et[i]->get_hij() ;
-      const Scalar& logn = et[i]->get_logn_auto() + et[i]->get_logn_comp() ;
-      const Scalar& logn_auto = et[i]->get_logn_auto() ;
-      Scalar nn = exp(logn) ;
+
+      const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
+      const Scalar& hacar_comp = et[i]->get_hacar_comp() ;
+      
+      Scalar nn = chi_auto*chi_comp / ( Psi_auto*Psi_comp ) ; 
       nn.std_spectral_base() ;
       
-      const Tensor& dcov_logn_auto = logn_auto.derive_cov(flat) ;
-      const Vector& dcov_logn = et[i]->get_dcov_logn() ;
-      const Vector& dcon_logn = et[i]->get_dcon_logn() ;
-      const Vector& dcov_phi = et[i]->get_dcov_phi() ;
-      Tensor dcovdcov_logn_auto = (logn_auto.derive_cov(flat))
-	.derive_cov(flat) ;
-      dcovdcov_logn_auto.inc_dzpuis() ;
+      Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+      psi4.std_spectral_base() ;
+
+      Scalar spsi12 = pow(Psi_auto*Psi_comp, -12.) ; 
+      spsi12.std_spectral_base() ;
 
       Scalar source = qpig * psi4 % (ener_euler + s_euler) ;
-      source += psi4 % (kcar_auto + kcar_comp) ;
+      source += spsi12 % psi4 % (hacar_auto + hacar_comp) ;
 
       source = source / qpig * nn  ;
   
@@ -187,7 +198,6 @@ double Binary_xcts::mass_kom_vol() const {
 	  
   }
 
-  */
   return masskom ;
 
 }
@@ -200,8 +210,6 @@ double Binary_xcts::mass_kom_vol() const {
 const Tbl& Binary_xcts::angu_mom() const {
 
   using namespace Unites ;
-	
-	//## : to be done 	
 	
 	if (p_angu_mom == 0x0) {	    // a new computation is requireed
     
@@ -252,8 +260,8 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		const Scalar& psi = et[i]->get_Psi() ; 
-		Scalar rho = pow(psi, 0.625) * (ee + pp) ; 
+		const Scalar& psi = (et[i]->get_Psi_auto())*(et[i]->get_Psi_comp()) ; 
+		Scalar rho = pow(psi, 10.) * (ee + pp) ; 
 		rho.std_spectral_base() ;
 
 		Vector jmom = rho * (et[i]->get_u_euler()) ; 
