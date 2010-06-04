@@ -28,6 +28,9 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/04 19:57:52  m_bejger
+ * Added condition for mp.get_rot_phi
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -56,9 +59,16 @@ void Star_bin_xcts::kinematics(double omega, double x_axe) {
 
     bsn.change_triad(mp.get_bvect_cart()) ;
 
+    if (fabs(mp.get_rot_phi()) < 1e-10){ 
+      bsn.set(1) = - omega * ya ;
+      bsn.set(2) = omega * (xa - x_axe) ;
+      bsn.set(3) = 0 ;
+    }
+    else {
       bsn.set(1) = omega * ya ;
       bsn.set(2) = - omega * (xa - x_axe) ;
       bsn.set(3) = 0 ;
+    }
 
     bsn.std_spectral_base() ;
  
