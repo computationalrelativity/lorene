@@ -28,6 +28,9 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/04 20:01:59  m_bejger
+ * Corrected definitions of lapse, Psi4; added definition of gamma
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -58,7 +61,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
   */
     
     const Map& mp_comp (comp.get_mp()) ;
-	const Metric_flat flat (mp.flat_met_cart()) ;
+//	const Metric_flat flat(mp.flat_met_cart()) ;
      
     if ( (comp.Psi_auto).get_etat() == ETATZERO ) {	    
 		Psi_comp.set_etat_zero() ;
@@ -68,15 +71,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 		Psi_comp.import(comp.Psi_auto) ;
 		Psi_comp.std_spectral_base() ;
     } 
-
-    if ( (comp.chi_auto).get_etat()  == ETATZERO ) {
-		chi_comp.set_etat_zero() ;
-
-    } else	{
-		chi_comp.set_etat_qcq() ;  
-		chi_comp.import( comp.chi_auto ) ;		
-		chi_comp.std_spectral_base() ;
-    }  
   
     beta_comp.set_etat_qcq() ; 
     beta_comp.set_triad(mp.get_bvect_cart()) ;
@@ -93,11 +87,23 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 
     beta_comp.std_spectral_base() ;   
 
+    if ( (comp.chi_auto).get_etat()  == ETATZERO ) {
+		chi_comp.set_etat_zero() ;
+
+    } else	{
+		chi_comp.set_etat_qcq() ;  
+		chi_comp.import( comp.chi_auto ) ;		
+		chi_comp.std_spectral_base() ;
+    } 
+
 // Conformal factor Psi
 // --------------------
 
     Psi = Psi_auto + Psi_comp ; 
     Psi.std_spectral_base() ; 
+
+    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    psi4.std_spectral_base() ; 
 
 // Function chi = NPsi
 // --------------------
@@ -108,14 +114,17 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // Lapse function N
 // ----------------
 
-    nn = chi / Psi ; 
+    nn = chi_auto*chi_comp / ( Psi_auto*Psi_comp ) ; 
     nn.std_spectral_base() ; 
 
 // Shift vector 
 // -------------
 
     beta = beta_auto + beta_comp ;
-         
+    
+    Sym_tensor tens_gamma(( flat.con() ) / psi4) ;
+    gamma = tens_gamma ;
+
 // Extrinsic curvature (haij_auto and hacar_auto)
 //-----------------------------------------------
 
@@ -149,7 +158,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 */
   
     const Map& mp_comp (comp.get_mp()) ;
-	const Metric_flat flat (mp.flat_met_cart()) ;
+	//const Metric_flat flat (mp.flat_met_cart()) ;
 
     if ( (comp.Psi_auto).get_etat() == ETATZERO ) {
 		Psi_comp.set_etat_zero() ;
@@ -207,6 +216,9 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
     Psi = Psi_auto + Psi_comp ; 
     Psi.std_spectral_base() ; 
 
+    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    psi4.std_spectral_base() ; 
+
 // Function chi = NPsi
 // --------------------
 
@@ -216,13 +228,16 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // Lapse function N
 // ----------------
 
-    nn = chi / Psi ; 
+    nn = chi_auto*chi_comp / ( Psi_auto*Psi_comp ) ; 
     nn.std_spectral_base() ; 
 
 // Shift vector
 // ------------
-
+	    
     beta = beta_auto + beta_comp ;
+        
+    Sym_tensor tens_gamma((flat.con()) / psi4) ;
+    gamma = tens_gamma ;
 
     // Extrinsic curvature (haij_auto and hacar_auto)
     extrinsic_curvature() ;
