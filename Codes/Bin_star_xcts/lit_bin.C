@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/04 19:51:26  m_bejger
+ * Minor corrections
+ *
  * Revision 1.2  2010/05/03 13:39:14  m_bejger
  * File handler fixed
  *
@@ -112,7 +115,7 @@ int main(int argc, char** argv){
     Binary_xcts star(mp1, *peos1, mp2, *peos2, fich) ; 
     
     fclose(fich) ; 
-   
+       
     bool irrotational = star(1).is_irrotational() ; 
 
     cout << endl << "Grid on which star 1 is defined : " << endl ; 
@@ -132,19 +135,19 @@ int main(int argc, char** argv){
     cout << star(2).get_mp() << endl ; 
 
     //star.fait_decouple() ;
-    
+            
     for (int i=1; i<=2; i++) {
 		(star.set(i)).update_metric(star(3-i)) ; 
     }
-
+         
     for (int i=1; i<=2; i++) {
 		(star.set(i)).update_metric_der_comp(star(3-i)) ; 
     }
-
+	 	 
     for (int i=1; i<=2; i++) {
 		(star.set(i)).equation_of_state() ; 
+		
 		cout << "get omega : " << star.get_omega() << endl ;
-	
 		(star.set(i)).kinematics(star.get_omega(), star.get_x_axe()) ; 
 		(star.set(i)).fait_d_psi() ; 
 		(star.set(i)).hydro_euler() ; 
@@ -157,16 +160,18 @@ int main(int argc, char** argv){
 	cout << "coal : problem with opening the file resformat.d !" << endl ;
 	abort() ;
     }
-   //## mbtest fix the output  
-   //star.write_global(seqfich) ; 
+
+    star.write_global(seqfich) ; 
     seqfich.close() ; 
 
     // Some printings
     cout.precision(6) ;
-    cout << "mass_bar = " << star(1).mass_b()/msol  << endl ;
-    cout << "mass_vol = " << star.mass_adm_vol()/msol  << endl ;
-    cout << "mass_adm = " << star.mass_adm()/msol << endl ;
-    cout << "mass_kom = " << star.mass_kom()/msol << endl ;
+    cout << "Star(1) mass_bar = " << (star(1).mass_b())/msol  << endl ; 
+       
+    cout << "mass_adm_vol     = " << star.mass_adm_vol()/msol  << endl ;
+    cout << "mass_adm         = " << star.mass_adm()/msol << endl ;
+    cout << "mass_kom vol     = " << star.mass_kom_vol()/msol << endl ;
+    cout << "mass_kom         = " << star.mass_kom()/msol << endl ;
     cout << "d = " << star.separation() << endl ;
     cout << "ray_eq = " << star(1).ray_eq() << endl ;
     cout << "ray_eq_pi = " << star(1).ray_eq_pi() << endl ;
@@ -177,16 +182,12 @@ int main(int argc, char** argv){
     cout << "d/R = " << (star.separation() + (star(1).ray_eq_pi()
 	 - star(1).ray_eq()))/(star(1).ray_eq() + star(1).ray_eq_pi())
 	 << endl ;
-    //    abort() ;
-    
 
     cout << "Binary system read in file : " << endl ;
     cout << star << endl ; 
-   //## mbtest fix the output  
-   star.display_poly(cout) ; //  Reduced quantities for polytropic EOS
-
-    cout << "ADM mass [M_sol] : " << star.mass_adm() / msol  << endl ; 
-
+     
+   star.display_poly(cout) ; //  Reduced quantities for polytropic EOS    
+   
     //////////////////////////////////////////////////////////
     //    Plot of different fields along X, Y and Z axis    //
     //////////////////////////////////////////////////////////
