@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/04 19:59:56  m_bejger
+ * Corrected definitions of lapse and Psi4
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -209,7 +212,11 @@ Star_bin_xcts::Star_bin_xcts(Map& mpi,
     // -----------------
 
     // irrotational is read in the file:     
-    fread(&irrotational, sizeof(bool), 1, fich) ;
+    bool status = fread(&irrotational, sizeof(bool), 1, fich) ;
+    if(!status) 
+    	cout << "Star_bin_xcts::Constructor from a file: Problem with reading ! " << endl ; 
+     
+    
    
     // Read of the saved fields:
     // ------------------------
@@ -241,10 +248,10 @@ Star_bin_xcts::Star_bin_xcts(Map& mpi,
     loggam = 0 ; 
     bsn.set_etat_zero() ; 
     pot_centri = 0 ;
-    Psi_comp = 0 ; 
+    Psi_comp = 0. ; 
     dcov_Psi.set_etat_zero() ;
     beta_comp.set_etat_zero() ; 
-    chi_comp = 0 ;
+    chi_comp = 0. ;
     w_beta.set_etat_zero() ; 
     khi = 0 ;
     dcov_chi.set_etat_zero() ;
@@ -412,10 +419,11 @@ void Star_bin_xcts::sauve(FILE* fich) const {
     fwrite(&irrotational, sizeof(bool), 1, fich) ;			
 
     if (irrotational) {
+
 		psi0.sauve(fich) ; 
 		gam_euler.sauve(fich) ; // required to construct d_psi from psi0
 
-    }
+   }
      
 }
 
@@ -444,15 +452,26 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
 	<< " rho_nuc c^2" << endl ; 
     
     ost << endl ;
+
+		Scalar NN (chi_auto/Psi_auto) ; 
+		Scalar Psi4 = pow(Psi_auto, 4.) ;
+		
 	
-	Scalar NN = (chi_auto + chi_comp)/(Psi_auto + Psi_comp) ; 
-	NN.std_spectral_base() ; 
+	 if ( Psi_comp.get_etat() != ETATZERO ) {	    
 	
-	Scalar Psi4 = pow(Psi_auto + Psi_comp, 4.) ; 
-	Psi4.std_spectral_base() ; 
+		NN = (chi_auto*chi_comp)/(Psi_auto*Psi_comp) ; 
+		Psi4 = pow(Psi_auto*Psi_comp, 4.) ;
 	
+    } 
+
+			Psi4.std_spectral_base() ;
+    		NN.std_spectral_base() ; 
+    		
     ost << "Central lapse N        :      " << NN.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of Psi^4 :      " << Psi4.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of Psi_comp :   " << Psi_comp.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of Psi_auto :   " << Psi_auto.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of chi_comp  :  " << chi_comp.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of chi_auto  :  " << chi_auto.val_grid_point(0,0,0,0) <<  endl ; 
      
     ost << endl 
 	<< "Coordinate equatorial radius (phi=0) a1 =    " 
@@ -467,6 +486,8 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
 	<< "  a3/a1 = " << ray_pole() / ray_eq() << endl ; 	
     ost << endl << "Baryon mass :        " << mass_b() / msol << " M_sol" << endl ; 
     ost << "Gravitational mass : " << mass_g() / msol << " M_sol" << endl ; 
+	
+	
 	
     ost << endl ; 
     ost << "Star in a binary system" << endl ; 
@@ -587,7 +608,7 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
 void Star_bin_xcts::fait_d_psi() {
 
     if (!irrotational) {
-	d_psi.set_etat_nondef() ; 
+		d_psi.set_etat_nondef() ; 
 	return ; 
     }
 
@@ -599,7 +620,7 @@ void Star_bin_xcts::fait_d_psi() {
     //  Computation of W^i = - h Gamma_n B^i/N
     //----------------------------------------------
 
-    Scalar psi4 = pow(Psi, 4.) ; 
+    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
     Vector www = hhh * gam_euler * bsn * psi4 ; 
       
     // Constant value of W^i at the center of the star
