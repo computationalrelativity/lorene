@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/15 08:18:19  m_bejger
+ * Method set_chi_comp() added
+ *
  * Revision 1.2  2010/06/04 19:59:56  m_bejger
  * Corrected definitions of lapse and Psi4
  *
@@ -368,6 +371,13 @@ Scalar& Star_bin_xcts::set_Psi_auto() {
 
     del_deriv() ;	// sets to 0x0 all the derived quantities
     return Psi_auto ;
+    
+}
+
+Scalar& Star_bin_xcts::set_chi_comp() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return chi_comp ;
     
 }
 
