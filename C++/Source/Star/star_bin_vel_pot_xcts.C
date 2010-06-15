@@ -29,6 +29,9 @@ char star_bin_vel_pot_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/15 08:05:55  m_bejger
+ * Various fields were lacking bases
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -66,7 +69,9 @@ double Star_bin_xcts::velocity_potential(int mermax,
     // See Eq (62) from Gourgoulhon et al. (2001)
     //----------------------------------------------
 
-    Scalar psi4 = pow(Psi, 4.) ; 
+    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    psi4.std_spectral_base() ; 
+    
     Vector www = hhh * gam_euler * bsn * psi4 ;
 	
     www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
@@ -92,7 +97,6 @@ double Star_bin_xcts::velocity_potential(int mermax,
     //-------------------------------------------------
     
     Scalar dndh_log = eos.der_nbar_ent(ent, nzet) ; 
-
     // In order to avoid any division by zero in the computation of zeta_h
     // the value of dndh_log is set to 1 in the external domains:
 
@@ -102,14 +106,14 @@ double Star_bin_xcts::velocity_potential(int mermax,
     
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
-    Scalar lnPsi2N( log(Psi*Psi*nn) ) ; 
+    Scalar lnPsi2N( log(Psi_auto*Psi_comp*chi_auto*chi_comp) ) ; 
     lnPsi2N.std_spectral_base() ; 
 
     Metric_flat flat_spher (mp.flat_met_spher()) ;
     Vector bb = (1 - zeta_h) * ent.derive_con(flat_spher) + 
 	zeta_h * lnPsi2N.derive_con(flat_spher) ;
 
-    Scalar entmb = ent - lnq ;  
+    Scalar entmb = ent - lnPsi2N ;  
 
     www.change_triad(mp.get_bvect_cart()) ;
     v_orb.change_triad(mp.get_bvect_cart()) ;
