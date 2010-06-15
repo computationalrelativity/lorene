@@ -29,6 +29,9 @@ char star_bin_extr_curv_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/15 08:10:29  m_bejger
+ * *** empty log message ***
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -43,7 +46,7 @@ char star_bin_extr_curv_xcts_C[] = "$Header$" ;
 #include "star.h"
 
 void Star_bin_xcts::extrinsic_curvature() {
-      
+     
   // D~_j beta^i 
   const Tensor& dbeta = beta_auto.derive_con(flat) ;
                            
@@ -60,7 +63,11 @@ void Star_bin_xcts::extrinsic_curvature() {
 		double(2) /double(3) * div_beta * (flat.con())(i,j) ; 
     }
 
-  haij_auto = 0.5 * pow(Psi, 7.) * haij_auto / chi ;   
+  haij_auto = 0.5 * pow(Psi, 7.) * haij_auto / chi ; 
+  //## for comparison: old formulation
+  //haij_auto = 0.5 * haij_auto / nn ; 
+  
+  haij_auto.std_spectral_base() ; 
   
   // Computation of (\hat{A}_{ij}\hat{A}^{ij})_{auto}
   // ------------------------------------------------
