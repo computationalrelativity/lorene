@@ -28,6 +28,9 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/15 08:13:01  m_bejger
+ * Some more corrections: Psi, chi
+ *
  * Revision 1.2  2010/06/04 20:01:59  m_bejger
  * Corrected definitions of lapse, Psi4; added definition of gamma
  *
@@ -53,15 +56,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
     
-/*
-    int nz = mp.get_mg()->get_nzone() ;
-    int nr = mp.get_mg()->get_nr(0);
-    int nt = mp.get_mg()->get_nt(0);
-    int np = mp.get_mg()->get_np(0);
-  */
-    
     const Map& mp_comp (comp.get_mp()) ;
-//	const Metric_flat flat(mp.flat_met_cart()) ;
      
     if ( (comp.Psi_auto).get_etat() == ETATZERO ) {	    
 		Psi_comp.set_etat_zero() ;
@@ -99,7 +94,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // Conformal factor Psi
 // --------------------
 
-    Psi = Psi_auto + Psi_comp ; 
+    Psi = Psi_auto * Psi_comp ; 
     Psi.std_spectral_base() ; 
 
     Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
@@ -108,7 +103,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // Function chi = NPsi
 // --------------------
 
-    chi = chi_auto + chi_comp ; 
+    chi = chi_auto * chi_comp ; 
     chi.std_spectral_base() ; 
    
 // Lapse function N
@@ -149,16 +144,8 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
-
-/*
-    int nz = mp.get_mg()->get_nzone() ;
-    int nr = mp.get_mg()->get_nr(0);
-    int nt = mp.get_mg()->get_nt(0);
-    int np = mp.get_mg()->get_np(0);
-*/
   
     const Map& mp_comp (comp.get_mp()) ;
-	//const Metric_flat flat (mp.flat_met_cart()) ;
 
     if ( (comp.Psi_auto).get_etat() == ETATZERO ) {
 		Psi_comp.set_etat_zero() ;
@@ -213,7 +200,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // Conformal factor Psi
 // --------------------
 
-    Psi = Psi_auto + Psi_comp ; 
+    Psi = Psi_auto * Psi_comp ; 
     Psi.std_spectral_base() ; 
 
     Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
@@ -222,7 +209,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // Function chi = NPsi
 // --------------------
 
-    chi = chi_auto + chi_comp ; 
+    chi = chi_auto * chi_comp ; 
     chi.std_spectral_base() ; 
    
 // Lapse function N
