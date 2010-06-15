@@ -28,6 +28,9 @@ char star_bin_upmetr_der_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/15 14:58:19  m_bejger
+ * Companion D^j beta^i computed in companion frame and imported
+ *
  * Revision 1.2  2010/06/15 08:09:43  m_bejger
  * *** empty log message ***
  *
@@ -96,38 +99,35 @@ void Star_bin_xcts::update_metric_der_comp(const Star_bin_xcts& comp) {
   // ----------------------------------
 
   // D^j beta^i    
-  Tensor dbeta_comp = beta_comp.derive_con(flat) ;
-          
-  //## to be done properly 
-  /*  
+
   Tensor temp_beta = (comp.beta_auto).derive_con(comp.flat) ;
   temp_beta.dec_dzpuis(2) ; 
   temp_beta.change_triad(mp.get_bvect_cart()) ;
 
-  //const Tensor& dbeta_comp(mp, 2, CON, mp.get_bvect_cart()) ; 
+  Tensor dbeta_comp(mp, 2, CON, mp.get_bvect_cart()) ; 
         
   assert ( *(temp_beta.get_triad()) == *(dbeta_comp.get_triad()) ) ;
     
     for(int i=1; i<=3; i++) 
-	for(int j=i; j<=3; j++) {
+	for(int j=1; j<=3; j++) {
     
-	//    cout << "temp beta, dbeta_comp dzpuis: "  
-	//         << (dbeta_comp.set(i,j)).get_dzpuis() << "  " 
-	//         << (temp_beta)(i,j).get_dzpuis() << endl ;
-
+        // importing
 	    (dbeta_comp.set(i,j)).import( (temp_beta)(i,j) );
-	    
+		// setting the appropriate basis 
+		(dbeta_comp.set(i,j)).set_spectral_va().set_base(temp_beta(i,j).get_spectral_va().get_base()) ; 
+	             
 	}	 
-  */
-                                  
+   
+   dbeta_comp.inc_dzpuis(2) ; 
+                              
   // Trace of D_j beta^i  :
   Scalar divbeta_comp = beta_comp.divergence(flat) ;
-  	   		    		  
+          	   		    		  
   for (int i=1; i<=3; i++) 
     for (int j=i; j<=3; j++) {
         
       haij_comp.set(i, j) = dbeta_comp(i, j) + dbeta_comp(j, i) 
-	- double(2) /double(3) * divbeta_comp * (flat.con())(i,j) ; 
+	  - double(2) /double(3) * divbeta_comp * (flat.con())(i,j) ; 
   
     }
        
@@ -149,4 +149,3 @@ void Star_bin_xcts::update_metric_der_comp(const Star_bin_xcts& comp) {
   del_deriv() ;
   
 }      
-
