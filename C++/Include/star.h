@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2010/06/15 08:17:43  m_bejger
+ * Method Star_bin_xcts::set_chi_comp() declared
+ *
  * Revision 1.27  2010/05/04 07:53:32  m_bejger
  * Class Star_bin_xcts added (initial version)
  *
@@ -840,7 +843,6 @@ class Star_bin : public Star {
 
 	/// Return the conformal 3-metric \f$\tilde \gamma\f$
 	const Metric& get_gtilde() const {return gtilde;} ;
-
 	
 	/** Return the total deviation of the inverse conformal metric 
 	 *  \f$\tilde \gamma^{ij}\f$ from the inverse flat metric. 
@@ -1287,7 +1289,10 @@ class Star_bin_xcts : public Star {
 
 	/// Read/write the conformal factor \f$\chi_{auto}\f$ 
 	Scalar& set_chi_auto() ; 
-	
+
+	/// Read/write the conformal factor \f$\chi_{comp}\f$ 
+	Scalar& set_chi_comp() ; 
+		
 	/// Read/write of \f$\beta_{auto}\f$
 	Vector& set_beta_auto() ;	
 
@@ -1300,7 +1305,7 @@ class Star_bin_xcts : public Star {
 	/** Returns \c true for an irrotational motion, \c false for 
 	 *  a corotating one. 
 	 */
-	bool is_irrotational() const {return irrotational; } ; 
+	bool is_irrotational() const { return irrotational; } ; 
 
 	/// Returns the non-translational part of the velocity potential
 	const Scalar& get_psi0() const {return psi0;} ;
