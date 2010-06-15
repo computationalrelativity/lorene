@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/15 08:21:21  m_bejger
+ * Minor changes; still not working properly
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -182,16 +185,18 @@ void Star_bin_xcts::equilibrium(double ent_c,
     par_beta.add_int_mod(niter, 0) ; 			// number of iterations actually used 
   
     Scalar ssjm1khi (ssjm1_khi) ;
-    
-    Vector ssjm1wbeta(mp, CON, mp.get_bvect_cart()) ;
+
+    //Vector ssjm1wbeta(mp, CON, mp.get_bvect_cart()) ;    
+    Tenseur ssjm1wbeta(mp, 1, CON, mp.get_bvect_cart()) ;
     ssjm1wbeta.set_etat_qcq() ;
-    
+            
     for (int i=0; i<3; i++) {
       ssjm1wbeta.set(i) = Cmp(ssjm1_wbeta(i+1)) ;
     }
     
     par_beta.add_scalar_mod(ssjm1khi) ; 
-    par_beta.add_tensor_mod(ssjm1wbeta) ; 
+    par_beta.add_tenseur_mod(ssjm1wbeta) ;
+    //par_beta.add_tensor_mod(ssjm1wbeta) ; 
     
     // External potential
     // See Eq (99) from Gourgoulhon et al. (2001)
@@ -232,9 +237,9 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	//-----------------------------------------------------
 
 	if (irrotational) {
+				
 	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
 					      relax_potvit) ; 
-	  
 	}
 
 	diff_vel_pot = 0. ; // to avoid the warning 
@@ -417,7 +422,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
     Scalar sPsi4 = pow(Psi_auto, -4.) ; 
     sPsi4.std_spectral_base() ; 
         
-    Scalar Etilde = pow(Psi_auto, 8.) % ener_euler; 
+    Scalar Etilde = pow(Psi_auto, 8.) * ener_euler; 
     Etilde.std_spectral_base() ;
     
 	int nr = mp.get_mg()->get_nr(0) ;
@@ -431,8 +436,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source 
 	//--------
 
-	source_tot = - 2.*qpig * sPsi3 % Etilde 
-			   - 0.5* sPsi3 % sPsi4 % (hacar_auto + hacar_comp) ;
+	source_tot = - 2. * qpig * sPsi3 * Etilde 
+			   - 0.125 * sPsi3 * sPsi4 * (hacar_auto + hacar_comp) ;
 
 	// Resolution of the Poisson equation 
 	// ----------------------------------
@@ -495,13 +500,34 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source
 	//--------
 
-    Vector source_beta_tot(mp, CON, mp.get_bvect_cart()) ;
+    //Vector source_beta(mp, CON, mp.get_bvect_cart()) ;
     
-    source_beta_tot = 4.*qpig * chi % pow(Psi, 3.) 
-	                % (ener_euler + press) * u_euler + 
-	              2.* pow(Psi, -7.) % contract(haij_auto, 1, dcov_chi, 0) 
-	            -14.* chi % pow(Psi, -8.) % contract(haij_auto, 1, dcov_Psi, 0) ;
+    source_beta = 4.*qpig * chi * pow(Psi, 3.) 
+	                * (ener_euler + press) * u_euler + 
+	              2.* pow(Psi, -7.) * contract(haij_auto, 1, dcov_chi, 0) 
+	            -14.* chi * pow(Psi, -8.) * contract(haij_auto, 1, dcov_Psi, 0) ;
+	            
+	            source_beta.std_spectral_base() ; 
+	            
+    // Resolution of the Poisson equation 
+	// ----------------------------------
 
+	// Filter for the source of beta vector
+	
+	for (int i=1; i<=3; i++) {
+	  if (source_beta(i).get_etat() != ETATZERO)
+	    source_beta.set(i).filtre(4) ;
+	}
+	
+	for (int i=1; i<=3; i++) {
+	  if(source_beta(i).dz_nonzero()) {
+	    assert( source_beta(i).get_dzpuis() == 4 ) ; 
+	  }
+	  else{
+	    (source_beta.set(i)).set_dzpuis(4) ; 
+	  }
+	}
+	
    	double lambda = double(1) / double(3) ; 
    	
    	Tenseur source_p(mp, 1, CON, mp.get_bvect_cart() ) ;
@@ -529,7 +555,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
    	// Resolution of the vector Poisson equation 
 	// -----------------------------------------
 	
-    source_p.poisson_vect(lambda, par_beta, resu_p, vect_auxi, scal_auxi) ; 
+    //source_p.poisson_vect(lambda, par_beta, resu_p, vect_auxi, scal_auxi) ; 
+    source_p.poisson_vect_oohara(lambda, par_beta, resu_p, scal_auxi) ; 
 	
 	for (int i=1; i<=3; i++) beta_auto.set(i) = resu_p(i-1) ;
 	
@@ -551,7 +578,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	Vector lap_beta = (beta_auto.derive_con(flat)).divergence(flat) 
 	    + lambda* beta_auto.divergence(flat).derive_con(flat) ;
 	
-	source_beta_tot.dec_dzpuis() ;
+	source_beta.dec_dzpuis() ;
 	Tbl tdiff_beta_x = diffrel(lap_beta(1), source_beta(1)) ; 
 	Tbl tdiff_beta_y = diffrel(lap_beta(2), source_beta(2)) ; 
 	Tbl tdiff_beta_z = diffrel(lap_beta(3), source_beta(3)) ; 
@@ -578,7 +605,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	diff_beta_x = max(abs(tdiff_beta_x)) ; 
 	diff_beta_y = max(abs(tdiff_beta_y)) ; 
 	diff_beta_z = max(abs(tdiff_beta_z)) ; 
-		
+	
 	// End of relativistic equations	
 	     	   
 	//-------------------------------------------------
