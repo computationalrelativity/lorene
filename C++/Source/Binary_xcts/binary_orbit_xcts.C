@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/15 07:57:30  m_bejger
+ * Minor corrections
+ *
  * Revision 1.1  2010/05/04 07:35:54  m_bejger
  * Initial version
  *
@@ -71,20 +74,23 @@ using namespace Unites ;
 
     for (int i=0; i<2; i++) {
 	
-	const Scalar& logn_auto = log((et[i]->get_chi_auto())/et[i]->get_Psi_auto()) ;
-	const Scalar& logn_comp = log((et[i]->get_chi_comp())/et[i]->get_Psi_comp()) ;
+	Scalar logn_auto = log((et[i]->get_chi_auto())/(et[i]->get_Psi_auto())) ;
+    logn_auto.std_spectral_base() ; 
+	Scalar logn_comp = log((et[i]->get_chi_comp())/(et[i]->get_Psi_comp())) ;
+	logn_comp.std_spectral_base() ; 
+	
+	Scalar psi4 = pow((et[i]->get_Psi_auto())*(et[i]->get_Psi_comp()), 4.) ; 
+	psi4.std_spectral_base() ; 
 	
 	const Scalar& loggam = et[i]->get_loggam() ; 
 	const Scalar& nn = et[i]->get_nn() ; 
-	Vector shift = et[i]->get_beta() ; 
+
+	// Sign convention for shift (beta^i = - N^i)
+	Vector shift =  - ( et[i]->get_beta() ) ;
+	 
 	const Metric& gamma = et[i]->get_gamma() ;
 
-
-
 	Tensor gamma_cov = gamma.cov() ;
-
-	// With the new convention for shift (beta^i = - N^i)
-	shift = - shift ;
 
 	// All tensors must be in the cartesian triad
 
@@ -117,9 +123,11 @@ using namespace Unites ;
 	// Calcul de d/dX( nu + ln(Gamma) ) au centre de l'etoile ---> dnulg[i]
 	//----------------------------------
 
-	Scalar tmp = logn_auto + logn_comp + loggam ;
-	
-	cout << "logn" << endl << norme(logn_auto + logn_comp) << endl ;
+	//Scalar tmp = logn_auto + logn_comp + loggam ;
+	Scalar tmp = log(nn) + loggam ;
+	tmp.std_spectral_base() ; 
+		
+	cout << "logn" << endl << norme(log(nn)) << endl ;
 	cout << "loggam" << endl << norme(loggam) << endl ;
 	cout << "dnulg" << endl << norme(tmp.dsdx()) << endl ;
 

@@ -28,6 +28,9 @@ char binary_anashift_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/15 07:58:32  m_bejger
+ * Minor corrections
+ *
  * Revision 1.1  2010/05/04 07:35:54  m_bejger
  * Initial version
  *
@@ -55,12 +58,11 @@ void Binary_xcts::analytical_shift(){
 	// Mass ratio
 	double p_mass = et[i]->mass_g() / et[1-i]->mass_g() ; 
     
-	// G M Omega R / (1+p) 
+	// G M Omega R / (1 + mass_ratio) 
 	double www = ggrav * et[i]->mass_g() * omega 
 		    * separation() / (1. + p_mass) ;  
     
 	const Map& mp = et[i]->get_mp() ; 
-	const Metric& flat = flat ; 
     Scalar tmp(mp) ;  
 	Scalar tmp_ext(mp) ;  
 	int nzet = et[i]->get_nzet() ; 
@@ -93,7 +95,7 @@ void Binary_xcts::analytical_shift(){
 	w_beta.set(3) = 0 ; 
 
 	w_beta.std_spectral_base() ; 
-	    
+	     
 	// Computation of khi_beta
 	// ------------------------
 
@@ -108,14 +110,14 @@ void Binary_xcts::analytical_shift(){
 	// Sets the standard spectral bases for a scalar field
 	khi_beta.std_spectral_base() ; 	    
     
-
 	// Computation of beta auto.
 	// --------------------------
 	
-	Tensor xdw_temp (w_beta.derive_con(flat)) ;
-
+    Tensor xdw_temp (w_beta.derive_con(et[i]->get_flat())) ;
+         
 	Tenseur x_d_w_temp (et[i]->get_mp(),2,CON,et[i]->get_mp().get_bvect_cart()) ;
 	x_d_w_temp.set_etat_qcq() ;
+	
 	for (int j=0; j<3; j++) 
 	  for (int k=0; k<3; k++) 
 	    x_d_w_temp.set(j,k) = xdw_temp(k+1, j+1) ;
@@ -130,14 +132,14 @@ void Binary_xcts::analytical_shift(){
 	// See Eq (92) from Gourgoulhon et al.(2001) and with the new 
 	// convention for shift = - N^i
 	
-	Vector d_khi = khi_beta.derive_con(flat) ;
+	Vector d_khi = khi_beta.derive_con(et[i]->get_flat()) ;
 	d_khi.dec_dzpuis(2) ;
 	
 	et[i]->set_beta_auto() = - 7./8. * w_beta + 1./8. * 
 	  (d_khi + xdw)  ;
 
 	et[i]->set_beta_auto().std_spectral_base() ;
-
+    
     }
 
 }
