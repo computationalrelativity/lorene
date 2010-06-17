@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/17 17:05:06  m_bejger
+ * Testing version
+ *
  * Revision 1.2  2010/06/15 08:21:21  m_bejger
  * Minor changes; still not working properly
  *
@@ -184,9 +187,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
     par_beta.add_double(precis_poisson, 1) ; 	// required precision
     par_beta.add_int_mod(niter, 0) ; 			// number of iterations actually used 
   
-    Scalar ssjm1khi (ssjm1_khi) ;
-
-    //Vector ssjm1wbeta(mp, CON, mp.get_bvect_cart()) ;    
+    Cmp ssjm1khi (ssjm1_khi) ; 
     Tenseur ssjm1wbeta(mp, 1, CON, mp.get_bvect_cart()) ;
     ssjm1wbeta.set_etat_qcq() ;
             
@@ -194,18 +195,17 @@ void Star_bin_xcts::equilibrium(double ent_c,
       ssjm1wbeta.set(i) = Cmp(ssjm1_wbeta(i+1)) ;
     }
     
-    par_beta.add_scalar_mod(ssjm1khi) ; 
+    par_beta.add_cmp_mod(ssjm1khi) ; 
     par_beta.add_tenseur_mod(ssjm1wbeta) ;
-    //par_beta.add_tensor_mod(ssjm1wbeta) ; 
     
     // External potential
     // See Eq (99) from Gourgoulhon et al. (2001)
     // ------------------
     
-    Scalar logn_auto = log(chi_auto/Psi_auto) ;
+    Scalar logn_auto = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
     logn_auto.std_spectral_base() ;
 
-    Scalar logn_comp = log(chi_comp/Psi_comp) ; 
+    Scalar logn_comp = log(chi_comp + 1.) - log(Psi_comp + 1.) ; 
     logn_comp.std_spectral_base() ;  
      
     cout << "logn_comp" << norme(logn_comp) << endl ;
@@ -215,11 +215,12 @@ void Star_bin_xcts::equilibrium(double ent_c,
     
     Scalar ent_jm1 = ent ;	// Enthalpy at previous step
     
-    Scalar source_tot(mp) ; // source term in the equation for hij_auto, 
-                            // logn_auto and beta_auto
+    Scalar source_tot(mp) ; // source term in equations Psi_auto 
+							// and chi_auto 
 			    
-    Vector source_beta(mp, CON, mp.get_bvect_cart()) ;  // source term 
-    // in the equation for beta_auto
+    Vector source_beta(mp, CON, mp.get_bvect_cart()) ; // source term 
+                                                       // in the equation 
+                                                       // for beta_auto
 
     //==================================================================
     // 			Start of iteration
@@ -411,19 +412,24 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	hydro_euler() ;		// computes new values for ener_euler (E), 
 			  			// s_euler (S) and u_euler (U^i)
 
-	
 	// -------------------------------
 	// AUXILIARY QUANTITIES
 	// -------------------------------
 
-    Scalar sPsi3 = pow(Psi_auto, -3.) ; 
+    Scalar Psi_auto_p1 = Psi_auto + 1. ; 
+    Scalar chi_auto_p1 = chi_auto + 1. ;
+    
+    Scalar sPsi3 = pow(Psi_auto_p1, -3.) ; 
     sPsi3.std_spectral_base() ; 
 
-    Scalar sPsi4 = pow(Psi_auto, -4.) ; 
+    Scalar sPsi4 = pow(Psi_auto_p1, -4.) ; 
     sPsi4.std_spectral_base() ; 
         
-    Scalar Etilde = pow(Psi_auto, 8.) * ener_euler; 
+    Scalar Etilde = pow(Psi_auto_p1, 8.) * ener_euler ; 
     Etilde.std_spectral_base() ;
+    
+    Scalar Stilde = pow(Psi_auto_p1, 8.) * s_euler ;
+    Stilde.std_spectral_base() ; 
     
 	int nr = mp.get_mg()->get_nr(0) ;
 	int nt = mp.get_mg()->get_nt(0) ;
@@ -436,17 +442,20 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source 
 	//--------
 
-	source_tot = - 2. * qpig * sPsi3 * Etilde 
-			   - 0.125 * sPsi3 * sPsi4 * (hacar_auto + hacar_comp) ;
-
+	source_tot = - 0.5 * qpig * sPsi3 * Etilde
+                 - 0.125 * sPsi3 * sPsi4 * (hacar_auto + hacar_comp) ; 
+			   
+	source_tot.std_spectral_base() ; 
+			      
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
+    cout << "Resolution of the Poisson equation for Psi_auto:" << endl ;
 	source_tot.poisson(par_psi, Psi_auto) ; 
 	ssjm1_psi = ssjm1psi ;
 
 	cout << "Psi_auto: " << endl << norme(Psi_auto/(nr*nt*np)) << endl ;
-  
+	
 	// Check: has the Poisson equation been correctly solved ?
 	// -----------------------------------------------------
 
@@ -467,12 +476,14 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source
 	//--------
 
-	source_tot = chi_auto % ( 0.5*qpig * sPsi4 % (ener_euler + 2.*s_euler) 
-	           + 0.875* sPsi4 % sPsi4 % (hacar_auto + hacar_comp) ) ;
-
+	source_tot = chi_auto_p1 *(0.5 * qpig * sPsi4 * (Etilde + 2.*Stilde) 
+	           + 0.875* sPsi4 * sPsi4 * (hacar_auto + hacar_comp) ) ;
+    source_tot.std_spectral_base() ; 
+    
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
+    cout << "Resolution of the Poisson equation for chi_auto:" << endl ;
 	source_tot.poisson(par_chi, chi_auto) ; 
 	ssjm1_chi = ssjm1chi ;
 
@@ -493,40 +504,24 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	diff_chi = max(abs(tdiff_chi)) ; 
 
 
-	//--------------------------------------------------------
+	//------------------------------------------------------------------
 	// Vector Poisson equation for beta_auto
-	//--------------------------------------------------------
+	//------------------------------------------------------------------
 
 	// Source
 	//--------
 
-    //Vector source_beta(mp, CON, mp.get_bvect_cart()) ;
-    
-    source_beta = 4.*qpig * chi * pow(Psi, 3.) 
-	                * (ener_euler + press) * u_euler + 
-	              2.* pow(Psi, -7.) * contract(haij_auto, 1, dcov_chi, 0) 
-	            -14.* chi * pow(Psi, -8.) * contract(haij_auto, 1, dcov_Psi, 0) ;
+    source_beta = 4.* qpig * chi_auto_p1 * sPsi3 
+	                * (ener_euler + press) * u_euler  
+	            + 2.* sPsi3 * sPsi4 
+	            * contract(haij_auto, 1, dcov_chi, 0) 
+	            -14.* chi_auto_p1 * sPsi4 * sPsi4
+	            * contract(haij_auto, 1, dcov_Psi, 0) ;
 	            
-	            source_beta.std_spectral_base() ; 
+	source_beta.std_spectral_base() ; 
 	            
     // Resolution of the Poisson equation 
 	// ----------------------------------
-
-	// Filter for the source of beta vector
-	
-	for (int i=1; i<=3; i++) {
-	  if (source_beta(i).get_etat() != ETATZERO)
-	    source_beta.set(i).filtre(4) ;
-	}
-	
-	for (int i=1; i<=3; i++) {
-	  if(source_beta(i).dz_nonzero()) {
-	    assert( source_beta(i).get_dzpuis() == 4 ) ; 
-	  }
-	  else{
-	    (source_beta.set(i)).set_dzpuis(4) ; 
-	  }
-	}
 	
    	double lambda = double(1) / double(3) ; 
    	
@@ -555,8 +550,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
    	// Resolution of the vector Poisson equation 
 	// -----------------------------------------
 	
-    //source_p.poisson_vect(lambda, par_beta, resu_p, vect_auxi, scal_auxi) ; 
-    source_p.poisson_vect_oohara(lambda, par_beta, resu_p, scal_auxi) ; 
+    source_p.poisson_vect(lambda, par_beta, resu_p, vect_auxi, scal_auxi) ; 
 	
 	for (int i=1; i<=3; i++) beta_auto.set(i) = resu_p(i-1) ;
 	
