@@ -29,6 +29,9 @@ char star_bin_vel_pot_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/17 15:07:10  m_bejger
+ * Psi4, lnPsi2N corrected
+ *
  * Revision 1.2  2010/06/15 08:05:55  m_bejger
  * Various fields were lacking bases
  *
@@ -69,7 +72,7 @@ double Star_bin_xcts::velocity_potential(int mermax,
     // See Eq (62) from Gourgoulhon et al. (2001)
     //----------------------------------------------
 
-    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    Scalar psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
     
     Vector www = hhh * gam_euler * bsn * psi4 ;
@@ -106,7 +109,7 @@ double Star_bin_xcts::velocity_potential(int mermax,
     
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
-    Scalar lnPsi2N( log(Psi_auto*Psi_comp*chi_auto*chi_comp) ) ; 
+    Scalar lnPsi2N( log(Psi*chi) ) ; 
     lnPsi2N.std_spectral_base() ; 
 
     Metric_flat flat_spher (mp.flat_met_spher()) ;
