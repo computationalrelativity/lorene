@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/17 14:48:14  m_bejger
+ * Minor corrections
+ *
  * Revision 1.2  2010/06/04 19:54:19  m_bejger
  * Minor corrections, mass volume integrals need to be checked out
  *
@@ -86,27 +89,22 @@ double Binary_xcts::mass_adm_vol() const {
 
   double massadm = 0. ;
 
-  //## : to be done 
-  
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
     // Declaration of all fields
-      const Scalar& Psi_auto(et[i]->get_Psi_auto()) ;
-      const Scalar& Psi_comp(et[i]->get_Psi_comp()) ;
 
-      Scalar psi = Psi_auto + Psi_comp ; 
-      psi.std_spectral_base() ; 
-      Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+      const Scalar& psi(et[i]->get_Psi()) ;
+      
+      Scalar psi4 = pow(psi, 4.) ; 
       psi4.std_spectral_base() ;
 	  
-	  Scalar spsi8 = pow(Psi_auto*Psi_comp, -8.) ; 
+	  Scalar spsi8 = pow(psi, -8.) ; 
       spsi8.std_spectral_base() ;
 
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
       const Scalar& hacar_comp = et[i]->get_hacar_comp() ;
  
-      // Source in IWM approximation 
 	  Scalar source = psi4 % ener_euler 
 	  			    + spsi8 % (hacar_auto + hacar_comp)/(4.*qpig) ;  
 	  
@@ -136,8 +134,7 @@ double Binary_xcts::mass_kom() const {
     Map_af map0 (et[0]->get_mp()) ; 
     const Metric& flat = (et[0]->get_flat()) ; 
     
-    Scalar logn = log((et[0]->get_chi_auto())*(et[0]->get_chi_comp())
-    			/((et[0]->get_Psi_auto())*(et[0]->get_Psi_comp()))) ; 
+    Scalar logn = log(et[0]->get_chi() / et[0]->get_Psi() ) ; 
 
     logn.std_spectral_base() ; 
     
@@ -160,36 +157,27 @@ double Binary_xcts::mass_kom_vol() const {
 
   double masskom = 0.;
 
-  //## : to be done 
-
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
      // Declaration of all fields
-      
-      const Scalar& Psi_auto(et[i]->get_Psi_auto()) ;
-      const Scalar& Psi_comp(et[i]->get_Psi_comp()) ;
-      
-      const Scalar& chi_auto(et[i]->get_chi_auto()) ;
-      const Scalar& chi_comp(et[i]->get_chi_comp()) ;
-      
+            
+      const Scalar& nn(et[i]->get_nn()) ;
+      const Scalar& Psi(et[i]->get_Psi()) ;
+                  
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& s_euler = et[i]->get_s_euler() ;
 
       const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
       const Scalar& hacar_comp = et[i]->get_hacar_comp() ;
-      
-      Scalar nn = chi_auto*chi_comp / ( Psi_auto*Psi_comp ) ; 
-      nn.std_spectral_base() ;
-      
-      Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+
+      Scalar psi4 = pow(Psi, 4.) ; 
       psi4.std_spectral_base() ;
 
-      Scalar spsi12 = pow(Psi_auto*Psi_comp, -12.) ; 
+      Scalar spsi12 = pow(Psi, -12.) ; 
       spsi12.std_spectral_base() ;
 
       Scalar source = qpig * psi4 % (ener_euler + s_euler) ;
       source += spsi12 % psi4 % (hacar_auto + hacar_comp) ;
-
       source = source / qpig * nn  ;
   
       source.std_spectral_base() ;
@@ -201,7 +189,6 @@ double Binary_xcts::mass_kom_vol() const {
   return masskom ;
 
 }
-
 
 			//---------------------------------//
 		    //	 Total angular momentum        //
@@ -260,7 +247,7 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		const Scalar& psi = (et[i]->get_Psi_auto())*(et[i]->get_Psi_comp()) ; 
+		const Scalar& psi = et[i]->get_Psi() ; 
 		Scalar rho = pow(psi, 10.) * (ee + pp) ; 
 		rho.std_spectral_base() ;
 
