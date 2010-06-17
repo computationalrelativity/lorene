@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/17 15:00:27  m_bejger
+ * Redefinition of initial Psi_auto and chi_auto
+ *
  * Revision 1.2  2010/05/03 13:39:14  m_bejger
  * File handler fixed
  *
@@ -52,7 +55,7 @@ char init_bin_C[] = "$Header$" ;
 #include "graphique.h"
 #include "nbr_spx.h"
 
-int  main(){
+int main() {
     
     //------------------------------------------------------------------
     //		Input data for the multi-grid no. 1
@@ -257,26 +260,23 @@ int  main(){
 	 << endl << "================================================" << endl ;
     (star.set(1)).equilibrium_spher(ent_c1, precis) ; 
 
-    (star.set(1)).set_Psi_auto() = exp(0.5*(star(1).get_lnq() 
-    							 - star(1).get_logn()));
-    (star.set(1)).set_Psi_auto().std_spectral_base() ;
+    star.set(1).set_Psi_auto() = exp(0.5*(star(1).get_lnq()-star(1).get_logn())) - 1.;
+    star.set(1).set_Psi_auto().std_spectral_base() ;
 
-    (star.set(1)).set_chi_auto() = exp(0.5*(star(1).get_lnq() 
-    							 + star(1).get_logn())) ;
-    (star.set(1)).set_chi_auto().std_spectral_base() ; 
+    star.set(1).set_chi_auto() = exp(0.5*(star(1).get_lnq()+star(1).get_logn())) - 1.;
+    star.set(1).set_chi_auto().std_spectral_base() ; 
+    
     
     cout << endl << "Computation of a static configuration for star 2"
 	 << endl << "================================================" << endl ; 
 
     (star.set(2)).equilibrium_spher(ent_c2, precis) ; 
 
-    (star.set(2)).set_Psi_auto() = exp(0.5*(star(2).get_lnq() 
-    							 - star(2).get_logn())) ;
-    (star.set(2)).set_Psi_auto().std_spectral_base() ;
+    star.set(2).set_Psi_auto() = exp(0.5*(star(2).get_lnq()-star(2).get_logn())) - 1.;
+    star.set(2).set_Psi_auto().std_spectral_base() ;
 
-    (star.set(2)).set_chi_auto() = exp(0.5*(star(2).get_lnq() 
-    							 + star(2).get_logn())) ;
-    (star.set(2)).set_chi_auto().std_spectral_base() ;    
+    star.set(2).set_chi_auto() = exp(0.5*(star(2).get_lnq()+star(2).get_logn())) - 1.;
+    star.set(2).set_chi_auto().std_spectral_base() ;    
 
     //-----------------------------------------------------------------------
     //		Sets the stars at Newtonian (Keplerian) position 
@@ -338,7 +338,7 @@ int  main(){
     eos2.sauve(fresu) ; 
 
     star.sauve(fresu) ;     
-
+    
     fclose(fresu) ;     
 
     // Cleaning
