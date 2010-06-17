@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/06/17 15:06:25  m_bejger
+ * N, Psi output corrected
+ *
  * Revision 1.3  2010/06/15 08:18:19  m_bejger
  * Method set_chi_comp() added
  *
@@ -218,9 +221,7 @@ Star_bin_xcts::Star_bin_xcts(Map& mpi,
     bool status = fread(&irrotational, sizeof(bool), 1, fich) ;
     if(!status) 
     	cout << "Star_bin_xcts::Constructor from a file: Problem with reading ! " << endl ; 
-     
-    
-   
+      
     // Read of the saved fields:
     // ------------------------
 
@@ -463,20 +464,12 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
     
     ost << endl ;
 
-		Scalar NN (chi_auto/Psi_auto) ; 
-		Scalar Psi4 = pow(Psi_auto, 4.) ;
-		
-	
-	 if ( Psi_comp.get_etat() != ETATZERO ) {	    
-	
-		NN = (chi_auto*chi_comp)/(Psi_auto*Psi_comp) ; 
-		Psi4 = pow(Psi_auto*Psi_comp, 4.) ;
-	
-    } 
-
-			Psi4.std_spectral_base() ;
-    		NN.std_spectral_base() ; 
-    		
+        Scalar Psi = Psi_auto + Psi_comp + 1. ;
+        Scalar NN = (chi_auto + chi_comp + 1.)/Psi ; 
+        NN.std_spectral_base() ;
+        Scalar psi4 = pow(Psi, 4.) ;
+	    psi4.std_spectral_base() ;
+ 
     ost << "Central lapse N        :      " << NN.val_grid_point(0,0,0,0) <<  endl ; 
     ost << "Central value of Psi_comp :   " << Psi_comp.val_grid_point(0,0,0,0) <<  endl ; 
     ost << "Central value of Psi_auto :   " << Psi_auto.val_grid_point(0,0,0,0) <<  endl ; 
@@ -494,8 +487,8 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
 	<< ray_pole()/km << " km" << endl ;  
     ost << "Axis ratio a2/a1 = " << ray_eq_pis2() / ray_eq() 
 	<< "  a3/a1 = " << ray_pole() / ray_eq() << endl ; 	
-    ost << endl << "Baryon mass :        " << mass_b() / msol << " M_sol" << endl ; 
-    ost << "Gravitational mass : " << mass_g() / msol << " M_sol" << endl ; 
+    ost << endl << "Baryon mass         : " << mass_b() / msol << " M_sol" << endl ; 
+    ost << "Gravitational mass  : " << mass_g() / msol << " M_sol" << endl ; 
 	
 	
 	
@@ -630,7 +623,9 @@ void Star_bin_xcts::fait_d_psi() {
     //  Computation of W^i = - h Gamma_n B^i/N
     //----------------------------------------------
 
-    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    Scalar psi4 = pow(Psi, 4.) ; 
+    psi4.std_spectral_base() ; 
+    
     Vector www = hhh * gam_euler * bsn * psi4 ; 
       
     // Constant value of W^i at the center of the star
