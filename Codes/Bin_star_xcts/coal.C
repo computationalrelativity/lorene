@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/06/17 15:15:11  m_bejger
+ * Changed definitions; initialisations
+ *
  * Revision 1.1  2010/06/15 07:53:58  m_bejger
  * Initial version
  *
@@ -339,8 +342,8 @@ int main(){
 	ent_c[i-1] = star(i).get_ent().val_grid_point(0, 0, 0, 0) ;  
 	differ[i-1].set(0) = 1 ;	    // diff_ent = 1
 	differ[i-1].set(1) = 1 ;	    // err_psi = 1
-	differ[i-1].set(2) = 1 ;	    // err_logn = 1
-	differ[i-1].set(3) = 1 ;	    // err_lnq = 1
+	differ[i-1].set(2) = 1 ;	    // err_Psi = 1
+	differ[i-1].set(3) = 1 ;	    // err_chi = 1
 	differ[i-1].set(4) = 1 ;	    // err_beta_x = 1
 	differ[i-1].set(5) = 1 ;	    // err_beta_y = 1
 	differ[i-1].set(6) = 1 ;	    // err_beta_z = 1
@@ -349,26 +352,26 @@ int main(){
     double relax_jm1 = 1. - relax ; 
     double relax_omeg_jm1 = 1. - relax_omeg ; 
     
-//----------------------------------------------------------------
+//----------------------------------------------------------------------
 //	 Binary system at the previous step (for the relaxation)
-//----------------------------------------------------------------
+//----------------------------------------------------------------------
 
     Binary_xcts star_jm1 = star ;
      
     double omega_jm1 = star_jm1.get_omega() ; 
     
-//---------------------------------------------------------------------    
+//----------------------------------------------------------------------    
 // Psi_comp, chi_comp and pot_centri are initialized to 0 on star_jm1 : 
-// --------------------------------------------------------------------
+// ---------------------------------------------------------------------
     for (int i=1 ; i<=2 ; i++) {
-		star_jm1.set(i).set_Psi_comp() = 1. ; 
-		star_jm1.set(i).set_chi_comp() = 1. ; 
+		star_jm1.set(i).set_Psi_comp() = 0. ; 
+		star_jm1.set(i).set_chi_comp() = 0. ; 
 		star_jm1.set(i).set_pot_centri() = 0. ; 
     }
    
-//----------------------------------------------------------------
+//----------------------------------------------------------------------
 //	 Openning of log files
-//----------------------------------------------------------------
+//----------------------------------------------------------------------
 
     sprintf(name, "resglob_%e.d", distance) ;
     ofstream fichresu(name) ;
@@ -496,7 +499,8 @@ int main(){
 	star.set_omega() = omega_j ; 
 
 	cout << display_bold << "New orbital velocity Omega : " 
-	     << star.get_omega() * f_unit << " rad/s" << display_normal << endl ; 
+	     << star.get_omega() * f_unit << " rad/s" 
+	     << display_normal << endl ; 
 
 	// Keplerian velocity (for comparison only)
 	// ----------------------------------------
@@ -530,12 +534,9 @@ int main(){
 	//	    Computation of B^i/N (bsn) and pot_centri in each star
 	//------------------------------------------------------------------
 
-	for (int i=1; i<=2; i++) {
-	
+	for (int i=1; i<=2; i++) 
 	    (star.set(i)).kinematics( star.get_omega(), star.get_x_axe() ) ; 
 	
-	}
-
 	//------------------------------------------------------------------
 	//	    Computation of gam_euler, u_euler, ener_euler, s_euler, 
 	//	    wit_w and loggam  in each star
@@ -548,13 +549,11 @@ int main(){
 	
 	    // Check of the Binary_xcts::orbit computation 
 	    //--------------------------------------------
+
+	Scalar lognn = log(star(i).get_nn()) ; 
+    lognn.std_spectral_base() ; 
     
-    Scalar logn_auto = log(star(i).get_chi_auto()/star(i).get_Psi_auto()) ;
-    logn_auto.std_spectral_base() ; 
-	Scalar logn_comp = log(star(i).get_chi_comp()/star(i).get_Psi_comp()) ;
-	logn_comp.std_spectral_base() ; 
-    
-	    Scalar tmp = logn_auto + logn_comp + star(i).get_loggam() ;
+	    Scalar tmp = lognn + star(i).get_loggam() ;
 	    double grad1 = tmp.dsdx().val_grid_point(0, 0, 0, 0) ;
 
 	    double grad2 = star(i).get_pot_centri().dsdx()
@@ -582,8 +581,8 @@ int main(){
 
 	for (int i=1; i<=2; i++) {
 
-	    // Relaxation on logn_comp (only if it has not been done by
-	    //			    update_metric)
+	    // Relaxation on Psi_comp and chi_comp (only if it has not been
+	    // done by update_metric)
 	    // --------------------------------------------------------
 	    if ( (ind_rel_met == 0) || ( (mer % fmer_upd_met) != 0 ) ) {
 
