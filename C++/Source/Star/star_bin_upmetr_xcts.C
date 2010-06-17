@@ -28,6 +28,9 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/06/17 15:08:42  m_bejger
+ * Correcting previous corrections that were, in fact, incorrect
+ *
  * Revision 1.3  2010/06/15 08:13:01  m_bejger
  * Some more corrections: Psi, chi
  *
@@ -63,7 +66,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
     
     } else {	
 		Psi_comp.set_etat_qcq() ;
-		Psi_comp.import(comp.Psi_auto) ;
+		Psi_comp.import( comp.Psi_auto ) ; 
 		Psi_comp.std_spectral_base() ;
     } 
   
@@ -94,22 +97,22 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // Conformal factor Psi
 // --------------------
 
-    Psi = Psi_auto * Psi_comp ; 
+    Psi = Psi_auto + Psi_comp + 1.; 
     Psi.std_spectral_base() ; 
 
-    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    Scalar psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
 
 // Function chi = NPsi
 // --------------------
 
-    chi = chi_auto * chi_comp ; 
+    chi = chi_auto + chi_comp + 1.; 
     chi.std_spectral_base() ; 
    
 // Lapse function N
 // ----------------
 
-    nn = chi_auto*chi_comp / ( Psi_auto*Psi_comp ) ; 
+    nn = chi / Psi ; 
     nn.std_spectral_base() ; 
 
 // Shift vector 
@@ -117,8 +120,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 
     beta = beta_auto + beta_comp ;
     
-    Sym_tensor tens_gamma(( flat.con() ) / psi4) ;
-    gamma = tens_gamma ;
+    gamma = flat.con() / psi4 ;
 
 // Extrinsic curvature (haij_auto and hacar_auto)
 //-----------------------------------------------
@@ -200,22 +202,22 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // Conformal factor Psi
 // --------------------
 
-    Psi = Psi_auto * Psi_comp ; 
+    Psi = Psi_auto + Psi_comp + 1.; 
     Psi.std_spectral_base() ; 
 
-    Scalar psi4 = pow(Psi_auto*Psi_comp, 4.) ; 
+    Scalar psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
 
 // Function chi = NPsi
 // --------------------
 
-    chi = chi_auto * chi_comp ; 
+    chi = chi_auto + chi_comp + 1.; 
     chi.std_spectral_base() ; 
    
 // Lapse function N
 // ----------------
 
-    nn = chi_auto*chi_comp / ( Psi_auto*Psi_comp ) ; 
+    nn = chi / Psi ; 
     nn.std_spectral_base() ; 
 
 // Shift vector
@@ -223,8 +225,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 	    
     beta = beta_auto + beta_comp ;
         
-    Sym_tensor tens_gamma((flat.con()) / psi4) ;
-    gamma = tens_gamma ;
+    gamma = flat.con() / psi4 ;
 
     // Extrinsic curvature (haij_auto and hacar_auto)
     extrinsic_curvature() ;
