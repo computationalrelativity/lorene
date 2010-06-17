@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/17 14:15:41  m_bejger
+ * Using method get_Psi()
+ *
  * Revision 1.2  2010/06/15 07:57:30  m_bejger
  * Minor corrections
  *
@@ -73,13 +76,8 @@ using namespace Unites ;
     double dg21[2], dg22[2], dbx[2], dby[2], dbz[2], dbymo[2] ;
 
     for (int i=0; i<2; i++) {
-	
-	Scalar logn_auto = log((et[i]->get_chi_auto())/(et[i]->get_Psi_auto())) ;
-    logn_auto.std_spectral_base() ; 
-	Scalar logn_comp = log((et[i]->get_chi_comp())/(et[i]->get_Psi_comp())) ;
-	logn_comp.std_spectral_base() ; 
-	
-	Scalar psi4 = pow((et[i]->get_Psi_auto())*(et[i]->get_Psi_comp()), 4.) ; 
+
+	Scalar psi4 = pow(et[i]->get_Psi(), 4.) ; 
 	psi4.std_spectral_base() ; 
 	
 	const Scalar& loggam = et[i]->get_loggam() ; 
@@ -123,7 +121,6 @@ using namespace Unites ;
 	// Calcul de d/dX( nu + ln(Gamma) ) au centre de l'etoile ---> dnulg[i]
 	//----------------------------------
 
-	//Scalar tmp = logn_auto + logn_comp + loggam ;
 	Scalar tmp = log(nn) + loggam ;
 	tmp.std_spectral_base() ; 
 		
