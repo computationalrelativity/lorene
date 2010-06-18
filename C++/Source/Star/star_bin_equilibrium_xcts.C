@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/06/18 13:28:59  m_bejger
+ * Adjusted the computation of the first integral, radial scale
+ *
  * Revision 1.3  2010/06/17 17:05:06  m_bejger
  * Testing version
  *
@@ -198,20 +201,29 @@ void Star_bin_xcts::equilibrium(double ent_c,
     par_beta.add_cmp_mod(ssjm1khi) ; 
     par_beta.add_tenseur_mod(ssjm1wbeta) ;
     
-    // External potential
+    // Redefinition of external potential
     // See Eq (99) from Gourgoulhon et al. (2001)
-    // ------------------
+    // logN = logN_auto + logn_ac_rest = log(chi_auto + 1.) 
+    // - log(Psi_auto + 1.) + logn_ac_rest 
+    //------------------------------------
     
-    Scalar logn_auto = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
+    Scalar Psi_auto_p1 = Psi_auto + 1. ; 
+    Scalar chi_auto_p1 = chi_auto + 1. ;
+    
+    Scalar logn_auto = log(chi_auto_p1) - log(Psi_auto_p1) ;
     logn_auto.std_spectral_base() ;
 
-    Scalar logn_comp = log(chi_comp + 1.) - log(Psi_comp + 1.) ; 
-    logn_comp.std_spectral_base() ;  
-     
-    cout << "logn_comp" << norme(logn_comp) << endl ;
+    Scalar logn_ac_rest = log(1. + chi_comp/chi_auto_p1) 
+                        - log(1. + Psi_comp/Psi_auto_p1) ;                         
+    logn_ac_rest.std_spectral_base() ; 
+                              
+    cout << "logn_auto" << norme(logn_auto) << endl ;                       
+    cout << "logn_ac_rest" << norme(logn_ac_rest) << endl ; 
     cout << "pot_centri" << norme(pot_centri) << endl ;
     cout << "loggam" << norme(loggam) << endl ;
-    Scalar pot_ext = logn_comp + pot_centri + loggam ;
+    
+    Scalar pot_ext = logn_ac_rest + pot_centri + loggam ;
+    cout << "pot_ext" << norme(pot_ext) << endl ;
     
     Scalar ent_jm1 = ent ;	// Enthalpy at previous step
     
@@ -287,7 +299,17 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// New value of logn_auto 
 	// ----------------------
 
-	logn_auto = alpha_r2 * logn_auto ;
+    Psi_auto = exp(alpha_r2*log(Psi_auto_p1)) - 1. ; 
+    Psi_auto.std_spectral_base() ; 
+    chi_auto = exp(alpha_r2*log(chi_auto_p1)) - 1. ;   
+    chi_auto.std_spectral_base() ;
+
+	Psi_auto.set_spectral_va().smooth(nzet, Psi_auto.set_spectral_va()) ;
+    chi_auto.set_spectral_va().smooth(nzet, chi_auto.set_spectral_va()) ;
+    
+    logn_auto = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
+    logn_auto.std_spectral_base() ; 
+
 	logn_auto_c  = logn_auto.val_grid_point(0, 0, 0, 0) ;
 
 	//------------------------------------------------------------
@@ -416,9 +438,12 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// AUXILIARY QUANTITIES
 	// -------------------------------
 
-    Scalar Psi_auto_p1 = Psi_auto + 1. ; 
-    Scalar chi_auto_p1 = chi_auto + 1. ;
-    
+    Psi_auto_p1 = Psi_auto + 1. ; 
+    chi_auto_p1 = chi_auto + 1. ;
+
+    //Scalar logn_auto_bef = log(chi_auto_p1/Psi_auto_p1) ;
+    //logn_auto_bef.std_spectral_base() ; 
+        
     Scalar sPsi3 = pow(Psi_auto_p1, -3.) ; 
     sPsi3.std_spectral_base() ; 
 
@@ -455,7 +480,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	ssjm1_psi = ssjm1psi ;
 
 	cout << "Psi_auto: " << endl << norme(Psi_auto/(nr*nt*np)) << endl ;
-	
+ 
 	// Check: has the Poisson equation been correctly solved ?
 	// -----------------------------------------------------
 
@@ -468,7 +493,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	}
 	cout << endl ;
 	diff_psi = max(abs(tdiff_psi)) ; 
-	
+	    
     //------------------------------------------------------------------
 	// Poisson equation for chi_auto (Eq. 8.129 of arXiv:gr-qc/0703035)
 	//------------------------------------------------------------------
@@ -503,9 +528,18 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
 	diff_chi = max(abs(tdiff_chi)) ; 
 
-
+    /*
+    Scalar logn_auto_aft = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
+    logn_auto_aft.std_spectral_base() ; 
+    
+    cout << norme(logn_auto_bef/(nr*nt*np)) 
+         << norme(logn_auto_aft/(nr*nt*np)) << endl ; 
+         
+    arrete() ;      
+    */
+    
 	//------------------------------------------------------------------
-	// Vector Poisson equation for beta_auto
+	// Vector Poisson equation for beta_auto (Eq. 8.128 of arXiv:gr-qc/0703035)
 	//------------------------------------------------------------------
 
 	// Source
