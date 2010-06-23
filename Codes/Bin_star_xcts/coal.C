@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/06/23 20:45:51  m_bejger
+ * Suppressed Psi_comp, chi_comp and pot_centri initialisation to 0 on initial step, added graphical diagnostics after metric updates
+ *
  * Revision 1.2  2010/06/17 15:15:11  m_bejger
  * Changed definitions; initialisations
  *
@@ -237,7 +240,7 @@ int main(){
 
     // Initialisation of logn, beta, psi4 etc...
     // ---------------------------------
-
+	
     //star.fait_decouple() ;
  
     for (int i=1; i<=2; i++) {
@@ -260,7 +263,7 @@ int main(){
     (star.set(i)).fait_d_psi() ; 
 	(star.set(i)).hydro_euler() ; 
     }
-  
+      
     // New initial of value Omega (taking into account the fact
     //  that the separation has changed)
     
@@ -280,7 +283,7 @@ int main(){
     for (int i=1; i<=2; i++) {
 	(star.set(i)).update_metric(star(3-i)) ; 
     }
-    
+ 	    
     // Second update of gradients of companion potentials
 
     for (int i=1; i<=2; i++) {
@@ -324,8 +327,6 @@ int main(){
 	 << endl ; 
     cout << star << endl ; 
 
-//    arrete(prompt) ; 
-       
 //----------------------------------------------------------------
 //			Auxiliary quantities
 //----------------------------------------------------------------
@@ -360,15 +361,6 @@ int main(){
      
     double omega_jm1 = star_jm1.get_omega() ; 
     
-//----------------------------------------------------------------------    
-// Psi_comp, chi_comp and pot_centri are initialized to 0 on star_jm1 : 
-// ---------------------------------------------------------------------
-    for (int i=1 ; i<=2 ; i++) {
-		star_jm1.set(i).set_Psi_comp() = 0. ; 
-		star_jm1.set(i).set_chi_comp() = 0. ; 
-		star_jm1.set(i).set_pot_centri() = 0. ; 
-    }
-   
 //----------------------------------------------------------------------
 //	 Openning of log files
 //----------------------------------------------------------------------
@@ -457,15 +449,19 @@ int main(){
 
 	if ( (mer % fmer_upd_met) == 0 || mer == 1) {
     
-	    for (int i=1; i<=2; i++) 
-	      (star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ; 
-	    
+	    for (int i=1; i<=2; i++) (star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ;
+	    for (int i=1; i<=2; i++) (star.set(i)).update_metric_der_comp(star(3-i)) ; 
 
-	    for (int i=1; i<=2; i++) 
-		(star.set(i)).update_metric_der_comp(star(3-i)) ; 
+	 des_profile (star(1).get_chi(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"chi1", "chi1 (theta=pi/2,  phi=0)" ) ;  
+
+	 des_profile (star(1).get_Psi(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"Psi1", "Psi1 (theta=pi/2,  phi=0)" ) ; 	
+
+	 des_profile (star(1).get_nn(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"N1", "N1 (theta=pi/2,  phi=0)" ) ; 
 	
 	}
-
 
 	//------------------------------------------------------------------
 	//	    Computation of the orbital angular velocity Omega
@@ -593,7 +589,7 @@ int main(){
 		    + relax_jm1 * star_jm1(i).get_chi_comp() ; 
 
 	    }
-        
+     
 	    // Relaxation on pot_centri
 	    // ------------------------
 	    star.set(i).set_pot_centri() = relax * star(i).get_pot_centri()
@@ -604,6 +600,7 @@ int main(){
 				      mermax_poisson, relax_poisson,
 				      relax_potvit, thres_adapt[i-1],
 				      differ[i-1]) ;
+
 	}	
 	
 	//------------------------------------------------------------------
