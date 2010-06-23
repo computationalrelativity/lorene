@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/06/23 20:40:56  m_bejger
+ * Corrections in equations for Psi_auto, chi_auto and beta_auto
+ *
  * Revision 1.4  2010/06/18 13:28:59  m_bejger
  * Adjusted the computation of the first integral, radial scale
  *
@@ -318,7 +321,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	//------------------------------------------------------------
 
 	logn_auto.set_spectral_va().smooth(nzet, logn_auto.set_spectral_va()) ;
-
+	
 	//------------------------------------------
 	// First integral	-->  enthalpy in all space
 	// See Eq (98) from Gourgoulhon et al. (2001)
@@ -433,33 +436,21 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
 	hydro_euler() ;		// computes new values for ener_euler (E), 
 			  			// s_euler (S) and u_euler (U^i)
-
+     
 	// -------------------------------
 	// AUXILIARY QUANTITIES
 	// -------------------------------
 
-    Psi_auto_p1 = Psi_auto + 1. ; 
-    chi_auto_p1 = chi_auto + 1. ;
-
-    //Scalar logn_auto_bef = log(chi_auto_p1/Psi_auto_p1) ;
-    //logn_auto_bef.std_spectral_base() ; 
-        
-    Scalar sPsi3 = pow(Psi_auto_p1, -3.) ; 
-    sPsi3.std_spectral_base() ; 
-
-    Scalar sPsi4 = pow(Psi_auto_p1, -4.) ; 
-    sPsi4.std_spectral_base() ; 
-        
-    Scalar Etilde = pow(Psi_auto_p1, 8.) * ener_euler ; 
-    Etilde.std_spectral_base() ;
-    
-    Scalar Stilde = pow(Psi_auto_p1, 8.) * s_euler ;
-    Stilde.std_spectral_base() ; 
-    
 	int nr = mp.get_mg()->get_nr(0) ;
 	int nt = mp.get_mg()->get_nt(0) ;
 	int np = mp.get_mg()->get_np(0) ;
 
+    Scalar Psi4 = pow(Psi, 4.) ; 
+    Psi4.std_spectral_base() ; 
+    
+    Scalar Psi3 = pow(Psi, 3.) ; 
+    Psi3.std_spectral_base() ; 
+        
 	//------------------------------------------------------------------
 	// Poisson equation for Psi_auto (Eq. 8.127 of arXiv:gr-qc/0703035)
 	//------------------------------------------------------------------
@@ -467,9 +458,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source 
 	//--------
 
-	source_tot = - 0.5 * qpig * sPsi3 * Etilde
-                 - 0.125 * sPsi3 * sPsi4 * (hacar_auto + hacar_comp) ; 
-			   
+	source_tot = - 0.5 * qpig * Psi4 * Psi * ener_euler
+                 - 0.125 / Psi3 / Psi4 * (hacar_auto + hacar_comp) ; 
 	source_tot.std_spectral_base() ; 
 			      
 	// Resolution of the Poisson equation 
@@ -493,7 +483,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	}
 	cout << endl ;
 	diff_psi = max(abs(tdiff_psi)) ; 
-	    
+        	    
     //------------------------------------------------------------------
 	// Poisson equation for chi_auto (Eq. 8.129 of arXiv:gr-qc/0703035)
 	//------------------------------------------------------------------
@@ -501,8 +491,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source
 	//--------
 
-	source_tot = chi_auto_p1 *(0.5 * qpig * sPsi4 * (Etilde + 2.*Stilde) 
-	           + 0.875* sPsi4 * sPsi4 * (hacar_auto + hacar_comp) ) ;
+	source_tot = chi * (0.5 * qpig * Psi4 * (ener_euler + 2.*s_euler) 
+	           + 0.875 / Psi4 / Psi4 * (hacar_auto + hacar_comp) ) ;
     source_tot.std_spectral_base() ; 
     
 	// Resolution of the Poisson equation 
@@ -527,31 +517,19 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	} cout << endl ;
 
 	diff_chi = max(abs(tdiff_chi)) ; 
-
-    /*
-    Scalar logn_auto_aft = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
-    logn_auto_aft.std_spectral_base() ; 
-    
-    cout << norme(logn_auto_bef/(nr*nt*np)) 
-         << norme(logn_auto_aft/(nr*nt*np)) << endl ; 
-         
-    arrete() ;      
-    */
     
 	//------------------------------------------------------------------
-	// Vector Poisson equation for beta_auto (Eq. 8.128 of arXiv:gr-qc/0703035)
+	// Vector Poisson equation for beta_auto 
+	// (Eq. 8.128 of arXiv:gr-qc/0703035)
 	//------------------------------------------------------------------
 
 	// Source
 	//--------
 
-    source_beta = 4.* qpig * chi_auto_p1 * sPsi3 
+    source_beta = 4.* qpig * chi * Psi4 / Psi  
 	                * (ener_euler + press) * u_euler  
-	            + 2.* sPsi3 * sPsi4 
-	            * contract(haij_auto, 1, dcov_chi, 0) 
-	            -14.* chi_auto_p1 * sPsi4 * sPsi4
-	            * contract(haij_auto, 1, dcov_Psi, 0) ;
-	            
+	            + 2./ Psi4 / Psi3 * contract(haij_auto, 1, dcov_chi, 0) 
+	            -14.* chi  / Psi4 / Psi4 * contract(haij_auto, 1, dcov_Psi, 0) ;	            
 	source_beta.std_spectral_base() ; 
 	            
     // Resolution of the Poisson equation 
