@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2010/07/14 16:47:30  e_gourgoulhon
+ * Corrected error in the documentation for K_xx, K_xy, etc...:
+ * the components are the covariant ones, not the contravariant ones.
+ *
  * Revision 1.9  2009/09/22 09:23:23  p_grandclement
  * forgot to commit
  *
@@ -193,22 +197,22 @@ class Bin_BH {
 	/// Metric coefficient $\gamma_{zz}$ at the grid points (1-D array)
 	double* g_zz ; 
 
-	/// Component $K^{xx}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
+	/// Component $K_{xx}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_xx ; 
 
-	/// Component $K^{xy}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
+	/// Component $K_{xy}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_xy ;
 
-	/// Component $K^{xz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
+	/// Component $K_{xz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_xz ;
 
-	/// Component $K^{yy}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
+	/// Component $K_{yy}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_yy ;
 
-	/// Component $K^{yz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
+	/// Component $K_{yz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_yz ;
 
-	/// Component $K^{zz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
+	/// Component $K_{zz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_zz ;
 
         /// First derivative $\partial/\partial x$ of the conformal factor $\Psi$  [unit: $a^{-1}$]

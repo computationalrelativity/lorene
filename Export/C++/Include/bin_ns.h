@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/07/14 16:47:30  e_gourgoulhon
+ * Corrected error in the documentation for K_xx, K_xy, etc...:
+ * the components are the covariant ones, not the contravariant ones.
+ *
  * Revision 1.4  2004/10/20 15:01:37  e_gourgoulhon
  * Corrected error in the comments on the shift vector:
  * corotating coordinates -> non rotating coordinates.
@@ -262,22 +266,22 @@ class Bin_NS {
 	/// Metric coefficient $\gamma_{zz}$ at the grid points (1-D array)
 	double* g_zz ; 
 
-	/// Component $K^{xx}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
+	/// Component $K_{xx}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
 	double* k_xx ;
 
-	/// Component $K^{xy}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
+	/// Component $K_{xy}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
 	double* k_xy ;
 
-	/// Component $K^{xz}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
+	/// Component $K_{xz}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
 	double* k_xz ;
 
-	/// Component $K^{yy}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
+	/// Component $K_{yy}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
 	double* k_yy ;
 
-	/// Component $K^{yz}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
+	/// Component $K_{yz}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
 	double* k_yz ;
 
-	/// Component $K^{zz}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
+	/// Component $K_{zz}$ of the extrinsic curvature at the grid points (1-D array) [unit: c/km]
 	double* k_zz ;
 
 	// Hydro components
