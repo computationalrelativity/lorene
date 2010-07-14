@@ -11,8 +11,7 @@
  *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 66}, 104019 (2002)
  *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 68}, 124025 (2003) 
  *               \item M. Bejger, D. Gondek-Rosinska, E. Gourgoulhon, P. Haensel, 
- *                     K. Taniguchi, J.L. Zdunik,  Astron. Astrophys., 
- *                     submitted [preprint: astro-ph/0406234]
+ *                     K. Taniguchi, J.L. Zdunik,  Astron. Astrophys. {\bf 431}, 297 (2005)
  *    \end{itemize}
  *
  *  The exportation of this data, computed by means of
