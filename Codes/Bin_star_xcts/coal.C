@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/07/16 17:08:28  m_bejger
+ * Suppressing monitoring plots after metric update
+ *
  * Revision 1.3  2010/06/23 20:45:51  m_bejger
  * Suppressed Psi_comp, chi_comp and pot_centri initialisation to 0 on initial step, added graphical diagnostics after metric updates
  *
@@ -358,7 +361,6 @@ int main(){
 //----------------------------------------------------------------------
 
     Binary_xcts star_jm1 = star ;
-     
     double omega_jm1 = star_jm1.get_omega() ; 
     
 //----------------------------------------------------------------------
@@ -452,6 +454,7 @@ int main(){
 	    for (int i=1; i<=2; i++) (star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ;
 	    for (int i=1; i<=2; i++) (star.set(i)).update_metric_der_comp(star(3-i)) ; 
 
+    /* //monitoring plots
 	 des_profile (star(1).get_chi(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
 	"chi1", "chi1 (theta=pi/2,  phi=0)" ) ;  
 
@@ -460,6 +463,7 @@ int main(){
 
 	 des_profile (star(1).get_nn(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
 	"N1", "N1 (theta=pi/2,  phi=0)" ) ; 
+	*/
 	
 	}
 
@@ -595,7 +599,6 @@ int main(){
 	    star.set(i).set_pot_centri() = relax * star(i).get_pot_centri()
 		+ relax_jm1 * star_jm1(i).get_pot_centri() ; 
         
-    //## 
 	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
 				      mermax_poisson, relax_poisson,
 				      relax_potvit, thres_adapt[i-1],
