@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/07/20 19:57:31  m_bejger
+ * Tidy up output file names
+ *
  * Revision 1.4  2010/07/16 17:08:28  m_bejger
  * Suppressing monitoring plots after metric update
  *
@@ -198,8 +201,6 @@ int main(){
     cout << "Factor by which the initial analytical shift is reduced : "
 	 << reduce_shift << endl ; 
     
-    double distance = 100. * fact_separ ;
-
     //------------------------------------------------------------------
     //	    Read of the initial conditions 
     //------------------------------------------------------------------
@@ -230,21 +231,22 @@ int main(){
     //	    Modification of the separation between the two stars
     //------------------------------------------------------------------
 
+    double distance ;     
     for (int i=1 ; i<=2 ; i++) {
 
 	double ori_x = (star(i).get_mp()).get_ori_x() ; 
+	distance += fabs(ori_x) ; 
+
 	ori_x *= fact_separ ; 
 	((star.set(i)).set_mp()).set_ori(ori_x, 0., 0.) ; 	
     }
 
+    // distance in km
+    distance *= 10. * fact_separ ;
+    
     //------------------------------------------------------------------
     //	    Update of the initial conditions 
     //------------------------------------------------------------------
-
-    // Initialisation of logn, beta, psi4 etc...
-    // ---------------------------------
-	
-    //star.fait_decouple() ;
  
     for (int i=1; i<=2; i++) {
 	(star.set(i)).update_metric(star(3-i)) ; 
@@ -304,7 +306,7 @@ int main(){
 	
 //##
     char name[40] ;
-    sprintf(name, "resu_%e.d", distance) ;
+    sprintf(name, "resu_%.3f.d", distance) ;
     FILE* fresu = fopen(name, "w") ; 
     
     int mer1 = 0 ;
@@ -367,31 +369,31 @@ int main(){
 //	 Openning of log files
 //----------------------------------------------------------------------
 
-    sprintf(name, "resglob_%e.d", distance) ;
+    sprintf(name, "resglob_%.3f.d", distance) ;
     ofstream fichresu(name) ;
     fichresu.precision(16) ; 
 
-    sprintf(name, "resrota_%e.d", distance) ;
+    sprintf(name, "resrota_%.3f.d", distance) ;
     ofstream fichrota(name) ; 
     fichrota.precision(16) ; 
 
-    sprintf(name, "resdiffm_%e.d", distance) ;
+    sprintf(name, "resdiffm_%.3f.d", distance) ;
     ofstream fichvir("resdiffm.d") ;
     fichvir.precision(16) ; 
 
     ofstream fichconv[2] ;
-    sprintf(name, "resconv1_%e.d", distance) ;
+    sprintf(name, "resconv1_%.3f.d", distance) ;
     fichconv[0].open(name) ; 
     fichconv[0].precision(16) ; 
-    sprintf(name, "resconv2_%e.d", distance) ;
+    sprintf(name, "resconv2_%.3f.d", distance) ;
     fichconv[1].open(name) ; 
     fichconv[1].precision(16) ; 
 
     ofstream fichet[2] ;
-    sprintf(name, "resstar1_%e.d", distance) ;
+    sprintf(name, "resstar1_%.3f.d", distance) ;
     fichet[0].open(name) ; 
     fichet[0].precision(16) ; 
-    sprintf(name, "resstar2_%e.d", distance) ;
+    sprintf(name, "resstar2_%.3f.d", distance) ;
     fichet[1].open(name) ;
     fichet[1].precision(16) ; 
  
@@ -660,7 +662,7 @@ int main(){
  
 	if ( (mer % fmer_save) == 0 ) {
 
-	  sprintf(name, "resu_%e.d", distance) ;
+	  sprintf(name, "resu_%.3f.d", distance) ;
 	    FILE* fresu2 = fopen(name, "w") ; 
     
 	    fwrite(&mer, sizeof(int), 1, fresu2) ;	// mer
@@ -876,7 +878,7 @@ int main(){
 //  14 digits for further reading by a code
 //-----------------------------------------------
 
-    sprintf(name, "resformat_%e.d", distance) ;
+    sprintf(name, "resformat_%.3f.d", distance) ;
     ofstream seqfich(name) ; 
     if ( !seqfich.good() ) {
 	cout << "coal : problem with opening the file resformat.d !" << endl ;
