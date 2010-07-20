@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/07/20 19:58:41  m_bejger
+ * Correcting diagnostic plots of logn_auto
+ *
  * Revision 1.3  2010/06/04 19:51:26  m_bejger
  * Minor corrections
  *
@@ -138,7 +141,42 @@ int main(int argc, char** argv){
             
     for (int i=1; i<=2; i++) {
 		(star.set(i)).update_metric(star(3-i)) ; 
+		             
+        Scalar Psiauto (star(i).get_Psi_auto() ) ; 
+        Psiauto.std_spectral_base() ; 
+        Scalar Psicomp ( star(i).get_Psi_comp() ) ; 
+        Psicomp.std_spectral_base() ;         
+
+        Scalar chiauto (star(i).get_chi_auto() ) ; 
+        chiauto.std_spectral_base() ; 
+        Scalar chicomp ( star(i).get_chi_comp() ) ; 
+        chicomp.std_spectral_base() ; 
+                       
+        Scalar psi_total = Psiauto + Psicomp + 1.; 
+        psi_total.std_spectral_base() ; 
+              
+        Scalar psi4_test = pow(psi_total, 4.) ; 
+        psi4_test.std_spectral_base() ; 
+        
+        Scalar logn_test ( star(i).get_chi()/star(i).get_Psi() ) ; 
+        logn_test.std_spectral_base() ; 
+        
+        Scalar nvalue_total = log(chiauto + chicomp + 1.)/(Psiauto + Psicomp + 1.) ; 
+        nvalue_total.std_spectral_base() ; 
+              
+	    cout << "For star(" << i << ") : " << endl ;  
+        cout << "Central gamma determinant :   " << ((star(i).get_gamma()).determinant()).val_grid_point(0,0,0,0) << endl ;     
+        cout << "Central value of log(N)   :   " << logn_test.val_grid_point(0,0,0,0) << endl ;
+        cout << "Central value of log(N)   :   " << nvalue_total.val_grid_point(0,0,0,0) << endl ;
+        cout << "get_psi4                      " << psi4_test.val_grid_point(0,0,0,0) << endl ;
+        cout << "psi_total                     " << psi_total.val_grid_point(0,0,0,0) << endl ;        
+	    cout << "Central value of Psiauto  :   " << Psiauto.val_grid_point(0,0,0,0) <<  endl ; 
+	    cout << "Central value of Psicomp  :   " << Psicomp.val_grid_point(0,0,0,0) <<  endl ; 
+	    cout << "Central value of chiauto  :   " << chiauto.val_grid_point(0,0,0,0) <<  endl ; 
+	    cout << "Central value of chicomp  :   " << chicomp.val_grid_point(0,0,0,0) <<  endl ; 
     }
+         
+    arrete() ; 
          
     for (int i=1; i<=2; i++) {
 		(star.set(i)).update_metric_der_comp(star(3-i)) ; 
@@ -167,7 +205,6 @@ int main(int argc, char** argv){
     // Some printings
     cout.precision(6) ;
     cout << "Star(1) mass_bar = " << (star(1).mass_b())/msol  << endl ; 
-       
     cout << "mass_adm_vol     = " << star.mass_adm_vol()/msol  << endl ;
     cout << "mass_adm         = " << star.mass_adm()/msol << endl ;
     cout << "mass_kom vol     = " << star.mass_kom_vol()/msol << endl ;
@@ -307,15 +344,45 @@ int main(int argc, char** argv){
     fent << star(1).get_ent() << endl ; 
     fent.close() ; 
     
-    Cmp ent1 (star(1).get_ent()) ;
+    Scalar ent1  (star(1).get_ent()) ;
+    Scalar Psi1  (star(1).get_Psi()) ;
+    Scalar chi1  (star(1).get_chi()) ;
+          
+    Scalar Psi2  (star(2).get_Psi()) ;     
 
+    Scalar Psi1_auto  (star(1).get_Psi_auto()) ;
+    Scalar Psi2_auto  (star(2).get_Psi_auto()) ;     
+
+    Scalar chi1_auto  (star(1).get_chi_auto()) ;
+    Scalar chi2_auto  (star(2).get_chi_auto()) ; 
+    
+    des_coupe_z(Psi1_auto, 0., 1,
+		"Psi1_auto (z=0)", &surf1, 5., draw_bound ) ; 
+ 
+/*  des_profile (Psi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
+	"Psi1_auto", "Psi1_auto (theta=pi/2,  phi=0)" ) ; 
+ 
+    des_profile (Psi1_comp, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"Psi1_comp", "Psi1_comp (theta=pi/2,  phi=0)" ) ;  
+*/
+    des_profile (Psi1, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"Psi1", "Psi1 (theta=pi/2,  phi=0)" ) ;  
+
+/*    des_profile (chi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
+	"chi1_auto", "chi1_auto (theta=pi/2,  phi=0)" ) ; 
+ 
+    des_profile (chi1_comp, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"chi1_comp", "chi1_comp (theta=pi/2,  phi=0)" ) ;  
+*/
+    des_profile (chi1, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+	"chi1", "chi1 (theta=pi/2,  phi=0" ) ;  
+	
     des_coupe_z(ent1, 0., 1,
 		"Enthalpy (z=0)", &surf1, 1.2, draw_bound ) ; 
 
     des_coupe_y(ent1, 0., 1,
 		"Enthalpy (y=0)", &surf1, 1.2, draw_bound ) ; 
-
-
+	
     des_profile (ent1, 0., 2* star(1).ray_eq(), 0., 0.,  
 	"H", "H (theta=0)" ) ; 
 
@@ -332,9 +399,9 @@ int main(int argc, char** argv){
     // ln(N)
     //----------------------------
 
-    Scalar logn1 (log(star(1).get_chi_auto()) - log(star(1).get_Psi_auto())) ; 
-    Scalar logn2 (log(star(2).get_chi_auto()) - log(star(2).get_Psi_auto())) ; 
-	
+    Scalar logn1 (log((chi1_auto + 1.)/(Psi1_auto + 1.))) ;
+    Scalar logn2 (log((chi2_auto + 1.)/(Psi2_auto + 1.))) ;     
+
 	logn1.std_spectral_base() ; 
 	logn2.std_spectral_base() ; 
 
