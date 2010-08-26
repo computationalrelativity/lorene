@@ -25,7 +25,7 @@ fftw_plan prepare_fft(int n, Tbl*& pg) {
     Tbl& tab = (*tab_tab[index]) ;
     tab.set_etat_qcq() ;
     plan_fft[index] = 
-      fftw_plan_r2r_1d(n, tab.t, tab.t, FFTW_R2HC, FFTW_MEASURE) ;
+      fftw_plan_r2r_1d(n, tab.t, tab.t, FFTW_R2HC, FFTW_ESTIMATE) ;
     nb_fft[index] = n ;
     nworked++ ;
   }
