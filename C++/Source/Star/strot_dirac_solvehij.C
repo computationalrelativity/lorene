@@ -30,6 +30,9 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/10/11 10:21:31  j_novak
+ * Less output
+ *
  * Revision 1.8  2005/11/28 14:45:16  j_novak
  * Improved solution of the Poisson tensor equation in the case of a transverse
  * tensor.
@@ -252,9 +255,6 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
 
   source_hh = - ( psi4/nn/nn )*source_hh ;
-
-  cout << " Max( trace of source_hh ) " << endl ;
-  cout << max(abs(source_hh.trace(mets))) ;
 
   for (int i=1; i<=3; i++)
       for (int j=i; j<=3; j++) {
