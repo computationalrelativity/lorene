@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.48  2010/10/11 10:23:03  j_novak
+ * Removed methods Sym_tensor_trans::solve_hrr() and Sym_tensor_trans::set_WX_det_one(), as they are no longer relevant.
+ *
  * Revision 1.47  2008/12/05 08:46:19  j_novak
  * New method Sym_tensor_trans_aux::set_tt_part_det_one.
  *
@@ -697,25 +700,6 @@ class Sym_tensor_trans: public Sym_tensor {
 	const Sym_tensor_tt& tt_part(Param* par = 0x0) const ; 
 
  protected:
-	/**
-	 * Solves for  \f$ T^{rr} \f$ from the \c W potential and the trace.
-	 * It uses the two transverse conditions involving  \f$ T^{rr} \f$
-	 * and \f$\eta\f$ combined: \f$ r^2 \partial_r^2 T^{rr} 
-	 * + 7r \partial_r T^{rr}
-	 * + 9 T^{rr} + 0.5 \Delta_{\theta \varphi} T^{rr} = 
-	 * \Delta_{\theta \varphi} ( \Delta_{\theta \varphi} + 2) W +
-	 * r \partial_r h + 3 h + 0.5 \Delta_{\theta \varphi} h \f$
-	 * 
-	 * @param source the l.h.s. of the above equation
-	 * @param hrr_new the solution \f$ T^{rr} \f$
-	 * @param l_min, l_max boundaries for the solution, which is calculated
-	 * for values of the  multipolar index \f$\ell \in \f$ \c [l_min,l_max] 
-	 * only. If l_max < 0 then no upper boundary (apart from that of the 
-	 * standard spectral representation).
-	 */
-	void solve_hrr(const Scalar& source, Scalar& hrr_new, int l_min=0,
-		       int l_max = -1) const;
-	
 	/** Solves a system of two coupled first-order PDEs obtained from 
 	 * the divergence-free condition (Dirac gauge) and the requirement that
 	 * the potential \e A (see \c Sym_tensor::p_aaa ) has a given value.
@@ -863,26 +847,6 @@ class Sym_tensor_trans: public Sym_tensor {
 	 */
 	void set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
 				double precis = 1.e-14, int it_max = 100) ;
-
-	/** Assigns the derived members \c W and \c X .
-	 * Other derived members are deduced from the divergence-free 
-	 * condition. Finally, it computes the trace so that 
-	 * \c *this + the flat metric has a determinant equal to 1. It then
-	 * updates the components accordingly. This function makes an 
-	 * iteration until the relative difference in the trace between 
-	 * two steps is lower than \c precis . 
-	 *
-	 * @param w_in the \c W potential (see \c Sym_tensor::p_www )
-	 * @param x_in the \c X potential (see \c Sym_tensor::p_xxx )
-	 * @param h_prev a pointer on a guess for the trace of \c *this; if
-	 *               null, then the iteration starts from 0.
-	 * @param precis relative difference in the trace computation to end
-	 *               the iteration.
-	 * @param it_max maximal number of iterations.
-	 */
-	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in, 
-			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
-			    int it_max = 100) ;
 
 	/** Assignes the TT-part of the tensor.
 	 * The trace is deduced from the divergence-free condition, through the 

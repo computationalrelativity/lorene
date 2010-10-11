@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2010/10/11 10:23:03  j_novak
+ * Removed methods Sym_tensor_trans::solve_hrr() and Sym_tensor_trans::set_WX_det_one(), as they are no longer relevant.
+ *
  * Revision 1.18  2008/12/05 08:46:19  j_novak
  * New method Sym_tensor_trans_aux::set_tt_part_det_one.
  *
@@ -119,98 +122,6 @@ void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in
     tens_tt.inc_dzpuis(2) ;
     trace_from_det_one(tens_tt, precis, it_max) ;
     dec_dzpuis(2) ;
-
-    return ;
-
-}
-
-void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
-				      const Scalar* h_prev, double precis, int it_max ) {
-
-    // All this has a meaning only for spherical components:
-    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
-    assert(w_in.check_dzpuis(0)) ;
-    assert(x_in.check_dzpuis(0)) ;
-    assert(&w_in != p_www) ;
-    assert(&x_in != p_xxx) ;
-    assert( (precis > 0.) && (it_max > 0) ) ;
-
-    //Computation of mu from X
-    //------------------------
-    Scalar source_mu = - x_in.lapang() ;
-    source_mu.set_spectral_va().ylm_i() ;
-    source_mu -= 2*x_in ;
-    source_mu.div_r_dzpuis(1) ;
-    Scalar mu_over_r = source_mu.sol_divergence(3) ;
-    mu_over_r.annule_l(0,0) ;
-
-    // Preparation for the iteration
-    //------------------------------
-    Scalar h_old(*mp) ;
-    if (h_prev != 0x0) 
-	h_old = *h_prev ;
-    else
-	h_old.set_etat_zero() ;
-    double lambda = 1. ;
-    Scalar w_lapang =  w_in.lapang() ;
-    Scalar w_ylm = w_in ;
-    w_ylm.set_spectral_va().ylm() ;
-
-    for (int it=0; it<=it_max; it++) {
-	
-	w_lapang.set_spectral_va().ylm() ;
-	Scalar sou_hrr = w_lapang.lapang() + 2*w_lapang ;
-	Scalar tmp = h_old.dsdr() ;
-	tmp.mult_r_dzpuis(0) ;
-	tmp += 3*h_old ;
-	tmp.set_spectral_va().ylm() ;
-	tmp += 0.5*h_old.lapang() ;
-	sou_hrr += tmp ;
-
-	Scalar hrr_new(*mp) ;
-	solve_hrr(sou_hrr, hrr_new) ;
-
-	Scalar t_new = h_old - hrr_new ;
-
- 	tmp = -2*w_in - 0.5*h_old ;
- 	tmp.set_spectral_va().ylm() ;
- 	tmp -= w_lapang ;
- 	Scalar sou_eta = tmp.dsdr() ;
- 	sou_eta.mult_r_dzpuis(0) ;
- 	sou_eta -= 3*w_lapang + 6*w_ylm  ;
- 	tmp = h_old ;
- 	tmp.set_spectral_va().ylm() ;
- 	sou_eta -= tmp ;
- 	sou_eta.annule_l(0,0, true) ;
- 	Scalar eta_new(*mp) ;
- 	solve_hrr(sou_eta, eta_new) ;
-
-	set_auxiliary(hrr_new, eta_new, mu_over_r, w_in, x_in, t_new) ;
-
-	const Sym_tensor_trans& hij = *this ;
-	Scalar h_new = (1 + hij(1,1))*( hij(2,3)*hij(2,3) - hij(2,2)*hij(3,3) )
-	    + hij(1,2)*hij(1,2)*(1 + hij(3,3)) 
-	    + hij(1,3)*hij(1,3)*(1 + hij(2,2)) 
-	    - hij(1,1)*(hij(2,2) + hij(3,3)) - 2*hij(1,2)*hij(1,3)*hij(2,3) ;
-	h_new.set_spectral_base(hrr_new.get_spectral_base()) ;
-
-	Tbl tdif = max(abs(h_new - h_old)) ;
-	double diff = max(tdif) ;
-#ifndef NDEBUG
-        cout << "Sym_tensor_trans::set_WX_det_one : " 
-	     << "iteration : " << it << " convergence on h: " 
-	     << diff << endl ; 
-#endif
-        if (diff < precis) break ;
-        else h_old = lambda*h_new +(1-lambda)*h_old ;
-
-        if (it == it_max) {
-            cout << "Sym_tensor_trans:::set_WX_det_one : convergence not reached \n" ;
-            cout << "  for the required accuracy (" << precis << ") ! " 
-		 << endl ;
-            abort() ;
-	}
-    }
 
     return ;
 

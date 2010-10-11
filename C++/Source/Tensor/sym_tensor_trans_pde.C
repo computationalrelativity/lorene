@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2010/10/11 10:23:03  j_novak
+ * Removed methods Sym_tensor_trans::solve_hrr() and Sym_tensor_trans::set_WX_det_one(), as they are no longer relevant.
+ *
  * Revision 1.12  2006/09/05 15:38:45  j_novak
  * The fuctions sol_Dirac... are in a seperate file, with new parameters to
  * control the boundary conditions.
@@ -173,68 +176,72 @@ Sym_tensor_trans Sym_tensor_trans::poisson(const Scalar* h_guess) const {
 	    for(int j=i; j<=3; j++) 
 		res_cart.set(i,j) = sou_cart(i,j).poisson() ;
 	res_cart.change_triad(mp2.get_bvect_spher()) ;
-	Scalar res_x(*mp) ;
-	Scalar res_w(*mp) ;
+	Scalar res_A(*mp) ; Scalar big_A = res_cart.compute_A() ;
+	Scalar res_B(*mp) ; Scalar big_B = res_cart.compute_tilde_B_tt() ;
 
- 	switch (res_cart.xxx().get_etat() ) {
+ 	switch (big_A.get_etat() ) {
  	    case ETATZERO: {
-		res_x.set_etat_zero() ;
+		res_A.set_etat_zero() ;
  		break ;
  	    }
  	    case ETATUN : {
- 		res_x.set_etat_one() ;
+ 		res_A.set_etat_one() ;
  		break ;
  	    }
  	    case ETATQCQ : {
- 		res_x.allocate_all() ;
+ 		res_A.allocate_all() ;
  		for (int lz=0; lz<nz; lz++) 			
  		    for (int k=0; k<np; k++)
  			for (int j=0; j<nt; j++)
  			    for(int i=0; i<gri.get_nr(lz); i++)
- 				res_x.set_grid_point(lz, k, j, i)
- 				    = res_cart.xxx().val_grid_point(lz, k, j, i) ;
+ 				res_A.set_grid_point(lz, k, j, i)
+ 				    = big_A.val_grid_point(lz, k, j, i) ;
  		break ;
  	    }
  	    default: {
  		cout << 
- 		    "Sym_tensor_trans::poisson() : res_x in undefined state!" 
+ 		    "Sym_tensor_trans::poisson() : res_A in undefined state!" 
  		     << endl ;
  		abort() ;
  		break ; 
  	    }
  	}
-	res_x.set_spectral_base(res_cart.xxx().get_spectral_base()) ;
+	res_A.set_spectral_base(big_A.get_spectral_base()) ;
+	int dzA = big_A.get_dzpuis() ;
+	res_A.set_dzpuis(dzA) ;
 
-	switch (res_cart.www().get_etat() ) {
+	switch (big_B.get_etat() ) {
 	    case ETATZERO: {
-		res_w.set_etat_zero() ;
+		res_B.set_etat_zero() ;
 		break ;
 	    }
 	    case ETATUN : {
-		res_w.set_etat_one() ;
+		res_B.set_etat_one() ;
 		break ;
 	    }
 	    case ETATQCQ : {
-		res_w.allocate_all() ;
+		res_B.allocate_all() ;
 		for (int lz=0; lz<nz; lz++) 			
 		    for (int k=0; k<np; k++)
 			for (int j=0; j<nt; j++)
 			    for(int i=0; i<gri.get_nr(lz); i++)
-				res_w.set_grid_point(lz, k, j, i)
-				    = res_cart.www().val_grid_point(lz, k, j, i) ;
+				res_B.set_grid_point(lz, k, j, i)
+				    = big_B.val_grid_point(lz, k, j, i) ;
 		break ;
 	    }
 	    default: {
 		cout << 
-		    "Sym_tensor_trans::poisson() : res_w in undefined state!" 
+		    "Sym_tensor_trans::poisson() : res_B in undefined state!" 
 		     << endl ;
 		abort() ;
 		break ; 
 	    }
 	}
-	res_w.set_spectral_base(res_cart.www().get_spectral_base()) ;
+	res_B.set_spectral_base(big_B.get_spectral_base()) ;
+	int dzB = big_B.get_dzpuis() ;
+	res_B.set_dzpuis(dzB) ;
 	
-	resu.set_WX_det_one(res_w, res_x, h_guess) ;
+	resu.set_AtBtt_det_one(res_A, res_B, h_guess) ;
 	
 	delete [] bornes ;
     }
@@ -250,270 +257,15 @@ Sym_tensor_trans Sym_tensor_trans::poisson(const Scalar* h_guess) const {
 
 	res_cart.change_triad(*triad) ;
 	
-	resu.set_WX_det_one(res_cart.www(), res_cart.xxx(), h_guess) ;
+	resu.set_AtBtt_det_one(res_cart.compute_A(), res_cart.compute_tilde_B_tt(), h_guess) ;
 	
     }
+#ifndef DNDEBUG
     Vector dive = resu.divergence(*met_div) ;
     dive.dec_dzpuis(2) ;
-
     maxabs(dive, "Sym_tensor_trans::poisson : divergence of the solution") ;
-    
+#endif    
     return resu ;   
 }
 
-namespace {
-    Map* mp_ref = 0x0 ;
-    int l_max_ref = -1 ;
-    Matrice** t_mat ;
-}
-
-void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new, int l_in_min,
-				 int l_in_max) const {
-
-    assert(*mp == sou_hrr.get_mp() ) ;
-    assert(*mp == hrr_new.get_mp() ) ;
-
-    const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
-    assert(mp_aff != 0x0) ;
-
-    assert (sou_hrr.get_etat() != ETATNONDEF) ;
-    assert (sou_hrr.check_dzpuis(0)) ;
-    if (sou_hrr.get_etat() == ETATZERO) {
-	hrr_new.set_etat_zero() ;
-	return ;
-    }
-
-    Scalar source = sou_hrr ;
-    source.set_spectral_va().ylm() ;
-    assert (source.get_spectral_va().c_cf != 0x0) ;
-    assert (source.get_spectral_va().c_cf->get_etat() != ETATNONDEF) ;
-    if (source.get_spectral_va().c_cf->get_etat() == ETATZERO) {
-	hrr_new.set_etat_zero() ;
-	return ;
-    }
-    const Base_val& base = source.get_spectral_base() ;
-    int l_max = base.give_lmax(*mp_aff->get_mg(), 0) ;
-    if (l_in_max < 0) l_in_max = l_max ;
-
-    hrr_new.annule_hard() ;
-    hrr_new.set_spectral_base(base) ;
-    hrr_new.set_spectral_va().ylm() ;
-
-    int nz = mp_aff->get_mg()->get_nzone() ;
-    int nzm1 = nz - 1 ;
-    assert (mp_aff->get_mg()->get_type_r(0) == RARE) ;
-    assert (mp_aff->get_mg()->get_type_r(nzm1) == UNSURR) ;
-    int np = mp_aff->get_mg()->get_np(0) ;
-    int nt = mp_aff->get_mg()->get_nt(0) ;
-    int taille_ope = 0 ;
-    for (int lz=0; lz<nz; lz++) {
-	taille_ope += mp_aff->get_mg()->get_nr(lz) ;
-	assert ( mp_aff->get_mg()->get_np(lz) == np ) ;
-	assert ( mp_aff->get_mg()->get_nt(lz) == nt ) ;
-    }
-
-    bool need_calculation = false ;
-    if (mp_ref == 0x0) {
-	need_calculation = true ;
-	mp_ref = new Map_af(*mp_aff) ;
-	t_mat = new Matrice*[l_max+1] ; //+1 to be safe...
-	for (int ll=0; ll<l_max+1; ll++)
-	    t_mat[ll] = new Matrice(taille_ope, taille_ope) ;
-	l_max_ref = l_max ;
-    }
-    else {
-	if (!(*mp_ref == *mp_aff)) {
-	    need_calculation = true ;
-	    delete mp_ref ;
-	    mp_ref = new Map_af(*mp_aff) ;
-	    for (int ll=0; ll<l_max_ref+1; ll++)
-		delete t_mat[ll] ;
-	    if (l_max != l_max_ref) {
-		delete [] t_mat ;
-		t_mat = new Matrice*[l_max+1] ;
-		l_max_ref = l_max ;
-	    }
-	    for (int ll=0; ll<l_max+1; ll++)
-		t_mat[ll] = new Matrice(taille_ope, taille_ope) ;
-	}
-    }
-    assert (l_max == l_max_ref) ;
-    assert (t_mat != 0x0) ;
-    int l_q, m_q, base_r ;
-
-    //-----------------
-    // Loop on l and m
-    //-----------------
-    for (int k=0; k<np+1; k++)
-	for (int j=0; j<nt; j++) {
-	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
-	    if ((nullite_plm(j, nt, k, np, base) == 1) 
-		&& (l_q>=l_in_min) && (l_q<=l_in_max)){
-	    assert (t_mat[l_q] != 0x0) ;
-	    Matrice& ope = *(t_mat[l_q]) ;
-	    if (need_calculation) 
-		ope.annule_hard() ;
-
-	    Tbl ty(taille_ope) ;
-	    ty.set_etat_qcq() ;
-	    int parite = ( ( (l_q % 2) == 0) ? R_CHEBP : R_CHEBI );
-	    bool big_l = ( l_q > 3) ;
-	    int lin_ref = 0 ;
-	    int col_ref = 0 ;
-    {
-	//Nucleus
-	int nr = mp_aff->get_mg()->get_nr(0) ;
-	assert (parite == base_r) ;
-	if (need_calculation) {
-	    Diff_xdsdx dx(parite, nr) ; const Matrice& mdx = dx.get_matrice() ;
-	    Diff_x2dsdx2 dx2(parite, nr) ; const Matrice& md2 = dx2.get_matrice() ;
-	    Diff_id sx2(parite, nr) ; const Matrice& ms2 = sx2.get_matrice() ;
-	    int nr_nuc = ( big_l ? nr - 1 : nr ) ;
-	
-	    for (int lin=0; lin<nr_nuc; lin++) {
-		for (int col=0; col<nr; col++)
-		    ope.set(lin,col) = md2(lin, col)  + 7*mdx(lin, col) 
-			+ (9-double(l_q)*double(l_q+1)/double(2))*ms2(lin, col) ;
-		ty.set(lin) = (*source.get_spectral_va().c_cf)(0, k, j, lin) ;
-	    }
-	for (int col=0; col<nr; col++)
-	    ope.set(nr_nuc, col) = 1 ;
-	double alpha = mp_aff->get_alpha()[0] ;
-	if  ( parite == R_CHEBP ) 
-	    for (int col = 0; col<nr; col++) 
-		ope.set(nr_nuc+1, col) = 4*col*col / alpha ;
-	else
-	    for (int col=0; col<nr; col++)
-		ope.set(nr_nuc+1, col) = (2*col+1)*(2*col+1)/alpha ;
-	lin_ref += nr_nuc ;
-	col_ref += nr ;
-	}
-	else {
-	    int nr_nuc = ( big_l ? nr - 1 : nr ) ;
-	    for (int lin=0; lin<nr_nuc; lin++) {
-		ty.set(lin) = (*source.get_spectral_va().c_cf)(0, k, j, lin) ;
-	    }
-	lin_ref += nr_nuc ;
-	}
-    }
-
-    //Shells
-    for (int lz=1; lz<nzm1; lz++) {
-	int nr = mp_aff->get_mg()->get_nr(lz) ;
-	if (need_calculation) {
-	    double alpha = mp_aff->get_alpha()[lz] ;
-	    double ech = mp_aff->get_beta()[lz] / mp_aff->get_alpha()[lz] ;
-	    int sign = -1 ;
-	    for (int col=0; col<nr; col++) {
-		ope.set(lin_ref, col_ref+col) = sign ;
-		sign *= -1 ;
-	    }
-	    ty.set(lin_ref) = 0 ;
-	    sign = 1 ;
-	    for (int col=0; col<nr; col++) {
-		ope.set(lin_ref+1, col_ref+col) = sign*col*col/alpha  ;
-		sign *= -1 ;
-	    }
-	    ty.set(lin_ref+1) = 0 ;
-	    lin_ref += 2 ;
-
-	    Diff_x2dsdx2 x22(R_CHEB, nr) ; const Matrice& m22 = x22.get_matrice() ;
-	    Diff_xdsdx2 x12(R_CHEB, nr) ; const Matrice& m12 = x12.get_matrice() ;
-	    Diff_dsdx2 x02(R_CHEB, nr) ; const Matrice& m02 = x02.get_matrice() ;
-	    Diff_xdsdx x11(R_CHEB, nr) ; const Matrice& m11 = x11.get_matrice() ;
-	    Diff_dsdx x01(R_CHEB, nr) ; const Matrice& m01 = x01.get_matrice() ;
-	    Diff_id xid(R_CHEB, nr) ; const Matrice& mid = xid.get_matrice() ;
-	    
-	    for (int lin=0; lin<nr-2; lin++) {
-		for (int col=0; col<nr; col++) { 
-		    ope.set(lin+lin_ref,col+col_ref) = 
-			m22(lin,col) + 2*ech*m12(lin,col) + ech*ech*m02(lin,col) 
-			+ 7*(m11(lin,col) + ech*m01(lin,col))
-			+ (9 - 0.5*l_q*(l_q+1))*mid(lin,col) ;
-		}
-		ty.set(lin+lin_ref) 
-		    = (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
-	    }
-	    
-	    lin_ref += nr - 2 ;
-	    for (int col=col_ref; col<col_ref+nr; col++)
-		ope.set(lin_ref,col) = 1 ; 
-	    for (int col=0; col<nr; col++)
-		ope.set(lin_ref+1,col+col_ref) = col*col/alpha ;
-	    col_ref += nr ;
-	}
-	else {
-	    ty.set(lin_ref) = 0 ;
-	    ty.set(lin_ref+1) = 0 ;
-	    lin_ref += 2 ;
-	    for (int lin=0; lin<nr-2; lin++) 
-		ty.set(lin+lin_ref) 
-		    = (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
-	    lin_ref += nr - 2 ;
-	}	    
-    }
-    
-    {    // Compactified external domain  
-	int nr =  mp_aff->get_mg()->get_nr(nzm1) ;
-	int n_hom = (big_l ? 1 : 2) ;
-	if (need_calculation) {
-	    double alpha = mp_aff->get_alpha()[nzm1] ;
-	    int sign = -1 ;
-	    for (int col=0; col<nr; col++) {
-		ope.set(lin_ref, col_ref+col) = sign ;
-		sign *= -1 ;
-	    }
-	    ty.set(lin_ref) = 0 ;
-	    sign = -4 ;
-	    for (int col=0; col<nr; col++) {
-		ope.set(lin_ref+1, col_ref+col) = sign*col*col*alpha  ;
-		sign *= -1 ;
-	    }
-	    ty.set(lin_ref+1) = 0 ;
-	    lin_ref += 2 ;
-	    
-	    Diff_x2dsdx2 x22(R_CHEBU, nr) ; const Matrice& m22 = x22.get_matrice();
-	    Diff_xdsdx x11(R_CHEBU, nr) ; const Matrice& m11 = x11.get_matrice() ;
-	    Diff_id xid(R_CHEBU, nr) ; const Matrice& mid = xid.get_matrice() ;
-	    
-	    for (int lin=0; lin<nr-n_hom; lin++) {
-		for (int col=0; col<nr; col++) 
-		    ope.set(lin+lin_ref, col+col_ref) = 
-			m22(lin,col) - 5*m11(lin,col) 
-			+ (9 - 0.5*l_q*(l_q+1))*mid(lin,col) ;
-		ty.set(lin+lin_ref) 
-		    = (*source.get_spectral_va().c_cf)(nzm1, k, j, lin) ;
-	    }
-	}
-	else {
-	    ty.set(lin_ref) = 0 ;
-	    ty.set(lin_ref+1) = 0 ;
-	    lin_ref += 2 ;
-	    for (int lin=0; lin<nr-n_hom; lin++) {
-		ty.set(lin+lin_ref) 
-		    = (*source.get_spectral_va().c_cf)(nzm1, k, j, lin) ;
-	    }
-	}
-    }
-    ope.set_lu() ;
-    Tbl tx = ope.inverse(ty) ;
-
-    int compte = 0 ;
-    for (int lz=0; lz<nz; lz++) {
-	int nr = mp_aff->get_mg()->get_nr(lz) ;
-	for (int i=0; i<nr; i++) {
-	    hrr_new.set_spectral_va().c_cf->set(lz, k, j, i)
-		= tx(compte) ;
-	    compte++ ;
-	}
-    }
-	    } // End of nullite_plm (=> l,m loop)
-	}// Theta loop
-    hrr_new.set_spectral_va().ylm_i() ;
-    if (hrr_new.set_spectral_va().c != 0x0) 
-	delete hrr_new.set_spectral_va().c ;
-    hrr_new.set_spectral_va().c = 0x0 ;
-    
-    return ;
-}
 
