@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2010/10/11 10:38:34  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.13  2010/10/11 10:23:03  j_novak
  * Removed methods Sym_tensor_trans::solve_hrr() and Sym_tensor_trans::set_WX_det_one(), as they are no longer relevant.
  *
@@ -260,7 +263,7 @@ Sym_tensor_trans Sym_tensor_trans::poisson(const Scalar* h_guess) const {
 	resu.set_AtBtt_det_one(res_cart.compute_A(), res_cart.compute_tilde_B_tt(), h_guess) ;
 	
     }
-#ifndef DNDEBUG
+#ifndef NDEBUG
     Vector dive = resu.divergence(*met_div) ;
     dive.dec_dzpuis(2) ;
     maxabs(dive, "Sym_tensor_trans::poisson : divergence of the solution") ;
