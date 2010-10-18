@@ -29,6 +29,9 @@ char star_bin_vel_pot_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/10/18 20:56:15  m_bejger
+ * Generalization for many domains in the star: buggy
+ *
  * Revision 1.3  2010/06/17 15:07:10  m_bejger
  * Psi4, lnPsi2N corrected
  *
@@ -75,7 +78,7 @@ double Star_bin_xcts::velocity_potential(int mermax,
     Scalar psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
     
-    Vector www = hhh * gam_euler * bsn * psi4 ;
+    Vector www = hhh * gam_euler * psi4 * bsn ; 
 	
     www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
 												// Cartesian basis
@@ -99,37 +102,47 @@ double Star_bin_xcts::velocity_potential(int mermax,
     // (independent from psi0)
     //-------------------------------------------------
     
-    Scalar dndh_log = eos.der_nbar_ent(ent, nzet) ; 
+    Scalar dndh_log(mp) ; 
+    dndh_log = 0 ;
+
+	for (int l=0; l<nzet; l++) {
+
+        Param par ;       // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+
+        dndh_log = dndh_log + eos.der_nbar_ent(ent, 1, l, &par) ;
+
+    }
+
     // In order to avoid any division by zero in the computation of zeta_h
     // the value of dndh_log is set to 1 in the external domains:
 
-    for (int l=nzet; l <= nzm1; l++) {
+    for (int l=nzet; l <= nzm1; l++) 
 		dndh_log.set_domain(l) = 1. ; 
-   }
-    
+       
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
-    Scalar lnPsi2N( log(Psi*chi) ) ; 
+
+    Scalar lnPsi2N( log((Psi_auto + 1.)*(chi_auto + 1.)) 
+           			+ log((Psi_comp + 1.)*(chi_comp + 1.))) ;
     lnPsi2N.std_spectral_base() ; 
 
     Metric_flat flat_spher (mp.flat_met_spher()) ;
-    Vector bb = (1 - zeta_h) * ent.derive_con(flat_spher) + 
-	zeta_h * lnPsi2N.derive_con(flat_spher) ;
+
+    Vector bb = (1 - zeta_h) * ent.derive_con(flat_spher) 
+    		  + zeta_h * lnPsi2N.derive_con(flat_spher) ;
 
     Scalar entmb = ent - lnPsi2N ;  
 
     www.change_triad(mp.get_bvect_cart()) ;
     v_orb.change_triad(mp.get_bvect_cart()) ;
-
-    Tensor dcovdcov_psi0 = psi0.derive_cov(flat).derive_cov(flat) ;
-    dcovdcov_psi0.inc_dzpuis() ;
-
+     
     // Eq. 63 of Gourgoulhon et al. (2001)
-    Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
+    Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)     
 	+ zeta_h * ( contract(v_orb, 0, entmb.derive_cov(flat), 0) 
 	+ contract(www/gam_euler, 0, gam_euler.derive_cov(flat), 0) ) ;
  	     
-/*
+ /*
     des_meridian(zeta_h,0., 4., "zeta_h", 10) ; 
     arrete() ; 
     des_meridian(bb(1),0., 4., "bb(1)", 10) ; 
@@ -142,7 +155,7 @@ double Star_bin_xcts::velocity_potential(int mermax,
     arrete() ; 
     des_meridian(source,0., 4., "source", 10) ; 
     arrete() ; 
-*/  
+  */
 
     www.change_triad(mp.get_bvect_cart()) ;
     v_orb.change_triad(mp.get_bvect_cart()) ;
@@ -177,17 +190,25 @@ double Star_bin_xcts::velocity_potential(int mermax,
     bb_cmp.set(0) = bb_cmp1 ;
     bb_cmp.set(1) = bb_cmp2 ;
     bb_cmp.set(2) = bb_cmp3 ;
- 
+
     source_cmp.va.ylm() ;
 
-    cout << "source" << endl << norme(source_cmp)<< endl ;
-    cout << "zeta_h " << endl << norme(zeta_h_cmp) << endl ;
-    cout << "bb(1)" << endl << norme(bb_cmp(0)) << endl ;
-    cout << "bb(2)" << endl << norme(bb_cmp(1)) << endl ;
-    cout << "bb(3)" << endl << norme(bb_cmp(2)) << endl ;
-    cout << "psiO" << endl << norme(psi0_cmp) << endl ;
-
-    mp.poisson_compact(source_cmp, zeta_h_cmp, bb_cmp, par, psi0_cmp ) ;
+    //##
+    //cout << "source" << endl << norme(source_cmp) << endl ;
+    //cout << "gam_euler"    << endl << norme(gam_euler) << endl ; 
+    //cout << "psi4"    << endl << norme(psi4) << endl ;     
+    //cout << "hhh"    << endl << norme(hhh) << endl ; 
+    //cout << "zeta_h " << endl << norme(zeta_h_cmp) << endl ;
+    //cout << "www(1)" << endl << norme(www(1)) << endl ;
+    //cout << "www(2)" << endl << norme(www(2)) << endl ;
+    //cout << "www(3)" << endl << norme(www(3)) << endl ;
+    //cout << "bb(1)" << endl << norme(bb_cmp(0)) << endl ;
+    //cout << "bb(2)" << endl << norme(bb_cmp(1)) << endl ;
+    //cout << "bb(3)" << endl << norme(bb_cmp(2)) << endl ;
+    //cout << "psiO" << endl << norme(psi0_cmp) << endl ;
+    //arrete() ; 
+    
+    mp.poisson_compact(nzet, source_cmp, zeta_h_cmp, bb_cmp, par, psi0_cmp ) ;
     
     psi0 = psi0_cmp ;
 
