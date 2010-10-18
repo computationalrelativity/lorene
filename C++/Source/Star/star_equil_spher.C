@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2010/10/18 18:56:33  m_bejger
+ * Changed to allow initial data with more than one domain in the star
+ *
  * Revision 1.12  2005/09/14 12:30:52  f_limousin
  * Saving of fields lnq and logn in class Star.
  *
@@ -79,9 +82,12 @@ char star_equil_spher_C[] = "$Header$" ;
 #include "star.h"
 #include "param.h"
 #include "graphique.h"
+#include "nbr_spx.h"
 #include "unites.h"	    
 
-void Star::equilibrium_spher(double ent_c, double precis){
+void Star::equilibrium_spher(double ent_c, 
+							 double precis, 
+							 const Tbl* pent_limit){
     
     // Fundamental constants and units
     // -------------------------------
@@ -210,8 +216,9 @@ void Star::equilibrium_spher(double ent_c, double precis){
 
 	alpha_r = sqrt(alpha_r2) ;
 	
-	// New radial scale
-	mpaff.homothetie( alpha_r ) ; 
+    // One domain inside the star:
+    // --------------------------- 
+	if(nzet==1)  mpaff.homothetie( alpha_r ) ; 
 
 	//--------------------
 	// First integral
@@ -224,6 +231,114 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// Enthalpy in all space
 	double logn_c = logn.val_grid_point(0, 0, 0, 0) ;
 	ent = ent_c - logn + logn_c ;
+
+    // Two or more domains inside the star:
+    // ------------------------------------ 
+
+	if(nzet>1) { 
+
+    // Parameters for the function Map_et::adapt
+    // -----------------------------------------
+    
+    Param par_adapt ; 
+    int nitermax = 100 ;  
+    int niter ; 
+    int adapt_flag = 1 ;    //  1 = performs the full computation, 
+			    //  0 = performs only the rescaling by 
+			    //      the factor alpha_r
+    int nz_search = nzet + 1 ;  // Number of domains for searching the enthalpy
+				//  isosurfaces
+
+    int nzadapt = nzet ; 
+
+    //cout << "no. of domains where the ent adjustment will be done: " << nzet << endl ;
+    //cout << "ent limits: " << ent_limit << endl ; 
+
+    double precis_adapt = 1.e-14 ; 
+ 
+    double reg_map = 1. ; // 1 = regular mapping, 0 = contracting mapping
+
+    par_adapt.add_int(nitermax, 0) ;   // maximum number of iterations to
+				       // locate zeros by the secant method
+    par_adapt.add_int(nzadapt, 1) ;    // number of domains where the adjustment 
+				       // to the isosurfaces of ent is to be 
+				       // performed
+    par_adapt.add_int(nz_search, 2) ;  // number of domains to search for
+				       // the enthalpy isosurface
+    par_adapt.add_int(adapt_flag, 3) ; // 1 = performs the full computation, 
+				       // 0 = performs only the rescaling by 
+				       // the factor alpha_r
+    par_adapt.add_int(j_b, 4) ;        // theta index of the collocation point 
+			               // (theta_*, phi_*)
+    par_adapt.add_int(k_b, 5) ;        // theta index of the collocation point 
+			               // (theta_*, phi_*)
+
+    par_adapt.add_int_mod(niter, 0) ;  // number of iterations actually used in 
+				       // the secant method
+    
+    par_adapt.add_double(precis_adapt, 0) ; // required absolute precision in 
+					// the determination of zeros by 
+					// the secant method
+    par_adapt.add_double(reg_map, 1) ;  // 1. = regular mapping, 0 = contracting mapping
+    
+    par_adapt.add_double(alpha_r, 2) ;	// factor by which all the radial 
+					// distances will be multiplied 
+    	   
+    // Enthalpy values for the adaptation
+    Tbl ent_limit(nzet) ; 
+    if (pent_limit != 0x0) ent_limit = *pent_limit ; 
+    	   
+    par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
+				        // to define the isosurfaces. 			   
+
+      double* bornes = new double[nz+1] ;
+      bornes[0] = 0. ; 
+
+      for(int l=0; l<nz; l++) {
+ 
+	bornes[l+1] = mpaff.get_alpha()[l]  + mpaff.get_beta()[l] ;     
+
+      } 
+      bornes[nz] = __infinity ; 
+ 
+      Map_et mp0(*mg, bornes) ;
+ 
+        mp0 = mpaff; 
+        mp0.adapt(ent, par_adapt) ; 
+
+        Map_af mpaff_prev (mpaff) ; 
+
+        double alphal, betal ; 
+
+        for(int l=0; l<nz; l++) { 
+
+			alphal = mp0.get_alpha()[l] ; 
+			betal  = mp0.get_beta()[l] ;
+ 
+			mpaff.set_alpha(alphal, l) ; 
+			mpaff.set_beta(betal, l) ;
+
+        } 
+ 
+
+		// testing printout    
+		//int num_r1 = mg->get_nr(0) - 1;        
+		//cout << "Pressure difference:" << press.val_grid_point(0,0,0,num_r1) 
+		//- press.val_grid_point(1,0,0,0) << endl ; 
+		//cout << "Difference in enthalpies at the domain boundary:" << endl ;
+		//cout << ent.val_grid_point(0,0,0,num_r1) << endl ; 
+		//cout << ent.val_grid_point(1,0,0,0) << endl ;
+
+		//cout << "Enthalpy difference: " << ent.val_grid_point(0,0,0,num_r1)
+		//- ent.val_grid_point(1,0,0,0) << endl ;
+
+		// Computation of the enthalpy at the new grid points
+		//----------------------------------------------------                     
+
+		mpaff.reevaluate(&mpaff_prev, nzet+1, ent) ;
+
+    } 
+
 
 	//---------------------
 	// Equation of state
