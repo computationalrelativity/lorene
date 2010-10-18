@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/10/18 19:08:14  m_bejger
+ * Changed to allow for calculations with more than one domain in the star
+ *
  * Revision 1.5  2010/06/23 20:40:56  m_bejger
  * Corrections in equations for Psi_auto, chi_auto and beta_auto
  *
@@ -70,6 +73,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 			   					double relax_poisson, 
 			   					double relax_potvit, 
 			   					double thres_adapt,
+			   					const Tbl* pent_limit,
 			   					Tbl& diff) {
 
     // Fundamental constants and units
@@ -117,44 +121,52 @@ void Star_bin_xcts::equilibrium(double ent_c,
     //      the factor alpha_r
     //##    int nz_search = nzet + 1 ;  // Number of domains for searching the 
     // enthalpy
-    int nz_search = nzet ;	// Number of domains for searching the enthalpy
-				//  isosurfaces
-
-    double precis_secant = 1.e-14 ; 
-    double alpha_r ; 
-    double reg_map = 1. ; // 1 = regular mapping, 0 = contracting mapping
-
-    Tbl ent_limit(nz) ; 
-
-
-    par_adapt.add_int(nitermax, 0) ; // maximum number of iterations to 
-    // locate zeros by the secant method
-    par_adapt.add_int(nzet, 1) ;    // number of domains where the adjustment 
-    // to the isosurfaces of ent is to be 
-    // performed
-    par_adapt.add_int(nz_search, 2) ;	// number of domains to search 	
-                                        // the enthalpy isosurface
-    par_adapt.add_int(adapt_flag, 3) ; //  1 = performs the full computation, 
-    //  0 = performs only the rescaling by 
-    //      the factor alpha_r
-    par_adapt.add_int(j_b, 4) ; //  theta index of the collocation point 
-    //  (theta_*, phi_*)
-    par_adapt.add_int(k_b, 5) ; //  theta index of the collocation point 
-    //  (theta_*, phi_*)
-
-    par_adapt.add_int_mod(niter, 0) ;  // number of iterations actually used in
-    //  the secant method
     
-    par_adapt.add_double(precis_secant, 0) ; // required absolute precision in 
-    // the determination of zeros by 
-    // the secant method
-    par_adapt.add_double(reg_map, 1)	;  // 1. = regular mapping,  0 = contracting mapping
+	int nz_search = nzet ;					// Number of domains 
+											// for searching 
+											// the enthalpy isosurfaces
+
+	double precis_secant = 1.e-14 ; 
+	double alpha_r ; 
+	double reg_map = 1. ;					// 1 = regular mapping, 
+    										// 0 = contracting mapping
+
+	par_adapt.add_int(nitermax, 0) ; 		// maximum number of iterations to 
+    										// locate zeros by the secant method
     
-    par_adapt.add_double(alpha_r, 2) ;	    // factor by which all the radial 
-					    // distances will be multiplied 
+	par_adapt.add_int(nzet, 1) ;			// number of domains where the adjustment 
+											// to the isosurfaces of ent is to be performed
+    
+	par_adapt.add_int(nz_search, 2) ;		// number of domains to search 	
+											// the enthalpy isosurface
+                                        
+	par_adapt.add_int(adapt_flag, 3) ;		// 1 = performs the full computation, 
+											// 0 = performs only the rescaling by 
+											// the factor alpha_r
+    
+	par_adapt.add_int(j_b, 4) ;				// theta index of the collocation point 
+											//  (theta_*, phi_*)
+											
+	par_adapt.add_int(k_b, 5) ; 			// theta index of the collocation point 
+											//  (theta_*, phi_*)
+
+	par_adapt.add_int_mod(niter, 0) ;		// number of iterations actually used in
+											//  the secant method
+    
+	par_adapt.add_double(precis_secant, 0) ;// required absolute precision in 
+											// the determination of zeros by 
+											// the secant method
+	par_adapt.add_double(reg_map, 1) ;		// 1. = regular mapping,  0 = contracting mapping
+    
+	par_adapt.add_double(alpha_r, 2) ;		// factor by which all the radial 
+											// distances will be multiplied 
     	   
-    par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
-				        // to define the isosurfaces. 
+    // Enthalpy values for the adaptation
+    Tbl ent_limit(nzet) ; 
+    if (pent_limit != 0x0) ent_limit = *pent_limit ; 
+    	   
+	par_adapt.add_tbl(ent_limit, 0) ;		// array of values of the field ent 
+											// to define the isosurfaces. 	
      
     double precis_poisson = 1.e-16 ;     
 
@@ -370,12 +382,13 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// to keep a fixed ratio with respect to star's surface
 	
 	if (nz>= 5) {
+				
 	  double separation = 2. * fabs(mp.get_ori_x()) ;
 	  double ray_eqq = ray_eq() ;
 	  double ray_eqq_pi = ray_eq_pi() ;
 	  double new_rr_out_2 = (separation - ray_eqq) * 0.95 ; 
 	  double new_rr_out_3 = (separation + ray_eqq_pi) * 1.05 ; 
-	  
+
 	  double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
 	  double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
 	  double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
@@ -391,9 +404,9 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	  }
 
 	}
-	else {
-	  cout << "too small number of domains" << endl ;
-	}
+	
+	//else cout << "too small number of domains" << endl ;
+	
 	
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
