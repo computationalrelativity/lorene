@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/10/18 18:14:27  m_bejger
+ * Changed to allow initial data with more than one domain in the star
+ *
  * Revision 1.3  2010/06/17 15:00:27  m_bejger
  * Redefinition of initial Psi_auto and chi_auto
  *
@@ -63,8 +66,36 @@ int main() {
 
     int nt, np, nz ;
     char blabla[80] ;
+    
+    //------------------------------------------------------------------
+    //		Physical parameters imput
+    //------------------------------------------------------------------
 
-    ifstream fich("par_grid1.d") ;
+    using namespace Unites ;
+
+    ifstream fich("par_init.d") ;
+    fich.getline(blabla, 80) ;
+    fich.getline(blabla, 80) ;
+
+    double separ ; 
+    fich >> separ; fich.getline(blabla, 80) ;
+    separ *= km ;	// translation in machine units
+
+    int irrot1_i, irrot2_i ; 
+    double ent_c1, ent_c2 ; 
+    fich >> ent_c1 ; fich.getline(blabla, 80) ;
+    fich >> irrot1_i ; fich.getline(blabla, 80) ;
+    bool irrot1 = (irrot1_i == 1) ; 
+    fich >> ent_c2 ; fich.getline(blabla, 80) ;
+    fich >> irrot2_i ; fich.getline(blabla, 80) ;
+    bool irrot2 = (irrot2_i == 1) ; 
+    
+    fich.close() ; 
+  
+    cout << endl << "Requested orbital separation : " << separ / km 
+	 << " km" << endl ; 
+
+    fich.open("par_grid1.d") ;
     fich.getline(blabla, 80);
     fich.getline(blabla, 80);
     fich >> nz; fich.getline(blabla, 80) ;
@@ -91,8 +122,25 @@ int main() {
     }
     bornes[nz] = __infinity ; 
 
+    Tbl ent_limit1(nzet1) ;
+    Tbl* pent_limit1 ; 
+    ent_limit1.set_etat_qcq() ;
+    ent_limit1.set(nzet1-1) = 0 ;         // enthalpy at the stellar surface                  
+    fich >> ent_limit1.set(0) ;
+    if ( fich.good() ) {		// to ensure backwards compatibility
+      for (int l=1; l<nzet1-1; l++) {
+	fich >> ent_limit1.set(l) ; fich.getline(blabla, 120) ;
+      }
+      pent_limit1 = &ent_limit1 ; 
+    }
+    else {
+      pent_limit1 = 0x0 ; 
+    }
+
     fich.close();
 
+    for (int l=0; l<nzet1-1; l++)
+        bornes[l+1] = bornes[nzet1] * sqrt(1 - ent_limit1(l) / ent_c1) ;
 
     // Type of r sampling : 
     int* type_r = new int[nz];
@@ -152,8 +200,30 @@ int main() {
     }
     bornes[nz] = __infinity ; 
 
+    Tbl ent_limit2(nzet2) ;
+    Tbl* pent_limit2 ;
+    ent_limit2.set_etat_qcq() ;
+    ent_limit2.set(nzet2-1) = 0 ;         // enthalpy at the stellar surface                  
+    fich >> ent_limit2.set(0) ;
+    if ( fich.good() ) {	// to ensure backwards compatibility
+      for (int l=1; l<nzet2-1; l++) {
+	fich >> ent_limit2.set(l) ; fich.getline(blabla, 120) ;
+      }
+      pent_limit2 = &ent_limit2 ; 
+    }
+    else {
+      pent_limit2 = 0x0 ; 
+    }
+
+
+    for (int l=0; l<nzet2-1; l++) {
+      fich >> ent_limit2.set(l) ; fich.getline(blabla, 120) ; 
+    }
+
     fich.close();
 
+    for (int l=0; l<nzet2-1; l++)
+        bornes[l+1] = bornes[nzet2] * sqrt(1 - ent_limit2(l) / ent_c2) ;
 
     // Type of r sampling : 
     type_r = new int[nz];
@@ -214,35 +284,6 @@ int main() {
     cout << endl << "Equation of state of star 2 : " 
 	 << endl << "===========================   " << endl << eos2 << endl ; 
 
-
-    //------------------------------------------------------------------
-    //		Physical parameters imput
-    //------------------------------------------------------------------
-
-    using namespace Unites ;
-
-    fich.open("par_init.d") ;
-    fich.getline(blabla, 80) ;
-    fich.getline(blabla, 80) ;
-
-    double separ ; 
-    fich >> separ; fich.getline(blabla, 80) ;
-    separ *= km ;	// translation in machine units
-
-    int irrot1_i, irrot2_i ; 
-    double ent_c1, ent_c2 ; 
-    fich >> ent_c1 ; fich.getline(blabla, 80) ;
-    fich >> irrot1_i ; fich.getline(blabla, 80) ;
-    bool irrot1 = (irrot1_i == 1) ; 
-    fich >> ent_c2 ; fich.getline(blabla, 80) ;
-    fich >> irrot2_i ; fich.getline(blabla, 80) ;
-    bool irrot2 = (irrot2_i == 1) ; 
-    
-    fich.close() ; 
-  
-    cout << endl << "Requested orbital separation : " << separ / km 
-	 << " km" << endl ; 
-
     //------------------------------------------------------------------
     //		Construction of a binary system
     //------------------------------------------------------------------
@@ -254,11 +295,11 @@ int main() {
     //		Computation of two static configurations
     //------------------------------------------------------------------
 
-    double precis = 1.e-12 ; 
+    double precis = 1.e-14 ; 
     
     cout << endl << "Computation of a static configuration for star 1"
 	 << endl << "================================================" << endl ;
-    (star.set(1)).equilibrium_spher(ent_c1, precis) ; 
+    (star.set(1)).equilibrium_spher(ent_c1, precis, pent_limit1) ;
 
     star.set(1).set_Psi_auto() = exp(0.5*(star(1).get_lnq()-star(1).get_logn())) - 1.;
     star.set(1).set_Psi_auto().std_spectral_base() ;
@@ -270,7 +311,7 @@ int main() {
     cout << endl << "Computation of a static configuration for star 2"
 	 << endl << "================================================" << endl ; 
 
-    (star.set(2)).equilibrium_spher(ent_c2, precis) ; 
+    (star.set(2)).equilibrium_spher(ent_c2, precis, pent_limit2) ;
 
     star.set(2).set_Psi_auto() = exp(0.5*(star(2).get_lnq()-star(2).get_logn())) - 1.;
     star.set(2).set_Psi_auto().std_spectral_base() ;
