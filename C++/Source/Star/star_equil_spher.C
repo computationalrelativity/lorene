@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2010/10/18 20:16:10  m_bejger
+ * Commented-out the reevaluation of the mapping for the case of many domains inside the star
+ *
  * Revision 1.13  2010/10/18 18:56:33  m_bejger
  * Changed to allow initial data with more than one domain in the star
  *
@@ -306,7 +309,7 @@ void Star::equilibrium_spher(double ent_c,
         mp0 = mpaff; 
         mp0.adapt(ent, par_adapt) ; 
 
-        Map_af mpaff_prev (mpaff) ; 
+        //Map_af mpaff_prev (mpaff) ; 
 
         double alphal, betal ; 
 
@@ -334,8 +337,7 @@ void Star::equilibrium_spher(double ent_c,
 
 		// Computation of the enthalpy at the new grid points
 		//----------------------------------------------------                     
-
-		mpaff.reevaluate(&mpaff_prev, nzet+1, ent) ;
+		//mpaff.reevaluate(&mpaff_prev, nzet+1, ent) ;
 
     } 
 
