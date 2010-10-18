@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2010/10/18 19:11:53  m_bejger
+ * Changes to Star::equilibrium_spher and Star_bin_xcts::equilibrium to allow for calculations with more than one domain in the star
+ *
  * Revision 1.28  2010/06/15 08:17:43  m_bejger
  * Method Star_bin_xcts::set_chi_comp() declared
  *
@@ -328,8 +331,12 @@ class Star {
 	 *  @param precis [input] threshold in the relative difference between 
 	 *	the enthalpy fields of two consecutive steps
 	 *	to stop the iterative procedure (default value: 1.e-14)
+     *  @param ent_limit [input] : array of enthalpy values to be set 
+     *  at the boundaries between the domains; if set to 0x0 (default), 
+     *  the initial values will be kept.
 	 */
-	void equilibrium_spher(double ent_c, double precis = 1.e-14) ; 
+	 virtual void equilibrium_spher(double ent_c, double precis = 1.e-14, 
+	 		 const Tbl* pent_limit = 0x0 ) ; 
 
     // Accessors
     // ---------
@@ -1525,14 +1532,18 @@ class Star_bin_xcts : public Star {
 	 *				  Map_radial::poisson_compact
 	 *  @param relax_potvit [input]   Relaxation factor in 
 	 *				  Map_radial::poisson_compact
-	 *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
+	 *  @param thres_adapt [input]   Threshold on dH/dr for the adaptation 
 	 *				  of the mapping
+	 *  @param ent_limit [input]	array of enthalpy values to be set at 
+	 *			the boundaries between the domains; if set to 0x0 (default), 
+	 *			the initial values will be kept.
 	 *  @param diff [output]   1-D \c Tbl for the storage of some
-	 *			    error indicators 
+	 *			    error indicators
 	 */
 	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			 int mermax_poisson, double relax_poisson, 
-			 double relax_potvit, double thres_adapt, Tbl& diff) ;
+			 double relax_potvit, double thres_adapt, 
+			 const Tbl* pent_limit, Tbl& diff) ;
 
 	/** Computes the non-translational part of the velocity scalar potential
 	 *  \f$\psi0\f$ by solving the continuity equation.
