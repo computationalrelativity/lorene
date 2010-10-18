@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/10/18 21:20:12  m_bejger
+ * Initial version for the 'elusive' many-domains-inside-the-star calculations
+ *
  * Revision 1.5  2010/07/20 19:57:31  m_bejger
  * Tidy up output file names
  *
@@ -130,7 +133,7 @@ int main(){
     fpar >> thres_adapt[1] ; fpar.ignore(1000, '\n');
     fpar >> reduce_shift ; 
     if ( ! fpar.good() ) {	  // to ensure compatibility with old 
-	reduce_shift = 0.6 ;  // parcoal.d files which did not had
+	reduce_shift = 0.6 ;      // parcoal.d files which did not had
     }						  // the reduce_shift line
     fpar.close() ; 
     
@@ -224,8 +227,30 @@ int main(){
     Eos* peos2 = Eos::eos_from_file(fich) ; 
     
     Binary_xcts star(mp1, *peos1, mp2, *peos2, fich) ; 
-
     fclose(fich) ; 
+
+    //------------------------------------------------------------------
+    //	    Tables with values of enthalpy at the borders of domains
+    //------------------------------------------------------------------
+
+    int nzet1 = star(1).get_nzet() ; 
+    int nzet2 = star(2).get_nzet() ; 
+
+    Tbl ent_limit1(nzet1) ; 
+    Tbl ent_limit2(nzet2) ; 
+
+    ent_limit1.set_etat_qcq() ;
+    ent_limit2.set_etat_qcq() ;
+
+    for(int j=0; j<nzet1; j++)        
+      ent_limit1.set(j) = star(1).get_ent().val_grid_point(j+1,0,0,0) ;
+
+    for(int j=0; j<nzet2; j++)
+      ent_limit2.set(j) = star(2).get_ent().val_grid_point(j+1,0,0,0) ;
+  
+    Tbl* pent_limit[2] ;
+    pent_limit[0] = &ent_limit1 ; 
+    pent_limit[1] = &ent_limit2 ; 
     
     //------------------------------------------------------------------
     //	    Modification of the separation between the two stars
@@ -263,25 +288,40 @@ int main(){
     // ----------------------------------
 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).equation_of_state() ; 
-	(star.set(i)).kinematics(star.get_omega(), star.get_x_axe()) ; 
-    (star.set(i)).fait_d_psi() ; 
-	(star.set(i)).hydro_euler() ; 
+		(star.set(i)).equation_of_state() ; 
+		(star.set(i)).kinematics(star.get_omega(), star.get_x_axe()) ; 
+    	(star.set(i)).fait_d_psi() ; 
+		(star.set(i)).hydro_euler() ; 
     }
+
+    //cout << "mtot_b: " << star(1).mass_b() + star(2).mass_b() << endl ;     
+    //cout << "mtot: " << star(1).mass_g() + star(2).mass_g() << endl ; 
       
     // New initial of value Omega (taking into account the fact
-    //  that the separation has changed)
-    
+    // that the separation has changed)
+     
     star.analytical_omega() ; 
+
+    //##
+    //cout << "beta_auto(1)" << endl << norme(star(1).get_beta_auto()(1)) << endl ;
+    //cout << "beta_auto(2)" << endl << norme(star(1).get_beta_auto()(2)) << endl ;
+    //cout << "beta_auto(3)" << endl << norme(star(1).get_beta_auto()(3)) << endl ;
+    //arrete() ; 
     
     // If the shift vector has not been set previously, it is set to
     //  some analytical value
     // -------------------------------------------------------------
     
     star.analytical_shift() ;
-    for (int i=1; i<=2; i++) {
-	star.set(i).set_beta_auto() = reduce_shift*star(i).get_beta_auto() ; 
-    }
+        
+    for (int i=1; i<=2; i++) 
+		star.set(i).set_beta_auto() = reduce_shift*star(i).get_beta_auto() ; 
+
+    //##
+    //cout << "beta_auto(1)" << endl << norme(star(1).get_beta_auto()(1)) << endl ;
+    //cout << "beta_auto(2)" << endl << norme(star(1).get_beta_auto()(2)) << endl ;
+    //cout << "beta_auto(3)" << endl << norme(star(1).get_beta_auto()(3)) << endl ;
+    //arrete() ; 
 
     // A second call to update_metric must be performed to update
     //  beta_comp, tkij_auto and akcar_auto. 
@@ -603,7 +643,7 @@ int main(){
         
 	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
 				      mermax_poisson, relax_poisson,
-				      relax_potvit, thres_adapt[i-1],
+				      relax_potvit, thres_adapt[i-1], pent_limit[i-1],
 				      differ[i-1]) ;
 
 	}	
