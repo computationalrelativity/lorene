@@ -30,6 +30,9 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2010/10/20 07:58:09  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.7  2007/11/06 12:10:56  j_novak
  * Corrected some mistakes.
  *
@@ -67,7 +70,7 @@ char tslice_check_einstein_C[] = "$Header$" ;
 #include "unites.h"
 
 Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,
-					     ostream& ost) const {
+					     ostream& ost, bool verb) const {
   using namespace Unites ;
 
   bool vacuum = ( energy_density == 0x0 ) ;
@@ -84,11 +87,11 @@ Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,
   else
     matter = energy_density ;
 
-  ost << endl ;
-
-  Tbl resu = maxabs(field - (4*qpig) * (*matter), 
-			"Check of the Hamiltonian constraint", ost ) ;
-  ost << endl ;
+  if (verb)  ost << endl ;
+  const char* comment = 0x0 ;
+  if (verb) comment = "Check of the Hamiltonian constraint" ;
+  Tbl resu = maxabs(field - (4*qpig) * (*matter), comment, ost,verb ) ;
+  if (verb) ost << endl ;
 
   if (vacuum) delete matter ;
 
@@ -97,7 +100,7 @@ Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,
 }
     
 Tbl Time_slice::check_momentum_constraint(const Vector* momentum_density, 
-					     ostream& ost) const {
+					  ostream& ost, bool verb) const {
   using namespace Unites ;
   
   bool vacuum = ( momentum_density == 0x0 ) ;
@@ -113,12 +116,12 @@ Tbl Time_slice::check_momentum_constraint(const Vector* momentum_density,
     matter = momentum_density ;
   }
   
-  ost << endl ;
+  if (verb)  ost << endl ;
+  const char* comment = 0x0 ;
+  if (verb) comment = "Check of the momentum constraint" ;
+  Tbl resu = maxabs(field - (2*qpig) * (*matter), comment, ost, verb ) ;
 
-  Tbl resu = maxabs(field - (2*qpig) * (*matter), 
-			"Check of the momentum constraint", ost ) ;
-
-  ost << endl ;
+  if (verb)  ost << endl ;
 
   if (vacuum) delete matter ;
 
@@ -128,7 +131,7 @@ Tbl Time_slice::check_momentum_constraint(const Vector* momentum_density,
 
 Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
 					  const Scalar* energy_density,
-					  ostream& ost) const {
+					  ostream& ost, bool verb) const {
 
   using namespace Unites ;
 
@@ -175,12 +178,12 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
   dyn_rhs = dyn_rhs - nn().derive_con(gam()).derive_con(gam()) ;
   dyn_rhs.annule_domain(nz-1) ;
     
-  ost << endl ;
+  if (verb) ost << endl ;
+  const char* comment = 0x0 ;
+  if (verb) comment = "Check of the dynamical equations" ;
+  Tbl resu_tmp = maxabs(dyn_lhs - dyn_rhs, comment, ost, verb) ;
 
-  Tbl resu_tmp = maxabs(dyn_lhs - dyn_rhs, 
-			"Check of the dynamical equations", ost ) ;
-
-  ost << endl ;
+  if (verb) ost << endl ;
 
   if (vacuum) delete matter ;
 

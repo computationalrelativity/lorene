@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2010/10/20 07:58:09  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.10  2008/12/04 18:22:49  j_novak
  * Enhancement of the dzpuis treatment + various bug fixes.
  *
@@ -151,10 +154,9 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
         const Vector& dnn = nn().derive_cov(ff) ;         // D_i N
         
-        Sym_tensor taa = aa().up_down(tgam()) ; 
-        
+        Sym_tensor taa = aa().up_down(tgam()) ;         
         Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
-        
+
         // Source for Psi 
         // --------------
         tmp = 0.125* psi() * tgam().ricci_scal() 

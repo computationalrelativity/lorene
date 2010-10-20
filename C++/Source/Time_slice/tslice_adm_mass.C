@@ -31,6 +31,9 @@ char tslice_adm_mass_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/10/20 07:58:09  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.4  2008/12/04 19:36:40  j_novak
  * Removed old tests.
  *
@@ -116,8 +119,9 @@ double Time_slice_conf::adm_mass() const {
         
         delete tmass ;  
     
+#ifndef NDEBUG
         cout << "Time_slice_conf::adm_mass : " << adm_mass_evol[jtime] << endl ; 
-    
+#endif    
     }
   
     const Tbl& tadm = adm_mass_evol[jtime] ; 
@@ -150,9 +154,10 @@ double Tslice_dirac_max::adm_mass() const {
         adm_mass_evol.update(*tmass, jtime, the_time[jtime]) ; 
         
         delete tmass ;  
-
+#ifndef NDEBUG
         cout << "Tslice_dirac_max::adm_mass : " << adm_mass_evol[jtime] 
              << endl ; 
+#endif
 
     }
   

@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/10/20 07:58:10  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.6  2008/12/04 18:22:49  j_novak
  * Enhancement of the dzpuis treatment + various bug fixes.
  *
@@ -62,7 +65,7 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 #include "time_slice.h"
 #include "param.h"
 #include "unites.h"
-#include "graphique.h"
+#include "proto.h"
 
 void Tslice_dirac_max::set_AB_hh(const Scalar& A_in, const Scalar& B_in) {
 
@@ -133,7 +136,8 @@ void Tslice_dirac_max::hh_det_one(int j0, Param* par_bc, Param* par_mat) const {
     gam_dd_evol.downdate(j0) ; 
     gam_uu_evol.downdate(j0) ;
     adm_mass_evol.downdate(j0) ;  
-         
+
+#ifndef NDEBUG         
     // Test
     if (j0 == jtime) {
         maxabs(tgam().determinant() - 1, 
@@ -144,7 +148,55 @@ void Tslice_dirac_max::hh_det_one(int j0, Param* par_bc, Param* par_mat) const {
         maxabs(tgam_j0.determinant() - 1, 
         "Max. of absolute value of deviation from det tgam = 1") ; 
     }
+#endif
+}
 
+void Tslice_dirac_max::hh_det_one(const Sym_tensor_tt& hijtt, Param* par_mat) 
+    const {
+
+    const Map& mp = hijtt.get_mp() ;
+
+    // The representation of h^{ij} as an object of class Sym_tensor_trans :
+    Sym_tensor_trans hij(mp, *(ff.get_triad()), ff) ;
+    const Scalar* ptrace = 0x0 ;
+    if ( trh_evol.is_known( jtime - 1 ) ) ptrace = &trh_evol[jtime-1] ;
+    hij.set_tt_part_det_one(hijtt, ptrace, par_mat) ;
+
+    // Result set to trh_evol and hh_evol
+    // ----------------------------------
+    trh_evol.update(hij.the_trace(), jtime, the_time[jtime]) ;
+    
+    // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
+    Vector wzero(mp, CON,  *(ff.get_triad())) ; 
+    wzero.set_etat_zero() ;                   
+
+    // Temporary Sym_tensor with longitudinal part set to zero : 
+    Sym_tensor hh_new(mp, CON, *(ff.get_triad())) ;
+    hh_new.set_longit_trans(wzero, hij) ;
+    hh_evol.update(hh_new, jtime, the_time[jtime]) ;
+    
+    // Reset of quantities depending on h^{ij}:
+    if (p_tgamma != 0x0) {
+	delete p_tgamma ;
+	p_tgamma = 0x0 ; 
+    } 
+    if (p_hdirac != 0x0) {
+	delete p_hdirac ; 
+	p_hdirac = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+	delete p_gamma ; 
+	p_gamma = 0x0 ;
+    }
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ;
+    adm_mass_evol.downdate(jtime) ;  
+
+#ifndef NDEBUG         
+    // Test
+    maxabs(tgam().determinant() - 1, 
+	   "Max. of absolute value of deviation from det tgam = 1") ; 
+#endif
 }
                  //----------------------------------------------//
                  //   Equations for h^{ij} and \hat{A}^{ij}      //
@@ -183,36 +235,42 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     Sym_tensor a_hat = hata() ;
     a_hat.annule_domain(nz-1) ;
     Scalar psi6 = psi4()*psi()*psi() ;
+    Sym_tensor sym_tmp(map, CON, otriad) ; 
+    Scalar tmp(map) ;
 
     //==================================
     // Source for hij
     //==================================
     
     Sym_tensor source_hij = hh().derive_lie(beta()) + 2*nn()*aij 
-	- beta().ope_killing_conf(ff) + 0.6666666666666667*div_beta*hh() ;
+ 	- beta().ope_killing_conf(ff) + 0.6666666666666667*div_beta*hh() ;
     source_hij.annule_domain(nz-1) ;
     for (int i=1; i<=3; i++)
-	for (int j=i; j<=3; j++)
-	    source_hij.set( i, j ).set_dzpuis(0) ;
+ 	for (int j=i; j<=3; j++)
+ 	    source_hij.set( i, j ).set_dzpuis(0) ;
+
     source_A_hh_evol.update( source_hij.compute_A(true), jtime, the_time[jtime] ) ;
-    source_B_hh_evol.update( source_hij.compute_tilde_B_tt(true), 
-			       jtime, the_time[jtime] ) ;
+    tmp = source_hij.compute_tilde_B_tt(true) ;
+    tmp.annule_domain(nz-1) ;
+    tmp.set_dzpuis(0) ;
+    source_B_hh_evol.update(tmp, jtime, the_time[jtime] ) ;
     
     //==================================
     // Source for \hat{A}^{ij}
     //==================================
     
     Sym_tensor source_aij = a_hat.derive_lie(beta())  
-	+ 1.666666666666667*a_hat*div_beta ;
-
-    Scalar tmp(map) ;
-    Sym_tensor sym_tmp(map, CON, otriad) ; 
-
+ 	+ 1.666666666666667*a_hat*div_beta ;
+    
     // Quadratic part of the Ricci tensor of gam_tilde 
     // ------------------------------------------------
     
     Sym_tensor ricci_star(map, CON, otriad) ; 
-        
+    
+    ricci_star = contract(hh(), 0, 1, dhh.derive_cov(ff), 2, 3) ; 
+
+    ricci_star.inc_dzpuis() ;   // dzpuis : 3 --> 4
+
     for (int i=1; i<=3; i++) {
 	for (int j=1; j<=i; j++) {
 	    tmp = 0 ; 
@@ -221,7 +279,7 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
 		    tmp += dhh(i,k,l) * dhh(j,l,k) ; 
 		}
 	    }
-	    ricci_star.set(i,j) = -tmp ; 
+	    ricci_star.set(i,j) -= tmp ; 
 	}
     }
 
@@ -256,17 +314,21 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
 	- 0.5  * contract(tgam_uu, 0, 1,
 			  contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
 
-    sym_tmp = 0.5*contract( tgam_uu, 0, 1, dhh.derive_cov(ff), 2, 3 ) ;
-    sym_tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+    tilde_laplacian( B_hh_evol[jtime], tmp) ;
+    Sym_tensor_tt laplace_h(map, otriad, ff) ;
+    laplace_h.set_A_tildeB(A_hh_evol[jtime].laplacian(2), tmp) ;
+    laplace_h.annule_domain(nz-1) ;
 
-    source_aij += qq*( 
+    //    sym_tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+
+    source_aij += qq*( 0.5*laplace_h +  
 	sym_tmp + 0.5*ricci_star + 8.*tdln_psi_u * tdln_psi_u 
 	+ 4.*( tdln_psi_u * tdlnn_u + tdlnn_u * tdln_psi_u )
 	-  0.3333333333333333 * (tricci_scal + 8.*(contract(dln_psi, 0, tdln_psi_u, 0) 
 						   + contract(dln_psi, 0, tdlnn_u, 0) ) 
 	    )*tgam_uu
 	) ;
-
+			   
     sym_tmp = contract(tgam_uu, 1, contract(tgam_uu, 1, dqq.derive_cov(ff), 0), 1) ;
     
     for (int i=1; i<=3; i++) {
@@ -307,12 +369,15 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
   for (int i=1; i<=3; i++)
       for (int j=i; j<=3; j++)
 	  source_aij.set(i,j).set_dzpuis(0) ;
+#ifndef NDEBUG
   maxabs(source_aij, "source_aij tot") ; 
-  
-  source_A_hata_evol.update( source_aij.compute_A(true), jtime, the_time[jtime] ) ; 
-  source_B_hata_evol.update( source_aij.compute_tilde_B_tt(true), 
-			     jtime, the_time[jtime] ) ; 
-                                        
+#endif
+
+  source_A_hata_evol.update( source_aij.compute_A(true), jtime, the_time[jtime] ) ;
+  tmp = source_aij.compute_tilde_B_tt(true) ;
+  tmp.annule_domain(nz-1) ;
+  tmp.set_dzpuis(0) ;
+  source_B_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
 }
 
 void Tslice_dirac_max::initialize_sources_copy() const {
@@ -339,4 +404,61 @@ void Tslice_dirac_max::initialize_sources_copy() const {
         source_A_hata_evol.update( tmp_Aa, j, the_time[j] ) ;
         source_B_hata_evol.update( tmp_Ba, j, the_time[j] ) ;
     } 
+}
+
+Sym_tensor_tt Tslice_dirac_max::laplacian_h_tt(Param* ) const {
+
+    assert (A_hh_evol.is_known(jtime)) ;
+    assert (B_hh_evol.is_known(jtime)) ;
+
+    const Map& map = A_hh_evol[jtime].get_mp() ;
+    int nz_bound = map.get_mg()->get_nzone() - 2 ;
+    int np2 = map.get_mg()->get_np(nz_bound) + 2 ;
+    int nt = map.get_mg()->get_nt(nz_bound) ;
+    Sym_tensor copy_hh = hh() ;
+    if (nz_bound > 0) copy_hh.annule(0, nz_bound-1) ;
+    copy_hh.annule_domain(nz_bound+1) ;
+
+    // Computation of tilde_eta and tilde_mu
+    //--------------------------------------
+    Scalar lapang_eta = copy_hh(1,2) ;
+    lapang_eta.div_tant() ;
+    lapang_eta += copy_hh(1,2).dsdt() + copy_hh(1,3).stdsdp() ;
+    Scalar tilde_eta = lapang_eta.poisson_angu() ;
+
+    Scalar lapang_mu = copy_hh(1,3) ; 	// h^{r ph}
+    lapang_mu.div_tant() ; 		// h^{r ph} / tan(th)
+    lapang_mu += copy_hh(1,3).dsdt() - copy_hh(1,2).stdsdp() ; 
+    Scalar tilde_mu = lapang_mu.poisson_angu() ;  
+ 
+    Sym_tensor_tt resu(map, map.get_bvect_spher(), map.flat_met_spher()) ;
+    Scalar tmp(map) ;
+
+    // Parameters for the Dirac systems
+    //---------------------------------
+    Param par_bc ;
+    par_bc.add_int(nz_bound) ;
+    Tbl* cf_b = new Tbl(10) ;
+    cf_b->annule_hard() ;
+    cf_b->set(0) = 1. ; // \tilde{\mu}
+    cf_b->set(1) = 0 ; // d mu / dr
+    cf_b->set(2) = 0 ; // X
+    cf_b->set(3) = 0 ; // d X / dr
+    cf_b->set(4) = 0 ; // h^rr
+    cf_b->set(5) = 0 ;  // d h^rr / dr
+    cf_b->set(6) = 1 ; //\tilde{\eta}
+    cf_b->set(7) = 0 ; //d eta / dr
+    cf_b->set(8) = 0 ; //W
+    cf_b->set(9) = 0 ; //d W / dr
+    par_bc.add_tbl_mod(*cf_b, 0) ;
+    Tbl* kib_hh = new Tbl(np2, nt) ;
+    Tbl& khib_hh = *kib_hh ;
+    khib_hh.annule_hard() ;
+    par_bc.add_tbl_mod(khib_hh,1) ;
+    Tbl* mb_hh = new Tbl(np2, nt) ;
+    Tbl& mub_hh = *mb_hh ;
+    mub_hh.annule_hard() ;
+    par_bc.add_tbl_mod(mub_hh, 2) ;
+
+    return resu ;
 }

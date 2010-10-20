@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2010/10/20 07:58:09  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.29  2008/12/04 18:22:49  j_novak
  * Enhancement of the dzpuis treatment + various bug fixes.
  *
@@ -389,7 +392,7 @@ class Time_slice {
 	 * error in max version.
 	 */
 	 Tbl check_hamiltonian_constraint(const Scalar* energy_density = 0x0,
-					  ostream& ost = cout) const ;
+					  ostream& ost = cout, bool verb=true) const ;
 	
 	/** 
 	 *  Checks the level at which the momentum constraints are verified.
@@ -407,7 +410,7 @@ class Time_slice {
 	 * or the relative (in presence of matter) error in max version.
 	 */
 	 Tbl check_momentum_constraint(const Vector* momentum_density = 0x0,
-				       ostream& ost = cout) const ;
+				       ostream& ost = cout, bool verb=true) const ;
 	
 	/** 
 	 *  Checks the level at which the dynamical equations are verified.
@@ -433,7 +436,7 @@ class Time_slice {
 	 */
 	 Tbl check_dynamical_equations(const Sym_tensor* strain_tensor = 0x0,
 				       const Scalar* energy_density = 0x0,
-				       ostream& ost = cout) const  ; 
+				       ostream& ost = cout, bool verb=true) const  ; 
 	
         /** Returns the ADM mass (geometrical units) at the current step.
          * Moreover this method updates \c adm_mass_evol if
@@ -1227,7 +1230,8 @@ class Tslice_dirac_max : public Time_slice_conf {
     void evolve(double pdt, int nb_time_steps, int niter_elliptic,
                 double relax_elliptic, int check_mod, int save_mod,
                 int method_poisson_vect = 6, int nopause = 1, 
-                const char* graph_device = 0x0, const Scalar* ener_euler = 0x0,
+                const char* graph_device = 0x0, bool verbose=true, 
+		const Scalar* ener_euler = 0x0,
 		const Vector* mom_euler = 0x0, const Scalar* s_euler = 0x0,
 		const Sym_tensor* strain_euler = 0x0) ; 
         
@@ -1260,6 +1264,19 @@ class Tslice_dirac_max : public Time_slice_conf {
      */
     void hh_det_one(int j, Param* par_bc = 0x0, Param* par_mat = 0x0) const ; 
     
+    /** Computes \f$ h^{ij} \f$ from the TT part using the condition 
+     * \f$\det\tilde\gamma^{ij} = \det f^{ij} \f$, which fixes the
+     * trace of \f$ h^{ij} \f$.
+     * @param hijtt : the TT part.
+     */
+    void hh_det_one(const Sym_tensor_tt& hijtt, Param* par_mat = 0x0) const ;
+
+    /** Computes the flat Laplace operator \f$\Delta\f$ acting on 
+     * \f$h^{ij}\f$, using the potentials \e A and \f$\tilde{B}\f$. 
+     * The trace of teh result is set to zero (to modify).
+     */
+    Sym_tensor_tt laplacian_h_tt(Param* par_mat = 0x0) const ;
+
     // Accessors
     // ---------
     public:

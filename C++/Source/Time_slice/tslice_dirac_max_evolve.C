@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2010/10/20 07:58:10  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.16  2008/12/04 18:22:49  j_novak
  * Enhancement of the dzpuis treatment + various bug fixes.
  *
@@ -102,7 +105,8 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                               int niter_elliptic, double relax, 
                               int check_mod, int save_mod,
                               int method_poisson_vect, int nopause,  
-                              const char* graph_device, const Scalar* ener_euler,
+                              const char* graph_device, bool verbose,
+			      const Scalar* ener_euler,
 			      const Vector* mom_euler, const Scalar* s_euler,
 			      const Sym_tensor* strain_euler) {
 
@@ -365,68 +369,68 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     for (int jt = 0; jt < nb_time_steps; jt++) {
     
         double ttime = the_time[jtime] ; 
-    
-        cout << 
-        "==============================================================\n"
-        << "  step: " << jtime << "   time = " << the_time[jtime] << endl  
-        << "==============================================================\n" ;
-    
-        cout << *this << endl ; 
 	k_dd() ;
-        
-        // Monitoring
-        // ---------- 
-        cout << "ADM mass : " << adm_mass() << endl ; 
-        m_adm.update(adm_mass(), jtime, the_time[jtime]) ;
-        if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 
-                             ngraph0_mon, graph_device) ;          
-        
-        
-        nn_monitor.update(monitor_scalar(nn(), select_scalar), 
-                            jtime, the_time[jtime]) ; 
-        
-        psi_monitor.update(monitor_scalar(psi(), select_scalar), 
-                            jtime, the_time[jtime]) ; 
-        
-        A_h_monitor.update(monitor_scalar(A_hh(), select_scalar), 
-                            jtime, the_time[jtime]) ; 
-        
-        B_h_monitor.update(monitor_scalar(B_hh(), select_scalar), 
-                            jtime, the_time[jtime]) ; 
-        
-        trh_monitor.update(monitor_scalar(trh(), select_scalar), 
-                            jtime, the_time[jtime]) ; 
-        
-        beta_monitor_maxabs.update(maxabs_all_domains(beta()), 
-                                    jtime, the_time[jtime]) ; 
-        
-        hh_monitor_central.update(central_value(hh()), 
-                                    jtime, the_time[jtime]) ; 
-        
-        hh_monitor_maxabs.update(maxabs_all_domains(hh()), 
-                                    jtime, the_time[jtime]) ; 
-        
-        hata_monitor_central.update(central_value(hata()), 
-                                    jtime, the_time[jtime]) ; 
-        
-        hata_monitor_maxabs.update(maxabs_all_domains(hata()), 
-                                    jtime, the_time[jtime]) ; 
-        
-        if (jt%check_mod == 0) {
-
-            int jt_graph = jt / check_mod ; 
             
-            Tbl tham = check_hamiltonian_constraint() ; 
-            double max_error = tham(0,0) ; 
-            for (int l=1; l<nz-1; l++) {    // all domains but the last one
-                double xx = fabs(tham(0,l)) ;  
-                if (xx > max_error) max_error = xx ; 
-            }
-            test_ham_constr.update(max_error, jt_graph, the_time[jtime]) ; 
-            if (jt > 0) des_evol(test_ham_constr, "Absolute error", 
-              "Check of Hamiltonian constraint", ngraph0_mon+1, graph_device) ; 
+        if (jt%check_mod == 0) {
+	  cout << 
+	    "==============================================================\n"
+	       << "  step: " << jtime << "   time = " << the_time[jtime] << endl  
+	       << " ADM mass : " << adm_mass() 
+	       << ", Log of central lapse: " << log(nn().val_grid_point(0,0,0,0)) << endl 
+	       << "==============================================================\n" ;
+	  
+	  // Monitoring
+	  // ---------- 
+	  m_adm.update(adm_mass(), jtime, the_time[jtime]) ;
+	  if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 
+			       ngraph0_mon, graph_device) ;          
+	  
+	  
+	  nn_monitor.update(monitor_scalar(nn(), select_scalar), 
+                            jtime, the_time[jtime]) ; 
+	  
+	  psi_monitor.update(monitor_scalar(psi(), select_scalar), 
+			     jtime, the_time[jtime]) ; 
+	  
+	  A_h_monitor.update(monitor_scalar(A_hh(), select_scalar), 
+			     jtime, the_time[jtime]) ; 
+	  
+	  B_h_monitor.update(monitor_scalar(B_hh(), select_scalar), 
+			     jtime, the_time[jtime]) ; 
+        
+	  trh_monitor.update(monitor_scalar(trh(), select_scalar), 
+			     jtime, the_time[jtime]) ; 
+	  
+	  beta_monitor_maxabs.update(maxabs_all_domains(beta(), -1, 0x0, cout, verbose), 
+				     jtime, the_time[jtime]) ; 
+        
+	  hh_monitor_central.update(central_value(hh()), 
+                                    jtime, the_time[jtime]) ; 
+        
+	  hh_monitor_maxabs.update(maxabs_all_domains(hh(), -1, 0x0, cout, verbose), 
+				   jtime, the_time[jtime]) ; 
+        
+	  hata_monitor_central.update(central_value(hata()), 
+				      jtime, the_time[jtime]) ; 
+        
+	  hata_monitor_maxabs.update(maxabs_all_domains(hata(), -1, 0x0, cout, verbose), 
+				     jtime, the_time[jtime]) ; 
+        
 
-            Tbl tmom = check_momentum_constraint() ; 
+	  int jt_graph = jt / check_mod ; 
+            
+	  Tbl tham = check_hamiltonian_constraint(0x0, cout, verbose) ; 
+	  double max_error = tham(0,0) ; 
+	  for (int l=1; l<nz-1; l++) {    // all domains but the last one
+	    double xx = fabs(tham(0,l)) ;  
+	    if (xx > max_error) max_error = xx ; 
+	  }
+	  test_ham_constr.update(max_error, jt_graph, the_time[jtime]) ; 
+	  if (jt > 0) des_evol(test_ham_constr, "Absolute error", 
+			       "Check of Hamiltonian constraint", 
+			       ngraph0_mon+1, graph_device) ; 
+	  
+	  Tbl tmom = check_momentum_constraint(0x0, cout, verbose) ; 
             max_error = tmom(0,0) ;
             for (int l=1; l<nz-1; l++) {    // all domains but the last one
                 double xx = fabs(tmom(0,l)) ;  
@@ -458,7 +462,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                 graph_device) ; 
                
 	    if (jt>2) {
-	    Tbl tevol = check_dynamical_equations() ;
+	      Tbl tevol = check_dynamical_equations(0x0, 0x0, cout, verbose) ;
 	    Tbl evol_check(6) ; evol_check.set_etat_qcq() ;
 	    for (int i=1; i<=3; i++) 
 		for(int j=1; j<=i; j++) {
@@ -510,6 +514,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	A_hh_new = A_hh_evol[jtime] 
 	    + pdt*( an*source_A_hh_evol[jtime] + anm1*source_A_hh_evol[jtime-1]
 		   + anm2*source_A_hh_evol[jtime-2] ) ;
+
 	B_hh_new = B_hh_evol[jtime] 
 	    + pdt*( an*source_B_hh_evol[jtime] + anm1*source_B_hh_evol[jtime-1]
 		   + anm2*source_B_hh_evol[jtime-2] ) ;
@@ -525,7 +530,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	evolve_outgoing_BC(pdt, nz_bound, B_hh_evol[jtime], bc_B, xij_b, xijm1_b, 
 			   Bcc, -1) ;
 	B_hh_new.match_tau(par_B, &par_mat_B_hh) ;
-
 	
         // Boundary conditions for hh and hata
 	//------------------------------------
@@ -622,7 +626,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	    }
 
 	// Computation of h^{ij} at new time-step
-	hh_det_one(jtime, &par_bc_hh, &par_mat_hh) ; // ## mettre hij_tt en argument!
+	hh_det_one(hij_tt, &par_mat_hh) ;
 
         // Reset of derived quantities
         del_deriv() ;        
@@ -673,17 +677,19 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	    beta_evol.update(beta_new, jtime, ttime) ;             
 	}    
                 
-        des_meridian(beta()(1), 0., ray_des, "\\gb\\ur\\d", ngraph0+6,
+        des_meridian(vec_X()(1), 0., ray_des, "\\gb\\ur\\d", ngraph0+6,
                      graph_device) ; 
-        des_meridian(beta()(2), 0., ray_des, "\\gb\\u\\gh\\d", ngraph0+7,
+        des_meridian(vec_X()(2), 0., ray_des, "\\gb\\u\\gh\\d", ngraph0+7,
                      graph_device) ; 
-        des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", ngraph0+8,
+        des_meridian(vec_X()(3), 0., ray_des, "\\gb\\u\\gf\\d", ngraph0+8,
                      graph_device) ; 
-        des_meridian(A_hh(), 0., ray_des, "A\\dh", ngraph0+9,
+	tmp = A_hh() ;
+	tmp.set_spectral_va().ylm_i() ;
+        des_meridian(tmp, 0., ray_des, "A\\dh", ngraph0+9,
                      graph_device) ; 
-        des_meridian(nn(), 0., ray_des, "N", ngraph0+9,
-                     graph_device) ; 
-        des_meridian(B_hh(), 0., ray_des, "B\\dh", ngraph0+10,
+	tmp = B_hh() ;
+	tmp.set_spectral_va().ylm_i() ;
+        des_meridian(tmp, 0., ray_des, "B\\dh", ngraph0+10,
                      graph_device) ;
         des_meridian(trh(), 0., ray_des, "tr h", ngraph0+11,
                      graph_device) ; 

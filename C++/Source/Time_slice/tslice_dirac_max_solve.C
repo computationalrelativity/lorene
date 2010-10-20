@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2010/10/20 07:58:10  j_novak
+ * Better implementation of the explicit time-integration. Not fully-tested yet.
+ *
  * Revision 1.15  2008/12/02 15:02:22  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -144,10 +147,11 @@ Scalar Tslice_dirac_max::solve_npsi(const Scalar* p_ener_dens,
 
     if (npsi_new.get_etat() == ETATUN) npsi_new.std_spectral_base() ; 
 
+#ifndef NDEBUG
     // Test:
     maxabs(npsi_new.laplacian() - source_npsi,
                 "Absolute error in the resolution of the equation for N") ;  
-
+#endif
     return npsi_new ; 
 
 }
@@ -194,9 +198,11 @@ Scalar Tslice_dirac_max::solve_psi(const Scalar* p_ener_dens) const {
 
     if (psi_new.get_etat() == ETATUN) psi_new.std_spectral_base() ; 
 
+#ifndef NDEBUG
     // Test:
     maxabs(psi_new.laplacian() - source_psi,
                 "Absolute error in the resolution of the equation for Psi") ;  
+#endif
 
     return psi_new ; 
 }
@@ -226,13 +232,14 @@ Vector Tslice_dirac_max::solve_beta(int method)
     
     Vector beta_new = source_beta.poisson(0.3333333333333333, ff, method) ; 
         
+#ifndef NDEBUG
     // Test:
     Vector test_beta = (beta_new.derive_con(ff)).divergence(ff)
             +  0.3333333333333333 * (beta_new.divergence(ff)).derive_con(ff) ;
     test_beta.inc_dzpuis() ;  
     maxabs(test_beta - source_beta,
                 "Absolute error in the resolution of the equation for beta") ; 
-
+#endif
     return beta_new ; 
 
 }
