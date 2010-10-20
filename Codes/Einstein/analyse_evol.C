@@ -29,6 +29,9 @@ char analyse_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/10/20 08:00:43  j_novak
+ * New flag to control output on screen.
+ *
  * Revision 1.1  2004/06/24 20:37:44  e_gourgoulhon
  * First version.
  *
@@ -155,8 +158,6 @@ int main(){
         }
         fresu3 << endl ; 
         
-        delete ptriad ; 
-
     }   
     
     fresu1.close() ; 

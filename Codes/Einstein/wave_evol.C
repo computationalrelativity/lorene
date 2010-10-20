@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2010/10/20 08:00:43  j_novak
+ * New flag to control output on screen.
+ *
  * Revision 1.13  2008/12/04 18:27:02  j_novak
  * Minor modifs.
  *
@@ -114,6 +117,7 @@ int main() {
     int nb_time_steps, niter_elliptic, nopause, graph, graph_init,
         method_poisson_vect, jmod_check_constraints, jmod_save ;
     double pdt, relax_elliptic, precis_init ; 
+    bool verbose ;
     fpar.ignore(1000,'\n') ;    // skip title
     fpar >> pdt ; fpar.ignore(1000,'\n') ;
     fpar >> nb_time_steps ; fpar.ignore(1000,'\n') ;
@@ -126,6 +130,7 @@ int main() {
     fpar >> graph_init ; fpar.ignore(1000,'\n') ;
     fpar >> jmod_check_constraints ; fpar.ignore(1000,'\n') ;
     fpar >> jmod_save ; fpar.ignore(1000,'\n') ;
+    fpar >> verbose ; fpar.ignore(1000,'\n') ;
 
     char graph_device[40] ;
     if (graph == 0) strcpy(graph_device, "/n") ;
@@ -189,6 +194,7 @@ int main() {
     cout << "   graph_device_init = " << graph_device_init << endl ;
     cout << "   jmod_check_constraints = " << jmod_check_constraints << endl ;
     cout << "   jmod_save = " << jmod_save << endl ;
+    cout << "   verbose = " << verbose << endl ;
 
     //======================================================================
     //      Construction and initialization of the various objects
@@ -244,6 +250,7 @@ int main() {
     
     const Coord& x = map.x ; 
     const Coord& y = map.y ; 
+    const Coord& z = map.z ; 
     const Coord& r = map.r ; 
     
     Scalar khi_init(map) ; 
@@ -343,6 +350,9 @@ int main() {
     maxabs(sigmat.gam().cov()(1,1) / sigmat.tgam().cov()(1,1) -
             sigmat.psi4(), "Difference between the conformal factor and psi4") ; 
         
+    
+    maxabs(sigmat.psi() - 1., "Psi - 1") ;   
+
     // Check of khi and mu
 
     Sym_tensor_tt htest(map, otriad, ff) ;
@@ -358,9 +368,7 @@ int main() {
     
     maxabs(htest.mu() - mu_init, "htest.mu() - mu_init") ; 
     maxabs(htest2.mu() - mu_init, "htest2.mu() - mu_init") ; 
-    
-    maxabs(sigmat.psi() - 1., "Psi - 1") ;   
-    
+
     arrete(nopause) ; 
 
     //======================================================================
@@ -369,7 +377,7 @@ int main() {
     
     sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic,
                   jmod_check_constraints, jmod_save,
-                  method_poisson_vect, nopause, graph_device) ; 
+                  method_poisson_vect, nopause, graph_device, verbose) ; 
     
     // Freeing dynamically allocated memory
     // ------------------------------------
