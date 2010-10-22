@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.47  2010/10/22 08:08:40  j_novak
+ * Removal of the method Star_rot_dirac::lambda_grv2() and call to the C++ version of integrale2d.
+ *
  * Revision 1.46  2010/01/20 14:53:50  n_vasset
  * Adding spectral cutoff functions for use in elliptic tensor equations.
  *
@@ -717,13 +720,9 @@ void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
 void initialize_outgoing_BC(int, const Scalar& , const Scalar& , Tbl&) ;
 
 // Fonctions liees aux operateurs elliptiques degeneres: obtention d'espaces-temps de type Kerr
-
-
- 
 void tensorelliptic ( Scalar source, Scalar& resu, double fitd1, double fit2d1, double fit0d2 = 0., double fit1d2 = 0., double fit0d3 = 0., double fit1d3 = 0.);
  void tensorellipticBt ( Scalar source, Scalar& resu, double fitd1, double fit2d1, double fit0d2 = 0., double fit1d2 = 0., double fit0d3 = 0., double fit1d3 = 0.);
 void tensorellipticCt ( Scalar source, Scalar& resu, double fitd1, double fit2d1, double fit0d2, double fit1d2, double fit0d3, double fit1d3);
-
 
  Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb);
 
@@ -799,6 +798,9 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, double*
 Mtbl_cf elliptic_solver_fixe_der_zero  (double, 
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;
+
+// Integrale 2D pour les etoiles en rotation
+double integrale2d(const Scalar&) ;
 
 // Solution de la composante r de Poisson vectoriel, pour l=0 uniquement
 Scalar pois_vect_r0(const Scalar& ) ; 

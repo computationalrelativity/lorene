@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2010/10/22 08:08:40  j_novak
+ * Removal of the method Star_rot_dirac::lambda_grv2() and call to the C++ version of integrale2d.
+ *
  * Revision 1.9  2009/10/26 10:54:33  j_novak
  * Added the case of a NONSYM base in theta.
  *
@@ -69,7 +72,7 @@ char strot_dirac_global_C[] = "$Header$" ;
 #include "star_rot_dirac.h"
 #include "unites.h"
 #include "utilitaires.h" 
-
+#include "proto.h"
 
         //-------------------------------------------------------//
         //                Baryonic mass                          //
@@ -248,7 +251,7 @@ double Star_rot_Dirac::grv2() const {
       
       sou_q.std_spectral_base() ;
       
-      p_grv2 = new double( double(1) - lambda_grv2(sou_m, sou_q) ) ;
+      p_grv2 = new double( double(1) + integrale2d(sou_m)/integrale2d(sou_q) ) ;
     }
     else 
       p_grv2 = new double(-1.) ;

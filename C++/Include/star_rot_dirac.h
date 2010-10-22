@@ -344,13 +344,6 @@ class Star_rot_Dirac : public Star {
 	*/
        void solve_hij(Sym_tensor_trans& hij_new) const ;
               
-       /**
-	* Computes the coefficient \f$\lambda\f$ which ensures that 
-	* the GRV2 virial identity is satisfied. 
-	* See Etoile_rot::lambda_grv2 for detail.
-	*/
-       static double lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) ;
-
 };
 
 #endif
