@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/10/24 21:45:24  m_bejger
+ * mass_adm() corrected
+ *
  * Revision 1.3  2010/06/17 14:48:14  m_bejger
  * Minor corrections
  *
@@ -64,8 +67,12 @@ double Binary_xcts::mass_adm() const {
 	*p_mass_adm = 0 ; 
 	
     const Map_af map0 (et[0]->get_mp()) ;
+    const Metric& flat = (et[0]->get_flat()) ;
 
-    Vector dpsi(et[0]->get_dcov_Psi()) ;
+    Vector dpsi((et[0]->get_Psi_auto() 
+		+ et[0]->get_Psi_comp()).derive_cov(flat)) ;
+
+ 	//Vector dpsi(et[0]->get_dcov_Psi()) ;
     dpsi.change_triad(map0.get_bvect_spher()) ;
 
     Scalar integrand ( dpsi(1) ) ;
@@ -133,11 +140,9 @@ double Binary_xcts::mass_kom() const {
    
     Map_af map0 (et[0]->get_mp()) ; 
     const Metric& flat = (et[0]->get_flat()) ; 
-    
-    Scalar logn = log(et[0]->get_chi() / et[0]->get_Psi() ) ; 
 
-    logn.std_spectral_base() ; 
-    
+    const Scalar& logn = et[0]->get_logn() ; 
+  
     Vector vect = logn.derive_con(flat) ; 
 
     vect.change_triad(map0.get_bvect_spher()) ;
@@ -151,6 +156,7 @@ double Binary_xcts::mass_kom() const {
     
 }
 
+//## to be checked 
 double Binary_xcts::mass_kom_vol() const {
     
   using namespace Unites ;
@@ -161,9 +167,19 @@ double Binary_xcts::mass_kom_vol() const {
 
      // Declaration of all fields
             
+      const Metric& flat = et[i]->get_flat() ;
+
       const Scalar& nn(et[i]->get_nn()) ;
-      const Scalar& Psi(et[i]->get_Psi()) ;
-                  
+      const Scalar& Psi(et[i]->get_Psi() ) ;
+
+ 	  Scalar logn_auto = log(et[i]->get_chi_auto() + 1.)
+		- log(et[i]->get_Psi_auto() + 1.) ; 
+
+      logn_auto.std_spectral_base() ; 
+
+      const Vector& dcov_phi = Psi.derive_cov(flat) ;
+	  const Tensor& dcov_logn_auto = logn_auto.derive_cov(flat) ;
+
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& s_euler = et[i]->get_s_euler() ;
 
@@ -178,6 +194,8 @@ double Binary_xcts::mass_kom_vol() const {
 
       Scalar source = qpig * psi4 % (ener_euler + s_euler) ;
       source += spsi12 % psi4 % (hacar_auto + hacar_comp) ;
+      source -= 2.*contract(contract(flat.con(), 0, dcov_phi, 0), 0, 
+			  dcov_logn_auto, 0, true) ;
       source = source / qpig * nn  ;
   
       source.std_spectral_base() ;
@@ -194,6 +212,7 @@ double Binary_xcts::mass_kom_vol() const {
 		    //	 Total angular momentum        //
 		    //---------------------------------//
 
+//## to be checked 
 const Tbl& Binary_xcts::angu_mom() const {
 
   using namespace Unites ;
@@ -215,7 +234,7 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// --------------------------------
 		
 		double r0 = mp.val_r(nzm1-1, 1, 0, 0) ;
-		double sigma = 1.*r0 ;
+		double sigma = r0 ;
 		
 		Scalar rr (mp) ;
 		rr = mp.r ;
@@ -251,9 +270,13 @@ const Tbl& Binary_xcts::angu_mom() const {
 		Scalar rho = pow(psi, 10.) * (ee + pp) ; 
 		rho.std_spectral_base() ;
 
+        cout << "j rho: " << norme(rho) << endl ; 
+
 		Vector jmom = rho * (et[i]->get_u_euler()) ; 
 				
-		const Metric_flat flat (mp.flat_met_cart()) ; 
+	    const Metric& flat = et[i]->get_flat() ;
+
+		//const Metric_flat flat (mp.flat_met_cart()) ; 
 		
 		Vector vphi_cov = vphi.up_down(flat) ;
 		
