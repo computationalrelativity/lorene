@@ -28,6 +28,9 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/10/26 19:57:02  m_bejger
+ * Various cleanups
+ *
  * Revision 1.2  2010/06/04 19:57:52  m_bejger
  * Added condition for mp.get_rot_phi
  *
@@ -45,9 +48,8 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
 
 void Star_bin_xcts::kinematics(double omega, double x_axe) {
 
-    int nz = mp.get_mg()->get_nzone() ; 
-    int nzm1 = nz - 1 ; 
-    
+    int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
+
     // --------------------
     // Computation of B^i/N
     // --------------------
@@ -65,20 +67,20 @@ void Star_bin_xcts::kinematics(double omega, double x_axe) {
       bsn.set(3) = 0 ;
     }
     else {
+		
       bsn.set(1) = omega * ya ;
       bsn.set(2) = - omega * (xa - x_axe) ;
       bsn.set(3) = 0 ;
     }
 
     bsn.std_spectral_base() ;
- 
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     
     // Addition of beta and division by lapse
     // Eq. 47 from Gourgoulhon et al. (2001)
     // New convention : l = Nn + B ==> B = \beta + \Omega d\phi
     //---------------------------------------------------------
-    
+
     bsn = ( bsn + beta ) / nn ; 
 
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC

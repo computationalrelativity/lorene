@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/10/26 19:57:02  m_bejger
+ * Various cleanups
+ *
  * Revision 1.4  2010/06/17 15:06:25  m_bejger
  * N, Psi output corrected
  *
@@ -115,7 +118,7 @@ Star_bin_xcts::Star_bin_xcts(Map& mpi,
     loggam = 0 ; 
     bsn.set_etat_zero() ; 
     pot_centri = 0 ;
-  
+   
     Psi_auto = 0 ;
     Psi_comp = 0 ; 
 
@@ -464,15 +467,13 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
     
     ost << endl ;
 
-        Scalar Psi = Psi_auto + Psi_comp + 1. ;
-        Scalar NN = (chi_auto + chi_comp + 1.)/Psi ; 
-        NN.std_spectral_base() ;
-        Scalar psi4 = pow(Psi, 4.) ;
-	    psi4.std_spectral_base() ;
+	Scalar psi4 = pow(Psi, 4.) ;
+	psi4.std_spectral_base() ;  
  
-    ost << "Central lapse N        :      " << NN.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of Psi_comp :   " << Psi_comp.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of Psi_auto :   " << Psi_auto.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central lapse N            :  " << nn.val_grid_point(0,0,0,0) <<  endl ;
+    ost << "Central value of Psi^4     :  " << psi4.val_grid_point(0,0,0,0) <<  endl ;
+    ost << "Central value of Psi_comp  :  " << Psi_comp.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of Psi_auto  :  " << Psi_auto.val_grid_point(0,0,0,0) <<  endl ; 
     ost << "Central value of chi_comp  :  " << chi_comp.val_grid_point(0,0,0,0) <<  endl ; 
     ost << "Central value of chi_auto  :  " << chi_auto.val_grid_point(0,0,0,0) <<  endl ; 
      
@@ -622,20 +623,19 @@ void Star_bin_xcts::fait_d_psi() {
  
     //  Computation of W^i = - h Gamma_n B^i/N
     //----------------------------------------------
-
-    Scalar psi4 = pow(Psi, 4.) ; 
+    
+    Scalar psi4 = pow(Psi, 4.) ;     
     psi4.std_spectral_base() ; 
     
     Vector www = hhh * gam_euler * bsn * psi4 ; 
-      
+         
     // Constant value of W^i at the center of the star
     //-------------------------------------------------
     
     Vector v_orb(mp, COV, mp.get_bvect_cart()) ; 
     
-    for (int i=1; i<=3; i++) {
+    for (int i=1; i<=3; i++) 
 	v_orb.set(i) = www(i).val_grid_point(0, 0, 0, 0) ; 
-    }
     
     // Gradient of psi 
     //----------------
@@ -646,6 +646,7 @@ void Star_bin_xcts::fait_d_psi() {
     d_psi0.std_spectral_base() ;
 
     d_psi = d_psi0 + v_orb ; 
+    
     for (int i=1; i<=3; i++) {
 	if (d_psi(i).get_etat() == ETATZERO)
 	    d_psi.set(i).annule_hard() ;
@@ -658,12 +659,12 @@ void Star_bin_xcts::fait_d_psi() {
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
     d_psi.annule(nzet, nzm1) ;	 
     for (int i=1; i<=3; i++) {
-	Cmp d_psi_i (d_psi(i)) ;
-	d_psi_i.va.set_base( d_psi0(i).get_spectral_va().base ) ; 
-	d_psi_i = raccord_c1(d_psi_i, nzet) ; 
-	d_psi.set(i) = d_psi_i ; 
+		Cmp d_psi_i (d_psi(i)) ;
+		d_psi_i.va.set_base( d_psi0(i).get_spectral_va().base ) ; 
+		d_psi_i = raccord_c1(d_psi_i, nzet) ; 
+		d_psi.set(i) = d_psi_i ; 
     }
-
+    
 } 
 
 void Star_bin_xcts::relaxation(const Star_bin_xcts& star_jm1, 
