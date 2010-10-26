@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/10/26 20:18:34  m_bejger
+ * Correction to stdin output
+ *
  * Revision 1.5  2010/10/26 19:57:02  m_bejger
  * Various cleanups
  *
@@ -467,7 +470,7 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
     
     ost << endl ;
 
-	Scalar psi4 = pow(Psi, 4.) ;
+	Scalar psi4 = pow(Psi_auto + Psi_comp + 1., 4.) ;
 	psi4.std_spectral_base() ;  
  
     ost << "Central lapse N            :  " << nn.val_grid_point(0,0,0,0) <<  endl ;
