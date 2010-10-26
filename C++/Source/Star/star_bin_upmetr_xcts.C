@@ -28,6 +28,9 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/10/26 20:08:56  m_bejger
+ * Cleanup
+ *
  * Revision 1.4  2010/06/17 15:08:42  m_bejger
  * Correcting previous corrections that were, in fact, incorrect
  *
@@ -59,8 +62,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
     
-    const Map& mp_comp (comp.get_mp()) ;
-     
     if ( (comp.Psi_auto).get_etat() == ETATZERO ) {	    
 		Psi_comp.set_etat_zero() ;
     
@@ -74,7 +75,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
     beta_comp.set_triad(mp.get_bvect_cart()) ;
     
     Vector comp_beta(comp.beta_auto) ;
-    comp_beta.change_triad(mp_comp.get_bvect_cart()) ;
     comp_beta.change_triad(mp.get_bvect_cart()) ;
 
     assert ( *(beta_comp.get_triad()) == *(comp_beta.get_triad())) ;
@@ -98,7 +98,7 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // --------------------
 
     Psi = Psi_auto + Psi_comp + 1.; 
-    Psi.std_spectral_base() ; 
+//    Psi.std_spectral_base() ; 
 
     Scalar psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
@@ -107,12 +107,21 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // --------------------
 
     chi = chi_auto + chi_comp + 1.; 
-    chi.std_spectral_base() ; 
+//    chi.std_spectral_base() ; 
+
+//##
+// logarithm of lapse function N
+// ----------------
+
+    logn = log(chi_auto + 1.) - log(Psi_auto + 1.)   
+		 + log(chi_comp + 1.) - log(Psi_comp + 1.) ;
+		  
+    logn.std_spectral_base() ; 
    
 // Lapse function N
 // ----------------
 
-    nn = chi / Psi ; 
+    nn = exp(logn) ;  
     nn.std_spectral_base() ; 
 
 // Shift vector 
@@ -126,7 +135,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 //-----------------------------------------------
 
     extrinsic_curvature() ;
-
    
 // The derived quantities are obsolete
 // -----------------------------------
@@ -146,8 +154,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
-  
-    const Map& mp_comp (comp.get_mp()) ;
 
     if ( (comp.Psi_auto).get_etat() == ETATZERO ) {
 		Psi_comp.set_etat_zero() ;
@@ -164,7 +170,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
     beta_comp.set_triad(mp.get_bvect_cart()) ;
 
     Vector comp_beta(comp.beta_auto) ;
-    comp_beta.change_triad(mp_comp.get_bvect_cart()) ;
     comp_beta.change_triad(mp.get_bvect_cart()) ;
 
     assert ( *(beta_comp.get_triad()) == *(comp_beta.get_triad())) ;
@@ -190,20 +195,15 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // -------------------------------------------
     double relaxjm1 = 1. - relax ; 
     
-    Psi_comp = relax * Psi_comp 
-    			+ relaxjm1 * (star_jm1.Psi_comp) ; 
-    
-    beta_comp = relax * beta_comp 
-    			+ relaxjm1 * (star_jm1.beta_comp) ; 
-
-    chi_comp = relax * chi_comp 
-    			+ relaxjm1 * (star_jm1.chi_comp) ;
+    Psi_comp = relax * Psi_comp + relaxjm1 * (star_jm1.Psi_comp) ; 
+    beta_comp = relax * beta_comp + relaxjm1 * (star_jm1.beta_comp) ; 
+    chi_comp = relax * chi_comp + relaxjm1 * (star_jm1.chi_comp) ;
 
 // Conformal factor Psi
 // --------------------
 
     Psi = Psi_auto + Psi_comp + 1.; 
-    Psi.std_spectral_base() ; 
+//    Psi.std_spectral_base() ; 
 
     Scalar psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
@@ -212,14 +212,22 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // --------------------
 
     chi = chi_auto + chi_comp + 1.; 
-    chi.std_spectral_base() ; 
+//    chi.std_spectral_base() ; 
+
+// logarithm of lapse function N
+// ----------------
+
+    logn = log(chi_auto + 1.) - log(Psi_auto + 1.)   
+		 + log(chi_comp + 1.) - log(Psi_comp + 1.) ;
+		  
+    logn.std_spectral_base() ; 
    
 // Lapse function N
 // ----------------
 
-    nn = chi / Psi ; 
+    nn = exp(logn) ;  
     nn.std_spectral_base() ; 
-
+   
 // Shift vector
 // ------------
 	    
@@ -227,7 +235,9 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
         
     gamma = flat.con() / psi4 ;
 
-    // Extrinsic curvature (haij_auto and hacar_auto)
+// Extrinsic curvature (haij_auto and hacar_auto)
+//-----------------------------------------------
+
     extrinsic_curvature() ;
 
    
