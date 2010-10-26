@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/10/26 18:46:28  m_bejger
+ * Added table fact_resize for domain resizing
+ *
  * Revision 1.6  2010/10/18 19:08:14  m_bejger
  * Changed to allow for calculations with more than one domain in the star
  *
@@ -73,6 +76,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 			   					double relax_poisson, 
 			   					double relax_potvit, 
 			   					double thres_adapt,
+			   					const Tbl& fact_resize, 
 			   					const Tbl* pent_limit,
 			   					Tbl& diff) {
 
@@ -369,8 +373,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	ent_limit.set_etat_qcq() ; 
 	for (int l=0; l<nzet; l++) {	// loop on domains inside the star
 	    ent_limit.set(l) = ent.val_grid_point(l, k_b, j_b, i_b) ; 
-	}
-	ent_limit.set(nzet-1) = ent_b  ; 
+
+	} ent_limit.set(nzet-1) = ent_b  ; 
 
 	Map_et mp_prev = mp_et ; 
 
@@ -381,31 +385,75 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
 	
-	if (nz>= 5) {
-				
-	  double separation = 2. * fabs(mp.get_ori_x()) ;
-	  double ray_eqq = ray_eq() ;
-	  double ray_eqq_pi = ray_eq_pi() ;
-	  double new_rr_out_2 = (separation - ray_eqq) * 0.95 ; 
-	  double new_rr_out_3 = (separation + ray_eqq_pi) * 1.05 ; 
+	double rr_in_1 = mp.val_r(nzet, -1., M_PI/2., 0.) ;
 
-	  double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-	  double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-	  double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
-	  double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
-	  
-	  mp.resize(1, 0.5*(new_rr_out_2 + rr_in_1) / rr_out_1) ; 
-	  mp.resize(2, new_rr_out_2 / rr_out_2) ; 
-	  mp.resize(3, new_rr_out_3 / rr_out_3) ;
+	// Resizes the outer boundary of the shell including the comp. NS
+	double rr_out_nm2 = mp.val_r(nz-2, 1., M_PI/2., 0.) ;
 
-	  for (int dd=4; dd<=nz-2; dd++) {
-	    mp.resize(dd, new_rr_out_3 * pow(4., dd-3) / 
-		      mp.val_r(dd, 1., M_PI/2, 0.)) ;
-	  }
+	mp.resize(nz-2, rr_in_1/rr_out_nm2 * fact_resize(1)) ;
 
-	}
+	// Resizes the inner boundary of the shell including the comp. NS
+	double rr_out_nm3 = mp.val_r(nz-3, 1., M_PI/2., 0.) ;
+
+	mp.resize(nz-3, rr_in_1/rr_out_nm3 * fact_resize(0)) ;
+
+	if (nz > nzet+3) {
+
+	    // Resize of the domain from 1(nzet) to N-4
+	    double rr_out_nm3_new = mp.val_r(nz-3, 1., M_PI/2., 0.) ;
+
+	    for (int i=nzet-1; i<nz-4; i++) {
+
+	        double rr_out_i = mp.val_r(i, 1., M_PI/2., 0.) ;
+
+		double rr_mid = rr_out_i
+		  + (rr_out_nm3_new - rr_out_i) / double(nz - 3 - i) ;
+
+		double rr_2timesi = 2. * rr_out_i ;
+
+		if (rr_2timesi < rr_mid) {
+
+		    double rr_out_ip1 = mp.val_r(i+1, 1., M_PI/2., 0.) ;
+
+		    mp.resize(i+1, rr_2timesi / rr_out_ip1) ;
+
+		} else {
+
+		    double rr_out_ip1 = mp.val_r(i+1, 1., M_PI/2., 0.) ;
+
+		    mp.resize(i+1, rr_mid / rr_out_ip1) ;
+
+		}  // End of else
+
+	    }  // End of i loop
+
+	}  // End of (nz > nzet+3) loop
 	
-	//else cout << "too small number of domains" << endl ;
+	//if (nz>= 5) {
+				
+	  //double separation = 2. * fabs(mp.get_ori_x()) ;
+	  //double ray_eqq = ray_eq() ;
+	  //double ray_eqq_pi = ray_eq_pi() ;
+	  //double new_rr_out_2 = (separation - ray_eqq) * 0.95 ; 
+	  //double new_rr_out_3 = (separation + ray_eqq_pi) * 1.05 ; 
+
+	  //double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+	  //double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+	  //double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+	  //double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
+	  
+	  //mp.resize(1, 0.5*(new_rr_out_2 + rr_in_1) / rr_out_1) ; 
+	  //mp.resize(2, new_rr_out_2 / rr_out_2) ; 
+	  //mp.resize(3, new_rr_out_3 / rr_out_3) ;
+
+	  //for (int dd=4; dd<=nz-2; dd++) {
+	    //mp.resize(dd, new_rr_out_3 * pow(4., dd-3) / 
+		      //mp.val_r(dd, 1., M_PI/2, 0.)) ;
+	  //}
+
+	//}
+	
+	////else cout << "too small number of domains" << endl ;
 	
 	
 	//----------------------------------------------------
