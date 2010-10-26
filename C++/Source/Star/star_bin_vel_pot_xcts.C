@@ -29,6 +29,9 @@ char star_bin_vel_pot_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/10/26 20:01:06  m_bejger
+ * Cleanup
+ *
  * Revision 1.4  2010/10/18 20:56:15  m_bejger
  * Generalization for many domains in the star: buggy
  *
@@ -119,7 +122,7 @@ double Star_bin_xcts::velocity_potential(int mermax,
 
     for (int l=nzet; l <= nzm1; l++) 
 		dndh_log.set_domain(l) = 1. ; 
-       
+		 
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
 
@@ -157,9 +160,6 @@ double Star_bin_xcts::velocity_potential(int mermax,
     arrete() ; 
   */
 
-    www.change_triad(mp.get_bvect_cart()) ;
-    v_orb.change_triad(mp.get_bvect_cart()) ;
-				 
     source.annule(nzet, nzm1) ; 
     			
     //---------------------------------------------------
@@ -172,11 +172,9 @@ double Star_bin_xcts::velocity_potential(int mermax,
     par.add_double(precis, 0) ; 
     par.add_double(relax, 1) ; 
     par.add_int_mod(niter) ; 
+      
+    if (psi0.get_etat() == ETATZERO) psi0 = 0 ; 
     
-    
-    if (psi0.get_etat() == ETATZERO) {
-	psi0 = 0 ; 
-    }
 
     Cmp source_cmp (source) ;
     Cmp zeta_h_cmp (zeta_h) ;
@@ -192,21 +190,6 @@ double Star_bin_xcts::velocity_potential(int mermax,
     bb_cmp.set(2) = bb_cmp3 ;
 
     source_cmp.va.ylm() ;
-
-    //##
-    //cout << "source" << endl << norme(source_cmp) << endl ;
-    //cout << "gam_euler"    << endl << norme(gam_euler) << endl ; 
-    //cout << "psi4"    << endl << norme(psi4) << endl ;     
-    //cout << "hhh"    << endl << norme(hhh) << endl ; 
-    //cout << "zeta_h " << endl << norme(zeta_h_cmp) << endl ;
-    //cout << "www(1)" << endl << norme(www(1)) << endl ;
-    //cout << "www(2)" << endl << norme(www(2)) << endl ;
-    //cout << "www(3)" << endl << norme(www(3)) << endl ;
-    //cout << "bb(1)" << endl << norme(bb_cmp(0)) << endl ;
-    //cout << "bb(2)" << endl << norme(bb_cmp(1)) << endl ;
-    //cout << "bb(3)" << endl << norme(bb_cmp(2)) << endl ;
-    //cout << "psiO" << endl << norme(psi0_cmp) << endl ;
-    //arrete() ; 
     
     mp.poisson_compact(nzet, source_cmp, zeta_h_cmp, bb_cmp, par, psi0_cmp ) ;
     
@@ -224,25 +207,24 @@ double Star_bin_xcts::velocity_potential(int mermax,
     
     source.set_spectral_va().ylm_i() ;
 
-    double erreur = diffrel(oper, source)(0) ; 
-
-    cout << "Check of the resolution of the continuity equation : " 
-	 << endl ; 
-    cout << "            norme(source) : " << norme(source)(0) 
-         << "    diff oper/source : " << erreur << endl ; 
-    
+    cout << "Check of the resolution of the continuity equation : "  << endl ; 
+    Tbl terr = diffrel(oper, source) ;
+	double erreur = 0 ; 
+	for (int l=0; l<nzet; l++) { 
+		double err = terr(l) ; 
+    	cout << " domain " << l << " : norme(source) : " << norme(source)(l) 
+      	 	 << "    relative error : " << err << endl ;
+		if (err > erreur) erreur = err ; 
+	} 
+	//arrete() ; 
     
     //--------------------------------
     // Computation of grad(psi)
     //--------------------------------
-    
-    v_orb.change_triad(mp.get_bvect_cart()) ;
-    d_psi.change_triad(mp.get_bvect_cart()) ;
 
     for (int i=1; i<=3; i++) 
 	d_psi.set(i) = (psi0.derive_cov(flat))(i) + v_orb(i) ; 
 
-    v_orb.change_triad(mp.get_bvect_cart()) ;    
     d_psi.change_triad(mp.get_bvect_cart()) ; 
    
     // C^1 continuation of d_psi outside the star
