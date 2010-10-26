@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/10/26 18:44:29  m_bejger
+ * Added table fact_resize for Star_bin_xcts::equilibrium for domain resizing
+ *
  * Revision 1.6  2010/10/18 21:20:12  m_bejger
  * Initial version for the 'elusive' many-domains-inside-the-star calculations
  *
@@ -71,11 +74,12 @@ char coal_C[] = "$Header$" ;
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
-int main(){
+int main() {
 
     // Identification of all the subroutines called by the code : 
     
-    system("ident coal > identif.d") ; 
+    int system_status ; 
+    system_status = system("ident coal > identif.d") ; 
 
     // For the display : 
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
@@ -215,8 +219,8 @@ int main(){
 	abort() ; 
     }
 
-    int mer_ini ; 
-    fread(&mer_ini, sizeof(int), 1, fich) ;	
+    int mer_ini; 
+    system_status = fread(&mer_ini, sizeof(int), 1, fich) ;	
     
     Mg3d mg1(fich) ;
     Map_et mp1(mg1, fich) ; 
@@ -256,7 +260,7 @@ int main(){
     //	    Modification of the separation between the two stars
     //------------------------------------------------------------------
 
-    double distance ;     
+    double distance = 0. ;     
     for (int i=1 ; i<=2 ; i++) {
 
 	double ori_x = (star(i).get_mp()).get_ori_x() ; 
@@ -294,19 +298,10 @@ int main(){
 		(star.set(i)).hydro_euler() ; 
     }
 
-    //cout << "mtot_b: " << star(1).mass_b() + star(2).mass_b() << endl ;     
-    //cout << "mtot: " << star(1).mass_g() + star(2).mass_g() << endl ; 
-      
     // New initial of value Omega (taking into account the fact
     // that the separation has changed)
      
     star.analytical_omega() ; 
-
-    //##
-    //cout << "beta_auto(1)" << endl << norme(star(1).get_beta_auto()(1)) << endl ;
-    //cout << "beta_auto(2)" << endl << norme(star(1).get_beta_auto()(2)) << endl ;
-    //cout << "beta_auto(3)" << endl << norme(star(1).get_beta_auto()(3)) << endl ;
-    //arrete() ; 
     
     // If the shift vector has not been set previously, it is set to
     //  some analytical value
@@ -316,12 +311,6 @@ int main(){
         
     for (int i=1; i<=2; i++) 
 		star.set(i).set_beta_auto() = reduce_shift*star(i).get_beta_auto() ; 
-
-    //##
-    //cout << "beta_auto(1)" << endl << norme(star(1).get_beta_auto()(1)) << endl ;
-    //cout << "beta_auto(2)" << endl << norme(star(1).get_beta_auto()(2)) << endl ;
-    //cout << "beta_auto(3)" << endl << norme(star(1).get_beta_auto()(3)) << endl ;
-    //arrete() ; 
 
     // A second call to update_metric must be performed to update
     //  beta_comp, tkij_auto and akcar_auto. 
@@ -372,14 +361,19 @@ int main(){
 	 << endl ; 
     cout << star << endl ; 
 
-//----------------------------------------------------------------
-//			Auxiliary quantities
-//----------------------------------------------------------------
+	//------------------------------------------------------------------
+	//			Auxiliary quantities
+	//------------------------------------------------------------------
 
     double ent_c[2] ;	    // Central enthalpy in each star
     double dentdx[2] ;	    // Central d/dx(enthalpy) in each star
 
-// Error indicators in each star
+    // Resizing factor of the first shell
+    Tbl fact_resize[] = {Tbl(2), Tbl(2)} ;
+    fact_resize[0].set_etat_qcq() ; 
+    fact_resize[1].set_etat_qcq() ; 
+    
+	// Error indicators in each star
     Tbl differ[] = {Tbl(7), Tbl(7)} ;
     differ[0].set_etat_qcq() ; 
     differ[1].set_etat_qcq() ; 
@@ -492,20 +486,12 @@ int main(){
 	//------------------------------------------------------------------
 
 	if ( (mer % fmer_upd_met) == 0 || mer == 1) {
-    
-	    for (int i=1; i<=2; i++) (star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ;
-	    for (int i=1; i<=2; i++) (star.set(i)).update_metric_der_comp(star(3-i)) ; 
+		    
+	    for (int i=1; i<=2; i++) 
+	    	(star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ;
 
-    /* //monitoring plots
-	 des_profile (star(1).get_chi(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
-	"chi1", "chi1 (theta=pi/2,  phi=0)" ) ;  
-
-	 des_profile (star(1).get_Psi(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
-	"Psi1", "Psi1 (theta=pi/2,  phi=0)" ) ; 	
-
-	 des_profile (star(1).get_nn(), 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
-	"N1", "N1 (theta=pi/2,  phi=0)" ) ; 
-	*/
+	    for (int i=1; i<=2; i++) 
+	    	(star.set(i)).update_metric_der_comp(star(3-i)) ; 
 	
 	}
 
@@ -621,6 +607,32 @@ int main(){
 	//	  Computation of the stellar equilibrium configurations
 	//------------------------------------------------------------------
 
+    for (int i=1; i<=2; i++) {
+
+	// Computation of the resizing factor
+	double ray_eq_auto = star(i).ray_eq() ;
+	double ray_eq_comp = star(3-i).ray_eq() ;
+	double ray_eq_pi_comp = star(3-i).ray_eq_pi() ;
+
+	int num_resize ;
+
+      if (mg1.get_nzone() > 3) {
+	  	assert( mg2.get_nzone() == mg1.get_nzone() ) ;
+	  	num_resize = mg1.get_nzone() - 3 ;
+
+	} else num_resize = star(i).get_nzet() ;
+	
+	
+	double lambda_resize = 0.95 *
+	  (star.separation() - ray_eq_comp)/ray_eq_auto ;
+	fact_resize[i-1].set(0) =
+	  (lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
+
+	fact_resize[i-1].set(1) = 1.05 *
+	  (star.separation() + ray_eq_pi_comp)/ray_eq_auto ;
+	
+    }
+
 	for (int i=1; i<=2; i++) {
 
 	    // Relaxation on Psi_comp and chi_comp (only if it has not been
@@ -640,10 +652,13 @@ int main(){
 	    // ------------------------
 	    star.set(i).set_pot_centri() = relax * star(i).get_pot_centri()
 		+ relax_jm1 * star_jm1(i).get_pot_centri() ; 
-        
-	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
+      
+      	// Call to Etoile_bin::equilibrium
+		// --------------------------------  
+		(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
 				      mermax_poisson, relax_poisson,
-				      relax_potvit, thres_adapt[i-1], pent_limit[i-1],
+				      relax_potvit, thres_adapt[i-1], 
+				      fact_resize[i-1], pent_limit[i-1],
 				      differ[i-1]) ;
 
 	}	
@@ -815,14 +830,8 @@ int main(){
 	"===================================================================" 
 	      << endl << endl ; 
 	
-    
-    if ( star(1).is_irrotational() ) {
 	fichfinal << "                           Irrotational" << endl ; 
-    }
-    else {
-	fichfinal << "                           Co-rotating" << endl ; 
-    }   
-
+    
     fichfinal << star(1).get_eos() << endl ;
     
     fichfinal << "Omega = " << star.get_omega() * f_unit << " rad/s" 
@@ -889,7 +898,7 @@ int main(){
     fichfinal << 
 	"================================================================" << endl ; 
     fichfinal.close() ; 
-    system("cat parcoal.d >> calcul.d") ; 
+    system_status = system("cat parcoal.d >> calcul.d") ; 
 
 // Identification du code et de ses sous-routines (no. de version RCS) :     	
     fichfinal.open("calcul.d", ios::app ) ; 
@@ -899,7 +908,7 @@ int main(){
     fichfinal << 
 	"================================================================" << endl ; 
     fichfinal.close() ; 
-    system("ident coal >> calcul.d") ; 
+    system_status = system("ident coal >> calcul.d") ; 
         
 // Preparation for CPU infos printing :     	
     fichfinal.open("calcul.d", ios::app ) ; 
