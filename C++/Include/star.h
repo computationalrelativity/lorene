@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2010/10/26 18:47:36  m_bejger
+ * Modification of Star_bin_xcts::equilibrium, added table fact_resize
+ *
  * Revision 1.29  2010/10/18 19:11:53  m_bejger
  * Changes to Star::equilibrium_spher and Star_bin_xcts::equilibrium to allow for calculations with more than one domain in the star
  *
@@ -1235,7 +1238,6 @@ class Star_bin_xcts : public Star {
     protected:
 	/// Absolute coordinate X of the barycenter of the baryon density
 	mutable double* p_xa_barycenter ; 
-	 
 
     // Constructors - Destructor
     // -------------------------
@@ -1534,6 +1536,8 @@ class Star_bin_xcts : public Star {
 	 *				  Map_radial::poisson_compact
 	 *  @param thres_adapt [input]   Threshold on dH/dr for the adaptation 
 	 *				  of the mapping
+	 *  @param fact [input]    1-D \c Tbl for the input of some factors: 
+	 *          \li \c fact(0)  : A resizing factor for the first shell
 	 *  @param ent_limit [input]	array of enthalpy values to be set at 
 	 *			the boundaries between the domains; if set to 0x0 (default), 
 	 *			the initial values will be kept.
@@ -1543,7 +1547,8 @@ class Star_bin_xcts : public Star {
 	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			 int mermax_poisson, double relax_poisson, 
 			 double relax_potvit, double thres_adapt, 
-			 const Tbl* pent_limit, Tbl& diff) ;
+			 const Tbl& fact, const Tbl* pent_limit, 
+			 Tbl& diff) ;
 
 	/** Computes the non-translational part of the velocity scalar potential
 	 *  \f$\psi0\f$ by solving the continuity equation.
