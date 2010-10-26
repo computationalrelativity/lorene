@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/10/26 19:45:45  m_bejger
+ * Cleanup
+ *
  * Revision 1.4  2010/07/16 16:27:19  m_bejger
  * This version is basically a copy of the one used by Binaire (binaire_orbite.C)
  *
@@ -80,17 +83,19 @@ void Binary_xcts::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1
 	psi4.std_spectral_base() ; 
  		
     const Scalar& loggam = et[i]->get_loggam() ; 
-	const Scalar& nn = et[i]->get_nn() ; 
-        
+    const Metric& flat = et[i]->get_flat() ;
+
+    Scalar logn = log(et[i]->get_chi_auto() + 1.) 
+   		   		- log(et[i]->get_Psi_auto() + 1.)   
+			   	+ log(et[i]->get_chi_comp() + 1.) 
+			   	- log(et[i]->get_Psi_comp() + 1.) ;
+
+    Scalar nn = exp(logn) ; 
+    nn.std_spectral_base() ;  
+
 	// Sign convention for shift (beta^i = - N^i)
 	Vector shift =  - ( et[i]->get_beta() ) ;
 	shift.change_triad(et[i]->mp.get_bvect_cart()) ;
-
-    const Metric& flat = et[i]->get_flat() ;
-    
-    Scalar logn = log((et[i]->get_chi_auto() + et[i]->get_chi_comp() + 1.)
-                /(et[i]->get_Psi_auto() + et[i]->get_Psi_comp() + 1.)) ; 
-    logn.std_spectral_base() ; 
 
 	//------------------------------------------------------------------
 	// d/dX( log(N) + log(Gamma) ) 
