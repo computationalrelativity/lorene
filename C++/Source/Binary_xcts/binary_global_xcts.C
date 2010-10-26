@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/10/26 19:16:26  m_bejger
+ * Cleanup of some diagnostic messages
+ *
  * Revision 1.5  2010/10/25 15:02:08  m_bejger
  * mass_kom_vol() corrected
  *
@@ -268,11 +271,9 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		const Scalar& psi = et[i]->get_Psi() ; 
-		Scalar rho = pow(psi, 10.) * (ee + pp) ; 
+		//const Scalar& psi = et[i]->get_Psi() ; 
+		Scalar rho = pow(et[i]->get_Psi(), 10.) * (ee + pp) ; 
 		rho.std_spectral_base() ;
-
-        cout << "j rho: " << norme(rho) << endl ; 
 
 		Vector jmom = rho * (et[i]->get_u_euler()) ; 
 				
