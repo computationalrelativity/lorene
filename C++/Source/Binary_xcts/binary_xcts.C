@@ -28,6 +28,9 @@ char binary_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/10/28 12:00:07  m_bejger
+ * Mass-shedding indicators added to the output in Binary_xcts::write_global
+ *
  * Revision 1.1  2010/05/04 07:35:54  m_bejger
  * Initial version
  *
@@ -449,7 +452,18 @@ void Binary_xcts::write_global(ostream& ost) const {
 
   const Map&  mp1 = star1.get_mp() ;
   const Mg3d* mg1 = mp1.get_mg() ;
-  int nz1 = mg1->get_nzone() ; 
+  int nz1 = mg1->get_nzone() ;
+ 
+  // Mass-shedding indicators 
+  double dent1_eq   = (star1.ent).dsdr().val_point(star1.ray_eq(),M_PI/2.,0.) ;
+  double dent1_pole = (star1.ent).dsdr().val_point(star1.ray_pole(),0.,0.) ;
+
+  double chi1 = fabs( dent1_eq / dent1_pole ) ;
+
+  double dent2_eq   = (star2.ent).dsdr().val_point(star2.ray_eq(),M_PI/2.,0.) ;
+  double dent2_pole = (star2.ent).dsdr().val_point(star2.ray_pole(),0.,0.) ;
+
+  double chi2 = fabs( dent2_eq / dent2_pole ) ;
 
   ost.precision(5) ;
   ost << "# Grid 1 : " << nz1 << "x"
@@ -489,35 +503,40 @@ void Binary_xcts::write_global(ostream& ost) const {
   ost	<< mass_kom_vol() / msol ; ost.width(22) ; 
   ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
   
-  ost << "#     H_c(1)[c^2]     "
-      << "    e_c(1)[rho_nuc]   " 
-      << "    M_B(1) [M_sol]    "
-      << "     r_eq(1) [km]     "
-      << "        a2/a1(1)	  " 
-	    << "        a3/a1(1)	  " << endl ; 
-  
+  ost 	<< "#     H_c(1)[c^2]     "
+      	<< "    e_c(1)[rho_nuc]   " 
+      	<< "    M_B(1) [M_sol]    "
+      	<< "     r_eq(1) [km]     "
+      	<< "        a2/a1(1)	  "
+	<< "        a3/a1(1)	  "  
+	<< " 	    chi1 	  " << endl ;   
+
   ost.width(20) ; 
-  ost << star1.get_ent().val_grid_point(0,0,0,0) ; ost.width(22) ;
+  ost 	<< star1.get_ent().val_grid_point(0,0,0,0) ; ost.width(22) ;
   ost	<< star1.get_ener().val_grid_point(0,0,0,0) ; ost.width(22) ;
   ost	<< star1.mass_b() / msol ; ost.width(22) ;	
-  ost << star1.ray_eq() / km ; ost.width(22) ; 
+  ost 	<< star1.ray_eq() / km ; ost.width(22) ; 
   ost	<< star1.ray_eq_pis2() / star1.ray_eq() ; ost.width(22) ;
-  ost	<< star1.ray_pole() / star1.ray_eq() << endl ;
+  ost	<< star1.ray_pole() / star1.ray_eq() ; ost.width(22) ; 
+  ost 	<< chi1 << endl ;
   
-  ost << "#     H_c(2)[c^2]     "
-      << "    e_c(2)[rho_nuc]   " 
-      << "    M_B(2) [M_sol]    "
-      << "     r_eq(2) [km]     "
-      << "        a2/a1(2)	  " 
-      << "        a3/a1(2)	  " << endl ; 
+  ost 	<< "#     H_c(2)[c^2]     "
+      	<< "    e_c(2)[rho_nuc]   " 
+      	<< "    M_B(2) [M_sol]    "
+      	<< "     r_eq(2) [km]     "
+      	<< "        a2/a1(2)	  " 
+      	<< "        a3/a1(2)	  " 
+	<< "        chi2          " << endl ;
   
+
   ost.width(20) ; 
   ost << star2.get_ent().val_grid_point(0,0,0,0) ; ost.width(22) ;
   ost	<< star2.get_ener().val_grid_point(0,0,0,0) ; ost.width(22) ;
   ost	<< star2.mass_b() / msol ; ost.width(22) ;	
   ost << star2.ray_eq() / km ; ost.width(22) ; 
   ost	<< star2.ray_eq_pis2() / star1.ray_eq() ; ost.width(22) ;
-  ost	<< star2.ray_pole() / star1.ray_eq() << endl ;
+  ost	<< star2.ray_pole() / star1.ray_eq() ; ost.width(22) ;
+  ost   << chi2 << endl ;
   
   // Quantities in polytropic units if the EOS is a polytropic one
   // -------------------------------------------------------------
