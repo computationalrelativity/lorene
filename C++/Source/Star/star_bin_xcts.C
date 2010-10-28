@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/10/28 13:50:27  m_bejger
+ * Added mass-shedding estimation to Star_bin_xcts::operator>>
+ *
  * Revision 1.6  2010/10/26 20:18:34  m_bejger
  * Correction to stdin output
  *
@@ -490,7 +493,14 @@ ostream& Star_bin_xcts::operator>>(ostream& ost) const {
     ost << "Coordinate polar radius a3 =                 " 
 	<< ray_pole()/km << " km" << endl ;  
     ost << "Axis ratio a2/a1 = " << ray_eq_pis2() / ray_eq() 
-	<< "  a3/a1 = " << ray_pole() / ray_eq() << endl ; 	
+	<< "  a3/a1 = " << ray_pole() / ray_eq() << endl ; 
+
+	double dent_eq   = ent.dsdr().val_point(ray_eq(),M_PI/2.,0.) ;
+  	double dent_pole = ent.dsdr().val_point(ray_pole(),0.,0.) ;
+  	double mass_shedd_chi = fabs( dent_eq / dent_pole ) ;
+	
+    ost << "Mass-shedding estimator = " << mass_shedd_chi << endl ;  
+
     ost << endl << "Baryon mass         : " << mass_b() / msol << " M_sol" << endl ; 
     ost << "Gravitational mass  : " << mass_g() / msol << " M_sol" << endl ; 
 	
