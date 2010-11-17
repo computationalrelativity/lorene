@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2010/11/17 11:21:52  j_novak
+ * Corrected minor problems in the case nz=1 and nt=1.
+ *
  * Revision 1.10  2010/10/22 08:08:40  j_novak
  * Removal of the method Star_rot_dirac::lambda_grv2() and call to the C++ version of integrale2d.
  *
@@ -197,14 +200,10 @@ double Star_rot_Dirac::grv2() const {
 
   if (p_grv2 == 0x0) {    // a new computation is required
 
-    bool one_dim = (mp.get_mg()->get_nt(0) == 1) ;
-
-    if (!one_dim) {
-
       // determinant of the 2-metric k_{ab}
-
+      
       Scalar k_det = gamma.cov()(1,1)*gamma.cov()(2,2) - 
-	gamma.cov()(1,2)*gamma.cov()(1,2) ;
+	  gamma.cov()(1,2)*gamma.cov()(1,2) ;
       
       
       //**
@@ -222,8 +221,7 @@ double Star_rot_Dirac::grv2() const {
       
       // This is the term 3k_a k^a. 
       
-      Scalar sou_q = 3 *( taa(1,3) * aa(1,3) 
-			  + taa(2,3)*aa(2,3) )  ;
+      Scalar sou_q = 3 *( taa(1,3) * aa(1,3) + taa(2,3)*aa(2,3) )  ;
       
       
       // This is the term \nu_{|| a}\nu^{|| a}. 
@@ -252,9 +250,6 @@ double Star_rot_Dirac::grv2() const {
       sou_q.std_spectral_base() ;
       
       p_grv2 = new double( double(1) + integrale2d(sou_m)/integrale2d(sou_q) ) ;
-    }
-    else 
-      p_grv2 = new double(-1.) ;
 
   }
 
@@ -397,19 +392,14 @@ double Star_rot_Dirac::rp_circ() const {
 	    double gtt = gam(2,2).get_spectral_va().val_point_jk(ls, xs, j, 0) ;
 	    double rr = mp.val_r(ls, xs, theta, phi) ;
 	    double dr = drrr.get_spectral_va().val_point_jk(ls, xs, j, 0) ;
-	    for (int i=0; i< mg.get_nr(1); i++) {
-		fff.set_grid_point(1, 0, j, i) 
+	    for (int i=0; i< mg.get_nr(nzet-1); i++) {
+		fff.set_grid_point(nzet-1, 0, j, i) 
 		    = sqrt(grr*dr*dr + 2*grt*rr*dr + gtt*rr*rr) ;
 	    }
-// 		cout << 0.5*double(j)*M_PI/double(nt-1) << '\t' << fff.val_grid_point(1, 0, j, 0) << endl ;
-		   
-//  	    cout << "j= " << j << endl ;
-//  	    cout << grr << ", " << grt << " , " << gtt << endl ;
-//  	    cout << dr << ", " << rr << ", " << fff.val_grid_point(1, 0, j, 0) << endl ;
 	}
 	fff.std_spectral_base() ;
 	fff.set_spectral_va().coef() ;
-	p_rp_circ = new double((*fff.get_spectral_va().c_cf)(1, 0, 0, 0)) ;      
+	p_rp_circ = new double((*fff.get_spectral_va().c_cf)(nzet-1, 0, 0, 0)) ;      
     }
     return *p_rp_circ ;
 }
