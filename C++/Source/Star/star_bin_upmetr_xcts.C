@@ -28,6 +28,9 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/12/09 10:46:50  m_bejger
+ * Re-definition of psi4, N, log(N)
+ *
  * Revision 1.5  2010/10/26 20:08:56  m_bejger
  * Cleanup
  *
@@ -98,32 +101,27 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 // --------------------
 
     Psi = Psi_auto + Psi_comp + 1.; 
-//    Psi.std_spectral_base() ; 
 
-    Scalar psi4 = pow(Psi, 4.) ; 
+    psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
 
 // Function chi = NPsi
 // --------------------
 
     chi = chi_auto + chi_comp + 1.; 
-//    chi.std_spectral_base() ; 
 
-//##
-// logarithm of lapse function N
-// ----------------
-
-    logn = log(chi_auto + 1.) - log(Psi_auto + 1.)   
-		 + log(chi_comp + 1.) - log(Psi_comp + 1.) ;
-		  
-    logn.std_spectral_base() ; 
-   
 // Lapse function N
 // ----------------
 
-    nn = exp(logn) ;  
+    nn = chi/Psi ;   
     nn.std_spectral_base() ; 
 
+// logarithm of lapse function N
+// ----------------
+	
+	logn = log(nn) ; 	  
+    logn.std_spectral_base() ; 
+   
 // Shift vector 
 // -------------
 
@@ -203,30 +201,26 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 // --------------------
 
     Psi = Psi_auto + Psi_comp + 1.; 
-//    Psi.std_spectral_base() ; 
 
-    Scalar psi4 = pow(Psi, 4.) ; 
+    psi4 = pow(Psi, 4.) ; 
     psi4.std_spectral_base() ; 
 
 // Function chi = NPsi
 // --------------------
 
     chi = chi_auto + chi_comp + 1.; 
-//    chi.std_spectral_base() ; 
 
-// logarithm of lapse function N
-// ----------------
-
-    logn = log(chi_auto + 1.) - log(Psi_auto + 1.)   
-		 + log(chi_comp + 1.) - log(Psi_comp + 1.) ;
-		  
-    logn.std_spectral_base() ; 
-   
 // Lapse function N
 // ----------------
 
-    nn = exp(logn) ;  
+    nn = chi/Psi ;   
     nn.std_spectral_base() ; 
+
+// logarithm of lapse function N
+// ----------------
+	
+	logn = log(nn) ; 	  
+    logn.std_spectral_base() ; 
    
 // Shift vector
 // ------------
@@ -240,7 +234,6 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 
     extrinsic_curvature() ;
 
-   
 // The derived quantities are obsolete
 // -----------------------------------
 
