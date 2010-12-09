@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/12/09 10:35:56  m_bejger
+ * Declaration of the virial theorem volume version added
+ *
  * Revision 1.1  2010/05/04 07:44:02  m_bejger
  * Initial version
  *
@@ -92,6 +95,9 @@ class Binary_xcts {
 	/// Virial theorem error
 	mutable double* p_virial ; 
 
+	/// Virial theorem error (volume version)
+	mutable double* p_virial_vol ; 
+	
 	/// Relative error on the Hamiltonian constraint
 	mutable double* p_ham_constr ;
 	
@@ -250,6 +256,10 @@ class Binary_xcts {
 	 */
     	double virial() const ;	
 
+	/** Estimates the relative error on the virial theorem
+	 	(volume version) */
+    	double virial_vol() const ;	
+    	
 	/** Estimates the relative error on the Hamiltonian constraint 
 	 */
     	double ham_constr() const ;	
