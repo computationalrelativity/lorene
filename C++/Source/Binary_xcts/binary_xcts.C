@@ -28,6 +28,9 @@ char binary_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/12/09 10:38:46  m_bejger
+ * virial_vol() added, fait_decouple() removed
+ *
  * Revision 1.2  2010/10/28 12:00:07  m_bejger
  * Mass-shedding indicators added to the output in Binary_xcts::write_global
  *
@@ -137,6 +140,7 @@ void Binary_xcts::del_deriv() const {
     if (p_angu_mom != 0x0) delete p_angu_mom ; 
     if (p_total_ener != 0x0) delete p_total_ener ; 
     if (p_virial != 0x0) delete p_virial ; 
+    if (p_virial_vol != 0x0) delete p_virial_vol ; 
     if (p_ham_constr != 0x0) delete p_ham_constr ; 
     if (p_mom_constr != 0x0) delete p_mom_constr ; 
 
@@ -153,6 +157,7 @@ void Binary_xcts::set_der_0x0() const {
     p_angu_mom = 0x0 ; 
     p_total_ener = 0x0 ; 
     p_virial = 0x0 ; 
+    p_virial_vol = 0x0 ; 
     p_ham_constr = 0x0 ; 
     p_mom_constr = 0x0 ; 
 
@@ -280,172 +285,6 @@ void Binary_xcts::display_poly(ostream& ost) const {
     
 } 
 
-void Binary_xcts::fait_decouple () {
-
-    int nz_un = star1.get_mp().get_mg()->get_nzone() ;
-    int nz_deux = star2.get_mp().get_mg()->get_nzone() ;
-    
-    // We determine R_limite :
-    double distance = star2.get_mp().get_ori_x() - star1.get_mp().get_ori_x() ;
-    cout << "distance = " << distance << endl ;
-    double lim_un = distance/2. ;
-    double lim_deux = distance/2. ;
-    double int_un = distance/6. ;
-    double int_deux = distance/6. ;
-    
-    // The functions used.
-    Scalar fonction_f_un (star1.get_mp()) ;
-    fonction_f_un = 0.5*pow(
-	cos((star1.get_mp().r-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
-    fonction_f_un.std_spectral_base();
-    
-    Scalar fonction_g_un (star1.get_mp()) ;
-    fonction_g_un = 0.5*pow
-	(sin((star1.get_mp().r-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
-    fonction_g_un.std_spectral_base();
-    
-    Scalar fonction_f_deux (star2.get_mp()) ;
-    fonction_f_deux = 0.5*pow(
-	cos((star2.get_mp().r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
-    fonction_f_deux.std_spectral_base();
-    
-    Scalar fonction_g_deux (star2.get_mp()) ;
-    fonction_g_deux = 0.5*pow(
-	sin((star2.get_mp().r-int_deux)*M_PI/2./(lim_un-int_deux)), 2.) ;
-    fonction_g_deux.std_spectral_base();
-    
-    // The functions total :
-    Scalar decouple_un (star1.get_mp()) ;
-    decouple_un.allocate_all() ;
-    Scalar decouple_deux (star2.get_mp()) ;
-    decouple_deux.allocate_all() ;
-    
-    Mtbl xabs_un (star1.get_mp().xa) ;
-    Mtbl yabs_un (star1.get_mp().ya) ;
-    Mtbl zabs_un (star1.get_mp().za) ;
-	    
-    Mtbl xabs_deux (star2.get_mp().xa) ;
-    Mtbl yabs_deux (star2.get_mp().ya) ;
-    Mtbl zabs_deux (star2.get_mp().za) ;
-	    
-    double xabs, yabs, zabs, air_un, air_deux, theta, phi ;
-	    
-    for (int l=0 ; l<nz_un ; l++) {
-	int nr = star1.get_mp().get_mg()->get_nr (l) ;
-		
-	if (l==nz_un-1)
-	    nr -- ;
-		
-	int np = star1.get_mp().get_mg()->get_np (l) ;
-	int nt = star1.get_mp().get_mg()->get_nt (l) ;
-		
-	for (int k=0 ; k<np ; k++)
-	    for (int j=0 ; j<nt ; j++)
-		for (int i=0 ; i<nr ; i++) {
-			    
-		    xabs = xabs_un (l, k, j, i) ;
-		    yabs = yabs_un (l, k, j, i) ;
-		    zabs = zabs_un (l, k, j, i) ;
-			    
-		    // Coordinates of the point
-		    star1.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_un, theta, phi) ;
-		    star2.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_deux, theta, phi) ;
-		
-		    if (air_un <= lim_un)
-			if (air_un < int_un)
-			    decouple_un.set_grid_point(l, k, j, i) = 1 ;
-			else
-			// Close to star 1 :
-			decouple_un.set_grid_point(l, k, j, i) = 
-			    fonction_f_un.val_grid_point(l, k, j, i) ;
-		    else 
-			if (air_deux <= lim_deux)
-			    if (air_deux < int_deux)
-				decouple_un.set_grid_point(l, k, j, i) = 0 ;
-			    else
-			// Close to star 2 :
-				decouple_un.set_grid_point(l, k, j, i) = 
-		fonction_g_deux.val_point (air_deux, theta, phi) ;
-		
-			else
-			    // Far from each star :
-			    decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
-		}
-			    
-		// Case infinity :
-		if (l==nz_un-1)
-		    for (int k=0 ; k<np ; k++)
-			for (int j=0 ; j<nt ; j++)
-			    decouple_un.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
-	    }
-    
-    for (int l=0 ; l<nz_deux ; l++) {
-	int nr = star2.get_mp().get_mg()->get_nr (l) ;
-		
-	if (l==nz_deux-1)
-	    nr -- ;
-		
-	int np = star2.get_mp().get_mg()->get_np (l) ;
-	int nt = star2.get_mp().get_mg()->get_nt (l) ;
-		
-	for (int k=0 ; k<np ; k++)
-	    for (int j=0 ; j<nt ; j++)
-		for (int i=0 ; i<nr ; i++) {
-			    
-		    xabs = xabs_deux (l, k, j, i) ;
-		    yabs = yabs_deux (l, k, j, i) ;
-		    zabs = zabs_deux (l, k, j, i) ;
-			    
-		    // coordinates of the point  :
-		    star1.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_un, theta, phi) ;
-		    star2.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_deux, theta, phi) ;
-		    
-		    if (air_deux <= lim_deux)
-			if (air_deux < int_deux)
-			    decouple_deux.set_grid_point(l, k, j, i) = 1 ;
-			else
-			// close to star two :
-			decouple_deux.set_grid_point(l, k, j, i) = 
-			    fonction_f_deux.val_grid_point(l, k, j, i) ;
-		    else 
-			if (air_un <= lim_un)
-			    if (air_un < int_un)
-				decouple_deux.set_grid_point(l, k, j, i) = 0 ;
-			    else
-			// close to star one :
-				decouple_deux.set_grid_point(l, k, j, i) = 
-			 fonction_g_un.val_point (air_un, theta, phi) ;
-		
-			else
-			    // Far from each star :
-			    decouple_deux.set_grid_point(l, k, j, i) = 0.5 ;
-		}
-			    
-		// Case infinity :
-		if (l==nz_deux-1)
-		    for (int k=0 ; k<np ; k++)
-			for (int j=0 ; j<nt ; j++)
-			 decouple_deux.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
-   }
-   
-    decouple_un.std_spectral_base() ;
-    decouple_deux.std_spectral_base() ;
-
-    int nr = star1.get_mp().get_mg()->get_nr (1) ;
-    int nt = star1.get_mp().get_mg()->get_nt (1) ;
-    int np = star1.get_mp().get_mg()->get_np (1) ;
-    cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
-    cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) 
-	 << endl ;
-
-    star1.decouple = decouple_un ;
-    star2.decouple = decouple_deux ;
-}
-
 void Binary_xcts::write_global(ostream& ost) const {
 
   using namespace Unites ;
@@ -457,12 +296,10 @@ void Binary_xcts::write_global(ostream& ost) const {
   // Mass-shedding indicators 
   double dent1_eq   = (star1.ent).dsdr().val_point(star1.ray_eq(),M_PI/2.,0.) ;
   double dent1_pole = (star1.ent).dsdr().val_point(star1.ray_pole(),0.,0.) ;
-
   double chi1 = fabs( dent1_eq / dent1_pole ) ;
 
   double dent2_eq   = (star2.ent).dsdr().val_point(star2.ray_eq(),M_PI/2.,0.) ;
   double dent2_pole = (star2.ent).dsdr().val_point(star2.ray_pole(),0.,0.) ;
-
   double chi2 = fabs( dent2_eq / dent2_pole ) ;
 
   ost.precision(5) ;
@@ -474,12 +311,12 @@ void Binary_xcts::write_global(ostream& ost) const {
   }
   ost << endl ; 
 
-  ost << "#     VE(M)	   " << endl ;
+  ost << "#     VE(M)	       VE(M) [vol]" << endl ;
   
   
   ost.setf(ios::scientific) ; 
   ost.width(14) ; 
-  ost << virial() << endl ;
+  ost << virial() << "       " << virial_vol() << endl ;
   
   ost << "#      d [km]         "  
       << "       d_G [km]       "
@@ -508,8 +345,8 @@ void Binary_xcts::write_global(ostream& ost) const {
       	<< "    M_B(1) [M_sol]    "
       	<< "     r_eq(1) [km]     "
       	<< "        a2/a1(1)	  "
-	<< "        a3/a1(1)	  "  
-	<< " 	    chi1 	  " << endl ;   
+	    << "        a3/a1(1)      "  
+	    << "        chi1          " << endl ;   
 
   ost.width(20) ; 
   ost 	<< star1.get_ent().val_grid_point(0,0,0,0) ; ost.width(22) ;
@@ -525,8 +362,8 @@ void Binary_xcts::write_global(ostream& ost) const {
       	<< "    M_B(2) [M_sol]    "
       	<< "     r_eq(2) [km]     "
       	<< "        a2/a1(2)	  " 
-      	<< "        a3/a1(2)	  " 
-	<< "        chi2          " << endl ;
+      	<< "        a3/a1(2)      " 
+	    << "        chi2          " << endl ;
   
 
   ost.width(20) ; 
@@ -583,7 +420,7 @@ void Binary_xcts::write_global(ostream& ost) const {
 }
    
 		    //-------------------------------//
-		    //		Miscellaneous	     //
+		    //		Miscellaneous            //
 		    //-------------------------------//
 
 double Binary_xcts::separation() const {
