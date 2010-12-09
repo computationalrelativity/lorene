@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2010/12/09 10:39:41  m_bejger
+ * Further corrections to integral quantities
+ *
  * Revision 1.6  2010/10/26 19:16:26  m_bejger
  * Cleanup of some diagnostic messages
  *
@@ -75,8 +78,7 @@ double Binary_xcts::mass_adm() const {
     const Map_af map0 (et[0]->get_mp()) ;
     const Metric& flat = (et[0]->get_flat()) ;
 
-    Vector dpsi((et[0]->get_Psi_auto() 
-		+ et[0]->get_Psi_comp()).derive_cov(flat)) ;
+    Vector dpsi((et[0]->get_Psi()).derive_cov(flat)) ;
 
     dpsi.change_triad(map0.get_bvect_spher()) ;
 
@@ -106,22 +108,19 @@ double Binary_xcts::mass_adm_vol() const {
     // Declaration of all fields
 
       const Scalar& psi(et[i]->get_Psi()) ;
-      
-      Scalar psi4 = pow(psi, 4.) ; 
-      psi4.std_spectral_base() ;
+      Scalar psi5 = pow(psi, 5.) ;
+      psi5.std_spectral_base() ;
 	  
-	  Scalar spsi8 = pow(psi, -8.) ; 
-      spsi8.std_spectral_base() ;
+	  Scalar spsi7 = pow(psi, -7.) ; 
+      spsi7.std_spectral_base() ;
 
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
       const Scalar& hacar_comp = et[i]->get_hacar_comp() ;
  
-	  Scalar source = psi4 % ener_euler 
-	  			    + spsi8 % (hacar_auto + hacar_comp)/(4.*qpig) ;  
+	  Scalar source = psi5 % ener_euler 
+	  			    + spsi7 % (hacar_auto + hacar_comp)/(4.*qpig) ;  
 	  
-      source *= psi ; 
- 
       source.std_spectral_base() ;
 
       massadm += source.integrale() ;
@@ -142,15 +141,15 @@ double Binary_xcts::mass_kom() const {
 
     p_mass_kom = new double ;    
     *p_mass_kom = 0 ; 
-   
-    Map_af map0 (et[0]->get_mp()) ; 
-    const Metric& flat = (et[0]->get_flat()) ; 
 
-    const Scalar& logn = et[0]->get_logn() ; 
-  
+    const Scalar& logn = et[0]->get_logn() ;
+    const Metric& flat = et[0]->get_flat() ; 
+
+	Map_af map0 (et[0]->get_mp()) ; 
+	  
     Vector vect = logn.derive_con(flat) ; 
-
     vect.change_triad(map0.get_bvect_spher()) ;
+
     Scalar integrant (vect(1)) ;
     
     *p_mass_kom = map0.integrale_surface_infini (integrant) / qpig ;
@@ -169,41 +168,22 @@ double Binary_xcts::mass_kom_vol() const {
 
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
-      // Declaration of all fields            
-      const Metric& flat = et[i]->get_flat() ;
-
-      const Scalar& nn(et[i]->get_nn()) ;
-      const Scalar& Psi(et[i]->get_Psi()) ;
-
- 	  Scalar logn_auto = log(et[i]->get_chi_auto() + 1.)
-		- log(et[i]->get_Psi_auto() + 1.) ; 
-      logn_auto.std_spectral_base() ; 
-
-      const Vector& dcov_psi(et[i]->get_dcov_Psi()) ;  
-	  const Vector& dcov_logphi = dcov_psi/Psi ; 
-
-	  const Tensor& dcov_logn_auto = logn_auto.derive_cov(flat) ;
-
+      const Scalar& Psi  = et[i]->get_Psi() ;	  
+      const Scalar& psi4 = et[i]->get_psi4() ;
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& s_euler = et[i]->get_s_euler() ;
+	  const Scalar& chi  = et[i]->get_chi() ; 
+	  const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
+      const Scalar& hacar_comp = et[i]->get_hacar_comp() ;  
 
-      const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
-      const Scalar& hacar_comp = et[i]->get_hacar_comp() ;
+	  Scalar psi4chi = psi4 % chi ; 
+	  psi4chi.std_spectral_base() ; 
 
-      Scalar psi4 = pow(Psi, 4.) ; 
-      psi4.std_spectral_base() ;
-
-      Scalar spsi8 = pow(Psi, -8.) ; 
-      spsi8.std_spectral_base() ;
-
-      Scalar source = qpig * psi4 % (ener_euler + s_euler) ;
-      source += spsi8 % (hacar_auto + hacar_comp) ;
-      source -= 2.*contract(contract(flat.con(), 0, dcov_logphi, 0), 0, 
-			  dcov_logn_auto, 0, true) ;
-    
-  	  source = source / qpig * nn  ;
-
-      source.std_spectral_base() ;
+	  Scalar source = 0.5* ener_euler * (psi4chi + pow(Psi, 5.) ) 
+		  + psi4chi * s_euler + pow(Psi, -7.) * (7.*chi/Psi + 1.) 
+		  			* (hacar_auto + hacar_comp)/ (8.*qpig) ; 
+	  source.std_spectral_base() ;
+	  
 
       masskom += source.integrale() ;
 	  
@@ -216,7 +196,7 @@ double Binary_xcts::mass_kom_vol() const {
 			//---------------------------------//
 		    //	 Total angular momentum        //
 		    //---------------------------------//
-
+	
 //## to be checked 
 const Tbl& Binary_xcts::angu_mom() const {
 
@@ -271,16 +251,12 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		//const Scalar& psi = et[i]->get_Psi() ; 
-		Scalar rho = pow(et[i]->get_Psi(), 10.) * (ee + pp) ; 
+		Scalar rho = pow(et[i]->get_psi4(), 2.5) * (ee + pp) ; 
 		rho.std_spectral_base() ;
 
 		Vector jmom = rho * (et[i]->get_u_euler()) ; 
-				
 	    const Metric& flat = et[i]->get_flat() ;
 
-		//const Metric_flat flat (mp.flat_met_cart()) ; 
-		
 		Vector vphi_cov = vphi.up_down(flat) ;
 		
 		Scalar integrand = contract(jmom, 0, vphi_cov, 0) ; 
@@ -294,8 +270,6 @@ const Tbl& Binary_xcts::angu_mom() const {
   	return *p_angu_mom ; 
   
 }
-
-
 
 		    //---------------------------------//
 		    //		Total energy	           //
@@ -331,5 +305,24 @@ double Binary_xcts::virial() const {
 	}
     
     return *p_virial ; 
+    
+}
+
+		    //---------------------------------//
+		    //	 Error on the virial theorem   // 
+			//   (volume version)              //
+		    //---------------------------------//
+
+double Binary_xcts::virial_vol() const {
+    
+    if (p_virial_vol == 0x0) {	    // a new computation is requireed
+	
+	p_virial_vol = new double ; 
+	    
+	    *p_virial_vol = 1. - mass_kom_vol() / mass_adm_vol() ; 
+	    
+	}
+    
+    return *p_virial_vol ; 
     
 }
