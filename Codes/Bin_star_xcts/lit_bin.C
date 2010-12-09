@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/12/09 10:49:37  m_bejger
+ * *** empty log message ***
+ *
  * Revision 1.4  2010/07/20 19:58:41  m_bejger
  * Correcting diagnostic plots of logn_auto
  *
@@ -80,20 +83,9 @@ int main(int argc, char** argv){
     }
     
     char* nomresu = argv[1] ; 
-  
-    //char* nomresu = "resu.d" ;
+
     cout << "Name of the file to be read : " << nomresu << endl ; 
 
-   /* cout << endl << 
-    "Do you want to draw the boundaries of the various domains (y/n) ? [y]"
-	 << endl ; 
-    char rep ; 
-    cin.get(rep) ;
-   
-    bool draw_bound = !(rep == 'n') ; 
-        
-    */
-    
     bool draw_bound = true ;      
     using namespace Unites ;
     
@@ -118,7 +110,7 @@ int main(int argc, char** argv){
     Binary_xcts star(mp1, *peos1, mp2, *peos2, fich) ; 
     
     fclose(fich) ; 
-       
+    
     bool irrotational = star(1).is_irrotational() ; 
 
     cout << endl << "Grid on which star 1 is defined : " << endl ; 
@@ -139,59 +131,20 @@ int main(int argc, char** argv){
 
     //star.fait_decouple() ;
             
-    for (int i=1; i<=2; i++) {
+    for (int i=1; i<=2; i++) 
 		(star.set(i)).update_metric(star(3-i)) ; 
-		             
-        Scalar Psiauto (star(i).get_Psi_auto() ) ; 
-        Psiauto.std_spectral_base() ; 
-        Scalar Psicomp ( star(i).get_Psi_comp() ) ; 
-        Psicomp.std_spectral_base() ;         
-
-        Scalar chiauto (star(i).get_chi_auto() ) ; 
-        chiauto.std_spectral_base() ; 
-        Scalar chicomp ( star(i).get_chi_comp() ) ; 
-        chicomp.std_spectral_base() ; 
-                       
-        Scalar psi_total = Psiauto + Psicomp + 1.; 
-        psi_total.std_spectral_base() ; 
-              
-        Scalar psi4_test = pow(psi_total, 4.) ; 
-        psi4_test.std_spectral_base() ; 
-        
-        Scalar logn_test ( star(i).get_chi()/star(i).get_Psi() ) ; 
-        logn_test.std_spectral_base() ; 
-        
-        Scalar nvalue_total = log(chiauto + chicomp + 1.)/(Psiauto + Psicomp + 1.) ; 
-        nvalue_total.std_spectral_base() ; 
-              
-	    cout << "For star(" << i << ") : " << endl ;  
-        cout << "Central gamma determinant :   " << ((star(i).get_gamma()).determinant()).val_grid_point(0,0,0,0) << endl ;     
-        cout << "Central value of log(N)   :   " << logn_test.val_grid_point(0,0,0,0) << endl ;
-        cout << "Central value of log(N)   :   " << nvalue_total.val_grid_point(0,0,0,0) << endl ;
-        cout << "get_psi4                      " << psi4_test.val_grid_point(0,0,0,0) << endl ;
-        cout << "psi_total                     " << psi_total.val_grid_point(0,0,0,0) << endl ;        
-	    cout << "Central value of Psiauto  :   " << Psiauto.val_grid_point(0,0,0,0) <<  endl ; 
-	    cout << "Central value of Psicomp  :   " << Psicomp.val_grid_point(0,0,0,0) <<  endl ; 
-	    cout << "Central value of chiauto  :   " << chiauto.val_grid_point(0,0,0,0) <<  endl ; 
-	    cout << "Central value of chicomp  :   " << chicomp.val_grid_point(0,0,0,0) <<  endl ; 
-    }
-         
-    arrete() ; 
-         
-    for (int i=1; i<=2; i++) {
+	         
+    for (int i=1; i<=2; i++) 
 		(star.set(i)).update_metric_der_comp(star(3-i)) ; 
-    }
 	 	 
     for (int i=1; i<=2; i++) {
-		(star.set(i)).equation_of_state() ; 
 		
-		cout << "get omega : " << star.get_omega() << endl ;
+		(star.set(i)).equation_of_state() ; 
 		(star.set(i)).kinematics(star.get_omega(), star.get_x_axe()) ; 
 		(star.set(i)).fait_d_psi() ; 
 		(star.set(i)).hydro_euler() ; 
     }
-
-    
+    				
     // Writing of resformat.d
     ofstream seqfich("resformat.d") ; 
     if ( !seqfich.good() ) {
@@ -204,22 +157,34 @@ int main(int argc, char** argv){
 
     // Some printings
     cout.precision(6) ;
-    cout << "Star(1) mass_bar = " << (star(1).mass_b())/msol  << endl ; 
+	cout << "Central gamma determinant :   " 
+		 << ((star(1).get_gamma()).determinant()).val_grid_point(0,0,0,0) << endl ;     
+	cout << "Central value of N        :   "
+		 << (star(1).get_nn()).val_grid_point(0,0,0,0) << endl ;    
+	cout << "Central value of Psi^4    :   "
+		 << (star(1).get_psi4()).val_grid_point(0,0,0,0) << endl ;    
+//	cout << "Central value of Psi_auto    :   "
+//		 << (star(1).get_Psi_auto()).val_grid_point(0,0,0,0) << endl ; 
+//	cout << "Central value of Psi_comp    :   "
+//		 << (star(1).get_Psi_comp()).val_grid_point(0,0,0,0) << endl ; 		          
+
+	cout << "Star(1) mass_bar = " << (star(1).mass_b())/msol  << endl ; 
     cout << "mass_adm_vol     = " << star.mass_adm_vol()/msol  << endl ;
-    cout << "mass_adm         = " << star.mass_adm()/msol << endl ;
     cout << "mass_kom vol     = " << star.mass_kom_vol()/msol << endl ;
+	cout << "mass_adm         = " << star.mass_adm()/msol << endl ;
     cout << "mass_kom         = " << star.mass_kom()/msol << endl ;
     cout << "d = " << star.separation() << endl ;
     cout << "ray_eq = " << star(1).ray_eq() << endl ;
     cout << "ray_eq_pi = " << star(1).ray_eq_pi() << endl ;
     cout << "R = " << (star(1).ray_eq() + star(1).ray_eq_pi())/2. << endl ;
     cout << "d_milieu = " << star.separation()/2. + (star(1).ray_eq_pi()
-						     - star(1).ray_eq())/2. 
-	 << endl ;
+						     - star(1).ray_eq())/2. << endl ;
     cout << "d/R = " << (star.separation() + (star(1).ray_eq_pi()
 	 - star(1).ray_eq()))/(star(1).ray_eq() + star(1).ray_eq_pi())
 	 << endl ;
 
+    arrete() ; 
+    
     cout << "Binary system read in file : " << endl ;
     cout << star << endl ; 
      
@@ -270,6 +235,48 @@ int main(int argc, char** argv){
     Scalar beta_y (mapping) ;
     beta_y.import(beta_y_aux) ;
     beta_y.std_spectral_base() ;
+
+     if (star(1).get_nzet() > 1) {
+      cout.precision(10) ;
+
+      for (int ltrans = 0; ltrans < star(1).get_nzet()-1; ltrans++) {
+	cout << endl << "Star 1 : values at boundary between domains no. " 
+	<< ltrans << " and " << 	ltrans+1 << " for theta = pi/2 and phi = 0 :" << endl ;
+
+	double rt1 = star(1).get_mp().val_r(ltrans, 1., M_PI/2, 0.) ; 
+	double rt2 = star(1).get_mp().val_r(ltrans+1, -1., M_PI/2, 0.) ; 
+	double diff_rt = (rt2 - rt1)/rt1 ; 
+	cout << "   Coord. r [km] (left, right, rel. diff) : " 
+	  << rt1 / km << "  " << rt2 / km << "  " << diff_rt << endl ; 
+  
+	int ntm1 = star(1).get_mp().get_mg()->get_nt(ltrans) - 1; 
+	int nrm1 = star(1).get_mp().get_mg()->get_nr(ltrans) - 1 ; 
+	double ent1 = star(1).get_ent().val_grid_point(ltrans, 0, ntm1, nrm1) ; 
+	double ent2 = star(1).get_ent().val_grid_point(ltrans+1, 0, ntm1, 0) ; 
+	double diff_ent = (ent2-ent1)/ent1 ; 
+	  cout << "   Enthalpy (left, right, rel. diff) : " 
+	  << ent1 << "  " << ent2 << "  " << diff_ent << endl ; 
+
+	double press1 = star(1).get_press().val_grid_point(ltrans, 0, ntm1, nrm1) ; 
+	double press2 = star(1).get_press().val_grid_point(ltrans+1, 0, ntm1, 0) ; 
+	double diff_press = (press2-press1)/press1 ; 
+	  cout << "   Pressure (left, right, rel. diff) : " 
+	  << press1 << "  " << press2 << "  " << diff_press << endl ; 
+
+	double nb1 = star(1).get_nbar().val_grid_point(ltrans, 0, ntm1, nrm1) ; 
+	double nb2 = star(1).get_nbar().val_grid_point(ltrans+1, 0, ntm1, 0) ; 
+	double diff_nb = (nb2-nb1)/nb1 ; 
+	  cout << "   Baryon density (left, right, rel. diff) : " 
+	  << nb1 << "  " << nb2 << "  " << diff_nb << endl ; 
+      }
+
+    double r_max = 1.2 * star(1).ray_eq() ; 
+    des_profile(star(1).get_nbar(), 0., r_max, M_PI/2, 0., "n", "Baryon density") ; 
+    des_profile(star(1).get_ener(), 0., r_max, M_PI/2, 0., "e", "Energy density") ; 
+    des_profile(star(1).get_press(), 0., r_max, M_PI/2, 0., "p", "Pressure") ; 
+    des_profile(star(1).get_ent(), 0., r_max, M_PI/2, 0., "H", "Enthalpy") ; 
+ 
+    }
 
 
     //==============================================================

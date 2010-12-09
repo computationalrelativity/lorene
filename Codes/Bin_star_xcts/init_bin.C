@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2010/12/09 10:49:37  m_bejger
+ * *** empty log message ***
+ *
  * Revision 1.4  2010/10/18 18:14:27  m_bejger
  * Changed to allow initial data with more than one domain in the star
  *
@@ -317,8 +320,8 @@ int main() {
     star.set(2).set_Psi_auto().std_spectral_base() ;
 
     star.set(2).set_chi_auto() = exp(0.5*(star(2).get_lnq()+star(2).get_logn())) - 1.;
-    star.set(2).set_chi_auto().std_spectral_base() ;    
-
+    star.set(2).set_chi_auto().std_spectral_base() ;  
+    
     //-----------------------------------------------------------------------
     //		Sets the stars at Newtonian (Keplerian) position 
     //-----------------------------------------------------------------------
@@ -360,7 +363,7 @@ int main() {
     cout << endl << "Final characteristics of the computed system : " << endl ; 
     cout.precision(16) ; 
     cout << star << endl ; 
-    
+    	     
     //-----------------------------------------------------------------------
     //		The result is written in a file
     //-----------------------------------------------------------------------
