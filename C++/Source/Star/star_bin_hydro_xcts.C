@@ -28,6 +28,9 @@ char star_bin_hydro_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2010/12/09 10:43:53  m_bejger
+ * Small changes, annule --> annule_domain
+ *
  * Revision 1.1  2010/05/04 07:51:05  m_bejger
  * Initial version
  *
@@ -37,14 +40,15 @@ char star_bin_hydro_xcts_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "star.h"
+#include "utilitaires.h"
 
-void Star_bin_xcts::hydro_euler(){
+void Star_bin_xcts::hydro_euler() {
 
-    int nz = mp.get_mg()->get_nzone() ; 
-    int nzm1 = nz - 1 ; 
+    int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
 
     Sym_tensor gamma_cov (gamma.cov()) ;
     Sym_tensor gamma_con (gamma.con()) ;
+
     gamma_cov.change_triad(mp.get_bvect_cart()) ;
     gamma_con.change_triad(mp.get_bvect_cart()) ;
 
@@ -71,25 +75,23 @@ void Star_bin_xcts::hydro_euler(){
     
     if (irrotational) {	
 
-        d_psi.std_spectral_base() ;
-
-	// See Eq. 32 from Gourgoulhon et al. (2001)
-	gam_euler = sqrt( 1 + contract(gamma_con, 0, 1, d_psi * d_psi, 0, 1) 
-			  / (hhh%hhh) ) ; 
-
-	gam_euler.std_spectral_base() ; 
+		// See Eq. 32 from Gourgoulhon et al. (2001)
+		gam_euler = sqrt( 1 + contract(gamma_con, 0, 1, d_psi * d_psi, 0, 1) 
+				  / (hhh%hhh) ) ; 
+		gam_euler.std_spectral_base() ; 
 	
-	u_euler = contract(gamma_con, 0, d_psi, 0)/( hhh % gam_euler ) ;
-	u_euler.std_spectral_base() ; 
+		u_euler = contract(gamma_con, 0, d_psi, 0)
+				/( hhh % gam_euler ) ;
+		u_euler.std_spectral_base() ; 
 
     } else {
 		
-	// Rigid rotation
-	// --------------
+		// Rigid rotation
+		// --------------
 
-	gam_euler = gam0 ; 
-	gam_euler.std_spectral_base() ; 
-	u_euler = bsn ; 
+		gam_euler = gam0 ; 
+		gam_euler.std_spectral_base() ; 
+		u_euler = bsn ; 
 	
     }
     
@@ -149,7 +151,6 @@ void Star_bin_xcts::hydro_euler(){
 	//--------------------------------------------
 	
 	loggam = log( gam ) ;
-	
 	loggam.std_spectral_base() ;   // set the bases for spectral expansions
 	
 	//------------------------------------------------
@@ -157,9 +158,11 @@ void Star_bin_xcts::hydro_euler(){
 	//------------------------------------------------
 	
 		loggam.annule_domain(nzm1) ;	// zero in the ZEC only
-		wit_w.annule_domain(nzm1) ;		// zero outside the star     
-		u_euler.annule_domain(nzm1) ;	// zero outside the star     
 		loggam.set_dzpuis(0) ; 
+		
+		wit_w.annule(nzet,nzm1) ;		// zero outside the star     
+		u_euler.annule(nzet,nzm1) ;		// zero outside the star     
+
     
     } else {
 	    
@@ -171,5 +174,5 @@ void Star_bin_xcts::hydro_euler(){
     // -----------------------------------
     
     del_deriv() ;                
-    
+
 }

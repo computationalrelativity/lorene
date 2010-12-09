@@ -28,6 +28,9 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/12/09 10:43:53  m_bejger
+ * Small changes, annule --> annule_domain
+ *
  * Revision 1.3  2010/10/26 19:57:02  m_bejger
  * Various cleanups
  *
@@ -48,48 +51,50 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
 
 void Star_bin_xcts::kinematics(double omega, double x_axe) {
 
-    int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
+    int nzm1 = mp.get_mg()->get_nzone() - 1 ;
 
     // --------------------
     // Computation of B^i/N
     // --------------------
-    
+
     //  1/ Computation of omega m^i
 
-    const Coord& xa = mp.xa ; 
-    const Coord& ya = mp.ya ; 
+    const Coord& xa = mp.xa ;
+    const Coord& ya = mp.ya ;
 
     bsn.change_triad(mp.get_bvect_cart()) ;
 
-    if (fabs(mp.get_rot_phi()) < 1e-10){ 
-      bsn.set(1) = - omega * ya ;
-      bsn.set(2) = omega * (xa - x_axe) ;
-      bsn.set(3) = 0 ;
-    }
-    else {
-		
-      bsn.set(1) = omega * ya ;
-      bsn.set(2) = - omega * (xa - x_axe) ;
-      bsn.set(3) = 0 ;
+      if (fabs(mp.get_rot_phi()) < 1e-10) {
+
+      	bsn.set(1) = - omega * ya ;
+      	bsn.set(2) = omega * (xa - x_axe) ;
+      	bsn.set(3) = 0 ;
+
+        } else {
+
+      	bsn.set(1) = omega * ya ;
+      	bsn.set(2) = - omega * (xa - x_axe) ;
+      	bsn.set(3) = 0 ;
+
     }
 
-    bsn.std_spectral_base() ;
-    bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
-    
+    bsn.annule_domain(nzm1) ;	// set to zero in the ZEC
+
     // Addition of beta and division by lapse
     // Eq. 47 from Gourgoulhon et al. (2001)
     // New convention : l = Nn + B ==> B = \beta + \Omega d\phi
     //---------------------------------------------------------
 
-    bsn = ( bsn + beta ) / nn ; 
+    bsn = ( bsn + beta ) / nn ;
 
-    bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
-        
+    bsn.annule_domain(nzm1) ;	// set to zero in the ZEC
+    bsn.std_spectral_base() ;
+
     //----------------------
     // Centrifugal potential
     //----------------------
-    
-    // Lorentz factor between the co-orbiting observer 
+
+    // Lorentz factor between the co-orbiting observer
     // and the Eulerian one
     // Eq. 23 from Gourgoulhon et al. (2001)
 
@@ -99,12 +104,12 @@ void Star_bin_xcts::kinematics(double omega, double x_axe) {
     Scalar gam0 = 1 / sqrt(1 - contract(gamma_cov, 0, 1, bsn * bsn, 0, 1)) ;
     pot_centri = - log( gam0 ) ;
 
-    pot_centri.annule(nzm1, nzm1) ;	   	// set to zero in the external domain
+    pot_centri.annule_domain(nzm1) ; 	// set to zero in the external domain
     pot_centri.std_spectral_base() ;	// set the bases for spectral expansions
-    
+
       // The derived quantities are obsolete
       // -----------------------------------
-      
-      del_deriv() ;                
-      
+
+      del_deriv() ;
+
 }
