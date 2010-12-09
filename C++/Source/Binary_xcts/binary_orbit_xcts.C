@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2010/12/09 10:41:20  m_bejger
+ * For testing; not sure if working properly
+ *
  * Revision 1.5  2010/10/26 19:45:45  m_bejger
  * Cleanup
  *
@@ -63,8 +66,10 @@ double  fonc_binary_xcts_orbit(double , const Param& ) ;
 
 //******************************************************************************
 
-void Binary_xcts::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
-		     double& xgg2) {
+void Binary_xcts::orbit(double fact_omeg_min, 
+						double fact_omeg_max, 
+						double& xgg1, 
+						double& xgg2) {
 
   using namespace Unites ;
     
@@ -78,20 +83,25 @@ void Binary_xcts::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1
     for (int i=0; i<2; i++) {
 	
 	const Map& mp = et[i]->get_mp() ; 
-
-	Scalar psi4 = pow(et[i]->get_Psi(), 4.) ;
-	psi4.std_spectral_base() ; 
- 		
-    const Scalar& loggam = et[i]->get_loggam() ; 
     const Metric& flat = et[i]->get_flat() ;
+		
+	const Scalar& psi4 = et[i]->get_psi4() ;
+				
+    const Scalar& loggam = et[i]->get_loggam() ; 
+    const Scalar& nn = et[i]->get_nn() ; 
 
-    Scalar logn = log(et[i]->get_chi_auto() + 1.) 
-   		   		- log(et[i]->get_Psi_auto() + 1.)   
-			   	+ log(et[i]->get_chi_comp() + 1.) 
-			   	- log(et[i]->get_Psi_comp() + 1.) ;
+	Scalar logn_auto = log(et[i]->get_chi_auto() + 1.) 
+					 - log(et[i]->get_Psi_auto() + 1.) ; 
+	logn_auto.std_spectral_base() ; 
 
-    Scalar nn = exp(logn) ; 
-    nn.std_spectral_base() ;  
+	Scalar logn_comp = log(et[i]->get_chi_comp() + 1.) 
+	   			     - log(et[i]->get_Psi_comp() + 1.) ; 
+	logn_auto.std_spectral_base() ; 
+	        
+    Vector dln_auto_div = logn_auto.derive_cov(flat) ; 
+
+	// Change the basis from spherical coordinate to Cartesian one
+	dln_auto_div.change_triad( mp.get_bvect_cart() ) ;
 
 	// Sign convention for shift (beta^i = - N^i)
 	Vector shift =  - ( et[i]->get_beta() ) ;
@@ -106,22 +116,27 @@ void Binary_xcts::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1
 	double factx ;
 	if (fabs(mp.get_rot_phi()) < 1.e-14) {
 	    factx = 1. ; 
-	}
-	else {
-	    if (fabs(mp.get_rot_phi() - M_PI) < 1.e-14) {
-		factx = - 1. ; 
-	    }
-	    else {
-		cout << "Binary_xcts::orbit : unknown value of rot_phi !" << endl ;
-		abort() ; 
-	    }
+
+	} else {
+		
+	  	  if (fabs(mp.get_rot_phi() - M_PI) < 1.e-14) {
+			factx = - 1. ; 
+			
+	      } else {
+			  
+			cout << "Binary_xcts::orbit : unknown value of rot_phi !" << endl ;
+			abort() ; 
+	      }
 	}
 	    
-	Scalar tmp = logn + loggam ;
+ 	Scalar tmp = logn_auto + logn_comp + loggam ; 
 	tmp.std_spectral_base() ;
 
         // gradient of tmp
-		dnulg[i] = tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
+		dnulg[i] = dln_auto_div(1).val_grid_point(0, 0, 0, 0) 
+				 + factx*tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
+				 
+				 				 
 		
 	//------------------------------------------------------------------
 	// Psi^4/N^2 in the center of the star ---> asn2[i]
