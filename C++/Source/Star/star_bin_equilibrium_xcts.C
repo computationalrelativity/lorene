@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/12/14 17:34:42  m_bejger
+ * Improved iteration for beta_auto poisson_vect()
+ *
  * Revision 1.8  2010/12/09 10:48:06  m_bejger
  * Testing the main equations
  *
@@ -207,18 +210,19 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
     Param par_beta ;
 
-    par_beta.add_int(mermax_poisson,  0) ;  	// maximum number of iterations
+    par_beta.add_int(mermax_poisson,  0) ;  	// maximum number of 
+    											// iterations
     par_beta.add_double(relax_poisson,  0) ; 	// relaxation parameter
     par_beta.add_double(precis_poisson, 1) ; 	// required precision
-    par_beta.add_int_mod(niter, 0) ; 			// number of iterations actually used
+    par_beta.add_int_mod(niter, 0) ; 			// number of iterations 
+    											// actually used
 
+    // Sources at the previous step, for a poisson_vect() solver 
     Cmp ssjm1khi (ssjm1_khi) ;
+
     Tenseur ssjm1wbeta(mp, 1, CON, mp.get_bvect_cart()) ;
     ssjm1wbeta.set_etat_qcq() ;
-
-    for (int i=0; i<3; i++) {
-      ssjm1wbeta.set(i) = Cmp(ssjm1_wbeta(i+1)) ;
-    }
+    for (int i=0; i<3; i++) ssjm1wbeta.set(i) = Cmp(ssjm1_wbeta(i+1)) ;
 
     par_beta.add_cmp_mod(ssjm1khi) ;
     par_beta.add_tenseur_mod(ssjm1wbeta) ;
@@ -614,7 +618,6 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
     source_beta = 4.* qpig * chi % Psi3 * (ener_euler + press) * u_euler
                 + 2.* contract(haij_auto, 1, dcov_chisPsi7, 0) ;
-
 //	            + 2. * sPsi7 * contract(haij_auto, 1, dcov_chi, 0)
 //	            -14. * chi * sPsi8 * contract(haij_auto, 1, dcov_Psi, 0) ;
 	source_beta.std_spectral_base() ;
@@ -622,43 +625,49 @@ void Star_bin_xcts::equilibrium(double ent_c,
     // Resolution of the Poisson equation
 	// ----------------------------------
 
-   	double lambda = double(1) / double(3) ;
-
    	Tenseur source_p(mp, 1, CON, mp.get_bvect_cart() ) ;
 	source_p.set_etat_qcq() ;
 	for (int i=0; i<3; i++) {
 
 	    source_p.set(i) = Cmp(source_beta(i+1)) ;
-        source_p.set(i).filtre(4) ;
+        //source_p.set(i).filtre(4) ;
 
 	}
 
 	Tenseur vect_auxi (mp, 1, CON, mp.get_bvect_cart()) ;
 	vect_auxi.set_etat_qcq() ;
-	for (int i=0; i<3 ;i++) vect_auxi.set(i) = 0. ;
+	for (int i=0; i<3 ;i++) 
+	vect_auxi.set(i) = Cmp(w_beta(i+1)) ;
+	vect_auxi.set_std_base() ;
+
 
 	Tenseur scal_auxi (mp) ;
 	scal_auxi.set_etat_qcq() ;
-	scal_auxi.set().annule_hard() ;
+	scal_auxi.set() = Cmp(khi) ; 
 	scal_auxi.set_std_base() ;
 
 	Tenseur resu_p(mp, 1, CON, mp.get_bvect_cart()) ;
 	resu_p.set_etat_qcq() ;
-	for (int i=0; i<3 ;i++) resu_p.set(i).annule_hard() ;
+	for (int i=0; i<3 ;i++) resu_p.set(i) = Cmp(beta_auto.set(i+1));
 	resu_p.set_std_base() ;
 
    	// Resolution of the vector Poisson equation
 	// -----------------------------------------
 
+   	double lambda = double(1) / double(3) ;
     source_p.poisson_vect(lambda, par_beta, resu_p, vect_auxi, scal_auxi) ;
-
-	for (int i=1; i<=3; i++) beta_auto.set(i) = resu_p(i-1) ;
-
-    ssjm1_khi = ssjm1khi ;
-	for (int i=0; i<3; i++){
-	    ssjm1_wbeta.set(i+1) = ssjm1wbeta(i) ;
+    //source_p.poisson_vect_oohara(lambda, par_beta, resu_p, scal_auxi) ;
+  
+	for (int i=1; i<=3; i++) { 	
+		beta_auto.set(i) = resu_p(i-1) ;
+		w_beta.set(i)    = vect_auxi(i-1) ; 
 	}
-
+	khi = scal_auxi() ;
+	
+    // Values of sources from the previous step 
+    ssjm1_khi = ssjm1khi ;
+	for (int i=0; i<3; i++) ssjm1_wbeta.set(i+1) = ssjm1wbeta(i) ;
+	
 	cout << "beta_auto_x" << endl << norme(beta_auto(1)/(nr*nt*np))
 	     << endl ;
 	cout << "beta_auto_y" << endl << norme(beta_auto(2)/(nr*nt*np))
