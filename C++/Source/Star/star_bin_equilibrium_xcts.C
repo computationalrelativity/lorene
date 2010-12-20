@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2010/12/20 15:42:10  m_bejger
+ * Various rearrangements of fields in Poissson equations
+ *
  * Revision 1.9  2010/12/14 17:34:42  m_bejger
  * Improved iteration for beta_auto poisson_vect()
  *
@@ -244,13 +247,13 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
     logn_ac_rest.std_spectral_base() ;
 
-    cout << "logn_auto" << norme(logn_auto) << endl ;
-    cout << "logn_ac_rest" << norme(logn_ac_rest) << endl ;
-    cout << "pot_centri" << norme(pot_centri) << endl ;
-    cout << "loggam" << norme(loggam) << endl ;
+    //cout << "logn_auto" << norme(logn_auto) << endl ;
+    //cout << "logn_ac_rest" << norme(logn_ac_rest) << endl ;
+    //cout << "pot_centri" << norme(pot_centri) << endl ;
+    //cout << "loggam" << norme(loggam) << endl ;
 
     Scalar pot_ext = logn_ac_rest + pot_centri + loggam ;
-    cout << "pot_ext" << norme(pot_ext) << endl ;
+    //cout << "pot_ext" << norme(pot_ext) << endl ;
 
     Scalar ent_jm1 = ent ;	// Enthalpy at previous step
 
@@ -471,9 +474,9 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
 	mp_prev.homothetie(alpha_r) ;
 
-//	Cmp ent_cmp2 (ent) ;
-//	mp.reevaluate_symy(&mp_prev, nzet+1, ent_cmp2) ;
-//	ent = ent_cmp2 ;
+	//Cmp ent_cmp2 (ent) ;
+	//mp.reevaluate_symy(&mp_prev, nzet+1, ent_cmp2) ;
+	//ent = ent_cmp2 ;
 
     mp.reevaluate_symy(&mp_prev, nzet+1, ent) ;
 
@@ -517,14 +520,11 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	int nt = mp.get_mg()->get_nt(0) ;
 	int np = mp.get_mg()->get_np(0) ;
 
-    Scalar Psi3 = pow(Psi, 3.) ;
+    Scalar Psi3 = psi4 / Psi ;
     Psi3.std_spectral_base() ;
 
-    Scalar sPsi7 = pow(Psi, -7.) ;
+    Scalar sPsi7 = Psi * pow(psi4, -2.) ;
     sPsi7.std_spectral_base() ;
-
-    Scalar sPsi8 = pow(Psi, -8.) ;
-    sPsi8.std_spectral_base() ;
 
 	//------------------------------------------------------------------
 	// Poisson equation for Psi_auto (Eq. 8.127 of arXiv:gr-qc/0703035)
@@ -569,8 +569,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source
 	//--------
 
-	source_tot = chi * (0.5 * qpig * psi4 % (ener_euler + 2.*s_euler)
-	           + 0.875 * sPsi8 * (hacar_auto + hacar_comp) ) ;
+	source_tot = chi * 0.5 * qpig * psi4 % (ener_euler + 2.*s_euler) 
+	           + 0.875 * nn % sPsi7 * (hacar_auto + hacar_comp)  ;
     source_tot.std_spectral_base() ;
 
 	// Resolution of the Poisson equation
@@ -607,19 +607,9 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// Source
 	//--------
 
-	sPsi7 = pow(Psi, -7.) ;
-    sPsi7.std_spectral_base() ;
-
-	sPsi8 = pow(Psi, -8.) ;
-    sPsi8.std_spectral_base() ;
-
-    Vector dcov_chisPsi7 = (chi % sPsi7).derive_cov(flat) ;
-    dcov_chisPsi7.std_spectral_base() ;
-
-    source_beta = 4.* qpig * chi % Psi3 * (ener_euler + press) * u_euler
-                + 2.* contract(haij_auto, 1, dcov_chisPsi7, 0) ;
-//	            + 2. * sPsi7 * contract(haij_auto, 1, dcov_chi, 0)
-//	            -14. * chi * sPsi8 * contract(haij_auto, 1, dcov_Psi, 0) ;
+    source_beta = 4.* qpig * chi % Psi3 * (ener_euler + press) * u_euler 
+	            + 2. * sPsi7 * contract(haij_auto, 1, dcov_chi, 0)
+	            -14. * nn % sPsi7 * contract(haij_auto, 1, dcov_Psi, 0) ;
 	source_beta.std_spectral_base() ;
 
     // Resolution of the Poisson equation
@@ -636,8 +626,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
 	Tenseur vect_auxi (mp, 1, CON, mp.get_bvect_cart()) ;
 	vect_auxi.set_etat_qcq() ;
-	for (int i=0; i<3 ;i++) 
-	vect_auxi.set(i) = Cmp(w_beta(i+1)) ;
+	for (int i=0; i<3 ;i++) vect_auxi.set(i) = Cmp(w_beta(i+1)) ;
 	vect_auxi.set_std_base() ;
 
 
