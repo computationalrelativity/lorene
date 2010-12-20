@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2010/12/20 09:58:31  m_bejger
+ * Pointer to the linear momentum added
+ *
  * Revision 1.2  2010/12/09 10:35:56  m_bejger
  * Declaration of the virial theorem volume version added
  *
@@ -89,6 +92,9 @@ class Binary_xcts {
 	/// Total angular momentum of the system
 	mutable Tbl* p_angu_mom ; 
 
+	/// Total linear momentum of the system
+	mutable Tbl* p_lin_mom ; 
+	
 	/// Total energy of the system
 	mutable double* p_total_ener ; 
 
@@ -98,14 +104,6 @@ class Binary_xcts {
 	/// Virial theorem error (volume version)
 	mutable double* p_virial_vol ; 
 	
-	/// Relative error on the Hamiltonian constraint
-	mutable double* p_ham_constr ;
-	
-	/// Relative error on the momentum constraint
-	mutable Tbl* p_mom_constr ;
-
-	
-
     // Constructors - Destructor
     // -------------------------
     public:
@@ -242,6 +240,10 @@ class Binary_xcts {
 	 */
     	const Tbl& angu_mom() const ;	
 
+	/** Total linear momentum.
+	 */
+    	const Tbl& lin_mom() const ;	
+    	
 	/** Total energy (excluding the rest mass energy).
 	 * 
 	 *  In the Newtonian case, it is defined as the sum of kinetic, 
@@ -308,16 +310,6 @@ class Binary_xcts {
 	 */
 	void analytical_shift() ; 
 
-	/**
-	 * Calculates \c decouple which is used to obtain 
-	 * \c qq_auto by the formula : 
-	 * \c qq_auto = \c decouple * \c qq.
-	 * (see the membre \c Scalar \c decouple for more 
-	 * precisions about its value).
-	 * 
-	 */
-	void fait_decouple() ;
- 
 } ;
 
 ostream& operator<<(ostream& , const Binary_xcts& ) ;	

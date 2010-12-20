@@ -28,6 +28,9 @@ char binary_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2010/12/20 09:56:02  m_bejger
+ * Pointer to the linear momentum added
+ *
  * Revision 1.3  2010/12/09 10:38:46  m_bejger
  * virial_vol() added, fait_decouple() removed
  *
@@ -138,12 +141,11 @@ void Binary_xcts::del_deriv() const {
     if (p_mass_adm != 0x0) delete p_mass_adm ; 
     if (p_mass_kom != 0x0) delete p_mass_kom ; 
     if (p_angu_mom != 0x0) delete p_angu_mom ; 
+    if (p_lin_mom  != 0x0) delete p_lin_mom ; 
     if (p_total_ener != 0x0) delete p_total_ener ; 
     if (p_virial != 0x0) delete p_virial ; 
     if (p_virial_vol != 0x0) delete p_virial_vol ; 
-    if (p_ham_constr != 0x0) delete p_ham_constr ; 
-    if (p_mom_constr != 0x0) delete p_mom_constr ; 
-
+ 
     set_der_0x0() ; 
 }			    
 
@@ -155,11 +157,10 @@ void Binary_xcts::set_der_0x0() const {
     p_mass_adm = 0x0 ; 
     p_mass_kom = 0x0 ; 
     p_angu_mom = 0x0 ; 
+    p_lin_mom  = 0x0 ; 
     p_total_ener = 0x0 ; 
     p_virial = 0x0 ; 
     p_virial_vol = 0x0 ; 
-    p_ham_constr = 0x0 ; 
-    p_mom_constr = 0x0 ; 
 
 }			    
 
