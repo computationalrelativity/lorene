@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/12/20 15:45:40  m_bejger
+ * Spectral basis in lin_mom() was not defined
+ *
  * Revision 1.8  2010/12/20 09:54:09  m_bejger
  * Angular momentum correction, stub for linear momentum added
  *
@@ -173,21 +176,21 @@ double Binary_xcts::mass_kom_vol() const {
 
       const Scalar& Psi  = et[i]->get_Psi() ;	  
       const Scalar& psi4 = et[i]->get_psi4() ;
+	  const Scalar& chi  = et[i]->get_chi() ; 
+	  
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& s_euler = et[i]->get_s_euler() ;
-	  const Scalar& chi  = et[i]->get_chi() ; 
 	  const Scalar& hacar_auto = et[i]->get_hacar_auto() ;
       const Scalar& hacar_comp = et[i]->get_hacar_comp() ;  
 
 	  Scalar psi4chi = psi4 % chi ; 
 	  psi4chi.std_spectral_base() ; 
 
-	  Scalar source = 0.5* ener_euler * (psi4chi + pow(Psi, 5.) ) 
+	  Scalar source = 0.5 * ener_euler * (psi4chi + psi4 % Psi) 
 		  + psi4chi * s_euler + pow(Psi, -7.) * (7.*chi/Psi + 1.) 
-		  			* (hacar_auto + hacar_comp)/ (8.*qpig) ; 
+		  			* (hacar_auto + hacar_comp) / (8.*qpig) ; 
 	  source.std_spectral_base() ;
 	  
-
       masskom += source.integrale() ;
 	  
   }
@@ -231,7 +234,7 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		Scalar rho = pow(et[i]->get_psi4(), 2.5) * (ee + pp) ; 
+		Scalar rho = pow(et[i]->get_Psi(), 10) * (ee + pp) ; 
 		rho.std_spectral_base() ;
 
 		Vector jmom = rho * (et[i]->get_u_euler()) ; 
@@ -265,27 +268,25 @@ const Tbl& Binary_xcts::lin_mom() const {
 	p_lin_mom = new Tbl(3) ; 
 	p_lin_mom->annule_hard() ;
 
-	for (int j=0; j<3; j++) {			// loop on the components  
-		for (int i=0; i<=1; i++) {	    // loop on the stars
-						
-		// Matter part
-		// -----------
+	for (int i=0; i<=1; i++) {	    	// loop on the stars
+	
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		Scalar rho = pow(et[i]->get_psi4(), 2.5) * (ee + pp) ; 
-		rho.std_spectral_base() ;
+		Vector lmom 	 = pow(et[i]->get_Psi(), 10) * (ee + pp) 
+						 * ( et[i]->get_u_euler() ) ;  
+			    
+		for (int j=0; j<3; j++) {			// loop on the components  
 
-		Vector jmom = rho * (et[i]->get_u_euler()) ; 
-
-		Scalar integrand = jmom(j+1) ; 
-		      
-		p_lin_mom->set(j) += integrand.integrale() ;
+			Scalar lmom_rho = lmom(j+1) ; 
+			lmom_rho.std_spectral_base() ; 
+						
+			p_lin_mom->set(j) += lmom_rho.integrale() ;
 		
-		}  // End of the loop on the stars
+		}  // End of the loop on the components
 
-	} // End of the loop on the components
+	} // End of the loop on the stars
 
-    }	// End of the case where a new computation was necessary
+    } // End of the case where a new computation was necessary
   
   	return *p_lin_mom ; 
   
