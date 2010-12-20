@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2010/12/20 15:46:41  m_bejger
+ * lin_mom, virial errors added to the final cout
+ *
  * Revision 1.8  2010/12/09 10:49:36  m_bejger
  * *** empty log message ***
  *
@@ -398,6 +401,14 @@ int main() {
     Binary_xcts star_jm1 = star ;
     double omega_jm1 = star_jm1.get_omega() ;
 
+    //// chi_comp, Psi_comp and pot_centri are initialized to 0 on star_jm1 : 
+    //// ---------------------------------------------------------
+    //for (int i=1 ; i<=2 ; i++) {
+	//star_jm1.set(i).set_Psi_comp() = 0 ; 
+	//star_jm1.set(i).set_chi_comp() = 0 ; 
+	//star_jm1.set(i).set_pot_centri() = 0 ; 
+    //}
+    
 //----------------------------------------------------------------------
 //	 Openning of log files
 //----------------------------------------------------------------------
@@ -443,9 +454,6 @@ int main() {
 
     double omega_kep, diff_mass ;
     int mer ;
-
-    Scalar ff_1 (star(1).get_mp()) ;
-    Scalar ff_2 (star(2).get_mp()) ;
 
 //======================================================================
 //		Start of iteration
@@ -833,6 +841,8 @@ int main() {
 	      << " G M_sol^2 / c" << endl ;
 
 
+    cout << "Virial error:         " << star.virial() << endl ;
+    cout << "Virial error (vol):   " << star.virial_vol() << endl ;	      
     cout << "1/2 ADM mass :        " << 0.5 * star.mass_adm() / msol
 	      << " Mo" << endl ;
     cout << "1/2 ADM mass (vol) :  " << 0.5 * star.mass_adm_vol() / msol
@@ -845,6 +855,11 @@ int main() {
 	 << star.angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol)
 	 << " G M_sol^2 / c" << endl ;
 
+    cout << "Total linear momentum  : " << endl 
+	 << star.lin_mom()(0) << endl 
+	 << star.lin_mom()(1) << endl
+	 << star.lin_mom()(2) << endl ;
+	 
     fichfinal << endl << "Number of steps : " << mer << endl ;
 
     for (int i=1 ; i<=2; i++) {
