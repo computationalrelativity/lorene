@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2010/12/20 09:54:09  m_bejger
+ * Angular momentum correction, stub for linear momentum added
+ *
  * Revision 1.7  2010/12/09 10:39:41  m_bejger
  * Further corrections to integral quantities
  *
@@ -193,16 +196,15 @@ double Binary_xcts::mass_kom_vol() const {
 
 }
 
-			//---------------------------------//
-		    //	 Total angular momentum        //
-		    //---------------------------------//
-	
-//## to be checked 
+				//-------------------------------------//
+				//	 Total angular momentum (z-axis)   //
+				//-------------------------------------//
+	 
 const Tbl& Binary_xcts::angu_mom() const {
 
   using namespace Unites ;
 	
-	if (p_angu_mom == 0x0) {	    // a new computation is requireed
+	if (p_angu_mom == 0x0) {	    // a new computation is required
     
 	p_angu_mom = new Tbl(3) ; 
 	p_angu_mom->annule_hard() ;	// fills the double array with zeros
@@ -213,40 +215,18 @@ const Tbl& Binary_xcts::angu_mom() const {
 	for (int i=0; i<=1; i++) {	    // loop on the stars
 
 		const Map& mp = et[i]->get_mp() ; 
-		int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
 		
-		// Function exp(-(r-r_0)^2/sigma^2)
-		// --------------------------------
-		
-		double r0 = mp.val_r(nzm1-1, 1, 0, 0) ;
-		double sigma = r0 ;
-		
-		Scalar rr (mp) ;
-		rr = mp.r ;
-		
-		Scalar ff (mp) ;
-		ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
-		for (int ii=0; ii<nzm1; ii++)
-		  ff.set_domain(ii) = 1. ;
-		ff.set_outer_boundary(nzm1, 0) ;
-		ff.std_spectral_base() ;
-
 		// Azimuthal vector d/dphi 
 		Vector vphi(mp, CON, bvect_ref) ; 		
-		Scalar yya (mp) ;
-		yya = mp.ya ;
-		Scalar xxa (mp) ;
-		xxa = mp.xa ;
-		vphi.set(1) = - yya * ff ; 	// phi^X
-		vphi.set(2) = xxa * ff ; 
+		Scalar yya (mp) ; yya = mp.ya ;
+		Scalar xxa (mp) ; xxa = mp.xa ; 
+		vphi.set(1) = - yya ; 	// phi^X
+		vphi.set(2) = xxa ; 
 		vphi.set(3) = 0 ;  
 
-		vphi.set(1).set_outer_boundary(nzm1, 0) ;
-		vphi.set(2).set_outer_boundary(nzm1, 0) ;
-	
 		vphi.std_spectral_base() ; 
 		vphi.change_triad(mp.get_bvect_cart()) ; 
-		
+				
 		// Matter part
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
@@ -268,6 +248,46 @@ const Tbl& Binary_xcts::angu_mom() const {
     }	// End of the case where a new computation was necessary
   
   	return *p_angu_mom ; 
+  
+}
+
+				//---------------------------------//
+				//	 Total linear momentum         //
+				//---------------------------------//
+	
+//## not working yet
+const Tbl& Binary_xcts::lin_mom() const {
+
+  using namespace Unites ;
+	
+	if (p_lin_mom == 0x0) {	    // a new computation is required
+    
+	p_lin_mom = new Tbl(3) ; 
+	p_lin_mom->annule_hard() ;
+
+	for (int j=0; j<3; j++) {			// loop on the components  
+		for (int i=0; i<=1; i++) {	    // loop on the stars
+						
+		// Matter part
+		// -----------
+		const Scalar& ee = et[i]->get_ener_euler() ;  
+		const Scalar& pp = et[i]->get_press() ;
+		Scalar rho = pow(et[i]->get_psi4(), 2.5) * (ee + pp) ; 
+		rho.std_spectral_base() ;
+
+		Vector jmom = rho * (et[i]->get_u_euler()) ; 
+
+		Scalar integrand = jmom(j+1) ; 
+		      
+		p_lin_mom->set(j) += integrand.integrale() ;
+		
+		}  // End of the loop on the stars
+
+	} // End of the loop on the components
+
+    }	// End of the case where a new computation was necessary
+  
+  	return *p_lin_mom ; 
   
 }
 
