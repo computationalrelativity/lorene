@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2010/12/21 11:15:46  m_bejger
+ * Linear momentum properly defined
+ *
  * Revision 1.9  2010/12/20 15:45:40  m_bejger
  * Spectral basis in lin_mom() was not defined
  *
@@ -234,12 +237,12 @@ const Tbl& Binary_xcts::angu_mom() const {
 		// -----------
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
-		Scalar rho = pow(et[i]->get_Psi(), 10) * (ee + pp) ; 
-		rho.std_spectral_base() ;
-
-		Vector jmom = rho * (et[i]->get_u_euler()) ; 
+		
+		Vector jmom = pow(et[i]->get_Psi(), 10) * (ee + pp) 
+					* (et[i]->get_u_euler()) ; 
+		jmom.std_spectral_base() ;
+		
 	    const Metric& flat = et[i]->get_flat() ;
-
 		Vector vphi_cov = vphi.up_down(flat) ;
 		
 		Scalar integrand = contract(jmom, 0, vphi_cov, 0) ; 
@@ -258,7 +261,6 @@ const Tbl& Binary_xcts::angu_mom() const {
 				//	 Total linear momentum         //
 				//---------------------------------//
 	
-//## not working yet
 const Tbl& Binary_xcts::lin_mom() const {
 
   using namespace Unites ;
@@ -268,21 +270,23 @@ const Tbl& Binary_xcts::lin_mom() const {
 	p_lin_mom = new Tbl(3) ; 
 	p_lin_mom->annule_hard() ;
 
+	// Reference Cartesian vector basis of the Absolute frame
+	Base_vect_cart bvect_ref(0.) ; 	// 0. = parallel to the Absolute frame
+	
 	for (int i=0; i<=1; i++) {	    	// loop on the stars
 	
 		const Scalar& ee = et[i]->get_ener_euler() ;  
 		const Scalar& pp = et[i]->get_press() ;
 		Vector lmom 	 = pow(et[i]->get_Psi(), 10) * (ee + pp) 
 						 * ( et[i]->get_u_euler() ) ;  
-			    
-		for (int j=0; j<3; j++) {			// loop on the components  
-
-			Scalar lmom_rho = lmom(j+1) ; 
-			lmom_rho.std_spectral_base() ; 
-						
-			p_lin_mom->set(j) += lmom_rho.integrale() ;
-		
-		}  // End of the loop on the components
+	
+	    lmom.std_spectral_base() ;
+	    lmom.change_triad(bvect_ref) ; 
+	    	    
+	    // loop on the components      		    
+		for (int j=1; j<=2; j++) 		
+			p_lin_mom->set(j-1) += lmom(j).integrale() ;
+	
 
 	} // End of the loop on the stars
 
