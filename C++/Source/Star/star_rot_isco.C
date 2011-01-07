@@ -33,6 +33,9 @@ char star_rot_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2011/01/07 18:20:21  m_bejger
+ * Correcting for the case of stiff EOS, in which ISCO may be farther than the first domain outside the star - now searching all non-compactified domains
+ *
  * Revision 1.2  2010/01/25 22:33:04  e_gourgoulhon
  * First implementation.
  *
@@ -115,68 +118,62 @@ double Star_rot::r_isco(ostream* ost) const {
     // Scalar field the zero of which will give the marginally stable orbit
     Scalar orbit = factor_u2 * ucor_plus * ucor_plus +
 				factor_u1 * ucor_plus + factor_u0 ;
-
+    orbit.std_spectral_base() ;
+    
     // Search for the zero
     // -------------------
 
-    int l_ms = nzet ;  // index of the domain containing the MS orbit
+    double r_ms, theta_ms, phi_ms, xi_ms, 
+    	   xi_min = -1, xi_max = 1; 
+    int l_ms = nzet, l ;
+    bool find_status = false ; 
 
-
-    Param par_ms ;
-    par_ms.add_int(l_ms) ;
-    par_ms.add_scalar(orbit) ;
+    const Valeur& vorbit = orbit.get_spectral_va() ;
+        
+	for(l = nzet; l <= nzm1; l++) { 
 
     // Preliminary location of the zero
     // of the orbit function with an error = 0.01
-    // The orbit closest to the star
-    double theta_ms = M_PI / 2. ; // pi/2
-    double phi_ms = 0. ;
+    theta_ms = M_PI / 2. ; // pi/2
+    phi_ms = 0. ;
 
-    double xi_min = -1. ;
-    double xi_max = 1. ;
+    xi_min = -1. ;
+    xi_max = 1. ;
 
     double resloc_old ;
     double xi_f = xi_min;
-
-    orbit.std_spectral_base() ;
-    const Valeur& vorbit = orbit.get_spectral_va() ;
-
-    double resloc = vorbit.val_point(l_ms, xi_min, theta_ms, phi_ms) ;
+    
+    double resloc = vorbit.val_point(l, xi_min, theta_ms, phi_ms) ;
 	
 	for (int iloc=0; iloc<200; iloc++) {
 		xi_f = xi_f + 0.01 ;
      	resloc_old = resloc ;
-     	resloc = vorbit.val_point(l_ms, xi_f, theta_ms, phi_ms) ;
-     	if ((resloc * resloc_old) < double(0) ) {
+     	resloc = vorbit.val_point(l, xi_f, theta_ms, phi_ms) ;
+     	if ( resloc * resloc_old < double(0) ) {
 			xi_min = xi_f - 0.01 ;
 			xi_max = xi_f ;
+			l_ms = l ; 
+			find_status = true ;  
 			break ;
-		}
-  	}
+		} 
+		
+  	  }
   	
+    } 
   	
-  	if (ost != 0x0) {
-		*ost <<
-		"Star_rot::isco : preliminary location of zero of MS function :"
-		 << endl ;
-		*ost << "    xi_min = " << xi_min << "  f(xi_min) = " <<
-     		 vorbit.val_point(l_ms, xi_min, theta_ms, phi_ms) << endl ;
- 		*ost << "    xi_max = " << xi_max << "  f(xi_max) = " <<
-     		vorbit.val_point(l_ms, xi_max, theta_ms, phi_ms) << endl ;
-    }
-     	
-    double xi_ms, r_ms ;  	
-	
-	if ( vorbit.val_point(l_ms, xi_min, theta_ms, phi_ms) *
- 	     vorbit.val_point(l_ms, xi_max, theta_ms, phi_ms) < double(0) ) {
-
-     	double precis_ms = 1.e-12 ;    // precision in the determination of xi_ms
+    Param par_ms ;
+    par_ms.add_int(l_ms) ;
+    par_ms.add_scalar(orbit) ;
+    
+  	if(find_status) { 
+  	     					
+     	double precis_ms = 1.e-12 ;    // precision in the determination 
+									   // of xi_ms
      	int nitermax_ms = 100 ;	       // max number of iterations
 
      	int niter ;
      	xi_ms = zerosec(funct_star_rot_isco, par_ms, xi_min, xi_max,
-     					precis_ms, nitermax_ms, niter) ;
-
+     					precis_ms, nitermax_ms, niter) ;     					
   		if (ost != 0x0) {
      		* ost <<
      		"    number of iterations used in zerosec to locate the ISCO : "
@@ -185,12 +182,15 @@ double Star_rot::r_isco(ostream* ost) const {
         }
 
       	r_ms = mp.val_r(l_ms, xi_ms, theta_ms, phi_ms) ;
-
-     }
-     else {
-	    xi_ms = -1 ;
-     	r_ms = ray_eq() ;
-     }
+  	
+	} else { 
+		
+		// assuming the ISCO is under the surface of a star 
+		r_ms = ray_eq() ; 
+	    xi_ms = -1 ; 
+	    l_ms = nzet ; 
+	    
+	} 
   	
  	p_r_isco = new double (
  		(bbb.get_spectral_va()).val_point(l_ms, xi_ms, theta_ms, phi_ms) * r_ms
