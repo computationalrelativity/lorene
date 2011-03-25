@@ -28,6 +28,9 @@ char star_bin_equilibrium_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2011/03/25 16:28:12  e_gourgoulhon
+ * Still in progress
+ *
  * Revision 1.10  2010/12/20 15:42:10  m_bejger
  * Various rearrangements of fields in Poissson equations
  *
@@ -312,6 +315,8 @@ void Star_bin_xcts::equilibrium(double ent_c,
 		double alpha_r2_jk = ( ent_c - ent_b + pot_ext_c - pot_ext_b) /
 		    ( logn_auto_b - logn_auto_c ) ;
 
+		// cout << "k, j, alpha_r2_jk : " << k << " " << j << " " << alpha_r2_jk << endl ; 
+		    
 		if (alpha_r2_jk > alpha_r2) {
 		    alpha_r2 = alpha_r2_jk ;
 		    k_b = k ;
@@ -320,7 +325,7 @@ void Star_bin_xcts::equilibrium(double ent_c,
 
 	    }
 	}
-
+  
 	alpha_r = sqrt(alpha_r2) ;
 
 	cout << "k_b, j_b, alpha_r: " << k_b << "  " << j_b << "  "
@@ -329,18 +334,10 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// New value of logn_auto
 	// ----------------------
 
-    Psi_auto = exp(alpha_r2*log(Psi_auto_p1)) - 1. ;
+    Psi_auto = pow(Psi_auto +1.,alpha_r2) - 1. ;
+    chi_auto = pow(chi_auto +1.,alpha_r2) - 1. ;
     Psi_auto.std_spectral_base() ;
-    chi_auto = exp(alpha_r2*log(chi_auto_p1)) - 1. ;
     chi_auto.std_spectral_base() ;
-
-	Psi_auto.set_spectral_va().smooth(nzet, Psi_auto.set_spectral_va()) ;
-    chi_auto.set_spectral_va().smooth(nzet, chi_auto.set_spectral_va()) ;
-
-    logn_auto = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
-    logn_auto.std_spectral_base() ;
-
-	logn_auto_c  = logn_auto.val_grid_point(0, 0, 0, 0) ;
 
 	//------------------------------------------------------------
 	// Change the values of the inner points of the domain adjascent
@@ -348,7 +345,13 @@ void Star_bin_xcts::equilibrium(double ent_c,
 	// the domain under the surface
 	//------------------------------------------------------------
 
-	logn_auto.set_spectral_va().smooth(nzet, logn_auto.set_spectral_va()) ;
+    Psi_auto.set_spectral_va().smooth(nzet, Psi_auto.set_spectral_va()) ;
+    chi_auto.set_spectral_va().smooth(nzet, chi_auto.set_spectral_va()) ;
+
+    logn_auto = log(chi_auto + 1.) - log(Psi_auto + 1.) ;
+    logn_auto.std_spectral_base() ;
+
+	logn_auto_c  = logn_auto.val_grid_point(0, 0, 0, 0) ;
 
 	//------------------------------------------
 	// First integral	-->  enthalpy in all space

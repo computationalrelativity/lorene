@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2011/03/25 16:28:36  e_gourgoulhon
+ * Still in progress
+ *
  * Revision 1.6  2010/12/09 10:41:20  m_bejger
  * For testing; not sure if working properly
  *
@@ -83,25 +86,22 @@ void Binary_xcts::orbit(double fact_omeg_min,
     for (int i=0; i<2; i++) {
 	
 	const Map& mp = et[i]->get_mp() ; 
-    const Metric& flat = et[i]->get_flat() ;
+	const Metric& flat = et[i]->get_flat() ;
 		
+	const Scalar& chi = et[i]->get_chi() ;
+	const Scalar& Psi = et[i]->get_Psi() ;
 	const Scalar& psi4 = et[i]->get_psi4() ;
+
+	const Vector& dchi = et[i]->get_dcov_chi() ;
+	const Vector& dPsi = et[i]->get_dcov_Psi() ;
 				
-    const Scalar& loggam = et[i]->get_loggam() ; 
-    const Scalar& nn = et[i]->get_nn() ; 
-
-	Scalar logn_auto = log(et[i]->get_chi_auto() + 1.) 
-					 - log(et[i]->get_Psi_auto() + 1.) ; 
-	logn_auto.std_spectral_base() ; 
-
-	Scalar logn_comp = log(et[i]->get_chi_comp() + 1.) 
-	   			     - log(et[i]->get_Psi_comp() + 1.) ; 
-	logn_auto.std_spectral_base() ; 
-	        
-    Vector dln_auto_div = logn_auto.derive_cov(flat) ; 
+	const Scalar& loggam = et[i]->get_loggam() ; 
+	const Scalar& nn = et[i]->get_nn() ; 
+	
+	Vector dlnnlng = dchi / Psi - chi/(Psi*Psi)*dPsi + loggam.derive_cov(flat); 
 
 	// Change the basis from spherical coordinate to Cartesian one
-	dln_auto_div.change_triad( mp.get_bvect_cart() ) ;
+	dlnnlng.change_triad( mp.get_bvect_cart() ) ;
 
 	// Sign convention for shift (beta^i = - N^i)
 	Vector shift =  - ( et[i]->get_beta() ) ;
@@ -129,14 +129,8 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	      }
 	}
 	    
- 	Scalar tmp = logn_auto + logn_comp + loggam ; 
-	tmp.std_spectral_base() ;
-
-        // gradient of tmp
-		dnulg[i] = dln_auto_div(1).val_grid_point(0, 0, 0, 0) 
-				 + factx*tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
-				 
-				 				 
+	dnulg[i] = factx*dlnnlng(1).val_grid_point(0, 0, 0, 0) ; 
+				  
 		
 	//------------------------------------------------------------------
 	// Psi^4/N^2 in the center of the star ---> asn2[i]
@@ -174,7 +168,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	    // in the center of the star ---> npn[i]
 	    //--------------------------------------------------------------
  
-        tmp = contract(shift, 0, shift.up_down(flat), 0) ; 
+        Scalar tmp = contract(shift, 0, shift.up_down(flat), 0) ; 
 
 	    npn[i] = tmp.val_grid_point(0, 0, 0, 0) ; 
 	    npnso2[i] = npn[i] / omega / omega ;
@@ -221,8 +215,8 @@ void Binary_xcts::orbit(double fact_omeg_min,
     double ori_x2 = ori_x[1] ;
 
     if ( et[0]->get_eos() == et[1]->get_eos() &&
-	 et[0]->get_ent().val_grid_point(0,0,0,0) == 
-	              et[1]->get_ent().val_grid_point(0,0,0,0) ) {
+	 fabs( et[0]->get_ent().val_grid_point(0,0,0,0) -
+	              et[1]->get_ent().val_grid_point(0,0,0,0) ) < 1.e-14 ) {
 
         x_axe = 0. ;
 
