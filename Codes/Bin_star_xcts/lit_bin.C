@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2011/03/25 10:01:17  m_bejger
+ * Curvature tensor plots corrected
+ *
  * Revision 1.5  2010/12/09 10:49:37  m_bejger
  * *** empty log message ***
  *
@@ -97,7 +100,7 @@ int main(int argc, char** argv){
     }
     
     int mer ; 
-    fread(&mer, sizeof(int), 1, fich) ;	// mer
+    int f_status = fread(&mer, sizeof(int), 1, fich) ;	// mer
                       
     Mg3d mg1(fich) ;
     Map_et mp1(mg1, fich) ; 
@@ -129,8 +132,6 @@ int main(int argc, char** argv){
     cout << "================================== " << endl ; 
     cout << star(2).get_mp() << endl ; 
 
-    //star.fait_decouple() ;
-            
     for (int i=1; i<=2; i++) 
 		(star.set(i)).update_metric(star(3-i)) ; 
 	         
@@ -327,13 +328,14 @@ int main(int argc, char** argv){
     surf2 = raccord_c1(surf2, star(2).get_nzet()) ; 
 
     char title[80] ;
-    char bslash[2] = {92,  '\0'} ;  // 92 is the ASCII code for backslash 
+    char bslash[2] = {92,'\0'} ;  // 92 is the ASCII code for backslash 
 
     ofstream fent("enthalpy.d") ; 
 	if ( !fent.good() ) {
 		cout << "lit_bin : problem with opening the file enthalpy.d !" << endl ;
 		abort() ;
 	}
+ 
    
     fent << "Enthalpy field at the boundary of last inner domain of star 1 : " 
 	 << endl ; 
@@ -352,11 +354,13 @@ int main(int argc, char** argv){
     fent.close() ; 
     
     Scalar ent1  (star(1).get_ent()) ;
+    
     Scalar Psi1  (star(1).get_Psi()) ;
     Scalar chi1  (star(1).get_chi()) ;
           
     Scalar Psi2  (star(2).get_Psi()) ;     
-
+    Scalar chi2  (star(2).get_chi()) ;
+    
     Scalar Psi1_auto  (star(1).get_Psi_auto()) ;
     Scalar Psi2_auto  (star(2).get_Psi_auto()) ;     
 
@@ -366,21 +370,22 @@ int main(int argc, char** argv){
     des_coupe_z(Psi1_auto, 0., 1,
 		"Psi1_auto (z=0)", &surf1, 5., draw_bound ) ; 
  
-/*  des_profile (Psi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
-	"Psi1_auto", "Psi1_auto (theta=pi/2,  phi=0)" ) ; 
+//  des_profile (Psi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
+//	"Psi1_auto", "Psi1_auto (theta=pi/2,  phi=0)" ) ; 
  
-    des_profile (Psi1_comp, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
-	"Psi1_comp", "Psi1_comp (theta=pi/2,  phi=0)" ) ;  
-*/
+//    des_profile (Psi1_comp, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+//	"Psi1_comp", "Psi1_comp (theta=pi/2,  phi=0)" ) ;  
+
     des_profile (Psi1, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
 	"Psi1", "Psi1 (theta=pi/2,  phi=0)" ) ;  
 
-/*    des_profile (chi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
-	"chi1_auto", "chi1_auto (theta=pi/2,  phi=0)" ) ; 
+/*
+//    des_profile (chi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
+//	"chi1_auto", "chi1_auto (theta=pi/2,  phi=0)" ) ; 
  
-    des_profile (chi1_comp, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
-	"chi1_comp", "chi1_comp (theta=pi/2,  phi=0)" ) ;  
-*/
+//    des_profile (chi1_comp, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
+//	"chi1_comp", "chi1_comp (theta=pi/2,  phi=0)" ) ;  
+
     des_profile (chi1, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
 	"chi1", "chi1 (theta=pi/2,  phi=0" ) ;  
 	
@@ -479,111 +484,138 @@ int main(int argc, char** argv){
     des_coupe_bin_y(tmp_beta12, tmp_beta22, 0., -dmax, dmax, -dmax, dmax,
 		    "shift_y (y=0)" , &surf1, &surf2, draw_bound) ;
 
-
     cout << "shift xy plane" << endl ;
 
     des_vect_bin_z(tmp_beta1, tmp_beta2, 0., 
 		   -2., 0.5, xdes_min, xdes_max, ydes_min, ydes_max,
 		   "Shift vector  (z=0)", 
 		   &surf1, &surf2, draw_bound ) ; 
-     
+*/     
     //----------------------------
     // Extrinsic curvature tensor
     //----------------------------
     
     Tensor tkij1 (star(1).get_haij_auto()) ;
     Tensor tkij2 (star(2).get_haij_auto()) ;
-    tkij1.change_triad(mp1.get_bvect_cart()) ;
-    tkij2.change_triad(mp2.get_bvect_cart()) ;
-    tkij2.change_triad(mp1.get_bvect_cart()) ;
     
-    // Division by r^2 in the external compactified domain in order to get
-    //  A^2 K^{ij} : 
+    // Division by r^2 in the external compactified domain 
+    // in order to get \hat{A}^{ij} : 
     tkij1.dec_dzpuis(2) ;     
-    tkij2.dec_dzpuis(2) ;     
-    
-    char debtit[] = {'K', 92, 'u', '\0'} ; 
+    tkij2.dec_dzpuis(2) ; 
+              
+    char debtit[] = {'A', 92, 'u', '\0'} ; 
 
+    //----------------------------------- 
+	cout << "\\hat{A}^xx (z=0)" << endl ;
     strcpy(title, debtit) ; 
     strcat(title, "xx") ; 
     strcat(title, bslash) ; 
     strcat(title, "d (z=0)") ; 
     
-    Cmp tmp11 (tkij1(1, 1)) ;
-    Cmp tmp21 (tkij2(1, 1)) ;
-
-    cout << "\\hat{A}^xx (z=0)" << endl ;
-
-    des_coupe_bin_z(tmp11, tmp21, 0, 
+    des_coupe_bin_z(tkij1(1, 1), tkij2(1, 1), 0, 
 		    xdes_min, xdes_max, ydes_min, ydes_max, 
-		    title,  &surf1, &surf2, draw_bound ) ; 
-    
+		    title, &surf1, &surf2, draw_bound ) ; 
+
+	//-----------------------------------
+	cout << "\\hat{A}^xy (z=0)" << endl ;
     strcpy(title, debtit) ; 
     strcat(title, "xy") ; 
     strcat(title, bslash) ; 
     strcat(title, "d (z=0)") ; 
     
-    Cmp tmp12 (tkij1(1, 2)) ;
-    Cmp tmp22 (tkij2(1, 2)) ;
-
-    cout << "\\hat{A}^xy (z=0)" << endl ;
-
-    des_coupe_bin_z(tmp12, tmp22, 0, 
+    des_coupe_bin_z(tkij1(1, 2), tkij2(1, 2), 0, 
 		    xdes_min, xdes_max, ydes_min, ydes_max, 
 		    title,  &surf1, &surf2, draw_bound ) ; 
     
+	//-----------------------------------
+	cout << "\\hat{A}^xz (y=0)" << endl ;
     strcpy(title, debtit) ; 
     strcat(title, "xz") ; 
     strcat(title, bslash) ; 
     strcat(title, "d (y=0)") ; 
     
-    Cmp tmp13 (tkij1(1, 3)) ;
-    Cmp tmp23 (tkij2(1, 3)) ;
-
-    des_coupe_bin_x(tmp13, tmp23, 0, 
-		    xdes_min, xdes_max, ydes_min, ydes_max, 
+    des_coupe_bin_y(tkij1(1, 3), tkij2(1, 3), 0, 
+		    xdes_min, xdes_max, zdes_min, zdes_max, 
 		    title,  &surf1, &surf2, draw_bound ) ; 
-    
+
+	//-----------------------------------    
+    cout << "\\hat{A}^yy (z=0)" << endl ;
     strcpy(title, debtit) ; 
     strcat(title, "yy") ; 
     strcat(title, bslash) ; 
     strcat(title, "d (z=0)") ; 
-    
 
-    cout << "\\hat{A}^yy (z=0)" << endl ;
-
-    Cmp tmp14 (tkij1(2, 2)) ;
-    Cmp tmp24 (tkij2(2, 2)) ;
-
-    des_coupe_bin_z(tmp14, tmp24, 0, 
+    des_coupe_bin_z(tkij1(2, 2), tkij2(2, 2), 0, 
 		    xdes_min, xdes_max, ydes_min, ydes_max, 
 		    title,  &surf1, &surf2, draw_bound ) ; 
-    
+
+	//-----------------------------------    
+    cout << "\\hat{A}^yz (y=0)" << endl ;    
     strcpy(title, debtit) ; 
     strcat(title, "yz") ; 
     strcat(title, bslash) ; 
     strcat(title, "d (y=0)") ; 
-    
-    Cmp tmp15 (tkij1(2, 3)) ;
-    Cmp tmp25 (tkij2(2, 3)) ;
 
-    des_coupe_bin_y(tmp15, tmp25, 0, 
-		    xdes_min, xdes_max, ydes_min, ydes_max, 
+    des_coupe_bin_y(tkij1(2, 3), tkij2(2, 3), 0, 
+		    xdes_min, xdes_max, zdes_min, zdes_max, 
 		    title,  &surf1, &surf2, draw_bound ) ; 
-    
+
+	//-----------------------------------    
+    cout << "\\hat{A}^zz (z=0)" << endl ;    
     strcpy(title, debtit) ; 
     strcat(title, "zz") ; 
     strcat(title, bslash) ; 
     strcat(title, "d (z=0)") ; 
-    
-    Cmp tmp16 (tkij1(3, 3)) ;
-    Cmp tmp26 (tkij2(3, 3)) ;
 
-    des_coupe_bin_z(tmp16, tmp26, 0, 
+    des_coupe_bin_z(tkij1(3, 3), tkij2(3, 3), 0, 
 		    xdes_min, xdes_max, ydes_min, ydes_max, 
 		    title,  &surf1, &surf2, draw_bound ) ; 
+		    
+	//----------------------------
+	// \hat{A}_ij \hat{A}^ij term
+ 	//----------------------------
+    
+	Tenseur hacar1 ( star(1).get_hacar_auto() ) ; 
+	Tenseur hacar2 ( star(2).get_hacar_auto() ) ; 
 
-   
+	// Division by r^4 in the external compactified domain 
+	// in order to get \hat{A}_ij \hat{A}^{ij} : 
+	hacar1.dec2_dzpuis() ; 
+	hacar1.dec2_dzpuis() ; 
+	hacar2.dec2_dzpuis() ; 
+	hacar2.dec2_dzpuis() ; 
+    
+	char title1[80] ;
+	strcpy(title1, debtit) ; 
+	strcat(title1, "ij") ; 
+	strcat(title1, bslash) ; 
+	strcat(title1, "d A") ; 
+	strcat(title1, bslash) ; 
+	strcat(title1, "dij") ; 
+	strcat(title1, bslash) ; 
+
+	strcpy(title, title1) ; 
+	strcat(title, "u (x=x1)") ; 
+	
+	des_coupe_bin_x(hacar1(), hacar2(), ori_x1, 
+			ydes_min, ydes_max, zdes_min, zdes_max, 
+			title,  &surf1, 0x0, draw_bound ) ; 
+
+	strcpy(title, title1) ; 
+	strcat(title, "u (y=0)") ; 
+	
+	des_coupe_bin_y(hacar1(), hacar2(), 0, 
+			xdes_min, xdes_max, zdes_min, zdes_max, 
+			title,  &surf1, &surf2, draw_bound ) ; 
+
+	strcpy(title, title1) ; 
+	strcat(title, "u (z=0)") ; 
+	
+	des_coupe_bin_z(hacar1(), hacar2(), 0, 
+			xdes_min, xdes_max, ydes_min, ydes_max, 
+			title,  &surf1, &surf2, draw_bound ) ; 
+			
+
     //==========================================
     // Hydro quantities
     //==========================================
