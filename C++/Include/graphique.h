@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2011/03/27 16:36:04  e_gourgoulhon
+ * Added function save_profile.
+ *
  * Revision 1.20  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -799,6 +802,20 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
         const char* title = 0x0, int ngraph = 0, const char* nomx  = 0x0, 
         const int* line_style = 0x0, const char* device = 0x0,
         bool draw_bound = true) ;
+
+/** Saves in a file the profile of a \c Scalar  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$ 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param r_min [input] Minimal value of \e r  
+ *  @param r_max [input] Maximal value of \e r  
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param filename [input] root of the filename
+ * 
+ */
+void save_profile(const Scalar& uu, double r_min, double r_max, 
+		     double theta, double phi, const char* filename) ;
 
 
 /** Draws 5 profiles of a scalar field along various radial axes 
