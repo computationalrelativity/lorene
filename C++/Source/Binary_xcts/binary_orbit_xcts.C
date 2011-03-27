@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2011/03/27 14:58:48  m_bejger
+ * dnulg by means of dsdx(); rearrangements to use primary variables
+ *
  * Revision 1.7  2011/03/25 16:28:36  e_gourgoulhon
  * Still in progress
  *
@@ -94,14 +97,15 @@ void Binary_xcts::orbit(double fact_omeg_min,
 
 	const Vector& dchi = et[i]->get_dcov_chi() ;
 	const Vector& dPsi = et[i]->get_dcov_Psi() ;
-				
-	const Scalar& loggam = et[i]->get_loggam() ; 
-	const Scalar& nn = et[i]->get_nn() ; 
 	
-	Vector dlnnlng = dchi / Psi - chi/(Psi*Psi)*dPsi + loggam.derive_cov(flat); 
-
+	const Scalar& nn = et[i]->get_nn() ; 			
+	const Scalar& loggam = et[i]->get_loggam() ; 
+		
+	Scalar dlnnlng = chi.dsdx()/chi - Psi.dsdx()/Psi + loggam.dsdx() ;  
+	
+	//Vector dlnnlng = dchi / Psi - chi/(Psi*Psi)*dPsi + loggam.derive_cov(flat); 
 	// Change the basis from spherical coordinate to Cartesian one
-	dlnnlng.change_triad( mp.get_bvect_cart() ) ;
+	//dlnnlng.change_triad( mp.get_bvect_cart() ) ;
 
 	// Sign convention for shift (beta^i = - N^i)
 	Vector shift =  - ( et[i]->get_beta() ) ;
@@ -129,39 +133,37 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	      }
 	}
 	    
-	dnulg[i] = factx*dlnnlng(1).val_grid_point(0, 0, 0, 0) ; 
-				  
+	//dnulg[i] = factx*dlnnlng(1).val_grid_point(0, 0, 0, 0) ;
+	dnulg[i] = factx*dlnnlng.val_grid_point(0, 0, 0, 0) ;
 		
 	//------------------------------------------------------------------
-	// Psi^4/N^2 in the center of the star ---> asn2[i]
+	// Psi^4/N^2 = in the center of the star ---> asn2[i]
 	//------------------------------------------------------------------
 
-	double nc = nn.val_grid_point(0, 0, 0, 0) ;
-	double a2c = psi4.val_grid_point(0, 0, 0, 0) ;
-	asn2[i] = a2c / (nc * nc) ;
+	Scalar Psi6schi2 = pow(Psi, 6)/(chi*chi) ; 
+	Psi6schi2.std_spectral_base() ; 
+	asn2[i] = Psi6schi2.val_grid_point(0, 0, 0, 0) ;  
 	 
 	//------------------------------------------------------------------
 	// d/dX(A^2/N^2) in the center of the star ---> dasn2[i]
 	//------------------------------------------------------------------
 
-	    double da2c = factx * psi4.dsdx().val_grid_point(0, 0, 0, 0) ; 
-	    double dnc =  factx * nn.dsdx().val_grid_point(0, 0, 0, 0) ;
-
-	    dasn2[i] = ( da2c - 2 * a2c / nc * dnc ) / (nc*nc) ; 
-
+	//Scalar dPsi6schi2 = Psi6schi2.dsdx() ; 
+	dasn2[i] = Psi6schi2.dsdx().val_grid_point(0, 0, 0, 0) ; 
+		
 	//------------------------------------------------------------------
 	// N^Y in the center of the star ---> ny[i]
 	//------------------------------------------------------------------
 
-	    ny[i] = shift(2).val_grid_point(0, 0, 0, 0) ; 
-	    nyso[i] = ny[i] / omega ;
+	ny[i] = shift(2).val_grid_point(0, 0, 0, 0) ; 
+	nyso[i] = ny[i] / omega ;
 	    
 	//------------------------------------------------------------------
 	// dN^Y/dX in the center of the star ---> dny[i]
 	//------------------------------------------------------------------
 	    
-	    dny[i] = factx * shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
-	    dnyso[i] = dny[i] / omega ;
+	dny[i] = factx * shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
+	dnyso[i] = dny[i] / omega ;
 
 	    //--------------------------------------------------------------
 	    // (N^X)^2 + (N^Y)^2 + (N^Z)^2 
@@ -215,13 +217,12 @@ void Binary_xcts::orbit(double fact_omeg_min,
     double ori_x2 = ori_x[1] ;
 
     if ( et[0]->get_eos() == et[1]->get_eos() &&
-	 fabs( et[0]->get_ent().val_grid_point(0,0,0,0) -
-	              et[1]->get_ent().val_grid_point(0,0,0,0) ) < 1.e-14 ) {
+	 fabs( et[0]->get_ent().val_grid_point(0,0,0,0) - 
+		   et[1]->get_ent().val_grid_point(0,0,0,0) ) < 1.e-14 ) {
 
         x_axe = 0. ;
 
-    }
-    else {
+    } else {
 
 	Param paraxe ;
 	paraxe.add_int(relat) ;
@@ -253,7 +254,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	     << nit_axe << endl ;
     }
 
-    cout << "Binary_xcts::orbit : x_axe [km] : " << x_axe / km << endl ; 
+    cout << "Binary_xcts::orbit: x_axe [km] : " << x_axe / km << endl ; 
 
 //-------------------------------------
 //  Calcul de la vitesse orbitale    
@@ -276,7 +277,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
     cout << "Binary_xcts::orbit: omega1,  omega2 [rad/s] : " 
 	 << omega1 * f_unit << "  " << omega2 * f_unit << endl ; 
 
-	// Search for the various zeros in the interval [omega1,omega2]
+	// Search for the various zeros in the interval [omega1, omega2]
 	// ------------------------------------------------------------
 	int nsub = 50 ;  // total number of subdivisions of the interval
 	Tbl* azer = 0x0 ;
