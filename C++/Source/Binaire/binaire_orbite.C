@@ -34,6 +34,9 @@ char binaire_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2011/03/27 16:42:21  e_gourgoulhon
+ * Added output via new function save_profile for graphics.
+ *
  * Revision 1.4  2009/06/18 18:40:57  k_taniguchi
  * Added a slightly modified code to determine
  * the orbital angular velocity.
@@ -97,6 +100,9 @@ char binaire_orbite_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 #include "unites.h"
+
+#include "scalar.h"
+#include "graphique.h"
 
 double  fonc_binaire_axe(double , const Param& ) ;
 double  fonc_binaire_orbit(double , const Param& ) ;
@@ -164,6 +170,16 @@ void Binaire::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	dnulg[i] = dln_auto_div(0)(0, 0, 0, 0)
 	  + factx * tmp.dsdx()(0, 0, 0, 0) ; 
 	
+	tmp = logn_auto_regu + logn_comp ; 
+	cout << "dlnndx_div_c : " <<  dln_auto_div(0)(0, 0, 0, 0)  << endl ; 
+	cout << "dlnndx_c : " <<  dln_auto_div(0)(0, 0, 0, 0) + factx*tmp.dsdx()(0, 0, 0, 0) << endl ; 
+				  
+	cout << "dloggamdx_c : " <<  factx*loggam.dsdx()(0, 0, 0, 0) << endl ; 
+	Scalar stmp(logn_comp) ; 
+        save_profile(stmp, 0., 10., 0.5*M_PI, 0., "prof_logn.d") ; 
+	stmp = loggam ; 
+        save_profile(stmp, 0., 1.8, 0.5*M_PI, 0., "prof_loggam.d") ; 
+  
 	//----------------------------------
 	// Calcul de A^2/N^2 au centre de l'etoile ---> asn2[i]
 	//----------------------------------
