@@ -29,6 +29,10 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2011/03/27 16:41:19  e_gourgoulhon
+ * -- Corrected sign of ny and dny for star no. 2
+ * -- Added output via new function save_profile for graphics
+ *
  * Revision 1.8  2011/03/27 14:58:48  m_bejger
  * dnulg by means of dsdx(); rearrangements to use primary variables
  *
@@ -66,6 +70,8 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 #include "unites.h"
+
+#include "graphique.h"
 
 double  fonc_binary_xcts_axe(double , const Param& ) ;
 double  fonc_binary_xcts_orbit(double , const Param& ) ;
@@ -135,7 +141,18 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	    
 	//dnulg[i] = factx*dlnnlng(1).val_grid_point(0, 0, 0, 0) ;
 	dnulg[i] = factx*dlnnlng.val_grid_point(0, 0, 0, 0) ;
+
+	//## Alternative : 
+	// Scalar tmp = et[i]->get_logn() + et[i]->get_loggam() ; 
+	// dnulg[i] = factx*tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
 		
+	// For graphical outputs: 
+	Scalar tgraph = et[i]->get_logn() - log( (1. + et[i]->get_chi_auto()) / (1. + et[i]->get_Psi_auto()) ) ; 
+	// tmp = log( (1. + et[i]->get_chi_comp()) / (1. + et[i]->get_Psi_comp()) ) ; 
+	tgraph.std_spectral_base() ; 
+        save_profile(tgraph, 0., 10., 0.5*M_PI, 0., "prof_logn.d") ; 
+        save_profile(et[i]->get_loggam(), 0., 1.8, 0.5*M_PI, 0., "prof_loggam.d") ;
+ 
 	//------------------------------------------------------------------
 	// Psi^4/N^2 = in the center of the star ---> asn2[i]
 	//------------------------------------------------------------------
@@ -155,14 +172,18 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	// N^Y in the center of the star ---> ny[i]
 	//------------------------------------------------------------------
 
-	ny[i] = shift(2).val_grid_point(0, 0, 0, 0) ; 
+	//## ny[i] = shift(2).val_grid_point(0, 0, 0, 0) ; 
+	ny[i] = factx*shift(2).val_grid_point(0, 0, 0, 0) ; 
+
 	nyso[i] = ny[i] / omega ;
 	    
 	//------------------------------------------------------------------
 	// dN^Y/dX in the center of the star ---> dny[i]
 	//------------------------------------------------------------------
 	    
-	dny[i] = factx * shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
+	//## dny[i] = factx * shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
+	dny[i] = shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
+
 	dnyso[i] = dny[i] / omega ;
 
 	    //--------------------------------------------------------------
