@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2011/03/28 17:13:37  m_bejger
+ * logn in dnulg stated using Psi1,2 and chi1,2
+ *
  * Revision 1.9  2011/03/27 16:41:19  e_gourgoulhon
  * -- Corrected sign of ny and dny for star no. 2
  * -- Added output via new function save_profile for graphics
@@ -101,17 +104,9 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	const Scalar& Psi = et[i]->get_Psi() ;
 	const Scalar& psi4 = et[i]->get_psi4() ;
 
-	const Vector& dchi = et[i]->get_dcov_chi() ;
-	const Vector& dPsi = et[i]->get_dcov_Psi() ;
-	
-	const Scalar& nn = et[i]->get_nn() ; 			
-	const Scalar& loggam = et[i]->get_loggam() ; 
-		
-	Scalar dlnnlng = chi.dsdx()/chi - Psi.dsdx()/Psi + loggam.dsdx() ;  
-	
-	//Vector dlnnlng = dchi / Psi - chi/(Psi*Psi)*dPsi + loggam.derive_cov(flat); 
-	// Change the basis from spherical coordinate to Cartesian one
-	//dlnnlng.change_triad( mp.get_bvect_cart() ) ;
+    Scalar logn = log(1 + et[i]->get_chi_auto() + et[i]->get_chi_comp())
+    - log(1 + et[i]->get_Psi_auto() + et[i]->get_Psi_comp()) ; 
+    logn.std_spectral_base() ; 
 
 	// Sign convention for shift (beta^i = - N^i)
 	Vector shift =  - ( et[i]->get_beta() ) ;
@@ -124,10 +119,9 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	
 	// Facteur de passage x --> X :
 	double factx ;
-	if (fabs(mp.get_rot_phi()) < 1.e-14) {
-	    factx = 1. ; 
-
-	} else {
+	
+	if (fabs(mp.get_rot_phi()) < 1.e-14) factx = 1. ; 
+	else {
 		
 	  	  if (fabs(mp.get_rot_phi() - M_PI) < 1.e-14) {
 			factx = - 1. ; 
@@ -139,12 +133,8 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	      }
 	}
 	    
-	//dnulg[i] = factx*dlnnlng(1).val_grid_point(0, 0, 0, 0) ;
-	dnulg[i] = factx*dlnnlng.val_grid_point(0, 0, 0, 0) ;
-
-	//## Alternative : 
-	// Scalar tmp = et[i]->get_logn() + et[i]->get_loggam() ; 
-	// dnulg[i] = factx*tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
+	 Scalar tmp = logn + et[i]->get_loggam() ; 
+	 dnulg[i] = factx*tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
 		
 	// For graphical outputs: 
 	Scalar tgraph = et[i]->get_logn() - log( (1. + et[i]->get_chi_auto()) / (1. + et[i]->get_Psi_auto()) ) ; 
@@ -165,7 +155,6 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	// d/dX(A^2/N^2) in the center of the star ---> dasn2[i]
 	//------------------------------------------------------------------
 
-	//Scalar dPsi6schi2 = Psi6schi2.dsdx() ; 
 	dasn2[i] = Psi6schi2.dsdx().val_grid_point(0, 0, 0, 0) ; 
 		
 	//------------------------------------------------------------------
@@ -191,7 +180,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	    // in the center of the star ---> npn[i]
 	    //--------------------------------------------------------------
  
-        Scalar tmp = contract(shift, 0, shift.up_down(flat), 0) ; 
+        tmp = contract(shift, 0, shift.up_down(flat), 0) ; 
 
 	    npn[i] = tmp.val_grid_point(0, 0, 0, 0) ; 
 	    npnso2[i] = npn[i] / omega / omega ;
