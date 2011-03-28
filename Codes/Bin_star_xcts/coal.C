@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2011/03/28 17:43:56  m_bejger
+ * Formatting of the output to calcul.d; other minor modifications; metric is not updated after the first step
+ *
  * Revision 1.9  2010/12/20 15:46:41  m_bejger
  * lin_mom, virial errors added to the final cout
  *
@@ -283,8 +286,6 @@ int main() {
     //	    Update of the initial conditions
     //------------------------------------------------------------------
 
-    //star.fait_decouple() ;
-
     for (int i=1; i<=2; i++)
 		(star.set(i)).update_metric(star(3-i)) ;
 
@@ -310,7 +311,7 @@ int main() {
     star.analytical_omega() ;
 
     // If the shift vector has not been set previously, it is set to
-    //  some analytical value
+    // some analytical value
     // -------------------------------------------------------------
 
     star.analytical_shift() ;
@@ -319,7 +320,7 @@ int main() {
 		star.set(i).set_beta_auto() = reduce_shift*star(i).get_beta_auto() ;
 
     // A second call to update_metric must be performed to update
-    //  beta_comp, tkij_auto and akcar_auto.
+    // beta_comp, haij_auto and hacar_auto.
     for (int i=1; i<=2; i++)
 		(star.set(i)).update_metric(star(3-i)) ;
 
@@ -368,7 +369,6 @@ int main() {
 	//------------------------------------------------------------------
 
     double ent_c[2] ;	    // Central enthalpy in each star
-    double dentdx[2] ;	    // Central d/dx(enthalpy) in each star
 
     // Resizing factor of the first shell
     Tbl fact_resize[] = {Tbl(2), Tbl(2)} ;
@@ -394,24 +394,26 @@ int main() {
     double relax_jm1 = 1. - relax ;
     double relax_omeg_jm1 = 1. - relax_omeg ;
 
-//----------------------------------------------------------------------
-//	 Binary system at the previous step (for the relaxation)
-//----------------------------------------------------------------------
+	//------------------------------------------------------------------
+	//		Binary system at the previous step (for the relaxation)
+	//------------------------------------------------------------------
 
     Binary_xcts star_jm1 = star ;
     double omega_jm1 = star_jm1.get_omega() ;
 
-    //// chi_comp, Psi_comp and pot_centri are initialized to 0 on star_jm1 : 
-    //// ---------------------------------------------------------
-    //for (int i=1 ; i<=2 ; i++) {
-	//star_jm1.set(i).set_Psi_comp() = 0 ; 
-	//star_jm1.set(i).set_chi_comp() = 0 ; 
-	//star_jm1.set(i).set_pot_centri() = 0 ; 
-    //}
+	//------------------------------------------------------------------
+    //		chi_comp, Psi_comp and pot_centri
+    //		are initialized to 0 on star_jm1 : 
+    //------------------------------------------------------------------
+    for (int i=1 ; i<=2 ; i++) {
+		star_jm1.set(i).set_Psi_comp() = 0 ; 
+		star_jm1.set(i).set_chi_comp() = 0 ; 
+		star_jm1.set(i).set_pot_centri() = 0 ; 
+    }
     
-//----------------------------------------------------------------------
-//	 Openning of log files
-//----------------------------------------------------------------------
+	//------------------------------------------------------------------
+	//		Openning of log files
+	//------------------------------------------------------------------
 
     sprintf(name, "resglob_%.3f.d", distance) ;
     ofstream fichresu(name) ; fichresu.precision(16) ;
@@ -485,7 +487,7 @@ int main() {
 	//	    Computation of the metric coefficients
 	//------------------------------------------------------------------
 
-	if ( (mer % fmer_upd_met) == 0 || mer == 1) {
+	if ( (mer % fmer_upd_met) == 0) {
 
 	    for (int i=1; i<=2; i++)
 	    	(star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ;
@@ -496,16 +498,17 @@ int main() {
 	}
 
 	//------------------------------------------------------------------
-	//	    Computation of the orbital angular velocity Omega
+	//		Computation of the orbital angular velocity Omega
 	//------------------------------------------------------------------
 
 	double xgg[2] ;
 
 	star.orbit(fact_omeg_min, fact_omeg_max, xgg[0], xgg[1]) ;
 
-	// Translation of the stars in order to set the origin
-	//  of the absolute frame on the rotation axis
-	//-----------------------------------------------------
+	//------------------------------------------------------------------
+	//		Translation of the stars in order to set the origin
+	//		of the absolute frame on the rotation axis
+	//------------------------------------------------------------------
 
 	double x_rot = star.get_x_axe() ;
 
@@ -518,8 +521,9 @@ int main() {
 
 	star.set_x_axe() = 0. ;
 
-	// Relaxation on the orbital velocity
-	// ----------------------------------
+	//------------------------------------------------------------------
+	//		Relaxation on the orbital velocity
+	// -----------------------------------------------------------------
 
 	double omega_j = star.get_omega() ;
 	omega_j = relax_omeg * omega_j + relax_omeg_jm1 * omega_jm1 ;
@@ -575,32 +579,6 @@ int main() {
 
 	    (star.set(i)).fait_d_psi() ;
 	    (star.set(i)).hydro_euler() ;
-
-//		//##
-//	    // Check of the Binary_xcts::orbit computation
-//	    //--------------------------------------------
-//
-//    	Scalar lognn = star(i).get_logn() ;
-//
-//	    Scalar tmp = lognn + star(i).get_loggam() ;
-//	    double grad1 = tmp.dsdx().val_grid_point(0, 0, 0, 0) ;
-//
-//	    double grad2 = star(i).get_pot_centri().dsdx()
-//		.val_grid_point(0, 0, 0, 0) ;
-//
-//	    dentdx[i-1] = star(i).get_ent().dsdx()
-//		.val_grid_point(0, 0, 0, 0) ;
-//
-//	    double grad3 = star(i).get_loggam().dsdx()
-//		.val_grid_point(0, 0, 0, 0) ;
-//
-//	    cout << "Star " << i << " : " << endl ;
-//	    cout << "  central dH/dx  : " <<  dentdx[i-1] << endl ;
-//	    cout << "  central d(log(Gam))/dx  : " <<  grad3 << endl ;
-//	    cout << "  central d/dx(nu + log(Gam)) : " << grad1 << endl ;
-//	    cout << "  central d/dx(pot_centri) : " << grad2 << endl ;
-//	    cout << "  central d/dx(nu + log(Gam) + pot_centri) : "
-//		 << grad1 + grad2 << endl ;
 
 	}
 
@@ -711,9 +689,9 @@ int main() {
 	cout << star << endl ;
 
 
-	//---------------------------------------------------------------------
+	//------------------------------------------------------------------
 	//		The whole configuration is saved in a file
-	//---------------------------------------------------------------------
+	//------------------------------------------------------------------
 
 	if ( (mer % fmer_save) == 0 ) {
 
@@ -734,7 +712,6 @@ int main() {
 
 	    fclose(fresu2) ;
 	}
-
 
 	//--------------------------------------------
 	//  Writing of global quantities in log files
@@ -822,7 +799,12 @@ int main() {
 	"==================================================================="
 	      << endl << endl ;
 
-	fichfinal << "                           Irrotational" << endl ;
+	fichfinal << "Relativistic computation"  ;
+    
+    if ( star(1).is_irrotational() ) 
+	fichfinal << "                           Irrotational" << endl ; 
+    else 
+	fichfinal << "                           Co-rotating" << endl ; 
 
     fichfinal << star(1).get_eos() << endl ;
 
@@ -856,8 +838,8 @@ int main() {
 	 << " G M_sol^2 / c" << endl ;
 
     cout << "Total linear momentum  : " << endl 
-	 << star.lin_mom()(0) << endl 
-	 << star.lin_mom()(1) << endl
+	 << star.lin_mom()(0) << "   "
+	 << star.lin_mom()(1) << "   "
 	 << star.lin_mom()(2) << endl ;
 	 
     fichfinal << endl << "Number of steps : " << mer << endl ;
@@ -884,16 +866,23 @@ int main() {
     fichfinal << endl <<
 	"==================================================================="
 	      << endl ;
-    fichfinal << "Diff_ent :  star 1 : " << differ[0](0) << "   star 2 : "
-	      << differ[1](0) << endl ;
+	      
+	fichfinal 	<< "Diff_ent :  star 1 : " 
+				<< differ[0](0) << "   star 2 : "
+				<< differ[1](0) << endl ;
     fichfinal <<
 	"Relative difference between the baryon masses of the two stars : "
 	      << diff_mass << endl ;
-    fichfinal << "dH/dx at r = 0 :  star 1 : " << dentdx[0]
-	      << "   star 2 : " << dentdx[1] << endl ;
 
-    fichfinal << "Relative error on the virial theorem : " << endl ;
-    fichfinal << "   VE(M)= " << star.virial() ;
+	fichfinal	<< "dH/dx at r = 0 :  star 1 : " 
+				<< star(1).get_ent().dsdx().val_grid_point(0, 0, 0, 0) 
+				<< "   star 2 : " 
+				<< star(2).get_ent().dsdx().val_grid_point(0, 0, 0, 0)
+				<< endl ; 
+
+    fichfinal 	<< "Relative error on the virial theorem : " << endl ;
+    fichfinal 	<< "   VE(M)= " << star.virial() ;
+	fichfinal 	<< "   VE(M)_vol= " << star.virial_vol() ;
 
     fichfinal << endl <<
 	"================================================================" << endl ;
@@ -901,6 +890,7 @@ int main() {
     fichfinal <<
 	"================================================================" << endl ;
     fichfinal.close() ;
+    
     system_status = system("cat parcoal.d >> calcul.d") ;
 
 // Identification du code et de ses sous-routines (no. de version RCS) :
