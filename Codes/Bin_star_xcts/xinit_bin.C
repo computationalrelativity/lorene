@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.1  2011/03/29 13:49:58  m_bejger
+ * Renaming init_bin.C to xinit_bin.C in order to avoid confusion with previous codes
+ *
  * Revision 1.5  2010/12/09 10:49:37  m_bejger
  * *** empty log message ***
  *
