@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.1  2011/03/29 13:45:54  m_bejger
+ * Renaming lit_bin.C to xlit_bin.C in order to avoid confusion with previous codes
+ *
  * Revision 1.6  2011/03/25 10:01:17  m_bejger
  * Curvature tensor plots corrected
  *
@@ -75,7 +78,6 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 int main(int argc, char** argv){
 
   //    Identification of all the subroutines called by the code : 
-    
   //     system("ident lit_bin") ; 
   
     if (argc < 2) {
@@ -379,7 +381,6 @@ int main(int argc, char** argv){
     des_profile (Psi1, 0., 15* star(1).ray_eq(), M_PI/2., 0.,  
 	"Psi1", "Psi1 (theta=pi/2,  phi=0)" ) ;  
 
-/*
 //    des_profile (chi1_auto, 0., 15* star(1).ray_eq(),  M_PI/2., 0.,  
 //	"chi1_auto", "chi1_auto (theta=pi/2,  phi=0)" ) ; 
  
@@ -490,7 +491,7 @@ int main(int argc, char** argv){
 		   -2., 0.5, xdes_min, xdes_max, ydes_min, ydes_max,
 		   "Shift vector  (z=0)", 
 		   &surf1, &surf2, draw_bound ) ; 
-*/     
+		       
     //----------------------------
     // Extrinsic curvature tensor
     //----------------------------
