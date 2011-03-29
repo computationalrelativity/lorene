@@ -7,15 +7,15 @@ LIBLOR = $(HOME_LORENE)/Lib/liblorene_g.a $(HOME_LORENE)/Lib/liblorenef77_g.a
 
 .SUFFIXES : .o .C
 
-SRC1 = coal.C
+SRC1 = xcoal.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-SRC2 = lit_bin.C
+SRC2 = xlit_bin.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
-SRC3 = init_bin.C
+SRC3 = xinit_bin.C
 OBJ3 = $(SRC3:.C=.o)
 EXE3 = $(SRC3:.C=)
 
