@@ -28,6 +28,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.1  2011/03/29 13:47:59  m_bejger
+ * Renaming coal.C to xcoal.C in order to avoid confusion with previous codes
+ *
  * Revision 1.10  2011/03/28 17:43:56  m_bejger
  * Formatting of the output to calcul.d; other minor modifications; metric is not updated after the first step
  *
