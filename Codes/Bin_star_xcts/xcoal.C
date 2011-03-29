@@ -23,11 +23,14 @@
  *
  */
 
-char coal_C[] = "$Header$" ;
+char xcoal_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2011/03/29 14:08:07  m_bejger
+ * Changing the name from coal to xcoal in the output, ident call etc.
+ *
  * Revision 1.1  2011/03/29 13:47:59  m_bejger
  * Renaming coal.C to xcoal.C in order to avoid confusion with previous codes
  *
@@ -91,7 +94,7 @@ int main() {
     // Identification of all the subroutines called by the code :
 
     int system_status ;
-    system_status = system("ident coal > identif.d") ;
+    system_status = system("ident xcoal > identif.d") ;
 
     // For the display :
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
@@ -904,7 +907,7 @@ int main() {
     fichfinal <<
 	"================================================================" << endl ;
     fichfinal.close() ;
-    system_status = system("ident coal >> calcul.d") ;
+    system_status = system("ident xcoal >> calcul.d") ;
 
 // Preparation for CPU infos printing :
     fichfinal.open("calcul.d", ios::app ) ;
@@ -926,7 +929,7 @@ int main() {
     sprintf(name, "resformat_%.3f.d", distance) ;
     ofstream seqfich(name) ;
     if ( !seqfich.good() ) {
-	cout << "coal : problem with opening the file resformat.d !" << endl ;
+	cout << "xcoal : problem with opening the file resformat.d !" << endl ;
 	abort() ;
     }
     star.write_global(seqfich) ;
