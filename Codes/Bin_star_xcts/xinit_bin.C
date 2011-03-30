@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2011/03/30 13:22:09  m_bejger
+ * Reading of the third line in par_init.d to assure backwards compatibility with Bin_star/init_bin
+ *
  * Revision 1.1  2011/03/29 13:49:58  m_bejger
  * Renaming init_bin.C to xinit_bin.C in order to avoid confusion with previous codes
  *
@@ -82,6 +85,9 @@ int main() {
     ifstream fich("par_init.d") ;
     fich.getline(blabla, 80) ;
     fich.getline(blabla, 80) ;
+    fich.getline(blabla, 80) ; 	// this line added for the backwards 
+								// compatibility with the init_bin.C
+								// from Bin_star
 
     double separ ; 
     fich >> separ; fich.getline(blabla, 80) ;
