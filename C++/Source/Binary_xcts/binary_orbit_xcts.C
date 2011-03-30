@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2011/03/30 13:14:27  m_bejger
+ * Psi and chi rewritten using auto and comp parts to improve the convergence (in all the remaining fields, not only logn)
+ *
  * Revision 1.10  2011/03/28 17:13:37  m_bejger
  * logn in dnulg stated using Psi1,2 and chi1,2
  *
@@ -99,15 +102,17 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	
 	const Map& mp = et[i]->get_mp() ; 
 	const Metric& flat = et[i]->get_flat() ;
-		
-	const Scalar& chi = et[i]->get_chi() ;
-	const Scalar& Psi = et[i]->get_Psi() ;
-	const Scalar& psi4 = et[i]->get_psi4() ;
 
-    Scalar logn = log(1 + et[i]->get_chi_auto() + et[i]->get_chi_comp())
-    - log(1 + et[i]->get_Psi_auto() + et[i]->get_Psi_comp()) ; 
+	//------------------------------------------------------------------
+    // Recasting Phi and chi to manifestly equal auto and comp part 
+    // - more fortunate from the point of view of Omega computation 
+    //------------------------------------------------------------------
+    Scalar chi = et[i]->get_chi_auto() + et[i]->get_chi_comp() + 1 ;
+    Scalar Psi = et[i]->get_Psi_auto() + et[i]->get_Psi_comp() + 1 ; 
+    	
+    Scalar logn = log(chi) - log(Psi) ; 
     logn.std_spectral_base() ; 
-
+    
 	// Sign convention for shift (beta^i = - N^i)
 	Vector shift =  - ( et[i]->get_beta() ) ;
 	shift.change_triad(et[i]->mp.get_bvect_cart()) ;
@@ -137,7 +142,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	 dnulg[i] = factx*tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
 		
 	// For graphical outputs: 
-	Scalar tgraph = et[i]->get_logn() - log( (1. + et[i]->get_chi_auto()) / (1. + et[i]->get_Psi_auto()) ) ; 
+	Scalar tgraph = logn - log( (1. + et[i]->get_chi_auto()) / (1. + et[i]->get_Psi_auto()) ) ; 
 	// tmp = log( (1. + et[i]->get_chi_comp()) / (1. + et[i]->get_Psi_comp()) ) ; 
 	tgraph.std_spectral_base() ; 
         save_profile(tgraph, 0., 10., 0.5*M_PI, 0., "prof_logn.d") ; 
@@ -147,7 +152,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	// Psi^4/N^2 = in the center of the star ---> asn2[i]
 	//------------------------------------------------------------------
 
-	Scalar Psi6schi2 = pow(Psi, 6)/(chi*chi) ; 
+	Scalar Psi6schi2 = pow(Psi, 6)/(chi % chi) ; 
 	Psi6schi2.std_spectral_base() ; 
 	asn2[i] = Psi6schi2.val_grid_point(0, 0, 0, 0) ;  
 	 
@@ -161,7 +166,6 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	// N^Y in the center of the star ---> ny[i]
 	//------------------------------------------------------------------
 
-	//## ny[i] = shift(2).val_grid_point(0, 0, 0, 0) ; 
 	ny[i] = factx*shift(2).val_grid_point(0, 0, 0, 0) ; 
 
 	nyso[i] = ny[i] / omega ;
@@ -170,28 +174,27 @@ void Binary_xcts::orbit(double fact_omeg_min,
 	// dN^Y/dX in the center of the star ---> dny[i]
 	//------------------------------------------------------------------
 	    
-	//## dny[i] = factx * shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
 	dny[i] = shift(2).dsdx().val_grid_point(0, 0, 0, 0) ; 
 
 	dnyso[i] = dny[i] / omega ;
 
-	    //--------------------------------------------------------------
-	    // (N^X)^2 + (N^Y)^2 + (N^Z)^2 
-	    // in the center of the star ---> npn[i]
-	    //--------------------------------------------------------------
+	//------------------------------------------------------------------
+	// (N^X)^2 + (N^Y)^2 + (N^Z)^2 
+	// in the center of the star ---> npn[i]
+	//------------------------------------------------------------------
  
-        tmp = contract(shift, 0, shift.up_down(flat), 0) ; 
+	tmp = contract(shift, 0, shift.up_down(flat), 0) ; 
 
-	    npn[i] = tmp.val_grid_point(0, 0, 0, 0) ; 
-	    npnso2[i] = npn[i] / omega / omega ;
+	npn[i] = tmp.val_grid_point(0, 0, 0, 0) ; 
+	npnso2[i] = npn[i] / omega / omega ;
 
-	    //--------------------------------------------------------------
-	    // d/dX( (N^X)^2 + (N^Y)^2 + (N^Z)^2 )
-	    // in the center of the star ---> dnpn[i]
-	    //--------------------------------------------------------------
+	//------------------------------------------------------------------
+	// d/dX( (N^X)^2 + (N^Y)^2 + (N^Z)^2 )
+	// in the center of the star ---> dnpn[i]
+	//------------------------------------------------------------------
 	    
-	    dnpn[i] = factx * tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
-	    dnpnso2[i] = dnpn[i] / omega / omega ;
+	dnpn[i] = factx * tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
+	dnpnso2[i] = dnpn[i] / omega / omega ;
 
 	cout << "Binary_xcts::orbit: central d(nu+log(Gam))/dX : " 
 	     << dnulg[i] << endl ; 
