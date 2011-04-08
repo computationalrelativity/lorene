@@ -35,6 +35,11 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2011/04/08 12:55:50  e_gourgoulhon
+ * Scalar::val_point : division by r^dzpuis to return the actual
+ * (i.e. physical) value of the field in the external compactified
+ * domain.
+ *
  * Revision 1.31  2005/10/25 08:56:39  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -858,6 +863,7 @@ bool Scalar::check_dzpuis(int dzi) const {
 
 double Scalar::val_point(double r, double theta, double phi) const {
 
+
     assert(etat != ETATNONDEF) ; 
     
     if (etat == ETATZERO) {
@@ -875,14 +881,46 @@ double Scalar::val_point(double r, double theta, double phi) const {
     
     int l ; 
     double xi ; 
-    
     mp->val_lx(r, theta, phi, l,  xi) ;	    // call of val_lx with default 
 					    // accuracy parameters
-    
     // 2/ Call to the Valeur version
-    
-    return va.val_point(l, xi, theta, phi) ; 
-
+    if (l == mp->get_mg()->get_nzone() - 1){  // in the last domain, one must take into account dzpuis
+      switch (dzpuis) {
+      case 0:
+	{
+	  return va.val_point(l, xi, theta, phi);
+	  break;
+	}
+      case 1:
+	{
+	  return va.val_point(l, xi, theta, phi)/r ; 
+	  break;
+	}
+      case 2:
+	{
+	  return va.val_point(l, xi, theta, phi)/(r*r) ; 
+	  break;
+	}
+      case 3:
+	{
+	  return va.val_point(l, xi, theta, phi)/(r*r*r) ; 
+	  break;
+	}
+      case 4:
+	{
+	  return va.val_point(l, xi, theta, phi)/(r*r*r*r) ; 
+	  break;
+	}
+      default:
+	{
+	  cout << "scalar::val_point unexpected value of dzpuis !" << endl;
+	  abort();
+	}
+      }
+    }
+    else{
+      return va.val_point(l, xi, theta, phi);
+    }
 }
  
 		//---------------------------------//
