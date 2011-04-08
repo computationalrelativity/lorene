@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.86  2011/04/08 13:13:09  e_gourgoulhon
+ * Changed the comment of function val_point to indicate specifically the
+ * division by r^dzpuis in the compactified external domain.
+ *
  * Revision 1.85  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -623,7 +627,9 @@ class Scalar : public Tensor {
    *	 @param theta [input] value of the coordinate \f$\theta\f$
    *	 @param phi [input] value of the coordinate \f$\phi\f$
    *	 @return value at the point \f$(r, \theta, \phi)\f$ 
-   *		 of the field represented by \c *this . 
+   *		 of the field represented by \c *this . NB: in the compactified 
+   *       external domain, the returned value is the actual value of the field, 
+   *       i.e. the stored value divided by \f$ r^{\rm dzpuis} \f$. 
    */
   double val_point(double r, double theta, double phi) const ; 
   
