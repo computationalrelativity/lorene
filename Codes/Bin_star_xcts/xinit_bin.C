@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2011/06/08 07:06:29  m_bejger
+ * star.display_poly() added to the output
+ *
  * Revision 1.2  2011/03/30 13:22:09  m_bejger
  * Reading of the third line in par_init.d to assure backwards compatibility with Bin_star/init_bin
  *
@@ -372,7 +375,8 @@ int main() {
     cout << endl << "Final characteristics of the computed system : " << endl ; 
     cout.precision(16) ; 
     cout << star << endl ; 
-    	     
+   
+    star.display_poly(cout) ; //  Reduced quantities for polytropic EOS 	     
     //-----------------------------------------------------------------------
     //		The result is written in a file
     //-----------------------------------------------------------------------
