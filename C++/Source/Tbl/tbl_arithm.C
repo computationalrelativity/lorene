@@ -31,6 +31,9 @@ char tbl_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2011/06/16 10:48:28  j_novak
+ * Minor modif.
+ *
  * Revision 1.2  2002/10/16 14:37:14  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -636,7 +639,8 @@ void Tbl::operator*=(const Tbl & ti) {
     
     // Cas general
     assert(etat == ETATQCQ) ;
-    for (int i=0 ; i<get_taille() ; i++) {
+    int n = get_taille() ;
+    for (int i=0 ; i<n ; i++) {
     	t[i] *= ti.t[i] ;
     }
     
@@ -658,8 +662,9 @@ void Tbl::operator*=(double x) {
     }
     
     // Cas general
+    int n = get_taille() ;
     assert(etat == ETATQCQ) ;
-    for (int i=0 ; i<get_taille() ; i++) {
+    for (int i=0 ; i<n ; i++) {
     	t[i] *= x ;
     }
     
