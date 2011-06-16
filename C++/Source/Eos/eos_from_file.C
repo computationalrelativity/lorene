@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2011/06/16 10:49:18  j_novak
+ * New class Eos_mag for EOSs depending on density and magnetic field.
+ *
  * Revision 1.9  2010/02/02 13:22:16  j_novak
  * New class Eos_Compstar.
  *
@@ -132,6 +135,8 @@ int Eos_GlendNH3::identify() const	{ return 16; }
 
 int Eos_Compstar::identify() const	{ return 17; }
 
+int Eos_mag::identify() const	{ return 18; }
+
 int MEos::identify() const	{ return 100; }
 
 int Eos_multi_poly::identify() const	{ return 110; }
@@ -223,6 +228,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 17 : {
 	    p_eos = new Eos_Compstar(fich) ;
+	    break ;
+	}
+
+	case 18 : {
+	    p_eos = new Eos_mag(fich) ;
 	    break ;
 	}
 
@@ -347,6 +357,11 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 
 	case 17 : {
 	    p_eos = new Eos_Compstar(fich) ;
+	    break ;
+	}
+
+	case 18 : {
+	    p_eos = new Eos_mag(fich) ;
 	    break ;
 	}
 

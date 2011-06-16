@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2011/06/16 10:49:18  j_novak
+ * New class Eos_mag for EOSs depending on density and magnetic field.
+ *
  * Revision 1.16  2010/02/02 13:21:52  j_novak
  * New class Eos_Compstar.
  *
@@ -2228,6 +2231,6 @@ class MEos : public Eos {
 		//------------------//
 		
 #include "eos_tabul.h"
-		
+#include "eos_mag.h"		
 
 #endif
