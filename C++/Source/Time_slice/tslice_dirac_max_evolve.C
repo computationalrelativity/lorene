@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2011/07/22 13:21:02  j_novak
+ * Corrected an error on BC treatment.
+ *
  * Revision 1.17  2010/10/20 07:58:10  j_novak
  * Better implementation of the explicit time-integration. Not fully-tested yet.
  *
@@ -194,14 +197,14 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     double anm2 = 5./12. ; 
 
     Param par_A ;
-    double* l_val_A = new double(1./Rmax) ;
-    double* l_der_A = new double(1.) ;
+    double l_val_A = 1./Rmax ;
+    double l_der_A = 1. ;
     par_A.add_int(nz_bound, 0) ;
     par_A.add_int(2, 1) ; //matching of function and derivative
     par_A.add_int(0, 2) ;// no shift in l 
     par_A.add_int(2, 3) ; // only for l>=2
-    par_A.add_double_mod(*l_val_A, 0) ;
-    par_A.add_double_mod(*l_der_A, 1) ;
+    par_A.add_double_mod(l_val_A, 0) ;
+    par_A.add_double_mod(l_der_A, 1) ;
     Tbl* tmp_Acc = new Tbl(np2, nt) ;
     Tbl& Acc = *tmp_Acc ;
     Acc.annule_hard() ;
@@ -209,14 +212,14 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Param par_mat_A_hh ;
 
     Param par_B ;
-    double* l_val_B = new double(1./Rmax) ;
-    double* l_der_B = new double(1.) ;
+    double l_val_B = 1./Rmax ;
+    double l_der_B = 1. ; 
     par_B.add_int(nz_bound, 0) ;
     par_B.add_int(2, 1) ; //matching of function and derivative
     par_B.add_int(-1, 2) ;// shift in l for tilde{B}
     par_B.add_int(2, 3) ; // only for l>=2
-    par_B.add_double_mod(*l_val_B, 0) ;
-    par_B.add_double_mod(*l_der_B, 1) ;
+    par_B.add_double_mod(l_val_B, 0) ;
+    par_B.add_double_mod(l_der_B, 1) ;
     Tbl* tmp_Bcc = new Tbl(np2, nt) ;
     Tbl& Bcc = *tmp_Bcc ;
     Bcc.annule_hard() ;
@@ -362,6 +365,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Vector zero_vec( map, CON, map.get_bvect_spher() ) ;
     zero_vec.set_etat_zero() ;
     const Vector& hat_S = ( mom_euler == 0x0 ? zero_vec : *mom_euler ) ;
+    Scalar lapB(map) ;
+    Scalar lapBm1 = source_B_hata_evol[jtime-1] ;
+    Scalar lapBm2 = source_B_hata_evol[jtime-2] ;
 
     // Evolution loop
     // --------------
@@ -505,30 +511,30 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	compute_sources(strain_euler) ;
 
 	A_hata_new = A_hata_evol[jtime] 
-	    + pdt*( an*source_A_hata_evol[jtime] + anm1*source_A_hata_evol[jtime-1]
-		   + anm2*source_A_hata_evol[jtime-2] ) ;
+	  + pdt*( an*source_A_hata_evol[jtime] + anm1*source_A_hata_evol[jtime-1]
+		  + anm2*source_A_hata_evol[jtime-2] ) ;
 	B_hata_new = B_hata_evol[jtime] 
-	    + pdt*( an*source_B_hata_evol[jtime] + anm1*source_B_hata_evol[jtime-1]
-		   + anm2*source_B_hata_evol[jtime-2] ) ;
+	  + pdt*( an*source_B_hata_evol[jtime] + anm1*source_B_hata_evol[jtime-1]
+		  + anm2*source_B_hata_evol[jtime-2] ) ;
 
 	A_hh_new = A_hh_evol[jtime] 
-	    + pdt*( an*source_A_hh_evol[jtime] + anm1*source_A_hh_evol[jtime-1]
-		   + anm2*source_A_hh_evol[jtime-2] ) ;
+	  + pdt*( an*source_A_hh_evol[jtime] + anm1*source_A_hh_evol[jtime-1]
+		  + anm2*source_A_hh_evol[jtime-2] ) ;
 
 	B_hh_new = B_hh_evol[jtime] 
-	    + pdt*( an*source_B_hh_evol[jtime] + anm1*source_B_hh_evol[jtime-1]
-		   + anm2*source_B_hh_evol[jtime-2] ) ;
-
-	Scalar bc_A = -A_hata_new ;
+	  + pdt*( an*source_B_hh_evol[jtime] + anm1*source_B_hh_evol[jtime-1]
+		  + anm2*source_B_hh_evol[jtime-2] ) ;
+	
+	Scalar bc_A = -2.*A_hata_new ;
 	bc_A.set_spectral_va().ylm() ;
 	evolve_outgoing_BC(pdt, nz_bound, A_hh_evol[jtime], bc_A, xij_a, xijm1_a, 
-			   Acc, 0) ;
+	 		   Acc, 0) ;
 	A_hh_new.match_tau(par_A, &par_mat_A_hh) ;
         
-	Scalar bc_B = -B_hata_new ;
+	Scalar bc_B = -2.*B_hata_new ;
 	bc_B.set_spectral_va().ylm() ;
 	evolve_outgoing_BC(pdt, nz_bound, B_hh_evol[jtime], bc_B, xij_b, xijm1_b, 
-			   Bcc, -1) ;
+	  		   Bcc, -1) ;
 	B_hh_new.match_tau(par_B, &par_mat_B_hh) ;
 	
         // Boundary conditions for hh and hata
@@ -686,11 +692,11 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	tmp = A_hh() ;
 	tmp.set_spectral_va().ylm_i() ;
         des_meridian(tmp, 0., ray_des, "A\\dh", ngraph0+9,
-                     graph_device) ; 
-	tmp = B_hh() ;
+                     "/xwin") ; 
+	tmp = B_hh_new;
 	tmp.set_spectral_va().ylm_i() ;
         des_meridian(tmp, 0., ray_des, "B\\dh", ngraph0+10,
-                     graph_device) ;
+                     "/xwin") ;
         des_meridian(trh(), 0., ray_des, "tr h", ngraph0+11,
                      graph_device) ; 
         des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", ngraph0+12,
@@ -701,7 +707,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                      graph_device) ; 
                 
         arrete(nopause) ; 
-
     }
 
     par_A.clean_all() ;

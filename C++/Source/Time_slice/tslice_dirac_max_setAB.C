@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2011/07/22 13:21:02  j_novak
+ * Corrected an error on BC treatment.
+ *
  * Revision 1.7  2010/10/20 07:58:10  j_novak
  * Better implementation of the explicit time-integration. Not fully-tested yet.
  *
@@ -66,6 +69,7 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 #include "param.h"
 #include "unites.h"
 #include "proto.h"
+#include "graphique.h"
 
 void Tslice_dirac_max::set_AB_hh(const Scalar& A_in, const Scalar& B_in) {
 
@@ -242,15 +246,21 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     // Source for hij
     //==================================
     
-    Sym_tensor source_hij = hh().derive_lie(beta()) + 2*nn()*aij 
- 	- beta().ope_killing_conf(ff) + 0.6666666666666667*div_beta*hh() ;
+    Sym_tensor source_hij = hh().derive_lie(beta()) + 2*(nn() - 1.)*aij 
+      - beta().ope_killing_conf(ff) + 0.6666666666666667*div_beta*hh() ;
     source_hij.annule_domain(nz-1) ;
     for (int i=1; i<=3; i++)
  	for (int j=i; j<=3; j++)
  	    source_hij.set( i, j ).set_dzpuis(0) ;
 
-    source_A_hh_evol.update( source_hij.compute_A(true), jtime, the_time[jtime] ) ;
-    tmp = source_hij.compute_tilde_B_tt(true) ;
+    tmp = 2.*A_hata_evol[jtime] + source_hij.compute_A(true) ;
+    tmp.set_spectral_va().ylm() ;
+    tmp.annule_domain(nz-1) ;
+    tmp.set_dzpuis(0) ;
+    source_A_hh_evol.update( tmp, jtime, the_time[jtime] ) ;
+
+    tmp = 2.*B_hata_evol[jtime] + source_hij.compute_tilde_B_tt(true) ;
+    tmp.set_spectral_va().ylm() ;
     tmp.annule_domain(nz-1) ;
     tmp.set_dzpuis(0) ;
     source_B_hh_evol.update(tmp, jtime, the_time[jtime] ) ;
@@ -260,7 +270,7 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     //==================================
     
     Sym_tensor source_aij = a_hat.derive_lie(beta())  
- 	+ 1.666666666666667*a_hat*div_beta ;
+    	+ 1.666666666666667*a_hat*div_beta ;
     
     // Quadratic part of the Ricci tensor of gam_tilde 
     // ------------------------------------------------
@@ -272,36 +282,36 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     ricci_star.inc_dzpuis() ;   // dzpuis : 3 --> 4
 
     for (int i=1; i<=3; i++) {
-	for (int j=1; j<=i; j++) {
-	    tmp = 0 ; 
-	    for (int k=1; k<=3; k++) {
-		for (int l=1; l<=3; l++) {
-		    tmp += dhh(i,k,l) * dhh(j,l,k) ; 
-		}
-	    }
-	    ricci_star.set(i,j) -= tmp ; 
-	}
+    	for (int j=1; j<=i; j++) {
+    	    tmp = 0 ; 
+    	    for (int k=1; k<=3; k++) {
+    		for (int l=1; l<=3; l++) {
+    		    tmp += dhh(i,k,l) * dhh(j,l,k) ; 
+    		}
+    	    }
+    	    ricci_star.set(i,j) -= tmp ; 
+    	}
     }
 
     for (int i=1; i<=3; i++) {
-	for (int j=1; j<=i; j++) {
-	    tmp = 0 ; 
-	    for (int k=1; k<=3; k++) {
-		for (int l=1; l<=3; l++) {
-		    for (int m=1; m<=3; m++) {
-			for (int n=1; n<=3; n++) {
+    	for (int j=1; j<=i; j++) {
+    	    tmp = 0 ; 
+    	    for (int k=1; k<=3; k++) {
+    		for (int l=1; l<=3; l++) {
+    		    for (int m=1; m<=3; m++) {
+    			for (int n=1; n<=3; n++) {
                             
      tmp += 0.5 * tgam_uu(i,k)* tgam_uu(j,l) 
        * dhh(m,n,k) * dtgam(m,n,l)
        + tgam_dd(n,l) * dhh(m,n,k) 
        * (tgam_uu(i,k) * dhh(j,l,m) + tgam_uu(j,k) *  dhh(i,l,m) )
        - tgam_dd(k,l) *tgam_uu(m,n) * dhh(i,k,m) * dhh(j,l,n) ;
-			}
-		    } 
-		}
-	    }
-	    sym_tmp.set(i,j) = tmp ; 
-	}
+    			}
+    		    } 
+    		}
+    	    }
+    	    sym_tmp.set(i,j) = tmp ; 
+    	}
     }
     ricci_star += sym_tmp ; // a factor 1/2 is still missing, shall be put later
     
@@ -309,51 +319,52 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     // -------------------------------------
         
     Scalar tricci_scal = 
-	0.25 * contract(tgam_uu, 0, 1,
-			contract(dhh, 0, 1, dtgam, 0, 1), 0, 1 ) 
-	- 0.5  * contract(tgam_uu, 0, 1,
-			  contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
+    	0.25 * contract(tgam_uu, 0, 1,
+    			contract(dhh, 0, 1, dtgam, 0, 1), 0, 1 ) 
+    	- 0.5  * contract(tgam_uu, 0, 1,
+    			  contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
 
-    tilde_laplacian( B_hh_evol[jtime], tmp) ;
+    Scalar lap_A = A_hh_evol[jtime].laplacian(2) ;
+    Scalar tilde_lap_B(map) ;
+    tilde_laplacian( B_hh_evol[jtime], tilde_lap_B) ;
     Sym_tensor_tt laplace_h(map, otriad, ff) ;
-    laplace_h.set_A_tildeB(A_hh_evol[jtime].laplacian(2), tmp) ;
+    laplace_h.set_A_tildeB(lap_A, tilde_lap_B) ;
     laplace_h.annule_domain(nz-1) ;
 
-    //    sym_tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+    //   sym_tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
 
-    source_aij += qq*( 0.5*laplace_h +  
-	sym_tmp + 0.5*ricci_star + 8.*tdln_psi_u * tdln_psi_u 
-	+ 4.*( tdln_psi_u * tdlnn_u + tdlnn_u * tdln_psi_u )
-	-  0.3333333333333333 * (tricci_scal + 8.*(contract(dln_psi, 0, tdln_psi_u, 0) 
-						   + contract(dln_psi, 0, tdlnn_u, 0) ) 
-	    )*tgam_uu
-	) ;
+    source_aij += (0.5*(qq - 1.))*laplace_h + qq*(0.5*ricci_star + 8.*tdln_psi_u * tdln_psi_u 
+  	+ 4.*( tdln_psi_u * tdlnn_u + tdlnn_u * tdln_psi_u )
+  	-  0.3333333333333333 * (tricci_scal + 8.*(contract(dln_psi, 0, tdln_psi_u, 0) 
+  						   + contract(dln_psi, 0, tdlnn_u, 0) ) 
+  	    )*tgam_uu
+  	) ;
 			   
     sym_tmp = contract(tgam_uu, 1, contract(tgam_uu, 1, dqq.derive_cov(ff), 0), 1) ;
     
     for (int i=1; i<=3; i++) {
-	for (int j=1; j<=i; j++) {
-	    tmp = 0 ; 
-	    for (int k=1; k<=3; k++) {
-		for (int l=1; l<=3; l++) {
-		    tmp += ( tgam_uu(i,k)*dhh(l,j,k) + tgam_uu(k,j)*dhh(i,l,k)
-			     - tgam_uu(k,l)*dhh(i,j,k) ) * dqq(l) ; 
-		}
-	    }
-	    sym_tmp.set(i,j) += 0.5 * tmp ; 
-	}
+  	for (int j=1; j<=i; j++) {
+  	    tmp = 0 ; 
+  	    for (int k=1; k<=3; k++) {
+  		for (int l=1; l<=3; l++) {
+  		    tmp += ( tgam_uu(i,k)*dhh(l,j,k) + tgam_uu(k,j)*dhh(i,l,k)
+  			     - tgam_uu(k,l)*dhh(i,j,k) ) * dqq(l) ; 
+  		}
+  	    }
+  	    sym_tmp.set(i,j) += 0.5 * tmp ; 
+  	}
     }
         
   source_aij -= sym_tmp 
-      - 0.3333333333333333*qq.derive_con(tgam()).divergence(tgam()) *tgam_uu ; 
+    - ( 0.3333333333333333*qq.derive_con(tgam()).divergence(tgam()) ) *tgam_uu ; 
                     
   for (int i=1; i<=3; i++) {
     for (int j=1; j<=i; j++) {
       tmp = 0 ; 
       for (int k=1; k<=3; k++) {
-	for (int l=1; l<=3; l++) {
-	  tmp += tgam_dd(k,l) * a_hat(i,k) * aij(j,l) ; 
-	}
+  	for (int l=1; l<=3; l++) {
+  	  tmp += tgam_dd(k,l) * a_hat(i,k) * aij(j,l) ; 
+  	}
       }
       sym_tmp.set(i,j) = tmp ; 
     }
@@ -361,9 +372,10 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
         
   tmp = psi4() * strain_tens.trace(tgam()) ; // S = S_i^i 
 
-  source_aij += (2.*nn()) * ( sym_tmp - qpig*psi6*( psi4()* strain_tens 
-                                       - 0.3333333333333333 * tmp * tgam_uu ) 
-                    )   ; 
+  source_aij += (2.*nn()) 
+    * ( 
+       sym_tmp - qpig*psi6*( psi4()* strain_tens - (0.3333333333333333 * tmp) * tgam_uu ) 
+	)   ; 
 
   source_aij.annule_domain(nz-1) ;
   for (int i=1; i<=3; i++)
@@ -373,11 +385,17 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
   maxabs(source_aij, "source_aij tot") ; 
 #endif
 
-  source_A_hata_evol.update( source_aij.compute_A(true), jtime, the_time[jtime] ) ;
-  tmp = source_aij.compute_tilde_B_tt(true) ;
+  tmp = 0.5*lap_A + source_aij.compute_A(true) ;
   tmp.annule_domain(nz-1) ;
   tmp.set_dzpuis(0) ;
-  source_B_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
+  source_A_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
+  tmp = 0.5*tilde_lap_B + source_aij.compute_tilde_B_tt(true) ;
+  tmp.annule_domain(nz-1) ;
+  tmp.set_dzpuis(0) ;
+  // Scalar dess = tmp - tilde_lap_B ;
+  // dess.set_spectral_va().ylm_i() ;
+  // des_profile(dess, 0, 8., 1, 1) ;
+  source_B_hata_evol.update( 0.5*tilde_lap_B, jtime, the_time[jtime] ) ;
 }
 
 void Tslice_dirac_max::initialize_sources_copy() const {
