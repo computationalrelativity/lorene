@@ -30,6 +30,10 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2011/09/27 15:38:11  j_novak
+ * New function for 2D interpolation added. The computation of 1st derivative is
+ * still missing.
+ *
  * Revision 1.4  2003/11/21 16:14:51  m_bejger
  * Added the linear interpolation
  *
@@ -162,3 +166,78 @@ void interpol_herm_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 }
 
 
+void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab, 
+		      const Tbl& dfdxtab, const Tbl& dfdytab, const Tbl& d2fdxdytab,
+		      double x, double y, double& f, double& dfdy) {
+
+  assert(ytab.dim == xtab.dim) ;
+  assert(ftab.dim == xtab.dim) ;
+  assert(dfdxtab.dim == xtab.dim) ;
+  assert(dfdytab.dim == xtab.dim) ;
+  assert(d2fdxdytab.dim == xtab.dim) ;
+  
+  int nbp1, nbp2;
+  nbp1 = xtab.get_dim(1);
+  nbp2 = xtab.get_dim(0);
+  
+  int i,j;
+  i = 0;
+  while ((xtab(i,0) <= x) && (nbp2 > i)) {
+    i = i + 1;
+  }
+  if (i != 0) {
+    i = i - 1;
+  }
+  j = 0;
+  while ((ytab(i,j) < y) && (nbp1 > j)) {
+    j = j + 1;
+  }
+  if (j != 0) {
+    j = j - 1;
+  }
+  
+  int i1 = i+1 ; int j1 = j+1 ;
+
+  double dx = xtab(i1, j) - xtab(i, j) ;
+  double dy = ytab(i, j1) - ytab(i, j) ;
+
+  double u = (x - xtab(i, j)) / dx ;
+  double v = (y - ytab(i, j)) / dy ;
+
+  double u2 = u*u ; double v2 = v*v ;
+  double u3 = u2*u ; double v3 = v2*v ;
+
+  double psi0_u = 2.*u3 - 3.*u2 + 1. ;
+  double psi0_1mu = -2.*u3 + 3.*u2 ;
+  double psi1_u = u3 - 2.*u2 + u ;
+  double psi1_1mu = -u3 + u2 ;
+
+  double psi0_v = 2.*v3 - 3.*v2 + 1. ;
+  double psi0_1mv = -2.*v3 + 3.*v2 ;
+  double psi1_v = v3 - 2.*v2 + v ;
+  double psi1_1mv = -v3 + v2 ;
+
+  f = ftab(i, j) * psi0_u * psi0_v
+    + ftab(i1, j) * psi0_1mu * psi0_v 
+    + ftab(i, j1) * psi0_u * psi0_1mv
+    + ftab(i1, j1)  * psi0_1mu * psi0_1mv ;
+
+  f += (dfdxtab(i, j) * psi1_u * psi0_v
+	- dfdxtab(i1, j) * psi1_1mu * psi0_v
+	+ dfdxtab(i, j1) * psi1_u * psi0_1mv
+	- dfdxtab(i1, j1) * psi1_1mu * psi0_1mv) * dx ;
+
+  f += (dfdytab(i, j) * psi0_u * psi1_v
+	+ dfdytab(i1, j) * psi0_1mu * psi1_v
+	- dfdytab(i, j1) * psi0_u * psi1_1mv
+	- dfdytab(i1, j1) * psi0_1mu * psi1_1mv) * dy ;
+  
+  f += (d2fdxdytab(i, j) * psi1_u * psi1_v
+	- d2fdxdytab(i1, j) * psi1_1mu * psi1_v
+	- d2fdxdytab(i, j1) * psi1_u * psi1_1mv 
+	+ d2fdxdytab(i1, j1) * psi1_1mu * psi1_1mv) * dx * dy ;
+
+
+  return ;
+
+}
