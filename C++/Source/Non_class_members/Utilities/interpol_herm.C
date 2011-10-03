@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2011/10/03 13:44:45  j_novak
+ * Updated the y-derivative for the 2D version
+ *
  * Revision 1.5  2011/09/27 15:38:11  j_novak
  * New function for 2D interpolation added. The computation of 1st derivative is
  * still missing.
@@ -180,29 +183,30 @@ void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab,
   nbp1 = xtab.get_dim(1);
   nbp2 = xtab.get_dim(0);
   
-  int i,j;
-  i = 0;
-  while ((xtab(i,0) <= x) && (nbp2 > i)) {
-    i = i + 1;
+  int i_near = 0 ;
+  int j_near = 0 ;
+
+  while ((xtab(i_near,0) <= x) && (nbp2 > i_near)) {
+    i_near++; 
   }
-  if (i != 0) {
-    i = i - 1;
+  if (i_near != 0) {
+    i_near-- ; 
   }
-  j = 0;
-  while ((ytab(i,j) < y) && (nbp1 > j)) {
-    j = j + 1;
+  j_near = 0;
+  while ((ytab(i_near,j_near) < y) && (nbp1 > j_near)) {
+    j_near++ ;
   }
-  if (j != 0) {
-    j = j - 1;
+  if (j_near != 0) {
+    j_near-- ; 
   }
   
-  int i1 = i+1 ; int j1 = j+1 ;
+  int i1 = i_near+1 ; int j1 = j_near+1 ;
 
-  double dx = xtab(i1, j) - xtab(i, j) ;
-  double dy = ytab(i, j1) - ytab(i, j) ;
+  double dx = xtab(i1, j_near) - xtab(i_near, j_near) ;
+  double dy = ytab(i_near, j1) - ytab(i_near, j_near) ;
 
-  double u = (x - xtab(i, j)) / dx ;
-  double v = (y - ytab(i, j)) / dy ;
+  double u = (x - xtab(i_near, j_near)) / dx ;
+  double v = (y - ytab(i_near, j_near)) / dy ;
 
   double u2 = u*u ; double v2 = v*v ;
   double u3 = u2*u ; double v3 = v2*v ;
@@ -217,25 +221,51 @@ void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab,
   double psi1_v = v3 - 2.*v2 + v ;
   double psi1_1mv = -v3 + v2 ;
 
-  f = ftab(i, j) * psi0_u * psi0_v
-    + ftab(i1, j) * psi0_1mu * psi0_v 
-    + ftab(i, j1) * psi0_u * psi0_1mv
+  f = ftab(i_near, j_near) * psi0_u * psi0_v
+    + ftab(i1, j_near) * psi0_1mu * psi0_v 
+    + ftab(i_near, j1) * psi0_u * psi0_1mv
     + ftab(i1, j1)  * psi0_1mu * psi0_1mv ;
 
-  f += (dfdxtab(i, j) * psi1_u * psi0_v
-	- dfdxtab(i1, j) * psi1_1mu * psi0_v
-	+ dfdxtab(i, j1) * psi1_u * psi0_1mv
+  f += (dfdxtab(i_near, j_near) * psi1_u * psi0_v
+	- dfdxtab(i1, j_near) * psi1_1mu * psi0_v
+	+ dfdxtab(i_near, j1) * psi1_u * psi0_1mv
 	- dfdxtab(i1, j1) * psi1_1mu * psi0_1mv) * dx ;
 
-  f += (dfdytab(i, j) * psi0_u * psi1_v
-	+ dfdytab(i1, j) * psi0_1mu * psi1_v
-	- dfdytab(i, j1) * psi0_u * psi1_1mv
+  f += (dfdytab(i_near, j_near) * psi0_u * psi1_v
+	+ dfdytab(i1, j_near) * psi0_1mu * psi1_v
+	- dfdytab(i_near, j1) * psi0_u * psi1_1mv
 	- dfdytab(i1, j1) * psi0_1mu * psi1_1mv) * dy ;
   
-  f += (d2fdxdytab(i, j) * psi1_u * psi1_v
-	- d2fdxdytab(i1, j) * psi1_1mu * psi1_v
-	- d2fdxdytab(i, j1) * psi1_u * psi1_1mv 
+  f += (d2fdxdytab(i_near, j_near) * psi1_u * psi1_v
+	- d2fdxdytab(i1, j_near) * psi1_1mu * psi1_v
+	- d2fdxdytab(i_near, j1) * psi1_u * psi1_1mv 
 	+ d2fdxdytab(i1, j1) * psi1_1mu * psi1_1mv) * dx * dy ;
+
+  double dpsi0_v = 6.*(v2 - v) ;
+  double dpsi0_1mv = 6.*(v2 - v) ;
+  double dpsi1_v = 3.*v2 - 4.*v + 1. ;
+  double dpsi1_1mv = 3.*v2 - 2.*v ;
+
+
+  dfdy = (ftab(i_near, j_near) * psi0_u * dpsi0_v
+    + ftab(i1, j_near) * psi0_1mu * dpsi0_v 
+    - ftab(i_near, j1) * psi0_u * dpsi0_1mv
+	  - ftab(i1, j1)  * psi0_1mu * dpsi0_1mv) / dy ;
+
+  dfdy += (dfdxtab(i_near, j_near) * psi1_u * dpsi0_v
+	- dfdxtab(i1, j_near) * psi1_1mu * dpsi0_v
+	- dfdxtab(i_near, j1) * psi1_u * dpsi0_1mv
+	+ dfdxtab(i1, j1) * psi1_1mu * dpsi0_1mv) * dx / dy ;
+
+  dfdy += (dfdytab(i_near, j_near) * psi0_u * dpsi1_v
+	+ dfdytab(i1, j_near) * psi0_1mu * dpsi1_v
+	+ dfdytab(i_near, j1) * psi0_u * dpsi1_1mv
+	+ dfdytab(i1, j1) * psi0_1mu * dpsi1_1mv) ;
+  
+  dfdy += (d2fdxdytab(i_near, j_near) * psi1_u * dpsi1_v
+	- d2fdxdytab(i1, j_near) * psi1_1mu * dpsi1_v
+	+ d2fdxdytab(i_near, j1) * psi1_u * dpsi1_1mv 
+	- d2fdxdytab(i1, j1) * psi1_1mu * dpsi1_1mv) * dx ;
 
 
   return ;
