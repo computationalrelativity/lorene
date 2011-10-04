@@ -30,6 +30,10 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2011/10/04 16:05:19  j_novak
+ * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
+ * and use of interpol_herm_2d.
+ *
  * Revision 1.6  2011/10/03 13:44:45  j_novak
  * Updated the y-derivative for the 2D version
  *
@@ -180,8 +184,8 @@ void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab,
   assert(d2fdxdytab.dim == xtab.dim) ;
   
   int nbp1, nbp2;
-  nbp1 = xtab.get_dim(1);
-  nbp2 = xtab.get_dim(0);
+  nbp1 = xtab.get_dim(0);
+  nbp2 = xtab.get_dim(1);
   
   int i_near = 0 ;
   int j_near = 0 ;

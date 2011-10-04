@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2011/10/04 16:05:18  j_novak
+ * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
+ * and use of interpol_herm_2d.
+ *
  * Revision 1.1  2011/06/16 10:49:18  j_novak
  * New class Eos_mag for EOSs depending on density and magnetic field.
  *
@@ -73,35 +77,32 @@ class Eos_mag : public Eos {
     	/// Name of the file containing the tabulated data
     	string tablename ;
     	
-    	/// Lower boundary of the enthalpy interval
+    	/// Lower boundary of the log-enthalpy interval
     	double hmin ;
     	
-    	/// Upper boundary of the enthalpy interval
+    	/// Upper boundary of the log-enthalpy interval
     	double hmax ;
     	
     	/// Upper boundary of the magnetic field interval
     	double Bmax ;
     	
-    	/// Table of \f$\log n_B\f$
-    	Tbl* lognb ;
-    	
     	/// Table of \f$\log p\f$
     	Tbl* logp ;
     	
-    	/// Table of \f$\log e\f$
-    	Tbl* loge ;
-    	
-    	/// Table of \f$\log \mu\f$
-    	Tbl* logmu ;
+    	/// Table of \f$\log h\f$
+    	Tbl* logh ;
     	
     	/// Table of \f$B\f$
-    	Tbl* magB ;
+    	Tbl* Bfield ;
     	
-    	/// Table of \f$M\f$
-    	Tbl* magM ;
+    	/// Table of \f$\frac{d \log p}{d \log h}\f$
+    	Tbl* dlpsdlh ;
     	
-    	/// Table of \f$\partial M / \partial n_B\f$
-    	Tbl* chi ;
+    	/// Table of \f$\frac{d \log p}{d \log B}\f$
+    	Tbl* dlpsdB ;
+    	
+    	/// Table of \f$\frac{d^2 \log p}{d \log h d \log B}\f$
+    	Tbl* d2lp ;
     	        
                 
     // Constructors - Destructor

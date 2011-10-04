@@ -32,6 +32,10 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2011/10/04 16:05:19  j_novak
+ * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
+ * and use of interpol_herm_2d.
+ *
  * Revision 1.1  2011/06/16 10:49:18  j_novak
  * New class Eos_mag for EOSs depending on density and magnetic field.
  *
@@ -45,15 +49,15 @@ char eos_mag_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "eos.h"
-#include "tbl.h"
+#include "cmp.h"
+#include "param.h"
 #include "utilitaires.h"
 #include "unites.h"
 
 
-void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
-		   double&, double& ) ;
+void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, 
+		      const Tbl&, double, double, double&, double&) ;
 
-void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
 
 			//----------------------------//
 			//   	Constructors	      //
@@ -122,13 +126,12 @@ Eos_mag::Eos_mag(ifstream& fich) : Eos(fich) {
 			//--------------//
 
 Eos_mag::~Eos_mag(){
-  delete lognb ;
+  delete d2lp ;
+  delete dlpsdB ;
+  delete dlpsdlh ;
+  delete Bfield ;
+  delete logh ;
   delete logp ;
-  delete loge ;
-  delete logmu ;
-  delete magB ;
-  delete magM ;
-  delete chi ;
 }
 
 			//------------//
@@ -219,25 +222,24 @@ void Eos_mag::read_table() {
     fich.ignore(1000, '\n') ;
   }                                      
   
-  lognb = new Tbl(nbp2, nbp1) ;
   logp = new Tbl(nbp2, nbp1) ;
-  loge = new Tbl(nbp2, nbp1) ;
-  logmu = new Tbl(nbp2, nbp1) ;
-  magB = new Tbl(nbp2, nbp1) ;
-  magM = new Tbl(nbp2, nbp1) ;
-  chi = new Tbl(nbp2, nbp1) ;
+  logh = new Tbl(nbp2, nbp1) ;
+  Bfield = new Tbl(nbp2, nbp1) ;
+  dlpsdlh = new Tbl(nbp2, nbp1) ;
+  dlpsdB = new Tbl(nbp2, nbp1) ;
+  d2lp = new Tbl(nbp2, nbp1) ;
     	
-  lognb->set_etat_qcq() ;
   logp->set_etat_qcq() ;
-  loge->set_etat_qcq() ;
-  logmu->set_etat_qcq() ;
-  magB->set_etat_qcq() ;
-  magM->set_etat_qcq() ;
-  chi->set_etat_qcq() ;
-    	
+  logh->set_etat_qcq() ;
+  Bfield->set_etat_qcq() ;
+  dlpsdlh->set_etat_qcq() ;
+  dlpsdB->set_etat_qcq() ;
+  d2lp->set_etat_qcq() ;
+  
   double rhonuc_cgs = rhonuc_si * 1e-3 ;
   double c2_cgs = c_si * c_si * 1e4 ;
-  double mag_PG = mag_unit / 100. ;
+  double MeVpfm3_cgs = 1.6022e33 ;
+  double mag_PG = mag_unit / 100. ; 
     	
   int no1, no2 ;
   double nb_fm3, rho_cgs, p_cgs, mu_MeV, magB_PG, magM_PG, chi_PGpMeV ;
@@ -259,25 +261,26 @@ void Eos_mag::read_table() {
 	abort() ;
       }
       double psc2_cgs = p_cgs / c2_cgs ;
-      // double h_comp = log( (rho_cgs + psc2_cgs) /
-      // 			   (10 * nb_fm3 * rhonuc_cgs) ) ;
       double h_read = log(mu_MeV) ;
       
       if ( (i==0) && (j==0) ) ww = h_read ;
     		
-      lognb->set(j, i) = log10(nb_fm3) ;
+      double h_new = h_read - ww + 1.e-14 ;
       logp->set(j, i) = log10( psc2_cgs / rhonuc_cgs ) ; 
-      loge->set(j, i) = log10( rho_cgs / rhonuc_cgs ) ;	
-      logmu->set(j, i) = log10( h_read - ww + 1.e-14 ) ;
-      magB->set(j, i) = magB_PG / mag_PG ;
-      magM->set(j, i) = magM_PG / mag_PG ;
-      chi->set(j, i) = chi_PGpMeV / (mag_PG*exp(ww)) ;
+      logh->set(j, i) = log10( h_new ) ;
+      Bfield->set(j, i) = magB_PG / mag_PG ;
+      dlpsdlh->set(j, i) = h_new * (rho_cgs + psc2_cgs) / psc2_cgs ; 
+      dlpsdB->set(j, i) = (magM_PG * rhonuc_cgs) / (mag_PG * psc2_cgs) ;
+      d2lp->set(j, i) = h_new * mu_MeV * 
+	( (chi_PGpMeV / mag_PG) * (rhonuc_cgs / p_cgs)
+	  - nb_fm3 * (MeVpfm3_cgs / p_cgs) * (*dlpsdB)(j, i) ) ;
     }
   }
             
-  hmin = pow( double(10), (*logmu)(0, 0) ) ;
-  hmax = pow( double(10), (*logmu)(0, nbp1-1) ) ;
-  Bmax = (*magB)(nbp2-1, 0) ;
+  hmin = pow( double(10), (*logh)(0, 0) ) ;
+  hmax = pow( double(10), (*logh)(0, nbp1-1) ) ;
+
+  Bmax = (*Bfield)(nbp2-1, 0) ;
 
   fich.close();
  
@@ -291,34 +294,99 @@ void Eos_mag::read_table() {
 // Baryon density from enthalpy
 //------------------------------
 
-double Eos_mag::nbar_ent_p(double ent, const Param* ) const {
+double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 
-  c_est_pas_fait("Eos_mag::nbar_ent_p" ) ;
+  if ( ent > hmin ) {
+    if (ent > hmax) {
+      cout << "Eos_tabul::nbar_ent_p : ent > hmax !" << endl ;
+      abort() ;
+    }
+    double logent0 = log10( ent ) ;
+    // recuperer magB0 (input)
+    const Cmp& par_mag = par->get_cmp();
+    int lg = par->get_int();
+    int kg = par->get_int();
+    int jg = par->get_int();
+    int ig = par->get_int();
+    double magB0 = par_mag(lg,kg,jg,ig);
+    
+    double p_int, dp_int ;
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
+		     p_int, dp_int) ;
 
-  return ent ;
+    double nbar_int = pow(double(10), p_int) * dp_int * exp(-ent) / ent ;
 
+    return nbar_int ;
+    }
+    else{
+	return 0 ;
+    }
 }
+
 
 // Energy density from enthalpy
 //------------------------------
 
-double Eos_mag::ener_ent_p(double ent, const Param* ) const {
+double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
-  c_est_pas_fait("Eos_mag::ener_ent_p" ) ;
+  if ( ent > hmin ) {
+    if (ent > hmax) {
+      cout << "Eos_tabul::ener_ent_p : ent > hmax !" << endl ;
+      abort() ;
+    }
+    
+    double logent0 = log10( ent ) ;
+    // recuperer magB0 (input)
+    const Cmp& par_mag = par->get_cmp();
+    int lg = par->get_int();
+    int kg = par->get_int();
+    int jg = par->get_int();
+    int ig = par->get_int();
+    double magB0 = par_mag(lg,kg,jg,ig);
+    
+    double logp_int, dlogp_int ;
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
+		     logp_int, dlogp_int) ;
+    
+    double p_int = pow(double(10), logp_int) ;
+    double nbar_int = p_int * dlogp_int * exp(-ent) / ent ;
 
-  return ent ;
-
+    double f_int = - p_int + exp(ent) * nbar_int;
+    return f_int ;
+  }
+  else{
+    return 0 ;
+  }
 }
 
 // Pressure from enthalpy
 //------------------------
 
-double Eos_mag::press_ent_p(double ent, const Param* ) const {
+double Eos_mag::press_ent_p(double ent, const Param* par ) const {
 
-  c_est_pas_fait("Eos_mag::press_ent_p" ) ;
+  if ( ent > hmin ) {                              /////////   indices i et j ??
+    if (ent > hmax) {
+      cout << "Eos_mag::press_ent_p : ent > hmax !" << endl ;
+      abort() ;
+    }
+    double logent0 = log10( ent ) ;
+    // recuperer magB0 (input)
+    const Cmp& par_mag = par->get_cmp();
+    int lg = par->get_int();
+    int kg = par->get_int();
+    int jg = par->get_int();
+    int ig = par->get_int();
+    double magB0 = par_mag(lg,kg,jg,ig);
+    
+    double p_int, dp_int ;
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
+		     p_int, dp_int) ;
 
-  return ent ;
-
+    return pow(10., p_int);
+  }
+  else{
+    return 0 ;
+  }
 }
 
 // dln(n)/ln(H) from enthalpy 
