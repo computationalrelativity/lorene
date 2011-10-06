@@ -32,6 +32,10 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2011/10/06 14:55:36  j_novak
+ * equation_of_state() is now virtual to be able to call to the magnetized
+ * Eos_mag.
+ *
  * Revision 1.2  2011/10/04 16:05:19  j_novak
  * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
  * and use of interpol_herm_2d.
@@ -303,13 +307,11 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
     }
     double logent0 = log10( ent ) ;
     // recuperer magB0 (input)
-    const Cmp& par_mag = par->get_cmp();
-    int lg = par->get_int();
-    int kg = par->get_int();
-    int jg = par->get_int();
-    int ig = par->get_int();
-    double magB0 = par_mag(lg,kg,jg,ig);
-    
+    double magB0 = 0. ;
+    if (par->get_n_double_mod() > 0) {
+      magB0 = par->get_double_mod() ;
+    }
+
     double p_int, dp_int ;
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
 		     p_int, dp_int) ;
@@ -337,13 +339,11 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
     
     double logent0 = log10( ent ) ;
     // recuperer magB0 (input)
-    const Cmp& par_mag = par->get_cmp();
-    int lg = par->get_int();
-    int kg = par->get_int();
-    int jg = par->get_int();
-    int ig = par->get_int();
-    double magB0 = par_mag(lg,kg,jg,ig);
-    
+    double magB0 = 0. ;
+    if (par->get_n_double_mod() > 0) {
+      magB0 = par->get_double_mod() ;
+    }
+
     double logp_int, dlogp_int ;
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
 		     logp_int, dlogp_int) ;
@@ -371,12 +371,10 @@ double Eos_mag::press_ent_p(double ent, const Param* par ) const {
     }
     double logent0 = log10( ent ) ;
     // recuperer magB0 (input)
-    const Cmp& par_mag = par->get_cmp();
-    int lg = par->get_int();
-    int kg = par->get_int();
-    int jg = par->get_int();
-    int ig = par->get_int();
-    double magB0 = par_mag(lg,kg,jg,ig);
+    double magB0 = 0. ;
+    if (par->get_n_double_mod() > 0) {
+      magB0 = par->get_double_mod() ;
+    }
     
     double p_int, dp_int ;
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 

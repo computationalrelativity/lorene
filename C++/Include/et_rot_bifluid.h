@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2011/10/06 14:55:36  j_novak
+ * equation_of_state() is now virtual to be able to call to the magnetized
+ * Eos_mag.
+ *
  * Revision 1.14  2004/09/01 10:56:05  r_prix
  * added option of converging baryon-mass to equilibrium_bi()
  *
@@ -412,7 +416,7 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /** Computes the proper baryon and energy densities, as well as
    *  pressure from the enthalpies and both velocities.
    */
-  void equation_of_state() ; 
+  virtual void equation_of_state() ; 
 	
   /** Computes an equilibrium configuration.
    *  

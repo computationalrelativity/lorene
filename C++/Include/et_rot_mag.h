@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2011/10/06 14:55:36  j_novak
+ * equation_of_state() is now virtual to be able to call to the magnetized
+ * Eos_mag.
+ *
  * Revision 1.15  2005/06/02 11:35:27  j_novak
  * Added members for sving to a file and reading from it.
  *
@@ -179,6 +183,11 @@ class Et_rot_mag : virtual public Etoile_rot {
   /// Assignment to another Et_rot_mag
   void operator=(const Et_rot_mag&) ;	
 
+  /** Computes the proper baryon and energy density, as well as
+   *  pressure from the enthalpy.
+   */
+  virtual void equation_of_state() ; 
+	
   // Accessors
   // ---------
  public:

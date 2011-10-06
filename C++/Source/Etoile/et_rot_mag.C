@@ -32,6 +32,10 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2011/10/06 14:55:36  j_novak
+ * equation_of_state() is now virtual to be able to call to the magnetized
+ * Eos_mag.
+ *
  * Revision 1.17  2005/06/02 11:35:30  j_novak
  * Added members for sving to a file and reading from it.
  *
@@ -95,6 +99,8 @@ char et_rot_mag_C[] = "$Header$" ;
 #include "et_rot_mag.h"
 #include "utilitaires.h"
 #include "unites.h"
+#include "param.h"
+#include "eos.h"
 
 			    //--------------//
 			    // Constructors //
@@ -264,6 +270,161 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
   del_deriv() ;
 
 }
+
+
+void Et_rot_mag::equation_of_state() {
+
+	Cmp ent_eos = ent() ;
+
+
+    // Slight rescale of the enthalpy field in case of 2 domains inside the
+    //  star
+
+
+        double epsilon = 1.e-12 ;
+
+	const Mg3d* mg = mp.get_mg() ;
+        int nz = mg->get_nzone() ;
+
+        Mtbl xi(mg) ;
+        xi.set_etat_qcq() ;
+        for (int l=0; l<nz; l++) {
+        	xi.t[l]->set_etat_qcq() ;
+        	for (int k=0; k<mg->get_np(l); k++) {
+        		for (int j=0; j<mg->get_nt(l); j++) {
+        			for (int i=0; i<mg->get_nr(l); i++) {
+        				xi.set(l,k,j,i) =
+        					mg->get_grille3d(l)->x[i] ;
+        			}
+        		}
+        	}
+
+        }
+
+     	Cmp fact_ent(mp) ;
+     	fact_ent.allocate_all() ;
+     	
+     	fact_ent.set(0) = 1 + epsilon * xi(0) * xi(0) ;
+     	fact_ent.set(1) = 1 - 0.25 * epsilon * (xi(1) - 1) * (xi(1) - 1) ;
+     	
+     	for (int l=nzet; l<nz; l++) {
+     		fact_ent.set(l) = 1 ;
+     	}
+
+    if (nzet > 1) {
+
+    	if (nzet > 2) {
+    	
+    		cout << "Etoile::equation_of_state: not ready yet for nzet > 2 !"
+    		     << endl ;    	
+    	}
+
+    	ent_eos = fact_ent * ent_eos ;
+    	ent_eos.std_base_scal() ;
+    }
+
+
+    
+    if ( dynamic_cast<const Eos_mag*>(&eos) != 0x0) { // Call to a magnetized EOS
+      // with the normof te magnetic field passed as an argument to the EoS.
+
+      Tenseur Bmag = Magn() ;
+      Cmp norm_B = sqrt(a_car() * ( Bmag(0)*Bmag(0) + Bmag(1)*Bmag(1) )) ;
+      norm_B.std_base_scal() ;
+      Param par ;
+      double magB0 ;
+      par.add_double_mod(magB0) ;
+
+      nbar.set_etat_qcq() ; nbar.set().set_etat_qcq() ;
+      nbar.set().va.set_etat_c_qcq() ; nbar.set().va.c->set_etat_qcq() ;
+      ener.set_etat_qcq() ; ener.set().set_etat_qcq() ;
+      ener.set().va.set_etat_c_qcq() ; ener.set().va.c->set_etat_qcq() ;
+      press.set_etat_qcq() ; press.set().set_etat_qcq() ;
+      press.set().va.set_etat_c_qcq() ; press.set().va.c->set_etat_qcq() ;
+
+      for (int l=0; l< nz; l++) {
+	Tbl* tent = ent_eos.va.c->t[l] ;
+	if (tent->get_etat() == ETATZERO) {
+	  nbar.set().set(l).set_etat_zero() ;
+	  ener.set().set(l).set_etat_zero() ;
+	  press.set().set(l).set_etat_zero() ;
+	}
+	else {
+	  nbar.set().set(l).annule_hard() ;
+	  ener.set().set(l).annule_hard() ;
+	  press.set().set(l).annule_hard() ;
+	  for (int k=0; k < mg->get_np(l); k++) {
+	    for (int j=0; j < mg->get_nt(l); j++) {
+	      for (int i=0; i < mg->get_nr(l); i++) {
+		magB0 = norm_B(l, k, j, i) ;
+		double ent0 = ent_eos(l, k, j, i) ;
+		nbar.set().set(l, k, j, i) = eos.nbar_ent_p(ent0, &par) ;
+		ener.set().set(l, k, j, i) = eos.ener_ent_p(ent0, &par) ;
+		press.set().set(l, k, j, i) = eos.press_ent_p(ent0, &par) ;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+    else {
+      // Call to a "normal" EOS (the EOS is called domain by domain in order to
+      //          allow for the use of MEos)
+
+      Cmp tempo(mp) ;
+      
+      nbar.set_etat_qcq() ;
+      nbar.set() = 0 ;
+      for (int l=0; l<nzet; l++) {
+	
+        Param par ;       // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+	
+        tempo =  eos.nbar_ent(ent_eos, 1, l, &par) ;
+	
+        nbar = nbar() + tempo ;
+	
+      }
+      
+      ener.set_etat_qcq() ;
+      ener.set() = 0 ;
+      for (int l=0; l<nzet; l++) {
+	
+        Param par ;    // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+	
+        tempo =  eos.ener_ent(ent_eos, 1, l, &par) ;
+	
+        ener = ener() + tempo ;
+	
+      }
+      
+      press.set_etat_qcq() ;
+      press.set() = 0 ;
+      for (int l=0; l<nzet; l++) {
+	
+        Param par ;     // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+	
+        tempo =  eos.press_ent(ent_eos, 1, l, &par) ;
+	
+        press = press() + tempo ;
+	
+      }
+    }
+
+    // Set the bases for spectral expansion
+    nbar.set_std_base() ; 
+    ener.set_std_base() ; 
+    press.set_std_base() ; 
+
+    // The derived quantities are obsolete
+    del_deriv() ; 
+    
+}
+
+
 
 			    //--------------//
 			    //	  Outputs   //

@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2011/10/06 14:55:36  j_novak
+ * equation_of_state() is now virtual to be able to call to the magnetized
+ * Eos_mag.
+ *
  * Revision 1.30  2010/02/02 21:05:49  e_gourgoulhon
  * Etoile_bin:equilibrium : suppressed the argument method_khi added by
  * mistake during previous commit.
@@ -592,7 +596,7 @@ class Etoile {
 	/** Computes the proper baryon and energy density, as well as
 	 *  pressure from the enthalpy.
 	 */
-	void equation_of_state() ; 
+	virtual void equation_of_state() ; 
 	
 	/** Computes the hydrodynamical quantities relative to the Eulerian
 	 *  observer from those in the fluid frame (\c nbar , \c ener 
