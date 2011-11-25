@@ -3,6 +3,7 @@ SHELL=/bin/sh
 include $(HOME_LORENE)/local_settings		  # defines which compiler,...
 
 LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g 
+LIBLOR = $(HOME_LORENE)/Lib/liblorene_g.a $(HOME_LORENE)/Lib/liblorenef77_g.a 
 
 .SUFFIXES : .o .C
 
@@ -10,9 +11,16 @@ SRC1 = kerr.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-$(EXE1): $(OBJ1)
+SRC2 = kerr_BL.C
+OBJ2 = $(SRC2:.C=.o)
+EXE2 = $(SRC2:.C=)
+
+$(EXE1): $(OBJ1) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL) 
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+$(EXE2): $(OBJ2) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)$
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
