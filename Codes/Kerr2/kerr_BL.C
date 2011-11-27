@@ -27,6 +27,11 @@ char kerr_BL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2011/11/27 14:45:54  e_gourgoulhon
+ * grid declared SYM in phi
+ * 1 point in phi allowed
+ * suppressed inc_dzpuis on K_23
+ *
  * Revision 1.1  2011/11/25 16:44:42  e_gourgoulhon
  * First version; not fully checked yet
  *
@@ -52,51 +57,54 @@ char kerr_BL_C[] = "$Header$" ;
 
 int main() {
 
-	// Parameters of the computation
-	// -----------------------------
-	
+    // Parameters of the computation
+    // -----------------------------
+    
     ifstream fpar("par_kerr_BL.d") ;
     if ( !fpar.good() ) {
         cerr << "Problem in opening the file par_kerr_BL.d ! " << endl ;
         abort() ;
     }
     
-	double aa ; // Kerr parameter a/M
+    double aa ; // Kerr parameter a/M
     fpar >> aa ; fpar.ignore(1000,'\n') ;
-	double aa2 = aa*aa ; 
-
-	int nr ; // Number of collocation points in r in each domain
+    double aa2 = aa*aa ; 
+    
+    int graphic_out ; // flag for graphical outputs
+    fpar >> graphic_out ; fpar.ignore(1000,'\n') ;
+   
+    int nr ; // Number of collocation points in r in each domain
     fpar >> nr; fpar.ignore(1000,'\n') ;
 
-	int nt ; // Number of collocation points in theta in each domain
+    int nt ; // Number of collocation points in theta in each domain
     fpar >> nt; fpar.ignore(1000,'\n') ;
 
     int np ; // Number of collocation points in phi in each domain
-	fpar >> np; fpar.ignore(1000,'\n') ;
-	
-	int nz ; // Number of domains
+    fpar >> np; fpar.ignore(1000,'\n') ;
+
+    int nz ; // Number of domains
     fpar >> nz ; fpar.ignore(1000,'\n') ;
     int nzm1 = nz - 1 ; // Index of outermost domain
 
     fpar.ignore(1000,'\n') ; // skip title
     double* r_limits = new double[nz+1];  // radial boundaries of each domain in units of M      
     for (int l=0; l<nz; l++) {
-		fpar >> r_limits[l]; 
+        fpar >> r_limits[l]; 
     }
     r_limits[nz] = __infinity ;
-
+    
     fpar.close();
 
     //## check
-    cout << "r_limits : " << endl ; 
+    cout << "r_limits (units of M) : " ; 
     for (int l=0; l<nz+1; l++) {
       cout << r_limits[l] << "  " ; 
-    }	
+    }
     cout << endl ; 
     
     // value of coordinate r at the event horizon: 
     double r_hor = 1 + sqrt(1 - aa2) ; 
-    cout << "Value of coordinate r at the event horizon : " << r_hor << " M" << endl ; 
+    cout << "Value of coordinate r at the event horizon : " << r_hor << " M" << endl << endl ; 
     if (r_limits[1] <= r_hor) {
       cerr << "Inner boundary of domain no. 1 below the horizon : " << endl ; 
       cerr << "  r_limits[1] : " << r_limits[1] << endl ; 
@@ -108,11 +116,11 @@ int main() {
     // ------------------------------------------------
   
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-    int symmetry_phi = NONSYM ; // no symmetry in phi
+    int symmetry_phi = SYM ; // symmetry with respect to phi --> phi + pi
     bool compact = true ; // external domain is compactified
 
     Mg3d mgrid(nz, nr, nt, np, symmetry_theta, symmetry_phi, compact) ;
-	
+
     cout << mgrid << endl ; 
 
   
@@ -120,7 +128,7 @@ int main() {
     // --------------------------------------------------------------------------
   
     Map_af map(mgrid, r_limits) ;
-  	
+
     // cout << map << endl ;  
     
     // Denomination of various coordinates associated with the mapping 
@@ -200,25 +208,26 @@ int main() {
     kk.set(2,2) = 0 ; 
     tmp = 0.5 * bb2 * beta_phi.dsdt() / nn ;
     tmp.mult_sint() ;
-    tmp.inc_dzpuis(2) ;
     kk.set(2,3) = tmp ;
     kk.set(3,3) = 0 ;
 
     
-    // Drawings
-    
-    des_meridian(nn, 0, 1.5*r_limits[nzm1], "lapse", 1) ; 
+    // Drawings    
+    if (graphic_out == 1) {
+        des_meridian(nn, 0, 1.5*r_limits[nzm1], "N", 1) ; 
 
-    des_meridian(beta(3), 0, 1.5*r_limits[nzm1], "shift (phi)", 2) ; 
+        des_meridian(beta_phi, 0, 1.5*r_limits[nzm1], "beta\\uphi\\d", 2) ; 
+        des_meridian(beta(3), 0, 1.5*r_limits[nzm1], "beta\\u3\\d (ortho. comp.)", 3) ; 
 
-    des_meridian(gamma(1,1), 0, 1.5*r_limits[nzm1], "gamma_11", 3) ; 
-    des_meridian(gamma(2,2), 0, 1.5*r_limits[nzm1], "gamma_22", 4) ; 
-    des_meridian(gamma(3,3), 0, 1.5*r_limits[nzm1], "gamma_33", 5) ; 
+        des_meridian(gamma(1,1), 0, 1.5*r_limits[nzm1], "gamma_11", 4) ; 
+        des_meridian(gamma(2,2), 0, 1.5*r_limits[nzm1], "gamma_22", 5) ; 
+        des_meridian(gamma(3,3), 0, 1.5*r_limits[nzm1], "gamma_33", 6) ; 
     
-    des_meridian(kk(1,3), 0, r_limits[nzm1], "K_13", 6) ; 
-    des_meridian(kk(2,3), 0, r_limits[nzm1], "K_23", 7) ; 
+        des_meridian(kk(1,3), 0, 1.5*r_limits[nzm1], "K_13", 7) ; 
+        des_meridian(kk(2,3), 0, 1.5*r_limits[nzm1], "K_23", 8) ; 
     
-    arrete() ; 
+        arrete() ; 
+    }
 
     // Output file
     //------------
