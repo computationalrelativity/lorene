@@ -30,6 +30,9 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2012/01/02 13:52:57  j_novak
+ * New parameter 'verbose' to get less output if needed.
+ *
  * Revision 1.8  2008/01/08 13:56:54  j_novak
  * Minor modif.
  *
@@ -79,7 +82,7 @@ char app_hor_finder_C[] = "$Header$" ;
 
 
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, bool print, 
+	       double a_axis, double b_axis, double c_axis, bool verbose, bool print, 
 	       double precis, double precis_exp, int step_max, int step_relax, 
 	       double relax)
 {
@@ -360,19 +363,20 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 	  }
       }
       
-      
-      cout << " " << endl ;
-      cout << "###############################################" << endl ;
-      cout << "AH finder: maximum number of iteration reached!" << endl ;
-      cout << "      No convergence in the 2-surface h!      " << endl ;
-      cout << " max( difference in h ) > prescribed tolerance " << endl ;
-      cout << " " << endl ;
-      cout << " prescribed tolerance = " << precis << endl ;
-      cout << " max( difference in h ) = " << max(diff_h) << endl ;
-      cout << " max( expansion function on h ) = " << max(abs(ex_AH(0))) << endl ; 
-      cout << "###############################################" << endl ;
-      cout << " " << endl ;
-
+      if (verbose) {
+	cout << " " << endl ;
+	cout << "###############################################" << endl ;
+	cout << "AH finder: maximum number of iteration reached!" << endl ;
+	cout << "      No convergence in the 2-surface h!      " << endl ;
+	cout << " max( difference in h ) > prescribed tolerance " << endl ;
+	cout << " " << endl ;
+	cout << " prescribed tolerance = " << precis << endl ;
+	cout << " max( difference in h ) = " << max(diff_h) << endl ;
+	cout << " max( expansion function on h ) = " << max(abs(ex_AH(0))) << endl ; 
+	cout << "###############################################" << endl ;
+	cout << " " << endl ;
+	
+      }
       }
       
       
@@ -415,14 +419,15 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
       
       ah_flag = true ; 
 
-      cout << "  " << endl ;
-      cout << "################################################" << endl ;
-      cout << " AH finder: Apparent horizon found!!!      " << endl ;
-      cout << " Max error of the expansion function on h: " << endl ;
-      cout << " max( expansion function on AH ) = " << max(abs(ex_AH(0))) << endl ; 
-      cout << "################################################" << endl ;
-      cout << " " << endl ;
-      
+      if (verbose) {
+	cout << "  " << endl ;
+	cout << "################################################" << endl ;
+	cout << " AH finder: Apparent horizon found!!!      " << endl ;
+	cout << " Max error of the expansion function on h: " << endl ;
+	cout << " max( expansion function on AH ) = " << max(abs(ex_AH(0))) << endl ; 
+	cout << "################################################" << endl ;
+	cout << " " << endl ;
+      }
       
   }
   

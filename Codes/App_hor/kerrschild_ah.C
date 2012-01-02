@@ -30,6 +30,9 @@ char kerrschild_ah_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/01/02 13:52:57  j_novak
+ * New parameter 'verbose' to get less output if needed.
+ *
  * Revision 1.4  2006/05/30 13:06:13  n_vasset
  *   Implemented function P_COSSIN_I in base_val_phi_funct.C
  *
@@ -133,6 +136,7 @@ int main() {
   
   //Parameters to control the iteration
 
+  bool verbose = true ;
   bool print = true ;
   double tol = 1.e-10 ;
   double tol_exp = 1.e-8 ;
@@ -343,8 +347,8 @@ int main() {
 
 
       cout << " AH flag = " 
-	   << ah_finder(gamma, k_dd, h, exp_fcn, aa, bb, cc, print, tol, tol_exp,
-			it_max, it_relax, relax_fac) << endl ;
+	   << ah_finder(gamma, k_dd, h, exp_fcn, aa, bb, cc, verbose, 
+			print, tol, tol_exp, it_max, it_relax, relax_fac) << endl ;
 
 
       // Test and analysis.....

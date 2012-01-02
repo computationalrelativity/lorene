@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2012/01/02 13:52:57  j_novak
+ * New parameter 'verbose' to get less output if needed.
+ *
  * Revision 1.9  2010/04/29 14:50:16  m_bejger
  * reverting to version 1.7
  *
@@ -590,6 +593,13 @@ int main(){
 	surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
 	surf = surf + surf_ext ;
 	surf = raccord_c1(surf, star.get_nzet()) ; 
+
+	Scalar tmp = star.get_nphi() ;
+	tmp.mult_r() ;
+	tmp.mult_r() ;
+	tmp.mult_r() ;
+
+	des_profile(tmp, 0., 50., 1, 1) ;
 
 	int nzdes = star.get_nzet() ; 
 

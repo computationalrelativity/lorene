@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/01/02 13:52:57  j_novak
+ * New parameter 'verbose' to get less output if needed.
+ *
  * Revision 1.4  2005/12/09 09:35:59  lm_lin
  *
  * Minor fix in the documentation.
@@ -112,8 +115,8 @@
 	 * @return bool ah_flag : a flag to indicate whether an apparent horizon is found
 	 */
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd_in, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, bool print = false,
-	       double precis = 1.e-8, double precis_exp = 1.e-6,  
+	       double a_axis, double b_axis, double c_axis, bool verbose = true, 
+	       bool print = false, double precis = 1.e-8, double precis_exp = 1.e-6,  
 	       int it_max = 200, int it_relax = 200, double relax_fac = 1.) ;
 		
 #endif
