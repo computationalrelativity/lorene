@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2012/01/17 10:05:39  j_penner
+ * added point plot routine: des_points
+ *
  * Revision 1.21  2011/03/27 16:36:04  e_gourgoulhon
  * Added function save_profile.
  *
@@ -235,6 +238,28 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
                  const char* device = 0x0, int nbound = 0, 
                  float* xbound = 0x0) ;
 
+/** Basic routine for drawing a single profile with arbitray x sampling.
+ *  A profile is a function y=y(x). 
+ *
+ *  @param uutab [input] Array (size: \c nx ) of y values to be drawn
+ *			 (the x sampling is supposed to be uniform).
+ *  @param nx [input] Number of points
+ *  @param xtab [input] Array (size: \c nx ) of the x sampling.
+ *  @param nomx [input] x legend of the figure
+ *  @param nomy [input] y legend of the figure
+ *  @param title [input] title of the figure
+ *  @param device [input] PGPLOT device (default value = 0x0, will result in
+ *  interactive choice)
+ *  @param nbound [input] number of domain boundaries to be drawn (default value
+ *      = 0, meaning that the domain boundaries are not drawn)
+ *  @param xbound [input] array of size \c nbound containing the abscidia of 
+ *          each domain boundary
+ */
+void des_profile(const float* uutab, int nx, const float *xtab, 
+		 const char* nomx, const char* nomy, const char* title, 
+                 const char* device = 0x0, int nbound = 0, 
+                 float* xbound = 0x0) ;
+
 
 /** Basic routine for drawing multiple profiles with uniform x sampling.
  *  A profile is a function y=y(x). 
@@ -309,6 +334,27 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
             int ngraph, bool closeit, const char* device = 0x0, int nbound = 0, 
             float* xbound = 0x0) ; 
 
+/** Basic routine for plotting points using grid locations.
+ *  A profile is a function y=y(x). 
+ *
+ *  @param uutab [input] Array (size: \c nx ) of y values to be drawn
+ *  @param nx [input] Number of points
+ *  @param xmin [input] lowest value of x
+ *  @param xmax [input] highest value of x
+ *  @param nomx [input] x legend of the figure
+ *  @param nomy [input] y legend of the figure
+ *  @param title [input] title of the figure
+ *  @param device [input] PGPLOT device (default value = 0x0, will result in
+ *  interactive choice)
+ *  @param nbound [input] number of domain boundaries to be drawn (default value
+ *      = 0, meaning that the domain boundaries are not drawn)
+ *  @param xbound [input] array of size \c nbound containing the abscidia of 
+ *          each domain boundary
+ */
+void des_points(const float *uutab, int nx, float xmin, float xmax,
+		 const char* nomx = 0x0, const char* nomy = 0x0, const char* title = 0x0, 
+                 const char* device = 0x0, int nbound = 0, 
+                 float* xbound = 0x0) ;
 
 /** Basic routine for drawing isocontours.
  * 
@@ -802,6 +848,48 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
         const char* title = 0x0, int ngraph = 0, const char* nomx  = 0x0, 
         const int* line_style = 0x0, const char* device = 0x0,
         bool draw_bound = true) ;
+
+/** Draws the grid points of a \c Scalar  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$ (version with x-axis labelled with
+ *      Lorene's unit of length)
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ * 
+ */
+void des_points(const Scalar& uu,  
+		     double theta = 0, double phi = 0, const char* nomy = 0x0,  
+		     const char* title = 0x0, bool draw_bound = true) ;
+
+
+/** Draws the grid points of a \c Scalar  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$ (general version)
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param scale scale factor for the radius in the plot
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to no x legend)
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ * 
+ */
+void des_points(const Scalar& uu, double scale,
+		     double theta = 0, double phi = 0, const char* nomx = 0x0, 
+		     const char* nomy = 0x0, const char* title= 0x0,
+                     bool draw_bound = true) ;
 
 /** Saves in a file the profile of a \c Scalar  along some radial axis determined by
  *  a fixed value of \f$(\theta, \phi)\f$ 
