@@ -10,7 +10,7 @@ LIB	  = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g \
 
 .SUFFIXES : .o .C
 
-install: test_fft test_lapack test_pgplot
+install: test_fft test_lapack # test_pgplot
 
 test_fft: test_fft.o
 	$(CXX) -o $@ $(CXXFLAGS_G) test_fft.o $(LIB)
