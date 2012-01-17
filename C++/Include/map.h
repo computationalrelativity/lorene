@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.55  2012/01/17 15:34:20  j_penner
+ * *** empty log message ***
+ *
  * Revision 1.54  2012/01/17 10:20:07  j_penner
  * added a member cxi that allows for direct access to the computational coordinates in each domain
  *
@@ -706,8 +709,6 @@ class Map {
 	Coord cost ;	///< \f$\cos\theta\f$
 	Coord sinp ;	///< \f$\sin\phi\f$
 	Coord cosp ;	///< \f$\cos\phi\f$
-
-	Coord cxi ;	///< \f$\xi\f$ the computational grid
 
 	Coord x ;	///< \e x  coordinate centered on the grid
 	Coord y ;	///< \e y coordinate centered on the grid

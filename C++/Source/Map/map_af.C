@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2012/01/17 15:34:35  j_penner
+ * *** empty log message ***
+ *
  * Revision 1.15  2012/01/17 10:31:32  j_penner
  * added access to computational coordinate xi
  *
@@ -408,8 +411,6 @@ void Map_af::set_coord(){
     cost.set(this, map_af_fait_cost) ;
     sinp.set(this, map_af_fait_sinp) ;
     cosp.set(this, map_af_fait_cosp) ;
-
-    cxi.set(this, map_af_fait_xi) ;
 
     x.set(this, map_af_fait_x) ;
     y.set(this, map_af_fait_y) ;
