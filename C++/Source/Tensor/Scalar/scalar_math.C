@@ -34,6 +34,9 @@ char scalar_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/01/17 10:27:46  j_penner
+ * added a Heaviside function
+ *
  * Revision 1.3  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -339,6 +342,36 @@ Scalar exp(const Scalar& ci)
 }
 
 			    //---------------------//
+			    // Heaviside Function  //
+			    //---------------------//
+
+Scalar Heaviside(const Scalar& ci)
+{
+    // Protection
+    assert(ci.get_etat() != ETATNONDEF) ;
+    
+    Scalar co(ci.get_mp()) ;		// make output a copy, to ensure the same structure
+
+    // if input state is zero, return zero
+    if (ci.get_etat() == ETATZERO) {
+	co.set_etat_zero() ; 
+    }
+    else {
+      // if input state is one, return one
+      if (ci.get_etat() == ETATUN) {
+	co.set_etat_one() ;
+      }
+      else {
+	// In general return the Heaviside function
+	assert(ci.get_etat() == ETATQCQ) ;	// otherwise
+	co.set_etat_qcq() ; 
+	co.va = Heaviside( ci.va ) ; 
+      }
+    }
+
+    return co ;
+}
+			    //---------------------//
 			    // Neperian logarithm  //
 			    //---------------------//
 
@@ -504,6 +537,64 @@ Scalar abs(const Scalar& ci)
     co.va = abs( ci.va ) ; 
 
     return co ;
+}
+
+		    //-------------------------------//
+    	    	    //            totalmax           //
+		    //-------------------------------//
+
+double totalmax(const Scalar& ci) {
+
+    // Protection
+    assert(ci.get_etat() != ETATNONDEF) ;
+    
+//    Tbl resu( ci.get_mp().get_mg()->get_nzone() ) ; 
+    double resu ; 
+    
+    if (ci.get_etat() == ETATZERO) {
+	resu = 0 ; 
+    }
+    else {
+      if (ci.get_etat() == ETATUN) {
+	resu = 1 ; 
+      }
+      else {
+	assert(ci.get_etat() == ETATQCQ) ;	
+	
+	resu = totalmax( ci.va ) ;		// max(Valeur) 
+      }
+    }
+   
+    return resu ; 
+}
+
+		    //-------------------------------//
+    	    	    //            totalmin           //
+		    //-------------------------------//
+
+double totalmin(const Scalar& ci) {
+
+    // Protection
+    assert(ci.get_etat() != ETATNONDEF) ;
+    
+//    Tbl resu( ci.get_mp().get_mg()->get_nzone() ) ; 
+    double resu ; 
+    
+    if (ci.get_etat() == ETATZERO) {
+	resu = 0 ; 
+    }
+    else {
+      if (ci.get_etat() == ETATUN) {
+	resu = 1 ; 
+      }
+      else {
+	assert(ci.get_etat() == ETATQCQ) ;	
+	
+	resu = totalmin( ci.va ) ;		// min(Valeur) 	
+      }
+    }
+          
+    return resu ; 
 }
 
 		    //-------------------------------//
