@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.87  2012/01/17 10:16:27  j_penner
+ * functions added: sarra_filter_r, sarra_filter_r_all_domains, Heaviside
+ *
  * Revision 1.86  2011/04/08 13:13:09  e_gourgoulhon
  * Changed the comment of function val_point to indicate specifically the
  * division by r^dzpuis in the compactified external domain.
@@ -381,6 +384,9 @@ class Scalar : public Tensor {
   // Derived data : 
   // ------------
  protected:
+  /// Pointer on \f$\partial/\partial \xi\f$ of \c *this  (0x0 if not up to date)
+  mutable Scalar* p_dsdxi ;	
+
   /// Pointer on \f$\partial/\partial r\f$ of \c *this  (0x0 if not up to date)
   mutable Scalar* p_dsdr ;	
 
@@ -716,6 +722,12 @@ class Scalar : public Tensor {
   // Differential operators and others
   // ---------------------------------
  public:
+  /** Returns \f$\partial / \partial \xi\f$ of \c *this .
+   *  If \c dzpuis  is zero, then the returned \c Scalar has 
+   *  \c dzpuis  = 2. It is increased by 1 otherwise.
+   */
+  const Scalar& dsdxi() const ; 
+
   /** Returns \f$\partial / \partial r\f$ of \c *this .
    *  If \c dzpuis  is zero, then the returned \c Scalar has 
    *  \c dzpuis  = 2. It is increased by 1 otherwise.
@@ -956,8 +968,38 @@ class Scalar : public Tensor {
    * @param p [input] the order of the filter
    * @param alpha [input] \f$\alpha\f$ appearing in the above formula.
    */
+//  virtual void exponential_filter_r(int lzmin, int lzmax, int p, 
+//			    double alpha= -16.) ;
   virtual void exponential_filter_r(int lzmin, int lzmax, int p, 
 			    double alpha= -16.) ;
+
+  /**
+   * Applies an exponential filter to the spectral coefficients in the radial direction.
+   * The filter is of the type: \f$ \forall n\leq N,\, b_n = \sigma(n/N ) a_n\f$, with 
+   * \f$ \sigma(x) = \exp\left( \alpha x^{p} \right) \f$ and \e N the number 
+   * of radial coefficients.
+   * @param lzmin, lzmax [input] the indices of the domain where the filter is applied 
+   *                              (in [\c lzmin , \c lzmax ])
+   * @param p [input] the order of the filter
+   * @param alpha [input] \f$\alpha\f$ appearing in the above formula.
+   */
+  void sarra_filter_r(int lzmin, int lzmax, double p, 
+			    double alpha= -1E-16) ;
+
+  /**
+   * Applies an exponential filter in radial direction in all domains.
+   * (see \c Scalar:exponential_filter_r ). Note that this may cause 
+   * regularity problems at the origin if applied in a nucleus.
+   */
+  void exp_filter_r_all_domains(Scalar &ss, int p, double alpha=-16.) ;
+
+  /**
+   * Applies an exponential filter in radial direction in all domains
+   * for the case where p is a double
+   * (see \c Scalar:sarra_filter_r ). Note that this may cause 
+   * regularity problems at the origin if applied in a nucleus.
+   */
+  void sarra_filter_r_all_domains(double p, double alpha=1E-16) ;
 
   /**
    * Applies an exponential filter to the spectral coefficients in the angular directions.
@@ -1747,6 +1789,7 @@ class Scalar : public Tensor {
   friend Scalar acos(const Scalar& ) ;
   friend Scalar atan(const Scalar& ) ;
   friend Scalar exp(const Scalar& ) ;	
+  friend Scalar Heaviside(const Scalar& ) ;	
   friend Scalar log(const Scalar& ) ;	
   friend Scalar log10(const Scalar& ) ;	
   friend Scalar sqrt(const Scalar& ) ;	
@@ -1755,6 +1798,8 @@ class Scalar : public Tensor {
   friend Scalar pow(const Scalar& , double ) ; 
   friend Scalar abs(const Scalar& ) ;	
 
+  friend double totalmax(const Scalar& ) ;   
+  friend double totalmin(const Scalar& ) ;   
   friend Tbl max(const Scalar& ) ;   
   friend Tbl min(const Scalar& ) ;   
   friend Tbl norme(const Scalar& ) ;   
@@ -1819,6 +1864,7 @@ Scalar asin(const Scalar& ) ;		///< Arcsine
 Scalar acos(const Scalar& ) ;		///< Arccosine
 Scalar atan(const Scalar& ) ;		///< Arctangent
 Scalar exp(const Scalar& ) ;		///< Exponential
+Scalar Heaviside(const Scalar& ) ;		///< Heaviside function
 Scalar log(const Scalar& ) ;		///< Neperian logarithm
 Scalar log10(const Scalar& ) ;	///< Basis 10 logarithm
 Scalar sqrt(const Scalar& ) ;		///< Square root
@@ -1826,6 +1872,20 @@ Scalar racine_cubique (const Scalar& ) ;		///< Cube root
 Scalar pow(const Scalar& , int ) ;	///< Power \f${\tt Scalar}^{\tt int}\f$
 Scalar pow(const Scalar& , double ) ; ///< Power \f${\tt Scalar}^{\tt double}\f$
 Scalar abs(const Scalar& ) ;		///< Absolute value
+
+/**
+ * Maximum values of a \c Scalar in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are the set of the maximum values in each domain.  
+ */
+double totalmax(const Scalar& ) ;   
+
+/**
+ * Minimum values of a \c Scalar in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are the set of the minimum values in each domain.  
+ */
+double totalmin(const Scalar& ) ;   
 
 /**
  * Maximum values of a \c Scalar in each domain.
@@ -1868,13 +1928,6 @@ Tbl diffrel(const Scalar& a, const Scalar& b) ;
  *	   in domain no. \c l . 
  */
 Tbl diffrelmax(const Scalar& a, const Scalar& b) ; 
-
-/**
- * Applies an exponential filter in radial direction in all domains.
- * (see \c Scalar:exponential_filter_r ). Note that this may cause 
- * regularity problems at the origin if applied in a nucleus.
- */
-void exp_filter_r_all_domains(Scalar& ss, int p, double alpha=-16.) ;
 
 /**
  * Applies an exponential filter in angular directions in all domains.
