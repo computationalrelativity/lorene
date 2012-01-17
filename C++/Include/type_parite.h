@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2012/01/17 15:06:54  j_penner
+ * Added a definition for MAX_BASE_2 for the phi coordinate and possible higher dimensions
+ *
  * Revision 1.11  2012/01/17 10:12:54  j_penner
  * modified phi mask MSQ_P to index using only one hex value
  *
@@ -124,6 +127,8 @@
 /* ------------------------- */
 /// Nombre max. de bases differentes 
 #define	    MAX_BASE	32		
+/// Smaller maximum bases used for phi (and higher dimensions for now)
+#define	    MAX_BASE_2	16
 
     /* Divers (masques, nulls,...) */
 /// base inconnue 
