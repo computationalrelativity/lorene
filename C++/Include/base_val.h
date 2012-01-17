@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2012/01/17 10:18:17  j_penner
+ * changed nzone from a private member to a protected member
+ *
  * Revision 1.18  2009/10/23 12:55:46  j_novak
  * New base T_LEG_MI
  *
@@ -300,7 +303,7 @@ class Base_val {
 
     // Data 
     // ----
-    private:
+    protected:
 	int nzone ;	///< Number of domains (zones)
 
 	public:	
