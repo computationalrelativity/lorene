@@ -29,6 +29,9 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2012/01/17 10:35:46  j_penner
+ * added point plot
+ *
  * Revision 1.8  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -308,6 +311,99 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
 }
 
 
+//******************************************************************************
+//      Single profile, single device, arbitrary sampling 
+//******************************************************************************
+
+void des_profile(const float* uutab, int nx, const float *xtab, 
+		 const char* nomx, const char* nomy, 
+                 const char* title, const char* device,
+                 int nbound, float* xbound) {
+		 
+    // Search for the extremal values of the field : 
+    // -------------------------------------------
+
+    float uumin = uutab[0] ;
+    float uumax = uutab[0] ;
+    float xmin = xtab[0] ;
+    float xmax = xtab[0] ;
+    for (int i=1; i<nx; i++) {
+	uumin = (uutab[i] < uumin) ? uutab[i] : uumin ;
+	uumax = (uutab[i] > uumax) ? uutab[i] : uumax ;	
+	xmin = (xtab[i] < xmin) ? xtab[i] : xmin ;
+	xmax = (xtab[i] > xmax) ? xtab[i] : xmax ;	
+    }
+
+    cout << "  " << nomy << " : min, max : " << uumin << "   " << uumax << endl;
+    cout << "  " << "domain: " << "min, max : " << xmin << "   " << xmax << endl ; 
+
+    // Points abscisses : 
+    // ----------------
+/*    
+    float* xx = new float[nx] ; 
+    float hx = (xmax-xmin)/float(nx-1) ;
+    for(int i=0; i<nx; i++) {
+	xx[i] = xmin + float(i) * hx ; 
+    }
+*/         
+    // Graphics display
+    // ----------------
+    
+    if (device == 0x0) {
+	device = "?" ; 
+    }
+    
+    int ier = cpgbeg(0, device, 1, 1) ;
+    if (ier != 1) {
+	cout << "des_profile: problem in opening PGPLOT display !" << endl ;
+    }
+    
+    // Taille des caracteres:
+    float size = float(1.3) ;
+    cpgsch(size) ;
+    
+    // Epaisseur des traits:
+    int lepais = 1 ; 
+    cpgslw(lepais) ;
+    
+    // Fonte axes: caracteres romains:
+    cpgscf(2) ;
+
+    // Cadre de la figure
+    float uuamp = uumax - uumin ; 
+    float uumin1 = uumin - float(0.05) * uuamp ; 
+    float uumax1 = uumax + float(0.05) * uuamp ; 
+    cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
+    cpglab(nomx,nomy,title) ;
+    
+    // Drawing of curve 
+    cpgline(nx, xtab, uutab) ; 
+    
+    
+    // Plot of domain boundaries
+    // -------------------------
+    
+    if (nbound > 0) {
+        float xb[2] ; 
+        float yb[2] ; 
+        yb[0] = uumin1 ; 
+        yb[1] = uumax1 ; 
+        cpgsls(3) ;		// lignes en trait mixte
+        cpgsci(3) ;		// couleur verte
+        for (int i=0; i<nbound; i++) {
+            xb[0] = xbound[i] ; 
+            xb[1] = xbound[i] ; 
+            cpgline(2, xb, yb) ; 
+        }
+        cpgsls(1) ;		// retour aux lignes en trait plein
+        cpgsci(1) ;		// couleur noire
+    }
+
+    cpgend() ; 
+
+}
+
+
 
 //******************************************************************************
 //      Multiple profiles, multiple device, arbitrary sampling 
@@ -401,7 +497,7 @@ void des_profile_mult(const float* uutab, int nprof, int nx, const float* xtab,
     // Fonte axes: caracteres romains:
     cpgscf(2) ;
 
-    // Cadre de la figure
+    // Draw the figure
     float uuamp = uumax - uumin ; 
     float uumin1 = uumin - float(0.05) * uuamp ; 
     float uumax1 = uumax + float(0.05) * uuamp ; 

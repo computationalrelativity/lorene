@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2012/01/17 10:35:40  j_penner
+ * added point plot
+ *
  * Revision 1.9  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -76,9 +79,8 @@ char des_prof_scalar_C[] = "$Header$" ;
 #include "scalar.h"
 #include "graphique.h"
 
+#include <vector>
 //******************************************************************************
-
-
 // VERSION SCALAR SANS UNITES 
 
 void des_profile(const Scalar& uu, double r_min, double r_max, 
@@ -358,3 +360,152 @@ void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
 }
 
 
+//******************************************************************************
+// VERSION SCALAR SANS UNITES 
+
+void des_points(const Scalar& uu, 
+		     double theta, double phi, const char* nomy, const char* title,
+                     bool draw_bound) {
+  
+    const Map& mp = uu.get_mp() ; 
+    int nz = mp.get_mg()->get_nzone() ;         
+    int nt = mp.get_mg()->get_nt(nz-1) ; 
+    int np = mp.get_mg()->get_np(nz-1) ;
+
+//    const int npt = *(uu.get_mp().get_mg())->get_nzone() ;   // Number of points along the axis
+    
+
+    int npt=0;
+
+    for(int ii = 0; ii<nz; ii++)
+        npt += (uu.get_mp().get_mg())->get_nr(ii) ;
+
+    float *uutab = new float[npt] ;	    // define a dynamic array
+    float *xtab = new float[npt] ;	    // define a dynamic array
+   
+    Mtbl r = *(mp.r.c);
+
+    for(int ii = 0; ii<nz; ii++){
+	int nr = (uu.get_mp().get_mg())->get_nr(ii) ; 
+	for(int ij=0; ij<nr; ij++){
+	uutab[ii*nr+ij] = float(uu.val_grid_point(ii,np-1,nt-1,ij)) ; 
+	xtab[ii*nr+ij] = float(r(ii,np-1,nt-1,ij)) ; 
+	}
+    }
+    
+    float xmin = float(totalmin(r)) ;
+    float xmax = float(totalmax(r)) ;
+    
+    const char* nomx = "r" ; 
+    
+    if (title == 0x0) {
+	title = "" ;
+    }
+
+    if (nomy == 0x0) {
+	nomy = "" ;
+    }
+    
+    // Preparations for the drawing of boundaries
+    // ------------------------------------------
+    int l_max = (mp.get_mg()->get_type_r(nz-1) == UNSURR) ? nz-2 : nz-1 ; 
+    
+    float* xbound = new float[l_max+1] ; 
+    int nbound = 0 ; 
+
+    if (draw_bound) {
+        const double xi_max = 1. ; 
+        for (int l=0; l<=l_max; l++) {
+    
+            double rb = mp.val_r(l, xi_max, theta, phi) ; 
+        
+            if ((rb >= xmin) && (rb <= xmax)) {
+                xbound[nbound] = float(rb) ; 
+                nbound++ ;    
+            }
+        }
+    }
+    
+    des_profile(uutab, npt, xtab, nomx, nomy, title, 0x0, 
+                nbound, xbound) ; 
+    
+    delete [] xbound ; 
+    
+} 
+
+//******************************************************************************
+
+void des_points(const Scalar& uu, double scale,
+		     double theta, double phi, const char* nomx, const char* nomy, 
+                     const char* title, bool draw_bound) {
+		
+    const Map& mp = uu.get_mp() ; 
+    int nz = mp.get_mg()->get_nzone() ;         
+    int nt = mp.get_mg()->get_nt(nz-1) ; 
+    int np = mp.get_mg()->get_np(nz-1) ;
+
+//    const int npt = *(uu.get_mp().get_mg())->get_nzone() ;   // Number of points along the axis
+    
+
+    int npt=0;
+
+    for(int ii = 0; ii<nz; ii++)
+        npt += (uu.get_mp().get_mg())->get_nr(ii) ;
+
+    float *uutab = new float[npt] ;	    // define a dynamic array
+    float *xtab = new float[npt] ;	    // define a dynamic array
+   
+    Mtbl r = *(mp.r.c);
+   
+    for(int ii = 0; ii<nz; ii++){
+	int nr = (uu.get_mp().get_mg())->get_nr(ii) ; 
+	for(int ij=0; ij<nr; ij++){
+	uutab[ii*nr+ij] = float(uu.val_grid_point(ii,np-1,nt-1,ij)) ; 
+	xtab[ii*nr+ij] = float(r(ii,np-1,nt-1,ij)) ; 
+	}
+    }
+    
+    float xmin = float(totalmin(r) * scale) ;
+    float xmax = float(totalmax(r) * scale) ;
+    
+    
+    if (title == 0x0) {
+	title = "" ;
+    }
+
+    if (nomx == 0x0) {
+	nomx = "" ;
+    }
+    
+    if (nomy == 0x0) {
+	nomy = "" ;
+    }
+    
+    // Preparations for the drawing of boundaries
+    // ------------------------------------------
+    int l_max = (mp.get_mg()->get_type_r(nz-1) == UNSURR) ? nz-2 : nz-1 ; 
+    
+    float* xbound = new float[l_max+1] ; 
+    int nbound = 0 ; 
+
+    if (draw_bound) {
+        const double xi_max = 1. ; 
+        for (int l=0; l<=l_max; l++) {
+    
+            double rb = mp.val_r(l, xi_max, theta, phi) ; 
+        
+            if ((rb >= xmin/scale) && (rb <= xmax/scale)) {
+                xbound[nbound] = float(rb) ; 
+                nbound++ ;    
+            }
+        }
+    }
+
+    // Call to the low level routine
+    // -----------------------------
+    des_profile(uutab, npt, xtab, nomx, nomy, title, 0x0, 
+                nbound, xbound) ; 
+    
+    delete [] xbound ; 
+    
+}
