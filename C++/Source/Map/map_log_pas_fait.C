@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2012/01/17 10:34:56  j_penner
+ * *** empty log message ***
+ *
  * Revision 1.7  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -90,6 +93,10 @@ void pas_fait() {
 }
 	
  void Map_log::dsdr (const Cmp&, Cmp&) const {
+  pas_fait() ;
+}
+	
+ void Map_log::dsdxi (const Cmp&, Cmp&) const {
   pas_fait() ;
 }
 
