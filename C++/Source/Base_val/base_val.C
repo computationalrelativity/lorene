@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2012/01/17 14:44:19  j_penner
+ * Modified phi variables to only use 16 integers in arrays
+ *
  * Revision 1.13  2009/10/23 12:55:16  j_novak
  * New base T_LEG_MI
  *
@@ -227,7 +230,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
   static bool premier_appel = true ; 
   static const char* nom_r[MAX_BASE] ;
   static const char* nom_t[MAX_BASE] ;
-  static const char* nom_p[MAX_BASE] ;
+  static const char* nom_p[MAX_BASE_2] ;
 
   if (premier_appel) {   // First call initializations
 
@@ -236,7 +239,9 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     for (int i=0; i<MAX_BASE; i++) {
       nom_r[i] = "UNDEFINED" ;    
       nom_t[i] = "UNDEFINED" ;    
-      nom_p[i] = "UNDEFINED" ;    
+      if(i%2==0){
+      nom_p[i/2] = "UNDEFINED" ;    // saves a loop
+      }
     }
 
     nom_r[R_CHEB >> TRA_R] =      "R_CHEB     " ; 

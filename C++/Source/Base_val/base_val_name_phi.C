@@ -30,6 +30,9 @@ char base_val_name_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/01/17 14:44:27  j_penner
+ * Modified phi variables to only use 16 integers in arrays
+ *
  * Revision 1.1  2003/10/19 19:49:40  e_gourgoulhon
  * First version
  *
@@ -59,7 +62,7 @@ void basename_p_cossin_i(int, char*) ;
 void Base_val::name_phi(int l, int k, char* name) const {
 
 	// Array of actual base name functions
-    static void(*vbasename_p[MAX_BASE])(int, char*) ;  
+    static void(*vbasename_p[MAX_BASE_2])(int, char*) ;  
 
     static bool first_call = true ;
 
@@ -69,7 +72,7 @@ void Base_val::name_phi(int l, int k, char* name) const {
 
 		first_call = false ;
 
-		for (int i=0 ; i<MAX_BASE ; i++) {
+		for (int i=0 ; i<MAX_BASE_2 ; i++) {
 	    	vbasename_p[i] = basename_p_unknown ;
 		}
 

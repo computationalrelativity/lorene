@@ -31,6 +31,9 @@ char base_val_phi_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/01/17 14:44:35  j_penner
+ * Modified phi variables to only use 16 integers in arrays
+ *
  * Revision 1.3  2006/05/30 13:06:12  n_vasset
  *   Implemented function P_COSSIN_I in base_val_phi_funct.C
  *
@@ -81,7 +84,7 @@ const Tbl& Base_val::phi_functions(int l, int np) const {
     static int np_done[nmax] ;	    // number of points already treated
     static Tbl* tab[nmax] ;	    // result for couples (base_p, np)
     
-    static void(*vbasecol[MAX_BASE])(int, double*) ;  // computation routines
+    static void(*vbasecol[MAX_BASE_2])(int, double*) ;  // computation routines
 
     static int premier_appel = 1 ;
 
@@ -91,7 +94,7 @@ const Tbl& Base_val::phi_functions(int l, int np) const {
 
 	premier_appel = 0 ;
 
-	for (int i=0 ; i<MAX_BASE ; i++) {
+	for (int i=0 ; i<MAX_BASE_2 ; i++) {
 	    vbasecol[i] = phi_funct_pas_prevu ;
 	}
 
