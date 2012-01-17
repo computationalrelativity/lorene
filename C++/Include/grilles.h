@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2012/01/17 10:10:15  j_penner
+ * added a constructor in which the nucleus and outer domain are both of type FIN
+ *
  * Revision 1.18  2008/10/29 08:17:51  jl_cornou
  * Standard spectral bases for pseudo vectors added
  *
@@ -537,7 +540,7 @@ class Mg3d {
 
     // Data  
     // ----
-    private:
+    protected:
 	int nzone ;	///< Number of domains (zones)
 	
 	int* nr ;	///< Array (size: \c nzone) of nb. of points in \e r (\f$\xi\f$)
@@ -636,9 +639,35 @@ class Mg3d {
 	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
 	     bool compact) ;
 
+/**
+ * Simplified constructor for a standard multi-grid.
+ * This provides a multi-grid with the same number of degrees of freedom
+ * in all the domains. \n
+ * ALL DOMAINS ARE TREATED AS SHELLS
+ * \f$\xi\in [-1,1]\f$, dense sampling (type \c FIN) near -1 and 1; \n
+ *
+ * @param   nz	    [input] Number of domains (zones).
+ * @param   nbr     [input] Number of degree of freedom (NDF) in
+ *				\e r -direction in each domain
+ * @param   nbt     [input] Number of degree of freedom (NDF) in
+ *				\f$\theta\f$-direction in each domain
+ * @param   nbp     [input] Number of degree of freedom (NDF) in
+ *				\f$\phi\f$-direction in each domain
+ * @param   typt    [input] Type of sampling in \f$\theta\f$-direction:  \n
+ *				\c SYM  for a sampling in \f$[0,\pi/2]\f$
+ *			(symmetry with respect to the equatorial plane), \n
+ *			\c NONSYM  for a sampling in \f$[0,\pi]\f$
+ * @param   typp    [input] Type of sampling in \f$\phi\f$-direction: \n
+ *			\c SYM  for a sampling in \f$[0,\pi[\f$
+ *			(symmetry with respect to a \f$\pi\f$ translation
+ *			 in \f$\phi\f$) \n
+ *			\c NONSYM  for a sampling in \f$[0,2\pi[\f$
+ */
+	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp) ;
+
 	Mg3d(FILE* ) ;	 ///< Constructor from a file (see \c sauve(FILE*))
 	
-   private:
+   public:
 	/**
 	 * Copy constructor (private and not implemented to make \c Mg3d  a 
 	 * non-copyable class)
