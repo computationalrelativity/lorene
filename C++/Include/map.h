@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.54  2012/01/17 10:20:07  j_penner
+ * added a member cxi that allows for direct access to the computational coordinates in each domain
+ *
  * Revision 1.53  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -704,6 +707,8 @@ class Map {
 	Coord sinp ;	///< \f$\sin\phi\f$
 	Coord cosp ;	///< \f$\cos\phi\f$
 
+	Coord cxi ;	///< \f$\xi\f$ the computational grid
+
 	Coord x ;	///< \e x  coordinate centered on the grid
 	Coord y ;	///< \e y coordinate centered on the grid
 	Coord z ;	///< \e z  coordinate centered on the grid
@@ -952,6 +957,14 @@ class Map {
     // Differential operators:
     // ----------------------
     public:
+	/** Computes \f$\partial/ \partial \xi\f$ of a \c Cmp .
+	 *  Note that in the  compactified external domain (CED), it computes
+	 *  \f$-\partial/ \partial u = \xi^2 \partial/ \partial \xi\f$.
+	 *  @param ci [input] field to consider
+	 *  @param resu [output] derivative of \c ci 
+	 */
+	virtual void dsdxi(const Cmp& ci, Cmp& resu) const = 0 ;  	    
+
 	/** Computes \f$\partial/ \partial r\f$ of a \c Cmp .
 	 *  Note that in the  compactified external domain (CED), it computes
 	 *  \f$-\partial/ \partial u = r^2 \partial/ \partial r\f$.
@@ -977,6 +990,15 @@ class Map {
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const = 0 ;  	    
     
+	/** Computes \f$\partial/ \partial xi\f$ of a \c Scalar .
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdxi(const Scalar& uu, Scalar& resu) const = 0 ;
+
 	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar .
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
 	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
@@ -984,7 +1006,7 @@ class Map {
 	 *  @param uu [input] field to consider
 	 *  @param resu [output] derivative of \c uu 
 	 */
-	virtual void dsdr(const Scalar& uu, Scalar& resu) const = 0 ;
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const = 0 ;	
 	
 	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar if the description is affine and 
 	 * \f$\partial/ \partial \ln r\f$ if it is logarithmic.
@@ -2181,6 +2203,14 @@ class Map_af : public Map_radial {
     // Differential operators:
     // ----------------------
     public:
+	/** Computes \f$\partial/ \partial \xi\f$ of a \c Cmp.
+	 *  Note that in the  compactified external domain (CED), it computes
+	 *  \f$-\partial/ \partial u = \xi^2 \partial/ \partial \xi\f$.
+	 *  @param ci [input] field to consider
+	 *  @param resu [output] derivative of \c ci 
+	 */
+	virtual void dsdxi(const Cmp& ci, Cmp& resu) const ;  	    
+
 	/** Computes \f$\partial/ \partial r\f$ of a \c Cmp.
 	 *  Note that in the  compactified external domain (CED), it computes
 	 *  \f$-\partial/ \partial u = r^2 \partial/ \partial r\f$.
@@ -2214,6 +2244,15 @@ class Map_af : public Map_radial {
 	 *  @param resu [output] derivative of \c uu 
 	 */
 	virtual void dsdr(const Scalar& uu, Scalar& resu) const  ;  
+
+	/** Computes \f$\partial/ \partial \xi\f$ of a \c Scalar.
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdxi(const Scalar& uu, Scalar& resu) const  ;  
 	    
 	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar.
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
@@ -2600,6 +2639,7 @@ class Map_af : public Map_radial {
 
     // Building functions for the Coord's
     // ----------------------------------
+    friend Mtbl* map_af_fait_xi(const Map* ) ;
     friend Mtbl* map_af_fait_r(const Map* ) ;
     friend Mtbl* map_af_fait_tet(const Map* ) ;
     friend Mtbl* map_af_fait_phi(const Map* ) ;
@@ -2632,6 +2672,7 @@ class Map_af : public Map_radial {
 
 };
 
+     Mtbl* map_af_fait_xi(const Map* ) ;
      Mtbl* map_af_fait_r(const Map* ) ;
      Mtbl* map_af_fait_tet(const Map* ) ;
      Mtbl* map_af_fait_phi(const Map* ) ;
@@ -3049,6 +3090,14 @@ class Map_et : public Map_radial {
     // Differential operators:
     // ----------------------
     public:
+	/** Computes \f$\partial/ \partial \xi\f$ of a \c Cmp.
+	 *  Note that in the  compactified external domain (CED), it computes
+	 *  \f$-\partial/ \partial u = \xi^2 \partial/ \partial \xi\f$.
+	 *  @param ci [input] field to consider
+	 *  @param resu [output] derivative of \c ci 
+	 */
+	virtual void dsdxi(const Cmp& ci, Cmp& resu) const ;  	    
+
 	/** Computes \f$\partial/ \partial r\f$ of a \c Cmp.
 	 *  Note that in the  compactified external domain (CED), it computes
 	 *  \f$-\partial/ \partial u = r^2 \partial/ \partial r\f$.
@@ -3073,6 +3122,15 @@ class Map_et : public Map_radial {
 	 *  @param resu [output] derivative of \c ci 
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	        
+
+	/** Computes \f$\partial/ \partial \xi\f$ of a \c Scalar.
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdxi(const Scalar& uu, Scalar& resu) const ;
 
 	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar.
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
@@ -3421,6 +3479,7 @@ class Map_et : public Map_radial {
 
     // Building functions for the Coord's
     // ----------------------------------
+    friend Mtbl* map_et_fait_xi(const Map* ) ;
     friend Mtbl* map_et_fait_r(const Map* ) ;
     friend Mtbl* map_et_fait_tet(const Map* ) ;
     friend Mtbl* map_et_fait_phi(const Map* ) ;
@@ -3456,6 +3515,7 @@ class Map_et : public Map_radial {
 
 };
 
+     Mtbl* map_et_fait_xi(const Map* ) ;
      Mtbl* map_et_fait_r(const Map* ) ;
      Mtbl* map_et_fait_tet(const Map* ) ;
      Mtbl* map_et_fait_phi(const Map* ) ;
@@ -3691,6 +3751,14 @@ class Map_log : public Map_radial {
 	 */
 	virtual void dsdr (const Scalar& ci, Scalar& resu) const ;
 	
+	/** Computes \f$\partial/ \partial \xi\f$ of a \c Scalar.
+	 *  Note that in the  compactified external domain (CED), it computes
+	 *  \f$-\partial/ \partial u = \xi^2 \partial/ \partial \xi\f$.
+	 *  @param ci [input] field to consider
+	 *  @param resu [output] derivative of \c ci 
+	 */
+	virtual void dsdxi (const Scalar& ci, Scalar& resu) const ;
+	
 	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar if the description is affine and 
 	 * \f$\partial/ \partial \ln r\f$ if it is logarithmic.
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
@@ -3705,6 +3773,7 @@ class Map_log : public Map_radial {
 	virtual void resize (int, double) ;/// < Not implemented
 	virtual void adapt (const Cmp&, const Param&, int) ;/// < Not implemented
 	virtual void dsdr (const Cmp&, Cmp&) const ;/// < Not implemented
+	virtual void dsdxi (const Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void srdsdt (const Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void srstdsdp (const Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void srdsdt (const Scalar&, Scalar&) const ;/// < Not implemented
@@ -3730,6 +3799,7 @@ class Map_log : public Map_radial {
 
 	// Building functions for the Coord's
 	// ----------------------------------
+	friend Mtbl* map_log_fait_xi(const Map* ) ;
 	friend Mtbl* map_log_fait_r(const Map* ) ;
 	friend Mtbl* map_log_fait_tet(const Map* ) ;
 	friend Mtbl* map_log_fait_phi(const Map* ) ;
@@ -3763,6 +3833,7 @@ class Map_log : public Map_radial {
 	
 };
 
+Mtbl* map_log_fait_xi(const Map* ) ;
 Mtbl* map_log_fait_r(const Map* ) ;
 Mtbl* map_log_fait_tet(const Map* ) ;
 Mtbl* map_log_fait_phi(const Map* ) ;
