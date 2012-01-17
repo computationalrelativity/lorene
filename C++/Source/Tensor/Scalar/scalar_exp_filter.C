@@ -28,6 +28,9 @@ char scalar_exp_filter_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/01/17 10:29:27  j_penner
+ * added two routines to handle generalized exponential filtering
+ *
  * Revision 1.2  2007/10/31 10:50:16  j_novak
  * Testing whether the coefficients are zero in a given domain.
  *
@@ -83,9 +86,49 @@ void Scalar::exponential_filter_r(int lzmin, int lzmax, int p,
     return ;
 }
 
-void exp_filter_r_all_domains(Scalar& ss, int p, double alpha ) {
+void Scalar::sarra_filter_r(int lzmin, int lzmax, double p, 
+			  double alpha) {
+    assert(lzmin >= 0) ;
+    const Mg3d& mgrid = *mp->get_mg() ;
+#ifndef NDEBUG
+    int nz = mgrid.get_nzone() ;
+#endif
+    assert(lzmax < nz) ;
+    assert(etat != ETATNONDEF) ;
+    if (etat == ETATZERO) return ;
+    va.coef() ;
+    assert(va.c_cf != 0x0) ;
+    assert(alpha < 0.) ;
+    
+    for (int lz=lzmin; lz<=lzmax; lz++) {
+	if ((*va.c_cf)(lz).get_etat() == ETATQCQ) 
+	    for (int k=0; k<mgrid.get_np(lz); k++) 
+		for (int j=0; j<mgrid.get_nt(lz); j++) {
+		    int nr = mgrid.get_nr(lz) ;
+		    for (int i=0; i<nr; i++) {
+			double eta = double(i)/double(nr) ;
+			va.c_cf->set(lz, k, j, i) *= exp(alpha*pow(eta, p)) ;
+		    }
+		}
+    }
+     if (va.c != 0x0) {
+ 	delete va.c ;
+ 	va.c = 0x0 ;
+     }
+     va.del_deriv() ;
+     del_deriv() ;
+    
+    return ;
+}
+void exp_filter_r_all_domains( Scalar& ss, int p, double alpha ) {
     int nz = ss.get_mp().get_mg()->get_nzone() ;
     ss.exponential_filter_r(0, nz-1, p, alpha) ;
+    return ;
+}
+
+void Scalar::sarra_filter_r_all_domains( double p, double alpha ) {
+    int nz = get_mp().get_mg()->get_nzone() ;
+    sarra_filter_r(0, nz-1, p, alpha) ;
     return ;
 }
 
