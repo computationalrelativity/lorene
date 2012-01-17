@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2012/01/17 10:31:32  j_penner
+ * added access to computational coordinate xi
+ *
  * Revision 1.14  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -405,6 +408,8 @@ void Map_af::set_coord(){
     cost.set(this, map_af_fait_cost) ;
     sinp.set(this, map_af_fait_sinp) ;
     cosp.set(this, map_af_fait_cosp) ;
+
+    cxi.set(this, map_af_fait_xi) ;
 
     x.set(this, map_af_fait_x) ;
     y.set(this, map_af_fait_y) ;
