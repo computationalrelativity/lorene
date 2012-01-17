@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.88  2012/01/17 15:05:46  j_penner
+ * *** empty log message ***
+ *
  * Revision 1.87  2012/01/17 10:16:27  j_penner
  * functions added: sarra_filter_r, sarra_filter_r_all_domains, Heaviside
  *
@@ -384,9 +387,6 @@ class Scalar : public Tensor {
   // Derived data : 
   // ------------
  protected:
-  /// Pointer on \f$\partial/\partial \xi\f$ of \c *this  (0x0 if not up to date)
-  mutable Scalar* p_dsdxi ;	
-
   /// Pointer on \f$\partial/\partial r\f$ of \c *this  (0x0 if not up to date)
   mutable Scalar* p_dsdr ;	
 
@@ -722,12 +722,6 @@ class Scalar : public Tensor {
   // Differential operators and others
   // ---------------------------------
  public:
-  /** Returns \f$\partial / \partial \xi\f$ of \c *this .
-   *  If \c dzpuis  is zero, then the returned \c Scalar has 
-   *  \c dzpuis  = 2. It is increased by 1 otherwise.
-   */
-  const Scalar& dsdxi() const ; 
-
   /** Returns \f$\partial / \partial r\f$ of \c *this .
    *  If \c dzpuis  is zero, then the returned \c Scalar has 
    *  \c dzpuis  = 2. It is increased by 1 otherwise.
