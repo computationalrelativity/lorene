@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2012/01/17 10:12:54  j_penner
+ * modified phi mask MSQ_P to index using only one hex value
+ *
  * Revision 1.10  2009/10/23 12:55:46  j_novak
  * New base T_LEG_MI
  *
@@ -130,12 +133,12 @@
 /// Extraction de l'info sur Theta 
 #define	    MSQ_T	0x0000ff00	
 /// Extraction de l'info sur Phi 
-#define	    MSQ_P	0x00ff0000	
-/// Translation en R 
+#define	    MSQ_P	0x000f0000//0x00ff0000	<- was this
+/// Translation en R, used for a bitwise shift (in hex) 
 #define	    TRA_R	0		
-/// Translation en Theta 
+/// Translation en Theta, used for a bitwise shift (in hex)
 #define	    TRA_T	8		
-/// Translation en Phi 
+/// Translation en Phi, used for a bitwise shift (in hex)
 #define	    TRA_P	16		
 
     /* R */
