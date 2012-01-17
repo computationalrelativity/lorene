@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2012/01/17 10:32:09  j_penner
+ * added a derivative with respect to the computational coordinate xi
+ *
  * Revision 1.11  2008/09/21 13:57:21  j_novak
  * Changed the test on the CED in the derivative.
  *
@@ -120,6 +123,149 @@ char map_af_deriv_C[] = "$Header$" ;
 #include "cmp.h"
 #include "tensor.h"
 
+
+			//-----------------------//
+			//        d/d\xi         //
+			//-----------------------//
+			
+
+void Map_af::dsdxi(const Cmp& ci, Cmp& resu) const {
+
+    assert (ci.get_etat() != ETATNONDEF) ; 
+    assert (ci.get_mp()->get_mg() == mg) ; 
+
+    
+    if (ci.get_etat() == ETATZERO) {
+	resu.set_etat_zero() ; 
+    }
+    else {   
+	assert( ci.get_etat() == ETATQCQ ) ; 
+        
+
+	(ci.va).coef() ;    // (ci.va).c_cf is up to date
+	
+	int nz = mg->get_nzone() ; 
+	int nzm1 = nz - 1 ;
+
+        switch( ci.get_dzpuis() ) {
+        
+            case 0 : {
+	        resu = (ci.va).dsdx() ;     // dsdx == d/d\xi
+	
+	        if (mg->get_type_r(nzm1) == UNSURR) {
+	            resu.set_dzpuis(2) ;    // r^2 d/dr has been computed in the // SOMETHING IS WRONG HERE
+					    // external domain
+	        } 
+                break ; 
+            }
+            
+            case 2 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
+                
+	        Valeur tmp((ci.va).dsdx() ) ;
+                tmp.annule(nzm1) ;  // zero in the CED
+
+                // Special treatment in the CED
+                Valeur tmp_ced = - (ci.va).dsdx() ; 
+                tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+                tmp_ced.mult_xm1_zec() ; 
+                tmp_ced.set(nzm1) -= 2. * ci.va(nzm1) ; 
+                
+                // Recombination shells + CED : 
+                resu = tmp + tmp_ced ;
+                
+                resu.set_dzpuis(3) ;         
+                break ; 
+            }
+            
+            case 4 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
+
+	        Valeur tmp(ci.va.dsdx()) ;
+	        Valeur tmp2 = tmp ;
+	        tmp2.base = (ci.va).dsdx().base ;
+	        tmp.annule(nzm1) ; // not in the CED
+	        tmp2.annule(0, nz-2) ; // special treatment of the CED
+	        tmp2.mult_xm1_zec() ;
+	        tmp2 = tmp2 / xsr ;
+	        tmp2.set(nzm1) -= 4*ci.va(nzm1) ;
+	        tmp2.base = ci.va.base ; //Just for the CED
+	        tmp2.mult_xm1_zec() ;
+
+	        resu = tmp + tmp2 / xsr  ; // do not know what this is, but for now I can get away with it, no CED
+	        resu.set_dzpuis(4) ;
+                break ; 
+            }
+            
+            default : {
+                cerr << "Map_af::dsdxi: unexpected value of input dzpuis !\n"
+                    << "  ci.get_dzpuis() = " << ci.get_dzpuis() << endl ; 
+                abort() ; 
+                break ; 
+            }
+            
+        }
+
+	  
+	(resu.va).set_base( (ci.va).dsdx().get_base() ) ; // same basis as d/dxi
+
+    }
+    
+}
+
+void Map_af::dsdxi(const Scalar& uu, Scalar& resu) const {
+
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
+
+  Mtbl unity = r/r;
+    
+  if (uu.get_etat() == ETATZERO) {
+    resu.set_etat_zero() ; 
+  }
+  else {   
+    assert( uu.get_etat() == ETATQCQ ) ; 
+
+    const Valeur& uuva = uu.get_spectral_va() ; 
+
+    uuva.coef() ;    // (uu.va).c_cf is up to date
+	
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+
+    if ( uu.get_dzpuis() == 0 ) {
+      resu = uuva.dsdx() * unity ;     //  dxds == d/d\xi, unity is used to set the correct formated output
+	
+      if (mg->get_type_r(nzm1) == UNSURR) {
+	resu.set_dzpuis(2) ;    // r^2 d/dr has been computed in the
+	                        // external domain
+      } 
+    }
+    else {
+      int dzp = uu.get_dzpuis() ;
+      
+      resu = uuva.dsdx() ; 
+      if (mg->get_type_r(nzm1) == UNSURR) {
+	  resu.annule_domain(nzm1) ;  // zero in the CED
+      
+	  // Special treatment in the CED
+	  Valeur tmp_ced = - uuva.dsdx() ; 
+	  tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+	  tmp_ced.mult_xm1_zec() ; 
+	  tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ; 
+	  
+	  // Recombination shells + CED : 
+	  resu.set_spectral_va() += tmp_ced ;
+      }
+      resu.set_dzpuis(dzp+1) ;         
+    
+    }
+
+    resu.set_spectral_base( uuva.dsdx().get_base() ) ; // same basis as d/dxi
+
+  }
+    
+}
 
 			//---------------------//
 			//        d/dr         //
