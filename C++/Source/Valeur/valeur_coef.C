@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2012/01/17 17:51:16  j_penner
+ * *** empty log message ***
+ *
  * Revision 1.14  2012/01/17 15:07:57  j_penner
  * using MAX_BASE_2 for the phi coordinate
  *
@@ -271,7 +274,7 @@ void Valeur::coef() const {
 
 	assert(base_r < MAX_BASE) ; 
 	assert(base_t < MAX_BASE) ; 
-	assert(base_p < MAX_BASE) ; 
+	assert(base_p < MAX_BASE_2) ; 
 
 	// Transformation en phi 
 	// ---------------------
