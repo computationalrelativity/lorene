@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2012/01/17 10:26:48  j_penner
+ * added a derivative with respect to the computational coordinate xi
+ *
  * Revision 1.32  2011/04/08 12:55:50  e_gourgoulhon
  * Scalar::val_point : division by r^dzpuis to return the actual
  * (i.e. physical) value of the field in the external compactified
@@ -258,6 +261,7 @@ void Scalar::del_t() {
 }
 
 void Scalar::del_deriv() const{
+    if (p_dsdxi != 0x0) delete p_dsdxi ;
     if (p_dsdr != 0x0) delete p_dsdr ;
     if (p_srdsdt != 0x0) delete p_srdsdt ;
     if (p_srstdsdp != 0x0) delete p_srstdsdp ; 
@@ -278,6 +282,7 @@ void Scalar::del_deriv() const{
 
 void Scalar::set_der_0x0() const {
     p_dsdr = 0x0 ;
+    p_dsdxi = 0x0 ;
     p_srdsdt = 0x0 ;
     p_srstdsdp = 0x0 ;
     p_dsdt = 0x0 ;
@@ -382,6 +387,7 @@ void Scalar::annule(int l_min, int l_max) {
 	
 		// Annulation des membres derives
 		if (p_dsdr != 0x0) p_dsdr->annule(l_min, l_max) ;
+		if (p_dsdxi != 0x0) p_dsdxi->annule(l_min, l_max) ;
 		if (p_srdsdt != 0x0) p_srdsdt->annule(l_min, l_max) ;
 		if (p_srstdsdp != 0x0) p_srstdsdp->annule(l_min, l_max) ;
 		if (p_dsdt != 0x0) p_dsdt->annule(l_min, l_max) ;

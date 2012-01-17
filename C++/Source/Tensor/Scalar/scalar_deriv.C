@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2012/01/17 10:27:07  j_penner
+ * added a derivative with respect to the computational coordinate xi
+ *
  * Revision 1.17  2005/11/24 09:25:08  j_novak
  * Added the Scalar version for the Laplacian
  *
@@ -107,6 +110,38 @@ char scalar_deriv_C[] = "$Header$" ;
 #include "tensor.h"
 #include "cmp.h"
 
+			//-----------------------//
+			//         d/d\xi        //
+			//-----------------------//
+
+const Scalar& Scalar::dsdxi() const {
+
+    // Protection
+    assert(etat != ETATNONDEF) ;
+
+    // If the derivative has not been previously computed, the 
+    //  computation must be done by the appropriate routine of the mapping : 
+
+    if (p_dsdxi == 0x0) {
+      p_dsdxi = new Scalar(*mp) ;
+      if (etat == ETATUN) {
+	p_dsdxi->set_etat_zero() ;
+      }
+      else {
+	mp->dsdxi(*this, *p_dsdxi) ;
+
+      }
+    }
+     
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
+    p_dsdxi->set_dzpuis(dzp) ;
+
+    return *p_dsdxi ;
+
+}
+
 			//---------------------//
 			//         d/dr        //
 			//---------------------//
@@ -172,7 +207,7 @@ const Scalar& Scalar::srdsdt() const {
 
 
 			//------------------------------//
-			//    1/(r sin(theta) d/dphi    //
+			//    1/(r sin(theta)) d/dphi    //
 			//------------------------------//
 
 const Scalar& Scalar::srstdsdp() const {
