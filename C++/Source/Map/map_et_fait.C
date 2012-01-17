@@ -25,6 +25,9 @@ char map_et_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/01/17 10:33:59  j_penner
+ * added a routine to construct the computational coordinate xi
+ *
  * Revision 1.4  2008/08/27 08:48:42  jl_cornou
  * Added R_JACO02 case
  *
@@ -53,6 +56,76 @@ char map_et_fait_C[] = "$Header$" ;
 #include <math.h>
 
 #include "map.h"
+
+
+		    //-------------------------//
+		    // Computational Coord. xi //
+		    //-------------------------//
+
+Mtbl* map_et_fait_xi(const Map* cvi) {
+
+    // recup du changement de variable
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
+    const Mg3d* mg = cv->get_mg() ;
+    int nz = mg->get_nzone() ;
+    
+    // Le resultat
+    Mtbl* mti = new Mtbl(mg) ;
+    mti->set_etat_qcq() ;
+    
+    for (int l=0 ; l<nz ; l++) {
+
+	const Grille3d* g = mg->get_grille3d(l) ;
+
+	const Tbl& aa = *((cv->aa)[l]) ; 
+	const Tbl& bb = *((cv->bb)[l]) ; 
+
+	Tbl* tb = (mti->t)[l] ;
+	tb->set_etat_qcq() ;
+	double* p_r = tb->t ;
+	
+	int np = mg->get_np(l) ;
+	int nt = mg->get_nt(l) ;
+	int nr = mg->get_nr(l) ;
+	
+	switch(mg->get_type_r(l)) {
+
+	    case FIN: case RARE: case FINJAC: {
+
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = (g->x)[i] ;
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ;
+	    }
+	    
+	    case UNSURR: {
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = 1./( (g->x)[i] ) ;
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ;
+	    }
+	    
+	    default: {
+	    cout << "map_et_fait_r: Unknown type_r !" << endl ;
+	    abort () ;
+	    }
+	    
+	}	    // Fin du switch
+    }			// Fin de boucle sur zone
+    
+    // Termine
+    return mti ;
+}
 
 		    //----------------//
 		    // Coord. radiale //

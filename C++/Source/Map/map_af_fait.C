@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2012/01/17 10:33:02  j_penner
+ * added a routine to construct the computational coordinate xi
+ *
  * Revision 1.8  2008/10/03 09:05:29  j_novak
  * Improved the treatment of angular mapping in the computation of xsr
  *
@@ -91,6 +94,66 @@ char map_af_fait_C[] = "$Header$" ;
 #include "mtbl.h"
 #include "map.h"
 #include "proto.h"
+
+		    //--------------------------------//
+		    // Computational Coord. \f$\xi\f$ //
+		    //--------------------------------//
+
+Mtbl* map_af_fait_xi(const Map* cvi) {
+
+    // recup du changement de variable
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
+    const Mg3d* mg = cv->get_mg() ;
+    int nz = mg->get_nzone() ;
+    
+    // Le resultat
+    Mtbl* mti = new Mtbl(mg) ;
+    mti->set_etat_qcq() ;
+    
+    int i, j, k ;
+    for (int l=0 ; l<nz ; l++) {
+	int ir = mg->get_nr(l);
+	int it = mg->get_nt(l) ;
+	int ip = mg->get_np(l) ;
+	const Grille3d* g = mg->get_grille3d(l) ;
+	Tbl* tb = (mti->t)[l] ;
+	tb->set_etat_qcq() ;
+	double* p_r = tb->t ;
+	
+	switch(mg->get_type_r(l)) {
+	    case FIN: case RARE: case FINJAC :
+	    for (k=0 ; k<ip ; k++) {
+		for (j=0 ; j<it ; j++) {
+		    for (i=0 ; i<ir ; i++) {
+			*p_r = (g->x)[i] ;
+			p_r++ ;
+		    }	    // End r loop
+		}	// End theta loop
+	    }	    // End phi loop
+	    break ;
+	    
+	    case UNSURR:
+	    for (k=0 ; k<ip ; k++) {
+		for (j=0 ; j<it ; j++) {
+		    for (i=0 ; i<ir ; i++) {
+			*p_r = 1./((g->x)[i]) ;
+			p_r++ ;
+		    }	    // End r loop 
+		}	// End theta loop
+	    }	    // End phi loop
+	    break ;
+	    
+	    default:
+	    cout << "Map_af_fait_xi: unknown type_xi !\n" ;
+	    abort () ;
+	    exit(-1) ;
+	    
+	}	    // Terminate switch
+    }			// End zone loop
+    
+    // Termine
+    return mti ;
+}
 
 		    //----------------//
 		    // Coord. radiale //
