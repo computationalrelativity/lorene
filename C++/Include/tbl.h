@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2012/01/17 10:20:57  j_penner
+ * function added: Heaviside
+ *
  * Revision 1.10  2006/09/25 10:01:45  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -463,6 +466,7 @@ Tbl asin(const Tbl& ) ;	    ///< Arcsine
 Tbl acos(const Tbl& ) ;	    ///< Arccosine
 Tbl atan(const Tbl& ) ;	    ///< Arctangent
 Tbl exp(const Tbl& ) ;	    ///< Exponential
+Tbl Heaviside(const Tbl& ) ;	    ///< Heaviside function
 Tbl log(const Tbl& ) ;	    ///< Neperian logarithm
 Tbl log10(const Tbl& ) ;    ///< Basis 10 logarithm
 Tbl sqrt(const Tbl& ) ;	    ///< Square root

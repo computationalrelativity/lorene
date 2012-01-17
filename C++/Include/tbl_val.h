@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2012/01/17 10:21:31  j_penner
+ * function added: Heaviside
+ *
  * Revision 1.9  2010/04/14 11:45:24  j_novak
  * Changed comments
  *
@@ -623,6 +626,8 @@ Tbl_val acos(const Tbl_val& ) ;
 Tbl_val atan(const Tbl_val& ) ;	    
 /// Exponential
 Tbl_val exp(const Tbl_val& ) ;	    
+/// Heaviside Function
+Tbl_val Heaviside(const Tbl_val& ) ;	    
 /// Neperian logarithm
 Tbl_val log(const Tbl_val& ) ;	    
 /// Basis 10 logarithm

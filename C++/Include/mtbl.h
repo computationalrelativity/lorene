@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2012/01/17 10:22:13  j_penner
+ * function added: Heaviside
+ *
  * Revision 1.5  2004/03/22 13:12:42  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -377,6 +380,10 @@ Mtbl acos(const Mtbl& ) ;
 Mtbl atan(const Mtbl& ) ;	    
 /// Exponential
 Mtbl exp(const Mtbl& ) ;	    
+/// Heaviside function
+Mtbl Heaviside(const Mtbl& ) ;	    
+/// Neperian logarithm
+Mtbl log(const Mtbl& ) ;	    
 /// Neperian logarithm
 Mtbl log(const Mtbl& ) ;	    
 /// Basis 10 logarithm
@@ -391,6 +398,18 @@ Mtbl pow(const Mtbl& , int ) ;
 Mtbl pow(const Mtbl& , double ) ; 
 /// Absolute value
 Mtbl abs(const Mtbl& ) ;	    
+
+/**
+ * Maximum value of the \c Mtbl elements in all domains.
+ * @return a double
+ */
+double totalmax(const Mtbl& ) ;   
+
+/**
+ * Minimum value of the \c Mtbl elements in all domain.
+ * @return a double
+ */
+double totalmin(const Mtbl& ) ;   
 
 /**
  * Maximum values of the \c Mtbl  elements in each domain.
