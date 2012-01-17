@@ -32,6 +32,9 @@ char valeur_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/01/17 10:39:27  j_penner
+ * added a Heaviside function
+ *
  * Revision 1.2  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -273,6 +276,35 @@ Valeur exp(const Valeur& ti)
     return to ;
 }
 
+			    //--------------------//
+			    // Heaviside Function //
+			    //--------------------//
+
+Valeur Heaviside(const Valeur& ti)
+{
+    // Protection
+    assert(ti.get_etat() != ETATNONDEF) ;
+    
+    Valeur to(ti.get_mg()) ;			// Valeur resultat
+    to.set_etat_c_qcq() ;
+
+    // Cas ETATZERO
+    if (ti.get_etat() == ETATZERO) {
+	*(to.c) = 0. ;
+	return to ;
+    }
+    
+    // Cas general
+    assert(ti.get_etat() == ETATQCQ) ;	// otherwise
+    if (ti.c == 0x0) {			// Use the physical value << What?? (used Google translate)
+	ti.coef_i() ;
+    }
+
+    *(to.c) = Heaviside( *(ti.c) ) ;
+
+    return to ;
+}
+
 			    //-------------//
 			    // Log naturel //
 			    //-------------//
@@ -340,7 +372,7 @@ Valeur pow(const Valeur& ti, int n)
 	    return ti ;
 	}
 	else {
-	    cout << "Valeur pow: ETATZERO^n avec n<=0 ! "<< endl  ;
+	    cout << "Valeur pow: ETATZERO^n with n<=0 ! "<< endl  ;
 	    abort () ;
 	}
     }
@@ -372,7 +404,7 @@ Valeur pow(const Valeur& ti, double x)
 	    return ti ;
 	}
 	else {
-	    cout << "Valeur pow: ETATZERO^x avec x<=0 !" << endl ;
+	    cout << "Valeur pow: ETATZERO^x with x<=0 !" << endl ;
 	    abort () ;
 	}
     }
@@ -441,6 +473,63 @@ Valeur racine_cubique(const Valeur& vi)
     *(vo.c) = racine_cubique( *(vi.c) ) ;
     return vo ;
 }
+		    //-------------------------------//
+    	    	    //            totalmax           //
+		    //-------------------------------//
+
+double totalmax(const Valeur& vi) {
+
+    // Protection
+    assert(vi.get_etat() != ETATNONDEF) ;
+    
+//    Tbl resu(vi.get_mg()->get_nzone()) ; 
+    double resu ; 
+    
+    if (vi.get_etat() == ETATZERO) {
+	resu = 0 ; 
+    }
+    else {
+
+	assert(vi.get_etat() == ETATQCQ) ;	
+	if (vi.c == 0x0) {			// Il faut la valeur physique
+	    vi.coef_i() ;
+	}
+
+	resu = totalmax( *(vi.c) ) ;		// max(Mtbl) 
+	
+    }
+
+    return resu ;
+}
+
+		    //-------------------------------//
+    	    	    //           totalmin            //
+		    //-------------------------------//
+
+double totalmin(const Valeur& vi) {
+
+    // Protection
+    assert(vi.get_etat() != ETATNONDEF) ;
+    
+    double resu ; 
+
+    if (vi.get_etat() == ETATZERO) {
+	resu = 0 ; 
+    }
+    else {
+
+	assert(vi.get_etat() == ETATQCQ) ;	
+	if (vi.c == 0x0) {			// Il faut la valeur physique
+	    vi.coef_i() ;
+	}
+
+	resu = totalmin( *(vi.c) ) ;		// min(Mtbl) 
+	
+    }
+
+    return resu ; 
+}
+
 		    //-------------------------------//
     	    	    //            max                //
 		    //-------------------------------//

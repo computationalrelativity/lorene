@@ -32,8 +32,11 @@ char tbl_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2012/01/17 10:38:48  j_penner
+ * added a Heaviside function
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  1999/12/02  17:47:48  phil
  * ajout de racine_cubique
@@ -272,6 +275,39 @@ Tbl exp(const Tbl& ti)
     int taille = ti.get_taille() ;
     for (int i=0 ; i<taille ; i++) {
 	to.t[i] = exp(ti.t[i]) ;
+    }
+    return to ;
+}
+
+			    //--------------------//
+			    // Heaviside Function //
+			    //--------------------//
+
+Tbl Heaviside(const Tbl& ti)
+{
+    // Protection
+    assert(ti.get_etat() != ETATNONDEF) ;
+    
+    Tbl to(ti.dim) ;		    // Tbl resultat
+    to.set_etat_qcq() ;
+
+    // Cas ETATZERO
+    if (ti.get_etat() == ETATZERO) {
+	int taille = ti.get_taille() ;
+	for (int i=0 ; i<taille ; i++) {
+	    to.t[i] = 0 ;
+	}
+	return to ;
+    }
+    
+    // Cas general
+    assert(ti.get_etat() == ETATQCQ) ;	// Otherwise
+    int taille = ti.get_taille() ;
+    for (int i=0 ; i<taille ; i++) {
+	if(ti.t[i] >= 0)
+	to.t[i] = 1 ;
+	else
+	to.t[i] = 0 ;
     }
     return to ;
 }

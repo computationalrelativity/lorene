@@ -31,8 +31,11 @@ char mtbl_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2012/01/17 10:38:20  j_penner
+ * added a Heaviside function
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  1999/12/02  17:55:03  phil
  * *** empty log message ***
@@ -300,6 +303,35 @@ Mtbl exp(const Mtbl& ti)
     return to ;
 }
 
+			    //---------------//
+			    // Heaviside     //
+			    //---------------//
+
+Mtbl Heaviside(const Mtbl& ti)
+{
+    // Protection
+    assert(ti.get_etat() != ETATNONDEF) ;
+    
+    Mtbl to(ti.get_mg()) ;			// Mtbl resultat
+    to.set_etat_qcq() ;
+    int nzone = ti.get_nzone() ;
+
+    // Cas ETATZERO
+    if (ti.get_etat() == ETATZERO) {
+	for (int i=0 ; i<nzone ; i++) {
+	    *(to.t[i]) = 0. ;
+	}
+	return to ;
+    }
+    
+    // Cas general
+    assert(ti.get_etat() == ETATQCQ) ;	// otherwise
+    for (int i=0 ; i<nzone ; i++) {
+	*(to.t[i]) = Heaviside( *(ti.t[i]) ) ;
+    }
+    return to ;
+}
+
 			    //-------------//
 			    // Log naturel //
 			    //-------------//
@@ -446,6 +478,63 @@ Mtbl abs(const Mtbl& ti)
 }
 
 
+
+
+		    //-------------------------------//
+    	    	    //         total max             //
+		    //-------------------------------//
+
+double totalmax(const Mtbl& mti) {
+
+    // Protection
+    assert(mti.get_etat() != ETATNONDEF) ;
+    
+    int nz = mti.get_nzone() ;
+    
+    double resu = -1E99 ; // large negative to initialize 
+    
+    if (mti.get_etat() == ETATZERO) {
+	resu = 0 ; 
+    }
+    else {  	// Cas general
+
+	assert(mti.get_etat() == ETATQCQ) ;     // sinon....
+    
+	for (int l=0 ; l<nz ; l++) {
+	    resu = max(resu,max( *(mti.t[l]) )) ;
+	}
+    }
+     
+    return resu ; 
+}
+
+		    //-------------------------------//
+    	    	    //         total min             //
+		    //-------------------------------//
+
+double totalmin(const Mtbl& mti) {
+
+    // Protection
+    assert(mti.get_etat() != ETATNONDEF) ;
+    
+    int nz = mti.get_nzone() ;
+    
+    double resu = 1E99 ; // large value to initialize
+    
+    if (mti.get_etat() == ETATZERO) {
+	resu = 0 ; 
+    }
+    else {  	// Cas general
+
+	assert(mti.get_etat() == ETATQCQ) ;     // sinon....
+    
+	for (int l=0 ; l<nz ; l++) {
+	    resu = min(resu, min( *(mti.t[l]) )) ;
+	}
+    }
+     
+    return resu ; 
+}
 
 
 		    //-------------------------------//
