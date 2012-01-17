@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2012/01/17 15:09:05  j_penner
+ * using MAX_BASE_2 for the phi coordinate
+ *
  * Revision 1.12  2009/10/08 16:21:16  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -109,7 +112,7 @@ static void (*som_r[MAX_BASE])
 	    (double*, const int, const int, const int, const double, double*) ;
 static void (*som_tet[MAX_BASE])
 	    (double*, const int, const int, const double, double*) ;
-static void (*som_phi[MAX_BASE])
+static void (*som_phi[MAX_BASE_2])
 	    (double*, const int, const double, double*) ;
 static int premier_appel = 1 ;
 
@@ -120,7 +123,9 @@ static int premier_appel = 1 ;
 	premier_appel = 0 ;
 
 	for (int i=0 ; i<MAX_BASE ; i++) {
-	    som_phi[i] = som_phi_pas_prevu ;
+		if(i%2 == 0){
+	    som_phi[i/2] = som_phi_pas_prevu ;
+		}
 	    som_tet[i] = som_tet_pas_prevu ;
 	    som_r[i]   = som_r_pas_prevu ;
 	}

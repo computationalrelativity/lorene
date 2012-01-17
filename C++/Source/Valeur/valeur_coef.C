@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2012/01/17 15:07:57  j_penner
+ * using MAX_BASE_2 for the phi coordinate
+ *
  * Revision 1.13  2009/10/23 12:56:29  j_novak
  * New base T_LEG_MI
  *
@@ -133,7 +136,7 @@ void Valeur::coef() const {
     // Variables statiques
     static void (*coef_r[MAX_BASE])(const int*, const int*, double*, const int*, double*) ;
     static void (*coef_t[MAX_BASE])(const int*, const int*, double*, const int*, double*) ;
-    static void (*coef_p[MAX_BASE])(const int* ,const int* ,  double* ) ;
+    static void (*coef_p[MAX_BASE_2])(const int* ,const int* ,  double* ) ;
     static int premier_appel = 1 ;
     
     // Premier appel
@@ -143,7 +146,9 @@ void Valeur::coef() const {
 	for (int i=0; i<MAX_BASE; i++) {
 	    coef_r[i] = pasprevu_r ;
 	    coef_t[i] = pasprevu_t ;
-	    coef_p[i] = pasprevu_p ;
+	    if(i%2 == 0){
+	    coef_p[i/2] = pasprevu_p ;
+	    }
 	}	
 
 	coef_r[NONDEF] = base_non_def_r ;

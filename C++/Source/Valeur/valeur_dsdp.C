@@ -34,8 +34,11 @@ char valeur_dsdp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2012/01/17 15:08:16  j_penner
+ * using MAX_BASE_2 for the phi coordinate
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.10  2000/10/04  12:50:53  eric
  * Ajout de la base P_COSSIN_I.
@@ -129,13 +132,13 @@ const Valeur& Valeur::dsdp() const {
 void Mtbl_cf::dsdp() {
 
 // Routines de derivation
-static void (*_dsdphi[MAX_BASE])(Tbl *, int &) ;
+static void (*_dsdphi[MAX_BASE_2])(Tbl *, int &) ;
 static int nap = 0 ;
 
     // Premier appel
     if (nap==0) {
 	nap = 1 ;
-	for (int i=0 ; i<MAX_BASE ; i++) {
+	for (int i=0 ; i<MAX_BASE_2 ; i++) {
 	    _dsdphi[i] = _dsdphi_pas_prevu ;
 	}
 	// Les routines existantes

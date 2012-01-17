@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2012/01/17 15:08:02  j_penner
+ * using MAX_BASE_2 for the phi coordinate
+ *
  * Revision 1.13  2009/10/23 12:56:29  j_novak
  * New base T_LEG_MI
  *
@@ -129,7 +132,7 @@ void Valeur::coef_i() const {
     // Variables statiques
     static void (*invcf_r[MAX_BASE])(const int*, const int*, double*, const int*, double*) ;
     static void (*invcf_t[MAX_BASE])(const int*, const int*, double*, const int*, double*) ;
-    static void (*invcf_p[MAX_BASE])(const int* , const int* , const int*, double* , double* ) ;
+    static void (*invcf_p[MAX_BASE_2])(const int* , const int* , const int*, double* , double* ) ;
     static int premier_appel = 1 ;
 
     // Premier appel
@@ -139,7 +142,9 @@ void Valeur::coef_i() const {
 	for (int i=0; i<MAX_BASE; i++) {
 	    invcf_r[i] = ipasprevu_r ;
 	    invcf_t[i] = ipasprevu_t ;
-	    invcf_p[i] = ipasprevu_p ;
+	    if(i%2==0){
+	    invcf_p[i/2] = ipasprevu_p ; // saves a loop
+	    }
 	}	
 
 	invcf_r[NONDEF] = ibase_non_def_r ;
@@ -254,7 +259,7 @@ void Valeur::coef_i() const {
 
 	assert(base_r < MAX_BASE) ; 
 	assert(base_t < MAX_BASE) ; 
-	assert(base_p < MAX_BASE) ; 
+	assert(base_p < MAX_BASE_2) ; 
 
 	// Transformation inverse en r:
 	if ( nr == 1 ) {

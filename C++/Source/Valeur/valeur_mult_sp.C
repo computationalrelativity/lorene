@@ -31,8 +31,11 @@ char valeur_mult_sp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2012/01/17 15:08:32  j_penner
+ * using MAX_BASE_2 for the phi coordinate
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/09/18  10:15:20  eric
  * Ajout des bases P_COSSIN_P et P_COSSIN_I
@@ -110,13 +113,13 @@ const Valeur& Valeur::mult_sp() const {
 void Mtbl_cf::mult_sp() {
 
 // Routines de derivation
-static void (*_mult_sp[MAX_BASE])(Tbl *, int &) ;
+static void (*_mult_sp[MAX_BASE_2])(Tbl *, int &) ;
 static int nap = 0 ;
 
     // Premier appel
     if (nap==0) {
 	nap = 1 ;
-	for (int i=0 ; i<MAX_BASE ; i++) {
+	for (int i=0 ; i<MAX_BASE_2 ; i++) {
 	    _mult_sp[i] = _mult_sp_pas_prevu ;
 	}
 	// Les routines existantes
