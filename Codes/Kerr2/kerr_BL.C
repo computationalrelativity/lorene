@@ -27,6 +27,9 @@ char kerr_BL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/01/17 22:05:42  e_gourgoulhon
+ * Corrected an error in the spectral basis for beta.
+ *
  * Revision 1.2  2011/11/27 14:45:54  e_gourgoulhon
  * grid declared SYM in phi
  * 1 point in phi allowed
@@ -54,6 +57,10 @@ char kerr_BL_C[] = "$Header$" ;
 #include "cmp.h"
 #include "proto.h"
 #include "graphique.h"
+
+// local: 
+double beta3(double, double, double) ; 
+
 
 int main() {
 
@@ -172,7 +179,7 @@ int main() {
     beta.set(2) = 0 ;
     beta.set(3) = - 2 *aa * sint / (rho2*(1 +  aa2/r2) + 2*aa2*sint2/r) ; 
     beta.set(3).annule_domain(0) ; 
-    beta.set(3).std_spectral_base() ; 
+    beta.std_spectral_base() ; 
     
     // 3-metric
     Sym_tensor gamma(map, COV, map.get_bvect_spher()) ;
@@ -245,6 +252,44 @@ int main() {
 
     fclose(file_out) ;    
     
+    // Test
+    //-----
+    
+    /* double theta0 = 1. ; 
+    double rmin = 1.1* r_limits[1] ; 
+    double rmax = r_limits[nz-1] ; 
+    cout << "rmin, rmax : " << rmin << ", " << rmax << endl ; 
+    int npt = 100 ;
+    double h = (rmax - rmin) / double(npt -1) ; 
+    for (int i=0; i<npt; i++) {
+        double rr = rmin + h *i ; 
+        double bet =  beta(3).val_point(rr,theta0,0) ; 
+        double bet0 = beta3(rr,theta0,aa) ; 
+        double err = bet - bet0 ; 
+        double err_rel = err / bet0 ; 
+        cout << "rr, bet, bet0, err, err_rel : " << rr << "  " << bet << "  " << bet0 << "  " << err << "  " << err_rel << endl ;
+    }
+    */
+    
     return EXIT_SUCCESS ; 
 
 }
+
+double beta3(double r, double th, double a) {
+    double a2 = a*a ; 
+    double r2 = r*r ; 
+    return - 2*a*sin(th) / ( (r2+a2*cos(th)*cos(th))*(1+a2/r2) + 2*a2*sin(th)*sin(th)/r ) ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
