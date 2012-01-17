@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2012/01/17 10:17:23  j_penner
+ * functions added: Heaviside
+ *
  * Revision 1.14  2005/11/17 15:18:46  e_gourgoulhon
  * Added Valeur + Mtbl and Valeur - Mtbl.
  *
@@ -855,6 +858,7 @@ Valeur asin(const Valeur& ) ;	    ///< Arcsine
 Valeur acos(const Valeur& ) ;	    ///< Arccosine
 Valeur atan(const Valeur& ) ;	    ///< Arctangent
 Valeur exp(const Valeur& ) ;	    ///< Exponential
+Valeur Heaviside(const Valeur& ) ;	    ///< Heaviside function
 Valeur log(const Valeur& ) ;	    ///< Neperian logarithm
 Valeur log10(const Valeur& ) ;      ///< Basis 10 logarithm
 Valeur sqrt(const Valeur& ) ;	    ///< Square root
@@ -862,6 +866,20 @@ Valeur pow(const Valeur& , int ) ;  ///< Power \f${\tt Valeur}^{\tt int}\f$
 Valeur pow(const Valeur& , double ) ; ///< Power \f${\tt Valeur}^{\tt double}\f$
 Valeur abs(const Valeur& ) ;	    ///< Absolute value
 Valeur racine_cubique (const Valeur&) ; ///< Cube root
+
+/**
+ * Maximum values of the \c Valeur in entire space.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are the set of the maximum values in each domain.  
+ */
+double totalmax(const Valeur& ) ;   
+
+/**
+ * Minimum values of the \c Valeur in entire space.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are the set of the minimum values in each domain.  
+ */
+double totalmin(const Valeur& ) ;   
 
 /**
  * Maximum values of the \c Valeur  (configuration space)
