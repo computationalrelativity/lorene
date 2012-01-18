@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2012/01/18 14:43:42  j_penner
+ * added a routine to return the computational coordinate xi as a Valeur
+ *
  * Revision 1.15  2012/01/17 10:17:23  j_penner
  * functions added: Heaviside
  *
@@ -585,6 +588,12 @@ class Valeur {
 	 */
 	void mult2_xm1_zec() ;	
 	
+	/** Returns \f${\xi}\f$ (\e r -sampling = \c RARE ) \\
+	 * (\e r  sampling = \c FIN ) \\
+	 * \f${1 \over \xi-1}\f$ (\e r -sampling = \c UNSURR )
+	 */
+	void va_x() ;
+		    
 	
     // Outputs
     // -------
