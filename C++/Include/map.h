@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.56  2012/01/24 14:58:54  j_novak
+ * Removed functions XXX_fait_xi()
+ *
  * Revision 1.55  2012/01/17 15:34:20  j_penner
  * *** empty log message ***
  *
@@ -2640,7 +2643,6 @@ class Map_af : public Map_radial {
 
     // Building functions for the Coord's
     // ----------------------------------
-    friend Mtbl* map_af_fait_xi(const Map* ) ;
     friend Mtbl* map_af_fait_r(const Map* ) ;
     friend Mtbl* map_af_fait_tet(const Map* ) ;
     friend Mtbl* map_af_fait_phi(const Map* ) ;
@@ -2673,7 +2675,6 @@ class Map_af : public Map_radial {
 
 };
 
-     Mtbl* map_af_fait_xi(const Map* ) ;
      Mtbl* map_af_fait_r(const Map* ) ;
      Mtbl* map_af_fait_tet(const Map* ) ;
      Mtbl* map_af_fait_phi(const Map* ) ;
@@ -3480,7 +3481,6 @@ class Map_et : public Map_radial {
 
     // Building functions for the Coord's
     // ----------------------------------
-    friend Mtbl* map_et_fait_xi(const Map* ) ;
     friend Mtbl* map_et_fait_r(const Map* ) ;
     friend Mtbl* map_et_fait_tet(const Map* ) ;
     friend Mtbl* map_et_fait_phi(const Map* ) ;
@@ -3516,7 +3516,6 @@ class Map_et : public Map_radial {
 
 };
 
-     Mtbl* map_et_fait_xi(const Map* ) ;
      Mtbl* map_et_fait_r(const Map* ) ;
      Mtbl* map_et_fait_tet(const Map* ) ;
      Mtbl* map_et_fait_phi(const Map* ) ;
@@ -3800,7 +3799,6 @@ class Map_log : public Map_radial {
 
 	// Building functions for the Coord's
 	// ----------------------------------
-	friend Mtbl* map_log_fait_xi(const Map* ) ;
 	friend Mtbl* map_log_fait_r(const Map* ) ;
 	friend Mtbl* map_log_fait_tet(const Map* ) ;
 	friend Mtbl* map_log_fait_phi(const Map* ) ;
@@ -3834,7 +3832,6 @@ class Map_log : public Map_radial {
 	
 };
 
-Mtbl* map_log_fait_xi(const Map* ) ;
 Mtbl* map_log_fait_r(const Map* ) ;
 Mtbl* map_log_fait_tet(const Map* ) ;
 Mtbl* map_log_fait_phi(const Map* ) ;
