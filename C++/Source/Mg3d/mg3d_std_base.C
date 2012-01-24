@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2012/01/24 15:02:28  j_novak
+ * Minor change to avoid warnings
+ *
  * Revision 1.9  2009/10/08 16:21:02  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -133,7 +136,7 @@ Base_val** Mg3d::std_base_vect_cart() const {
      int nz = get_nzone() ;
      
      // Tableau contenant le resultat...
-     Base_val** bases = new (Base_val* [3]) ;
+     Base_val** bases = new Base_val*[3] ;
      for (int i=0 ; i<3 ; i++)
 	bases[i] = new Base_val(nz) ;
      	        
@@ -485,7 +488,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
     int nz = get_nzone() ;
     
     // Tableau contenant le resultat...
-    Base_val** bases = new (Base_val* [3]) ;
+    Base_val** bases = new Base_val*[3] ;
     for (int i=0 ; i<3 ; i++)
 	bases[i] = new Base_val(nz) ;
     
@@ -810,7 +813,7 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
      int nz = get_nzone() ;
      
      // Tableau contenant le resultat...
-     Base_val** bases = new (Base_val* [3]) ;
+     Base_val** bases = new Base_val*[3] ;
      for (int i=0 ; i<3 ; i++)
 	bases[i] = new Base_val(nz) ;
      	        
@@ -1161,7 +1164,7 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
   int nz = get_nzone() ;
   
   // Tableau contenant le resultat...
-  Base_val** bases = new (Base_val* [3]) ;
+  Base_val** bases = new Base_val*[3] ;
   for (int i=0 ; i<3 ; i++)
     bases[i] = new Base_val(nz) ;
   
