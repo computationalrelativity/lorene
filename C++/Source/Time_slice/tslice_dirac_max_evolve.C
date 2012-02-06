@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2012/02/06 12:59:07  j_novak
+ * Correction of some errors.
+ *
  * Revision 1.18  2011/07/22 13:21:02  j_novak
  * Corrected an error on BC treatment.
  *
@@ -692,11 +695,11 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 	tmp = A_hh() ;
 	tmp.set_spectral_va().ylm_i() ;
         des_meridian(tmp, 0., ray_des, "A\\dh", ngraph0+9,
-                     "/xwin") ; 
+                     graph_device) ; 
 	tmp = B_hh_new;
 	tmp.set_spectral_va().ylm_i() ;
         des_meridian(tmp, 0., ray_des, "B\\dh", ngraph0+10,
-                     "/xwin") ;
+                     graph_device) ;
         des_meridian(trh(), 0., ray_des, "tr h", ngraph0+11,
                      graph_device) ; 
         des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", ngraph0+12,

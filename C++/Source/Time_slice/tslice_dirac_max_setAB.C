@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2012/02/06 12:59:07  j_novak
+ * Correction of some errors.
+ *
  * Revision 1.8  2011/07/22 13:21:02  j_novak
  * Corrected an error on BC treatment.
  *
@@ -246,7 +249,7 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     // Source for hij
     //==================================
     
-    Sym_tensor source_hij = hh().derive_lie(beta()) + 2*(nn() - 1.)*aij 
+    Sym_tensor source_hij = hh().derive_lie(beta()) + 2*(nn()/psi6 - 1.)*a_hat 
       - beta().ope_killing_conf(ff) + 0.6666666666666667*div_beta*hh() ;
     source_hij.annule_domain(nz-1) ;
     for (int i=1; i<=3; i++)
@@ -424,59 +427,3 @@ void Tslice_dirac_max::initialize_sources_copy() const {
     } 
 }
 
-Sym_tensor_tt Tslice_dirac_max::laplacian_h_tt(Param* ) const {
-
-    assert (A_hh_evol.is_known(jtime)) ;
-    assert (B_hh_evol.is_known(jtime)) ;
-
-    const Map& map = A_hh_evol[jtime].get_mp() ;
-    int nz_bound = map.get_mg()->get_nzone() - 2 ;
-    int np2 = map.get_mg()->get_np(nz_bound) + 2 ;
-    int nt = map.get_mg()->get_nt(nz_bound) ;
-    Sym_tensor copy_hh = hh() ;
-    if (nz_bound > 0) copy_hh.annule(0, nz_bound-1) ;
-    copy_hh.annule_domain(nz_bound+1) ;
-
-    // Computation of tilde_eta and tilde_mu
-    //--------------------------------------
-    Scalar lapang_eta = copy_hh(1,2) ;
-    lapang_eta.div_tant() ;
-    lapang_eta += copy_hh(1,2).dsdt() + copy_hh(1,3).stdsdp() ;
-    Scalar tilde_eta = lapang_eta.poisson_angu() ;
-
-    Scalar lapang_mu = copy_hh(1,3) ; 	// h^{r ph}
-    lapang_mu.div_tant() ; 		// h^{r ph} / tan(th)
-    lapang_mu += copy_hh(1,3).dsdt() - copy_hh(1,2).stdsdp() ; 
-    Scalar tilde_mu = lapang_mu.poisson_angu() ;  
- 
-    Sym_tensor_tt resu(map, map.get_bvect_spher(), map.flat_met_spher()) ;
-    Scalar tmp(map) ;
-
-    // Parameters for the Dirac systems
-    //---------------------------------
-    Param par_bc ;
-    par_bc.add_int(nz_bound) ;
-    Tbl* cf_b = new Tbl(10) ;
-    cf_b->annule_hard() ;
-    cf_b->set(0) = 1. ; // \tilde{\mu}
-    cf_b->set(1) = 0 ; // d mu / dr
-    cf_b->set(2) = 0 ; // X
-    cf_b->set(3) = 0 ; // d X / dr
-    cf_b->set(4) = 0 ; // h^rr
-    cf_b->set(5) = 0 ;  // d h^rr / dr
-    cf_b->set(6) = 1 ; //\tilde{\eta}
-    cf_b->set(7) = 0 ; //d eta / dr
-    cf_b->set(8) = 0 ; //W
-    cf_b->set(9) = 0 ; //d W / dr
-    par_bc.add_tbl_mod(*cf_b, 0) ;
-    Tbl* kib_hh = new Tbl(np2, nt) ;
-    Tbl& khib_hh = *kib_hh ;
-    khib_hh.annule_hard() ;
-    par_bc.add_tbl_mod(khib_hh,1) ;
-    Tbl* mb_hh = new Tbl(np2, nt) ;
-    Tbl& mub_hh = *mb_hh ;
-    mub_hh.annule_hard() ;
-    par_bc.add_tbl_mod(mub_hh, 2) ;
-
-    return resu ;
-}

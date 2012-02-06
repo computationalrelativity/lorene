@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2012/02/06 12:59:07  j_novak
+ * Correction of some errors.
+ *
  * Revision 1.30  2010/10/20 07:58:09  j_novak
  * Better implementation of the explicit time-integration. Not fully-tested yet.
  *
@@ -1270,12 +1273,6 @@ class Tslice_dirac_max : public Time_slice_conf {
      * @param hijtt : the TT part.
      */
     void hh_det_one(const Sym_tensor_tt& hijtt, Param* par_mat = 0x0) const ;
-
-    /** Computes the flat Laplace operator \f$\Delta\f$ acting on 
-     * \f$h^{ij}\f$, using the potentials \e A and \f$\tilde{B}\f$. 
-     * The trace of teh result is set to zero (to modify).
-     */
-    Sym_tensor_tt laplacian_h_tt(Param* par_mat = 0x0) const ;
 
     // Accessors
     // ---------

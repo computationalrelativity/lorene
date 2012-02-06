@@ -28,6 +28,9 @@ char scalar_match_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/02/06 12:59:07  j_novak
+ * Correction of some errors.
+ *
  * Revision 1.2  2008/08/20 13:23:43  j_novak
  * The shift in quantum number l (e.g. for \tilde{B}) is now taken into account.
  *
@@ -355,6 +358,7 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 		}
 		index = 0 ;
 		int dec = (base_r == R_CHEBP ? 0 : 1) ;
+		nr = mgrid.get_nr(0) ;
 		if (l_q>=2) {
 		    coef.set(0, k, j, nr-2-dec) = solut(index) ;
 		    index++ ;
@@ -364,11 +368,12 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 		if (base_r == R_CHEBI)
 		    coef.set(0, k, j, nr-1) = 0 ;
 		for (int lz=1; lz<=domain_bc; lz++) {
-		    for (nl=1; nl<=n_conditions; nl++) {
-			int ii = n_conditions - nl + 1 ;
-			coef.set(lz, k, j, nr-ii) = solut(index) ;
-			index++ ;
-		    }
+		  nr = mgrid.get_nr(lz) ;
+		  for (nl=1; nl<=n_conditions; nl++) {
+		    int ii = n_conditions - nl + 1 ;
+		    coef.set(lz, k, j, nr-ii) = solut(index) ;
+		    index++ ;
+		  }
 		}
 	    } //End of nullite_plm
 	    else {
