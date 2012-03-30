@@ -143,8 +143,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2012/03/30 12:12:44  j_novak
+C Cleaning of fortran files
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.9  1998/09/02  15:26:11  eric
 c Correction erreur NR=5 dans l'appel DIRCMS dans la derniere zone pour
@@ -181,7 +184,7 @@ C
 C $Header$
 C
 C
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	INTEGER NRL,N257,NDR,NDT,NDEG,NT1,NT,NF2,NR,LF

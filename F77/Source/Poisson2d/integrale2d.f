@@ -23,6 +23,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.7  2012/03/30 12:12:43  j_novak
+C Cleaning of fortran files
+C
 C Revision 1.6  2010/10/11 10:23:57  j_novak
 C Increase of array size NDZ0
 C
@@ -56,7 +59,7 @@ C
 	INTEGER NDL1(*), NDR, NDT, NDF
 	REAL*8 ERRE(NDR,*), SOU(NDR,NDT,NDF,*), RESU
 
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	INTEGER NDR0, NDT0, NDF0, NDZ0, N64

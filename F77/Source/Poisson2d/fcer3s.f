@@ -176,6 +176,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.3  2012/03/30 12:12:43  j_novak
+C Cleaning of fortran files
+C
 C Revision 1.2  2009/12/01 08:45:21  j_novak
 C Shortened a line to 72 characters.
 C
@@ -189,7 +192,7 @@ C
 C $Header$
 C
 C
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 

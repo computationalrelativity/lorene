@@ -21,8 +21,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2012/03/30 12:12:43  j_novak
+C Cleaning of fortran files
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.1  1998/06/22  10:31:25  eric
 c Initial revision
@@ -188,7 +191,7 @@ C			 BITCHEV, LEGENDRE ET FOURIER.
 C
 	IMPLICIT NONE
 
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	INTEGER N257,NDR,NDT,NDF,NZON,NT1,NF,NDZ,IPARR

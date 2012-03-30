@@ -79,8 +79,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2012/03/30 12:12:44  j_novak
+C Cleaning of fortran files
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.2  1997/05/23  11:39:09  hyc
 c *** empty log message ***
@@ -91,7 +94,7 @@ C
 C
 C $Header$
 C
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	INTEGER NN,NDIM,N,N1,NCONT,N12,ND,L,IDEG,J

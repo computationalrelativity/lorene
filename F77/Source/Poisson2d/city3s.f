@@ -100,6 +100,9 @@ c
 C
 C $Id$
 C $Log$
+C Revision 1.3  2012/03/30 12:12:43  j_novak
+C Cleaning of fortran files
+C
 C Revision 1.2  2005/11/02 08:59:33  m_bejger
 C Commented out multiple initializations of data variables, line 129,130
 C (issue known to produce internal compiler error with
@@ -118,7 +121,7 @@ C
 C $Header$
 C
 C
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	integer

@@ -57,8 +57,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2012/03/30 12:12:42  j_novak
+C Cleaning of fortran files
+C
+C Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+C LORENE
 C
 c Revision 1.2  1997/05/23  11:33:04  hyc
 c *** empty log message ***
@@ -70,7 +73,7 @@ C
 C $Header$
 C
 C
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
        DIMENSION CC(*),CS(*),F(*)

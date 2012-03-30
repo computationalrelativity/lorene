@@ -15,6 +15,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.3  2012/03/30 12:12:42  j_novak
+C Cleaning of fortran files
+C
 C Revision 1.2  2004/10/04 19:22:00  e_gourgoulhon
 C Added copyright and references.
 C
@@ -42,7 +45,7 @@ C
 
        IMPLICIT double PRECISION (A-H,O-Z)
 
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
        DIMENSION IFAX(*)

@@ -21,8 +21,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2012/03/30 12:12:44  j_novak
+C Cleaning of fortran files
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.1  1998/06/22  10:38:35  eric
 c Initial revision
@@ -60,7 +63,7 @@ C
 
 	IMPLICIT double PRECISION (A-H,O-Z)
 
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	PARAMETER (N257=257)
@@ -75,6 +78,13 @@ C
 C		COMBINAISON LINEAIRE DES COEFFICIENTS
 C
 	N1=NDL(2)
+
+	IF (N1.GT.N257) THEN
+	PRINT*,'ROUTINE PRIQ1S: TABLEAUX INTERNES INSUFFISAMMENT'
+	PRINT*,' DIMENSIONNES,N1,N257=',N1,N257
+	STOP
+	ENDIF
+
 	N=N1-1
 C
 	IF(N1.NE.NCON) THEN

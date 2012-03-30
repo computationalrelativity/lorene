@@ -81,6 +81,9 @@ C		routine modifiee le 28/11/1997 ajoute'le cas IPAR=1,MULT+3
 C
 C $Id$
 C $Log$
+C Revision 1.3  2012/03/30 12:12:43  j_novak
+C Cleaning of fortran files
+C
 C Revision 1.2  2003/05/28 15:25:04  e_gourgoulhon
 C Replaced DIMENSION NDEG(1) by DIMENSION NDEG(*)
 C
@@ -103,7 +106,7 @@ C
 C $Header$
 C
 C
-	character* 100 header
+	character* 120 header
 	data header/'$Header$'/
 
 C

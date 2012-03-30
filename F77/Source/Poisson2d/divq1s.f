@@ -21,8 +21,11 @@ C
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2012/03/30 12:12:43  j_novak
+C Cleaning of fortran files
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.1  1998/06/22  10:38:21  eric
 c Initial revision
@@ -77,7 +80,7 @@ C		ROUTINE TESTEE LE 20/08/91.
 C
 C
 
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	PARAMETER (N257=257)

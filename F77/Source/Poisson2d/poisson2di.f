@@ -23,6 +23,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.5  2012/03/30 12:12:44  j_novak
+C Cleaning of fortran files
+C
 C Revision 1.4  2010/12/20 10:05:28  m_bejger
 C Increase of NDZ0 from 5 to 8
 C
@@ -56,7 +59,7 @@ C
 	REAL*8 ERRE(NDR,*)
 	REAL*8 SOU(NDR,NDT,NDF,*), POT(NDR,NDT,NDF,*)
 
-	character*100 header
+	character*120 header
 	data header/'$Header$'/
 
 	INTEGER NDR0, NDT0, NDF0, NDZ0, N64
