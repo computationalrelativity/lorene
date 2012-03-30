@@ -26,103 +26,83 @@
 
 char kerr_C[] = "$Header$" ;
 
-
-
-// headers C++
-#include "headcpp.h"
-
-// headers C
-#include <stdlib.h>
-#include <math.h>
-
 // headers Lorene
-#include "tenseur.h" 
-#include "tensor.h"
-#include "param.h"
-#include "graphique.h"
-#include "unites.h"
 #include "nbr_spx.h"
-#include "metric.h"
-#include "proto.h"
-#include "utilitaires.h"
-#include "spheroid.h"
 #include "excised_slice.h"
-int main(){  
-       using namespace Unites ; 
-    //------------------------------------------------------------------
-    //	    Parameters of the computation 
-    //------------------------------------------------------------------
+#include "unites.h"
 
-       int nr, nt, np, CFornot, mer_max, mer_max2;
+int main(){ 
+ 
+  using namespace Unites ; 
+  //------------------------------------------------------------------
+  //	    Parameters of the computation 
+  //------------------------------------------------------------------
+
+  int nr, nt, np, CFornot, mer_max, mer_max2;
   double relax, precis, Omega, N_hor;
   bool isCF;
- 
+  
+  ifstream fpar("parkerr.d") ;
+  fpar.ignore(1000, '\n') ;
+  fpar.ignore(1000, '\n') ;
+  fpar >> nr; fpar.ignore(1000, '\n');
+  fpar >> nt; fpar.ignore(1000, '\n');
+  fpar >> np; fpar.ignore(1000, '\n');
+  fpar >> CFornot; fpar.ignore(1000, '\n');
+  isCF = (CFornot == 1) ;
+  
+  int nz=6; // Number of domain; unable to change it in parameter file until now, bu can be changed inside the code.
 
-    ifstream fpar("parkerr.d") ;
-    fpar.ignore(1000, '\n') ;
-    fpar.ignore(1000, '\n') ;
-    fpar >> nr; fpar.ignore(1000, '\n');
-    fpar >> nt; fpar.ignore(1000, '\n');
-    fpar >> np; fpar.ignore(1000, '\n');
-    fpar >> CFornot; fpar.ignore(1000, '\n');
-    isCF = (CFornot == 1) ;
-
-    int nz=6; // Number of domain; unable to change it in parameter file until now, bu can be changed inside the code.
-
-    cout << "==========GRID PARAMETERS========" << endl;
-    cout << "total number of domains :   nz = " << nz << endl ;
-    cout << "number of points in r  :    nr = " << nr << endl ;
-    cout << "number of points in phi :   np = " << np << endl ;
-    cout << "number of points in theta : nt = " << nt << endl ;
+  cout << "==========GRID PARAMETERS========" << endl;
+  cout << "total number of domains :   nz = " << nz << endl ;
+  cout << "number of points in r  :    nr = " << nr << endl ;
+  cout << "number of points in phi :   np = " << np << endl ;
+  cout << "number of points in theta : nt = " << nt << endl ;
+  
+  fpar >> relax; fpar.ignore(1000, '\n');
+  fpar >> precis; fpar.ignore(1000, '\n');
+  fpar >> mer_max; fpar.ignore(1000, '\n');
+  fpar >> mer_max2; fpar.ignore(1000, '\n');
+  fpar >> Omega; fpar.ignore(1000, '\n');
+  fpar >> N_hor; fpar.ignore(1000, '\n');
+  
+  cout << "=============PHYSICAL PARAMETERS===============" << endl;
+  cout << "Chosen rotation parameter :             Omega= " << Omega << endl;
+  cout << "Value for the lapse at the horizon :    N=     " << N_hor << endl;
+  
+  fpar.close();
     
-    fpar >> relax; fpar.ignore(1000, '\n');
-    fpar >> precis; fpar.ignore(1000, '\n');
-    fpar >> mer_max; fpar.ignore(1000, '\n');
-    fpar >> mer_max2; fpar.ignore(1000, '\n');
-    fpar >> Omega; fpar.ignore(1000, '\n');
-    fpar >> N_hor; fpar.ignore(1000, '\n');
-
-    cout << "=============PHYSICAL PARAMETERS===============" << endl;
-    cout << "Chosen rotation parameter :             Omega= " << Omega << endl;
-    cout << "Value for the lapse at the horizon :    N=     " << N_hor << endl;
- 
-    fpar.close();
-    
-
-    //----------------------------------------------------------
+  //----------------------------------------------------------
   // Construction of a multi-grid (Mg3d) and associated mapping
   // ----------------------------------------------------------
-
-    // Note that the horizon radius is set by default to 1, which is
-    // the inner boundary of the first shell.
-
- 
+  
+  // Note that the horizon radius is set by default to 1, which is
+  // the inner boundary of the first shell.
+  
   int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
   int symmetry_phi = SYM ; // symmetry in phi
   int nbr[] = {nr, nr, nr, nr, nr, nr};
   int nbt[] = {nt, nt, nt, nt, nt, nt} ;
   int nbp[] = {np, np, np, np, np, np} ;
   int tipe_r[] = {RARE, FIN, FIN, FIN, FIN, UNSURR} ;
-
+  
   Mg3d mgrid(nz, nbr, tipe_r, nbt, symmetry_theta, nbp, symmetry_phi) ;
-	
+  
   // Construct angular grid for h(theta,phi) 
   const Mg3d& g_angu = *mgrid.get_angu_1dom() ;
-
+  
   // Construction of an affine mapping (Map_af)
   // ------------------------------------------
-
+  
   // Boundaries of each domains
   double Rmax = (1/0.3) ;
   double r_limits[] = {0., 0.3*Rmax, 0.6*Rmax, 1.*Rmax, 2.*Rmax, 4.*Rmax, __infinity} ; 
   double r_limits2[] = {0.3*Rmax, 0.6*Rmax} ; 
  
-
   const Map_af map(mgrid, r_limits); 
   const Map_af map_2(g_angu, r_limits2);
 
   // Some helpful stuff...
-
   const Coord& rr = map.r;
   Scalar rrr (map) ; 
   rrr = rr ; 
@@ -130,12 +110,12 @@ int main(){
   //  const Metric_flat& mets = map.flat_met_spher() ;
 
   // Definition of the class for black hole data containing an isolated horizon
-
+  //---------------------------------------------------------------------------
   Scalar lapse_hor(map); lapse_hor = N_hor; lapse_hor.std_spectral_base();
-  
   Excised_slice Kerr_hole(*(dynamic_cast<const Map*>(&map)), 1 ,1);
   
   // Compute the metric data using the Isol_hole class  
+  //--------------------------------------------------
   Kerr_hole.compute_stat_metric(precis, Omega, false, lapse_hor, isCF, relax, mer_max, mer_max2);
 
   // Once metric fields are calculated, it is possible to perform several diagnostics on the data.
@@ -176,8 +156,7 @@ int main(){
 
   fclose(Kerr_holedata);
 
-
-    return EXIT_SUCCESS ; 
+  return EXIT_SUCCESS ; 
         
 }  
   

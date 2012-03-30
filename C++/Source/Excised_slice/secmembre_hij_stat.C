@@ -1,17 +1,11 @@
 
 // Header Lorene:
-#include "nbr_spx.h"
-#include "utilitaires.h"
-#include "graphique.h"
-#include "math.h"
-#include "metric.h"
-#include "param.h"
 #include "param_elliptic.h"
-#include "tensor.h"
-#include "unites.h"
 #include "excised_slice.h"
+#include "unites.h"
 
-//Computes the rhs of hyperbolic equation for conformal metric assuming statioarity; WARNING; up to now, we are only able to handle void spacetimes.
+// Computes the rhs of hyperbolic equation for conformal metric assuming statioarity;
+// WARNING; up to now, we are only able to handle void spacetimes.
 
 
 void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){ 
@@ -47,7 +41,7 @@ void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){
     
   const Base_vect_spher& otriad = hij.get_mp().get_bvect_spher();
 
-  // On met a zero les quantités supposees etre de "matiere"
+  // On met a zero les quantites supposees etre de "matiere"
 
   Sym_tensor strain_tens = hij; 
   for (int ii=1; ii<=3; ii++)
@@ -56,7 +50,7 @@ void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){
       }
   strain_tens.std_spectral_base();
    
-  //     On met a zero les quantités derivee temporelle
+  //     On met a zero les quantites derivee temporelle
 
   Vector beta_point = shift;
  
@@ -84,7 +78,7 @@ void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){
   hh_point.std_spectral_base();  
 
 
-  // Note: Il sera probablement nécessaire de ne pas mettre a zero hh point;
+  // Note: Il sera probablement necessaire de ne pas mettre a zero hh point;
    
 
   //Sym_tensor Rrij(map, CON, map.get_bvect_spher());
@@ -98,7 +92,7 @@ void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){
         
   const Sym_tensor& tgam_dd = tgam.cov() ;    // {\tilde \gamma}_{ij}
   //  const Sym_tensor& tgam_uu = tgam().con() ;    // {\tilde \gamma}^{ij}
-  const Tensor_sym& dtgam = tgam_dd.derive_cov(ff) ;// D_k {\tilde \gamma}_{ij} // ff etant la métrique plate
+  const Tensor_sym& dtgam = tgam_dd.derive_cov(ff) ;// D_k {\tilde \gamma}_{ij} // ff etant la metrique plate
   const Tensor_sym& dhh = hh.derive_cov(ff) ; // D_k h^{ij}
   const Vector& dln_psi = ln_psi.derive_cov(ff) ; // D_i ln(Psi)
   const Vector& tdln_psi_u = ln_psi.derive_con(tgam) ; // tD^i ln(Psi)
@@ -243,8 +237,8 @@ void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){
 
   source_hh =// (lapse*lapse/psi4 - 1.) 
     // * hh.derive_con(ff).divergence(ff) 
-    + 2.* hh_point.derive_lie(beta); // - lbh.derive_lie(beta) ; // La double derivée de
-  // Lie en Beta est retirée (prise en charge dans tensorelliptic.C)
+    + 2.* hh_point.derive_lie(beta); // - lbh.derive_lie(beta) ; // La double derivee de
+  // Lie en Beta est retiree (prise en charge dans tensorelliptic.C)
 
   source_hh.inc_dzpuis() ; 
         

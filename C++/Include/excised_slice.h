@@ -13,11 +13,7 @@
 
 
 // Headers Lorene
-#include "tensor.h"
-#include "metric.h"
 #include "spheroid.h"
-#include "excision_surf.h"
-#include "excision_hor.h"
 
 //---------------------------//
 //    Class Excised_slice    //
@@ -200,11 +196,11 @@ class Excised_slice {
   const Map& get_mp() const {return mp; } ; 
 
   ///Returns the type of horizon that performs the excision
-  const int get_type_hor() const {return type_hor; };
+  int get_type_hor() const {return type_hor; };
   
   ///Returns the field set chosen for the data
 
-  const int get_field_set() const {return field_set;};
+  int get_field_set() const {return field_set;};
 
   /// Returns the lapse function \e N
   const Scalar& get_lapse() const {return lapse;} ;
