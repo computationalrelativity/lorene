@@ -173,7 +173,7 @@ This file is the only one of the Lorene distribution which is
 architecture/system dependent. It will be included by all the
 Lorene Makefiles, which are fully architecture independent.
 
-Some templates files are provided for
+Some templates files are provided in the directory Local_settings for
    -- Linux with GNU compilers   (local_settings_linux)
    -- SGI Irix                   (local_settings_irix)
    -- Compaq Alpha Digital Unix  (local_settings_alpha)
@@ -184,7 +184,7 @@ To create the file $HOME_LORENE/local_settings, you simply have to
 copy one of this file into local_settings by typing, e.g. under Linux
 
 	cd $HOME_LORENE
-	cp local_settings_linux local_settings
+	cp Local_settings/local_settings_linux local_settings
 
 You may then edit local_settings to adapt it to some special features of
 your system implementation, e.g. to use FFTW3 instead of the standard 
