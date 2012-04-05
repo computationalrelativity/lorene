@@ -30,16 +30,6 @@
 
 char CTS_gen[] = "$Header$" ;
 
-/*
- */
-
-// C++ headers
-#include "headcpp.h"
-
-// C headers
-#include <stdlib.h>
-#include <assert.h>
-
 // Lorene headers
 #include "time_slice.h"
 #include "isol_hor.h"
@@ -49,7 +39,6 @@ char CTS_gen[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 #include "param.h"
-#include "vector.h"
 
 void Isol_hor::init_data_CTS_gen(int, double, int, int,
 				int solve_lapse, int solve_psi, int solve_shift, 
