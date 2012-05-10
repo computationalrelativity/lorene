@@ -12,15 +12,9 @@
 10      mer_change_omega : step at which f is changed to reach freq_si
 20	mer_fix_omega : step at which f must have reached 
 1      delta_mer_kep : number of steps after mer_fix_omega to search for Kepler.
-0.3    thres_adapt : threhold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
-1800    mer_triax : step at which the 3-D perturbation is switched on
-1.e-3   ampli_triax : relative amplitude of the 3-D perturbation
 2000    mer_mass : step from which the baryon mass is forced to converge (if negative, variation of Omega)
 0.5     aexp_mass : exponent for the increase factor of the central enthalpy
 0.5     relax : relaxation factor in the main iteration 
-4       mermax_poisson : maximum number of steps in Map_et::poisson
-1.5     relax_poisson :  relaxation factor in Map_et::poisson
-1.e-14  precis_adapt : precision in Map_et::adapt
 1       graph : 1 = graphical outputs during the computation 
 #################### MULTI-GRID PARAMETERS ###################################
 4	nz : total number of domains

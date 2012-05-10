@@ -30,6 +30,11 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2012/05/10 09:05:30  j_novak
+ * New code examrot_dirac for reading the results of
+ * rotstar_dirac. Simplification of the parrot.d parameter file for
+ * rotstar_dirac.
+ *
  * Revision 1.7  2009/10/26 10:42:30  j_novak
  * Changed dzpuis handling in final test.
  *
@@ -93,11 +98,10 @@ int main(){
     char blabla[120] ;
 
     int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
-	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np, mer_triax, filter_order, mer_hij ; 
+	delta_mer_kep, mer_mass, graph, nz, nzet, nzadapt,
+	nt, np, filter_order, mer_hij ; 
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
-	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
-	   precis_adapt ;  
+	   aexp_mass, relax ;  
     
     ifstream fich("parrot.d") ;
     fich.getline(blabla, 120) ; fich.getline(blabla, 120) ;
@@ -114,15 +118,9 @@ int main(){
     fich >> mer_change_omega ; fich.getline(blabla, 120) ;
     fich >> mer_fix_omega ; fich.getline(blabla, 200) ;
     fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
-    fich >> thres_adapt ; fich.getline(blabla, 120) ;
-    fich >> mer_triax ; fich.getline(blabla, 120) ;
-    fich >> ampli_triax ; fich.getline(blabla, 120) ;
     fich >> mer_mass ; fich.getline(blabla, 120) ;
     fich >> aexp_mass ; fich.getline(blabla, 120) ;
     fich >> relax ; fich.getline(blabla, 120) ;
-    fich >> mermax_poisson ; fich.getline(blabla, 120) ;
-    fich >> relax_poisson ; fich.getline(blabla, 120) ;
-    fich >> precis_adapt ; fich.getline(blabla, 120) ;
     fich >> graph ; fich.getline(blabla, 120) ;
     fich.getline(blabla, 120) ;
     fich >> nz ; fich.getline(blabla, 120) ;
@@ -248,18 +246,10 @@ int main(){
 	 << relax << endl ; 
     cout << "Threshold on the enthalpy relative change for ending the computation : " 
 	 << precis << endl ; 
-    cout << "Maximum number of steps in Map_et::poisson : " 
-	 << mermax_poisson << endl ; 
-    cout << "Relaxation factor in Map_et::poisson : " 
-	 << relax_poisson << endl ; 
     cout << "Step from which the baryon mass is forced to converge : " 
 	 << mer_mass << endl ; 
     cout << "Exponent for the increase factor of the central enthalpy : " 
 	 << aexp_mass << endl ; 
-    cout << 
-    "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping"
-    << endl << thres_adapt << endl ; 
-
 
     cout << endl << "Multi-grid : " 
 	 << endl << "==========" << endl << mg << endl ; 
@@ -322,10 +312,6 @@ int main(){
     control.set(0) = precis ; 
     control.set(1) = omega_ini ; 
     control.set(2) = relax ; 
-    //    control.set(3) = relax_poisson ; 
-    //    control.set(4) = thres_adapt ; 
-    //    control.set(5) = ampli_triax ; 
-    // control.set(6) = precis_adapt ; 
 
     Tbl diff(8) ;     
 
