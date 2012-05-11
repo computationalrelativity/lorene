@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2012/05/11 14:11:24  j_novak
+ * Modifications to deal with the accretion of a scalar field
+ *
  * Revision 1.16  2009/12/01 08:44:24  j_novak
  * Added the missing operator=().
  *
@@ -95,7 +98,7 @@ Spheroid::Spheroid(const Map_af& map, double radius):
   jac2d(map, 2, COV, map.get_bvect_spher()),
   proj(map, 2, COV, map.get_bvect_spher()), 
   qq(map, COV, map.get_bvect_spher()),
-  ss ( map, COV, map.get_bvect_spher ()),
+  ss (map, COV, map.get_bvect_spher()),
   ephi(map, CON, map.get_bvect_spher()), 
   qab(map.flat_met_spher()), 
   ricci(map),
@@ -120,6 +123,7 @@ Spheroid::Spheroid(const Map_af& map, double radius):
   assert(map.get_mg()->get_nr(0) == 1) ; // angular grid
   assert(map.get_mg()->get_type_r(0) == FIN) ; //considered as a shell
 
+
   // Setting of real index types for jacobian and projector (first contravariant, second covariant)
   jac2d.set_index_type(0) = CON ;
   proj.set_index_type(0) = CON ; 
@@ -133,7 +137,7 @@ Spheroid::Spheroid(const Map_af& map, double radius):
   proj.set_etat_zero();
   hh.set_etat_zero() ;
   for (int i=1; i<=3; i++)
-    hh.set(i,i) = 2./radius ; // WTF?
+    hh.set(i,i) = 2./radius ;
   trk.set_etat_zero() ;
   ll.set_etat_zero() ;
   jj.set_etat_zero() ;
@@ -141,6 +145,8 @@ Spheroid::Spheroid(const Map_af& map, double radius):
   ggg.set_etat_zero();
   zeta.set_etat_zero();
   set_der_0x0() ;
+
+ 
 }
 
 Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Kij):
@@ -162,7 +168,9 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   issphere(true)
 
 {
+ set_der_0x0() ;
   const Map& map = h_in.get_mp() ; // The 2-d 1-domain map
+
   const Map& map3 = Kij.get_mp(); // The 3-d map
   const Mg3d& gri2d = *map.get_mg() ;
 
@@ -171,8 +179,6 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     
   const Mg3d& gri3d = *map3.get_mg();
   assert(&gri2d == Kij.get_mp().get_mg()->get_angu_1dom()) ;
-
- 
 
   int np = gri2d.get_np(0) ;
   int nt = gri2d.get_nt(0) ;
@@ -252,14 +258,12 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
 	  {
-	    mp_rad->val_lx_jk((h_surf.val_grid_point(0, k, j, 0))*1.00000000001, j, k, pipo,
+	    mp_rad->val_lx_jk((h_surf.val_grid_point(0, k, j, 0))*1.0000000000001, j, k, pipo,
 			      lz, xi) ;
 	    jac2d.set(l,m).set_grid_point(0, k, j, 0) = 
 	      jac(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 
 	  }
-
-
 
 
   // Inverse jacobian (on 3-d grid)
@@ -323,7 +327,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     for (int k=0; k<np; k++)
       for (int j=0; j<nt; j++)
 	{
-	  mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.00000000001, j, k, pipo,
+	  mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.0000000000001, j, k, pipo,
 			    lz, xi) ;
 	  ss.set(l).set_grid_point(0, k, j, 0) = 
 	    ss3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
@@ -340,7 +344,6 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   ephi3.std_spectral_base();
   ephi3 = contract (jac, 1, ephi3,0);
 
-
       ephi.allocate_all() ; 
   ephi.std_spectral_base();
   
@@ -348,18 +351,14 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     for (int k=0; k<np; k++)
       for (int j=0; j<nt; j++)
 	{
-	  mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.00000000001, j, k, pipo,
+	  mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
 			    lz, xi) ;
 	  ephi.set(l).set_grid_point(0, k, j, 0) = 
 	    ephi3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	}  
        
-
-
-
   // Computation of the 3-d projector on the 2-sphere
-   
-   
+      
   Tensor proj3d(Kij.get_mp(),2,  type, Kij.get_mp().get_bvect_spher());
   Tensor proj_prov = gamij.con().down(1, gamij) - ss3dcon*ss3d;
   proj.allocate_all();
@@ -374,15 +373,11 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
 	  {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
-			      lz, xi) ;
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.00000000000001, j, k, pipo,
+	     	      lz, xi) ;
 	    proj.set(l,m).set_grid_point(0, k, j, 0) = 
 	      proj3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-       
-      
 	  }   
-
-
 
   /* Computation of the metric linked to the 2-surface (linked to covariant form 
      of the degenerated 2-metric). 
@@ -408,21 +403,17 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
 	  {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
 			      lz, xi) ;
 	    qab2.set(l,m).set_grid_point(0, k, j, 0) = 
 	      qq3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	  }
   qab= qab2;
 
-
-
   // Computation of the degenerated 3d degenerated covariant metric on the 2-surface 
-
 
   Sym_tensor qqq = contract(jac_inv, 0, contract( jac_inv, 0, (gamij.cov() - ss3d * ss3d) , 0), 1) ; 
  
-
   qq.allocate_all() ; 
   qq.std_spectral_base();
   for (int l=1; l<4; l++)
@@ -430,7 +421,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
 	  {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
 			      lz, xi) ;
 	    qq.set(l,m).set_grid_point(0, k, j, 0) = 
 	      qqq(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
@@ -451,7 +442,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   trk.allocate_all() ; 
   for (int k=0; k<np; k++)
     for (int j=0; j<nt; j++) {
-      mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+      mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.00000000000001, j, k, pipo,
 			lz, xi) ;
       trk.set_grid_point(0, k, j, 0) = 
 	trk3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
@@ -472,7 +463,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   fff3d.std_spectral_base();
   for (int k=0; k<np; k++)
     for (int j=0; j<nt; j++) {
-      mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+      mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
 			lz, xi) ;
       fff.set_grid_point(0, k, j, 0) = 
 	fff3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
@@ -493,7 +484,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   ggg3d.std_spectral_base();
   for (int k=0; k<np; k++)
     for (int j=0; j<nt; j++) {
-      mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+      mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.00000000000001, j, k, pipo,
 			lz, xi) ;
       ggg.set_grid_point(0, k, j, 0) = 
 	ggg3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
@@ -603,7 +594,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
 	  {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
 			      lz, xi) ;
 	    jj.set(l,m).set_grid_point(0, k, j, 0) = 
 	      jj3(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
@@ -628,13 +619,16 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
 	  {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
 			      lz, xi) ;
 	    hh.set(l,m).set_grid_point(0, k, j, 0) = 
 	      hh3(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 
 	  }
 
+
+
+  // Computation of 2d ricci scalar
 
  
  Tensor hh3dupdown = hh3d.up(0, gamij);
@@ -668,14 +662,13 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
       for (int k=0; k<np; k++)
         for (int j=0; j<nt; j++)
  	 {
- 	   mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+ 	   mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000000001, j, k, pipo,
  			     lz, xi) ;
  	   ricci.set_grid_point(0, k, j, 0) = 
  	     ricci22.get_spectral_va().val_point_jk(lz, xi, j, k) ;
 
 	 }
- 
- 
+
  set_der_0x0() ;
 
 }
@@ -809,6 +802,7 @@ double  Spheroid::area() const {
     p_area = new double (mp_ang.integrale_surface((sqrt_q()) * h_surf *h_surf, 1)) ;
   } 
   return *p_area;
+
 } 
 
 
@@ -988,6 +982,7 @@ const Scalar &Spheroid::theta_plus() const {
   if (p_theta_plus == 0x0) {
     p_theta_plus = new Scalar(fff*(hh.trace(qab) - jj.trace(qab))) ;
     p_theta_plus->std_spectral_base() ;
+    p_theta_plus->set_spectral_va().ylm();
   }
 
   return *p_theta_plus; 
@@ -1298,7 +1293,6 @@ void Spheroid::sauve(FILE* ) const {
  
 const Tensor& Spheroid::delta() const {
 
-  // Tensor tg 
   if (p_delta == 0x0) {
    
     Tensor christoflat(qab.get_mp(), 3, COV, qab.get_mp().get_bvect_spher()); 

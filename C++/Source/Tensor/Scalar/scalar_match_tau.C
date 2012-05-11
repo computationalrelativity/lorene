@@ -5,6 +5,7 @@
 
 /*
  *   Copyright (c) 2008  Jerome Novak
+ *                 2011  Nicolas Vasset
  *
  *   This file is part of LORENE.
  *
@@ -28,6 +29,9 @@ char scalar_match_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/05/11 14:11:24  j_novak
+ * Modifications to deal with the accretion of a scalar field
+ *
  * Revision 1.3  2012/02/06 12:59:07  j_novak
  * Correction of some errors.
  *
@@ -78,12 +82,16 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
     int n_conditions = par_bc.get_int(1) ;
     assert ((n_conditions==1)||(n_conditions==2)) ;
     bool derivative = (n_conditions == 2) ;
-    int dl = 0 ; int l_min = 0 ;
+    int dl = 0 ; int l_min = 0 ; int excised_i =0;
     if (par_bc.get_n_int() > 2) {
-	assert(par_bc.get_n_int() == 4) ;
 	dl = par_bc.get_int(2) ;
 	l_min = par_bc.get_int(3) ;
+	if(par_bc.get_n_int() >4){
+	excised_i = par_bc.get_int(4);
+	}
     }
+    bool isexcised = (excised_i==1);
+    
     int nt = mgrid.get_nt(0) ;
     int np = mgrid.get_np(0) ;
     assert (par_bc.get_n_double_mod() == 2) ;
@@ -96,8 +104,16 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
     }
     if (mu.get_etat() == ETATZERO)
 	mu.annule_hard() ;
-    int system01_size = 1 ;
-    int system_size = 2 ;
+    int system01_size =0;
+    int system_size =0;
+    if (isexcised ==false){
+    system01_size = 1 ;
+    system_size = 2 ;
+    }
+    else{
+      system01_size = -1;
+      system_size = -1;
+    }
     for (int lz=1; lz<=domain_bc; lz++) {
 	    system01_size += n_conditions ;
 	    system_size += n_conditions ;
@@ -120,14 +136,15 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 	system_even.annule_hard() ;
 	system_odd.annule_hard() ;
 	int index = 0 ; int index01 = 0 ;
-	int nr = mgrid.get_nr(0) ;
+	int nr = mgrid.get_nr(0);
 	double alpha = mp_aff->get_alpha()[0] ; 
-	system_even.set(index, index) = 1. ;
-	system_even.set(index, index + 1) = -1. ; //C_{N-1} - C_N = \sum (-1)^i C_i
-	system_odd.set(index, index) = -(2.*nr - 5.)/alpha ; 
-	system_odd.set(index, index+1) = (2.*nr - 3.)/alpha ;
-	index++ ;
-	if (domain_bc == 0) {
+	if (isexcised == false){
+	  system_even.set(index, index) = 1. ;
+	  system_even.set(index, index + 1) = -1. ; //C_{N-1} - C_N = \sum (-1)^i C_i
+	  system_odd.set(index, index) = -(2.*nr - 5.)/alpha ; 
+	  system_odd.set(index, index+1) = (2.*nr - 3.)/alpha ;
+	  index++ ;
+	  if (domain_bc == 0) {
 	    system_l0.set(index01, index01) = c_val + c_der*4.*(nr-1)*(nr-1)/alpha ;
 	    system_l1.set(index01, index01) = c_val + c_der*(2*nr-3)*(2*nr-3)/alpha ;
 	    index01++ ;
@@ -136,8 +153,8 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 	    system_odd.set(index, index-1) = c_val + c_der*(2*nr-5)*(2*nr-5)/alpha ;
 	    system_odd.set(index, index) = c_val + c_der*(2*nr-3)*(2*nr-3)/alpha ;
 	    index++ ;
-	}
-	else {
+	  }
+	  else {
 	    system_l0.set(index01, index01) = 1. ;
 	    system_l1.set(index01, index01) = 1. ;
 	    system_even.set(index, index-1) = 1. ;
@@ -145,15 +162,105 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 	    system_odd.set(index, index-1) = 1. ;
 	    system_odd.set(index, index) = 1. ;
 	    if (derivative) {
-		system_l0.set(index01+1, index01) = 4*(nr-1)*(nr-1)/alpha ;
-		system_l1.set(index01+1, index01) = (2*nr-3)*(2*nr-3)/alpha ;
-		system_even.set(index+1, index-1) = 4*(nr-2)*(nr-2)/alpha ;
-		system_even.set(index+1, index) = 4*(nr-1)*(nr-1)/alpha ;
-		system_odd.set(index+1, index-1) = (2*nr-5)*(2*nr-5)/alpha ;
-		system_odd.set(index+1, index) = (2*nr-3)*(2*nr-3)/alpha ;
+	      system_l0.set(index01+1, index01) = 4*(nr-1)*(nr-1)/alpha ;
+	      system_l1.set(index01+1, index01) = (2*nr-3)*(2*nr-3)/alpha ;
+	      system_even.set(index+1, index-1) = 4*(nr-2)*(nr-2)/alpha ;
+	      system_even.set(index+1, index) = 4*(nr-1)*(nr-1)/alpha ;
+	      system_odd.set(index+1, index-1) = (2*nr-5)*(2*nr-5)/alpha ;
+	      system_odd.set(index+1, index) = (2*nr-3)*(2*nr-3)/alpha ;
 	    }
+	  }
+	  if (domain_bc > 0) {
+	    //	Do things for lz=1;
+	    nr = mgrid.get_nr(1) ;
+	    alpha = mp_aff->get_alpha()[1] ;
+	    if ((1 == domain_bc)&&(bc_ced))
+		alpha = -0.25/alpha ;
+	    system_l0.set(index01, index01+1) = 1. ;
+	    system_l0.set(index01, index01+2) = -1. ;
+	    system_l1.set(index01, index01+1) = 1. ;
+	    system_l1.set(index01, index01+2) = -1. ;
+	    index01++ ;
+	    system_even.set(index, index+1) = 1. ;
+	    system_even.set(index, index+2) = -1. ;
+	    system_odd.set(index, index+1) = 1. ;
+	    system_odd.set(index, index+2) = -1. ;
+	    index++ ;
+	    if (derivative) {
+		system_l0.set(index01, index01) = -(nr-2)*(nr-2)/alpha ;
+		system_l0.set(index01, index01+1) = (nr-1)*(nr-1)/alpha ;
+		system_l1.set(index01, index01) = -(nr-2)*(nr-2)/alpha ;
+		system_l1.set(index01, index01+1) = (nr-1)*(nr-1)/alpha ;
+		index01++ ;
+		system_even.set(index, index) = -(nr-2)*(nr-2)/alpha ;
+		system_even.set(index, index+1) = (nr-1)*(nr-1)/alpha ;
+		system_odd.set(index, index) = -(nr-2)*(nr-2)/alpha ;
+		system_odd.set(index, index+1) = (nr-1)*(nr-1)/alpha ;
+		index++ ;
+	    }
+	
+	    if (1 == domain_bc) {
+		system_l0.set(index01, index01-1) = c_val + c_der*(nr-2)*(nr-2)/alpha ;
+		system_l0.set(index01, index01) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+		system_l1.set(index01, index01-1) = c_val + c_der*(nr-2)*(nr-2)/alpha ;
+		system_l1.set(index01, index01) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+		index01++ ; 
+		system_even.set(index, index-1) = c_val + c_der*(nr-2)*(nr-2)/alpha ;
+		system_even.set(index, index) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+		system_odd.set(index, index-1) = c_val + c_der*(nr-2)*(nr-2)/alpha ;
+		system_odd.set(index, index) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+		index++ ;
+	    }
+	    else {
+		system_l0.set(index01, index01-1) = 1. ;
+		system_l0.set(index01, index01) = 1. ;
+		system_l1.set(index01, index01-1) = 1. ;
+		system_l1.set(index01, index01) = 1. ;
+		system_even.set(index, index-1) = 1. ;
+		system_even.set(index, index) = 1. ;
+		system_odd.set(index, index-1) = 1. ;
+		system_odd.set(index, index) = 1. ;
+		if (derivative) {
+		    system_l0.set(index01+1, index01-1) = (nr-2)*(nr-2)/alpha ;
+		    system_l0.set(index01+1, index01) = (nr-1)*(nr-1)/alpha ;
+		    system_l1.set(index01+1, index01-1) = (nr-2)*(nr-2)/alpha ;
+		    system_l1.set(index01+1, index01) = (nr-1)*(nr-1)/alpha ;
+		    system_even.set(index+1, index-1) = (nr-2)*(nr-2)/alpha ;
+		    system_even.set(index+1, index) = (nr-1)*(nr-1)/alpha ;
+		    system_odd.set(index+1, index-1) = (nr-2)*(nr-2)/alpha ;
+		    system_odd.set(index+1, index) = (nr-1)*(nr-1)/alpha ;
+		}		
+	    }
+	  }
 	}
-	for (int lz=1; lz<=domain_bc; lz++) {
+	else {
+	  nr = mgrid.get_nr(1) ;
+	  alpha = mp_aff->get_alpha()[1] ;
+	  if ((1 == domain_bc)&&(bc_ced))
+	    alpha = -0.25/alpha ;
+	  if (1 == domain_bc) {
+	    system_l0.set(index01, index01) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+	    system_l1.set(index01, index01) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+	    index01++ ; 
+	    system_even.set(index, index) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+	    system_odd.set(index, index) = c_val + c_der*(nr-1)*(nr-1)/alpha ;
+	    index++ ;
+	  }
+	  else {
+	    system_l0.set(index01, index01) = 1. ;
+	    system_l1.set(index01, index01) = 1. ;
+	    system_even.set(index, index) = 1. ;
+	    system_odd.set(index, index) = 1. ;
+	    if (derivative) {
+	      system_l0.set(index01+1, index01) = (nr-1)*(nr-1)/alpha ;
+	      system_l1.set(index01+1, index01) = (nr-1)*(nr-1)/alpha ;
+	      system_even.set(index+1, index) = (nr-1)*(nr-1)/alpha ;
+	      system_odd.set(index+1, index) = (nr-1)*(nr-1)/alpha ;
+	    }		
+	    
+	  }
+	}
+	for (int lz=2; lz<=domain_bc; lz++) {
  	    nr = mgrid.get_nr(lz) ;
 	    alpha = mp_aff->get_alpha()[lz] ;
 	    if ((lz == domain_bc)&&(bc_ced))
@@ -261,51 +368,116 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 		int pari = 1 ;
 		double alpha = mp_aff->get_alpha()[0] ;
 		int nr = mgrid.get_nr(0) ;
-		if (l_q>=2) {
-		    if (base_r == R_CHEBP) {
-			double val_c = 0.; pari = 1 ;
-			for (int i=0; i<nr-nl; i++) {
-			    val_c += pari*coef(0, k, j, i) ;
-			    pari = -pari ;
-			}
-			rhs.set(index) = val_c ;
-		    }
-		    else {
-			assert( base_r == R_CHEBI) ;
-			double der_c = 0.; pari = 1 ;
-			for (int i=0; i<nr-nl-1; i++) {
-			    der_c += pari*(2*i+1)*coef(0, k, j, i) ;
-			    pari = -pari ;
-			}
-			rhs.set(index) = der_c / alpha ;
-		    }
-		    index++ ;
-		}
 		double val_b = 0. ;
 		double der_b =0. ;
-		if (base_r == R_CHEBP) {
-		    for (int i=0; i<nr-nl; i++) {
-			val_b += coef(0, k, j, i) ;
-			der_b += 4*i*i*coef(0, k, j, i) ;
+		if (isexcised==false){
+		  if (l_q>=2) {
+		    if (base_r == R_CHEBP) {
+		      double val_c = 0.; pari = 1 ;
+		      for (int i=0; i<nr-nl; i++) {
+			val_c += pari*coef(0, k, j, i) ;
+			pari = -pari ;
+		      }
+		      rhs.set(index) = val_c ;
 		    }
-		}
-		else {
+		    else {
+		      assert( base_r == R_CHEBI) ;
+		      double der_c = 0.; pari = 1 ;
+		      for (int i=0; i<nr-nl-1; i++) {
+			der_c += pari*(2*i+1)*coef(0, k, j, i) ;
+			pari = -pari ;
+		      }
+		      rhs.set(index) = der_c / alpha ;
+		    }
+		    index++ ;
+		  }
+		  if (base_r == R_CHEBP) {
+		    for (int i=0; i<nr-nl; i++) {
+		      val_b += coef(0, k, j, i) ;
+		      der_b += 4*i*i*coef(0, k, j, i) ;
+		    }
+		  }
+		  else {
 		    assert(base_r == R_CHEBI) ;
 		    for (int i=0; i<nr-nl-1; i++) {
-			val_b += coef(0, k, j, i) ;
-			der_b += (2*i+1)*(2*i+1)*coef(0, k, j, i) ;		    
+		      val_b += coef(0, k, j, i) ;
+		      der_b += (2*i+1)*(2*i+1)*coef(0, k, j, i) ;		    
 		    }
-		}
-		if (domain_bc==0) {
+		  }
+		  if (domain_bc==0) {
 		    rhs.set(index) = mu(k,j) - c_val*val_b - c_der*der_b/alpha ;
 		    index++ ;
-		}
-		else {
+		  }
+		  else {
 		    rhs.set(index) = -val_b ;
 		    if (derivative) 
-			rhs.set(index+1) = -der_b/alpha ;
+		      rhs.set(index+1) = -der_b/alpha ;
+		    
+		    // Now for l=1
+		    alpha = mp_aff->get_alpha()[1] ;
+		    if ((1 == domain_bc)&&(bc_ced))
+		      alpha = -0.25/alpha ;
+		    nr = mgrid.get_nr(1) ;
+		    int nr_lim = nr - n_conditions ;
+		    val_b = 0 ; pari = 1 ;
+		    for (int i=0; i<nr_lim; i++) { 
+		      val_b += pari*coef(1, k, j, i) ;
+		      pari = -pari ;
+		    }
+		    rhs.set(index) += val_b ;
+		    index++ ;
+		    if (derivative) {
+		      der_b = 0 ; pari = -1 ;
+		      for (int i=0; i<nr_lim; i++) {
+			der_b += pari*i*i*coef(1, k, j, i) ;
+			pari = -pari ;
+		      }
+		      rhs.set(index) += der_b/alpha ;
+		      index++ ;
+		    }
+		    val_b = 0 ;
+		    for (int i=0; i<nr_lim; i++)
+		      val_b += coef(1, k, j, i) ;
+		    der_b = 0 ;
+		    for (int i=0; i<nr_lim; i++) {
+		      der_b += i*i*coef(1, k, j, i) ;
+		    }
+		    if (domain_bc==1) {
+		      rhs.set(index) = mu(k,j) - c_val*val_b - c_der*der_b/alpha ;
+		      index++ ;
+		    }
+		    else {
+		      rhs.set(index) = -val_b ;
+		      if (derivative) rhs.set(index+1) = -der_b / alpha ;
+		    }
+		  }
 		}
-		for (int lz=1; lz<=domain_bc; lz++) {
+		else{
+		     alpha = mp_aff->get_alpha()[1] ;
+		    if ((1 == domain_bc)&&(bc_ced))
+			alpha = -0.25/alpha ;
+		    nr = mgrid.get_nr(1) ;
+		    int nr_lim = nr - 1 ;
+		    val_b = 0 ;
+		    for (int i=0; i<nr_lim; i++)
+			val_b += coef(1, k, j, i) ;
+		    der_b = 0 ;
+		    for (int i=0; i<nr_lim; i++) {
+			der_b += i*i*coef(1, k, j, i) ;
+		    }
+		    if (domain_bc==1) {
+			rhs.set(index) = mu(k,j) - c_val*val_b - c_der*der_b/alpha ;
+			index++ ;
+		    }
+		    else {
+			rhs.set(index) = -val_b ;
+			if (derivative) rhs.set(index+1) = -der_b / alpha ;
+		    }
+		}
+
+
+
+		for (int lz=2; lz<=domain_bc; lz++) {
 		    alpha = mp_aff->get_alpha()[lz] ;
 		    if ((lz == domain_bc)&&(bc_ced))
 			alpha = -0.25/alpha ;
@@ -359,15 +531,30 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 		index = 0 ;
 		int dec = (base_r == R_CHEBP ? 0 : 1) ;
 		nr = mgrid.get_nr(0) ;
-		if (l_q>=2) {
+		if (isexcised==false){
+		  if (l_q>=2) {
 		    coef.set(0, k, j, nr-2-dec) = solut(index) ;
 		    index++ ;
-		}
-		coef.set(0, k, j, nr-1-dec) = solut(index) ;
-		index++ ;
-		if (base_r == R_CHEBI)
+		  }
+		  coef.set(0, k, j, nr-1-dec) = solut(index) ;
+		  index++ ;
+		  if (base_r == R_CHEBI)
 		    coef.set(0, k, j, nr-1) = 0 ;
-		for (int lz=1; lz<=domain_bc; lz++) {
+		  if (domain_bc > 0) {
+		    //Pour domaine 1
+		    nr = mgrid.get_nr(1) ;
+		    for (nl=1; nl<=n_conditions; nl++) {
+		      int ii = n_conditions - nl + 1 ;
+		      coef.set(1, k, j, nr-ii) = solut(index) ;
+		      index++ ;
+		    }
+		  }
+		}
+		else{
+		  coef.set(1,k,j,nr-1)=solut(index);
+		  index++;
+		}
+		for (int lz=2; lz<=domain_bc; lz++) {
 		  nr = mgrid.get_nr(lz) ;
 		  for (nl=1; nl<=n_conditions; nl++) {
 		    int ii = n_conditions - nl + 1 ;
@@ -377,9 +564,9 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 		}
 	    } //End of nullite_plm
 	    else {
-		for (int lz=0; lz<=domain_bc; lz++) 
-		    for (int i=0; i<mgrid.get_nr(lz); i++) 
-			coef.set(lz, k, j, i) = 0 ;
+	      for (int lz=0; lz<=domain_bc; lz++) 
+		for (int i=0; i<mgrid.get_nr(lz); i++) 
+		  coef.set(lz, k, j, i) = 0 ;
 	    }
 	} //End of loop on j
     } //End of loop on k
