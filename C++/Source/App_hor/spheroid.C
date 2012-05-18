@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2012/05/18 16:27:05  j_novak
+ * ... and another memory leak
+ *
  * Revision 1.18  2012/05/18 15:19:14  j_novak
  * Corrected a memory leak
  *
@@ -569,7 +572,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
  del_deriv() ; //### to be checked...
  set_der_0x0() ;
- 
+ delete [] a_tilde ;
 }
 
 
