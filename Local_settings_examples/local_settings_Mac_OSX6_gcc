@@ -1,0 +1,107 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#    Lorene implementation) must be have been already defined.
+#
+#
+#  Requirements for Macintosh OS X.6 (Intel Core 2 Duo) to use
+#  LORENE:
+#  (1) install the software MacPorts (http://www.macports.org/)
+#      and XCode (Developer Tools);
+#  (2) install the following packages (using MacPorts):
+#      cpp4, doxygen, dx, fftw3, gfortran, gsl, pgplot, tetex;
+#  (3) activate GNU make (which comes with the Developer Tools)
+#      by adding the link
+#      ln -s /Developer/usr/bin/make /usr/bin/make
+#
+###############################################################
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = /usr/bin/g++
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -O2 -DNDEBUG -Wall -W -Wundef -Wshadow -Wcast-qual \
+  	   -Wcast-align -Wconversion -Winline \
+  	   -Wabi -Wold-style-cast -Woverloaded-virtual -pedantic
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -g -Wall -W -Wundef -Wshadow -Wcast-qual \
+  	     -Wcast-align -Wconversion -Winline \
+ 	     -Wabi -Wold-style-cast -Woverloaded-virtual
+
+# Path for the include files:
+# --------------------------
+INC = -I$(HOME_LORENE)/C++/Include \
+      -I$(HOME_LORENE)/C++/Include_extra \
+      -I/opt/local/include \
+      -I/usr/local/include
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+#RANLIB = ranlib
+RANLIB = ls
+
+# Fortran 77 compiler
+# -------------------
+F77 	 = /usr/local/bin/gfortran
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -ffixed-form -ffixed-line-length-none -O2 -m64
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -ffixed-form -ffixed-line-length-none -g -m64 
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+MAKEDEPEND = cpp-4.2 $(INC) -M >> $(df).d $<
+#MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# FFT library
+# ---------------------------------------------------------------
+FFT_DIR = FFTW3
+
+# C, C++ library, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX = -L/usr/local/lib/x86_64/ \
+	  -L/opt/local/lib \
+	  -lstdc++ -lm -lfftw3 -lgfortran 
+
+# Linear Algebra Package (LAPACK) library 
+#   (Using the libraries included in the Developer Tools)
+# ---------------------------------------
+LIB_LAPACK = -llapack -lblas
+
+# Graphical libraries: PGPLOT and X11.
+# Requires the following option to adjust pgplot
+#   -framework Foundation -framework AppKit
+# -----------------------------------
+LIB_PGPLOT = -L/opt/local/lib \
+	     -lpng -lX11 \
+	     -framework Foundation -framework AppKit \
+	     -lcpgplot -lpgplot
+
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas

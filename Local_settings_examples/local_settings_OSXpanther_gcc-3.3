@@ -1,0 +1,101 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#   Lorene implementation) must be have been already defined.
+#
+#
+#  Requirements for Macintosh OS-X panther to use LORENE
+#
+#  (1) Install the software FINK    http://fink.sourceforge.net/
+#  (2) Install the following packages 
+#      (Needs to allow installing unstable distribution at this moment)
+#      atlas, cvs, doxygen, dx, fftw3, g77, gsl, make, pgplot, tetex  
+#  (3) Activate GNU make by adding a link at /usr/bin
+#      ln -s /sw/bin/make /usr/bin/gmake
+#
+###############################################################
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = g++
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g 
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include -I/usr/local/include \
+	  -I$(HOME_LORENE)/C++/Include_extra -I/sw/include 
+	  
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ranlib
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = g77
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -Wall -O2 
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -Wall -g
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+MAKEDEPEND = g++ $(INC) -M >> $(df).d $<
+#MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# FFT library :   FFT991 in Fortran coming with Lorene
+#		  FFTW3 library (must be installed separately)
+# ---------------------------------------------------------------
+FFT_DIR = FFTW3
+
+# C, C++ library, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX = -L/usr/lib -L/usr/lib/gcc/darwin/3.3 \
+	-L/sw/lib -lfftw3 -lg2c -lstdc++ -lm
+
+# Linear Algebra Package (LAPACK) library 
+#   (1) atlas is installed in /sw/lib
+#   (2) Sensitive to the order
+# ---------------------------------------
+LIB_LAPACK = -L/sw/lib -llapack -lcblas -lf77blas -latlas -ltstatlas
+
+# Graphical libraries: PGPLOT and X11 (Aquaterm)
+#   (1) pgplot is installed in /sw/lib
+#   (2) Requires the following option to adjust pgplot
+#       -framework Foundation -framework AppKit -laquaterm
+# -----------------------------------
+LIB_PGPLOT = -L/usr/X11R6/lib -L/sw/lib -L/sw/lib/pgplot -L/sw/include/ \
+             -lcpgplot -lpgplot -lpng -lX11 -framework Foundation \
+             -framework AppKit -laquaterm
+
+# GNU scientific library
+#   (1) gsl is installed in /sw/lib
+# -----------------------------------
+LIB_GSL = -L/sw/lib -lgsl -lgslcblas

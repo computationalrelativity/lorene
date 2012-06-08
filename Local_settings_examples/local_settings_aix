@@ -1,0 +1,110 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#   Lorene implementation) must be have been already defined.
+#
+###############################################################
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = xlC_r
+
+# Options for the C++ compiler to produce the optimized library:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
+# -------------------------------------------------------------
+CXXFLAGS = -q64 -D__aix -qrtti -O2 -DNDEBUG
+
+# Options for the C++ compiler to produce the library for debugging:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
+# -----------------------------------------------------------------
+CXXFLAGS_G = -g -q64 -D__aix -qrtti
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include  \
+	  -I$(HOME_LORENE)/C++/Include_extra 
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ranlib
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = xlf90
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
+# ---------------------------------------------------------------------
+F77FLAGS = -qfixed=128 -q64 -O2
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
+# ------------------------------------------------------------------------
+F77FLAGS_G = -g  -qfixed=128 -q64
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+MAKEDEPEND = xlC_r $(CXXFLAGS_G) $(INC) -E -M -MF$(df).d $< > out.txt && rm -f out.txt
+#MAKEDEPEND = touch $(df).d && makedepend $(INC) -I/usr/vacpp/include-f $(df).d $<
+DEPDIR = .deps
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# FFT library :   FFT991 in Fortran coming with Lorene
+#		  FFTW3 library (must be installed separately)
+# ---------------------------------------------------------------
+FFT_DIR = FFT991
+
+# C, C++ library, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX = -lf -lm
+
+# Linear Algebra Package (LAPACK) library
+# ---------------------------------------
+LIB_LAPACK = -L/afs/rzg/@sys/lib -llapack-essl -lessl
+
+# Graphical libraries: PGPLOT and X11
+# -----------------------------------
+LIB_PGPLOT = -L$(HOME)/pgplot  -lcpgplot -lpgplot -lX11
+
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
+
+
+
+
+
+
+
+
+
+
+

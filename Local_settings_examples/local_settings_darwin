@@ -1,0 +1,86 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#   Lorene implementation) must be have been already defined.
+#
+###############################################################
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = g++
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g 
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include -I/usr/local/include \
+	  -I$(HOME_LORENE)/C++/Include_extra 
+	  
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ranlib
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = g77
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -Wall -O2 
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -Wall -g
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+MAKEDEPEND = g++ $(INC) -M >> $(df).d $<
+#MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# FFT library :   FFT991 in Fortran coming with Lorene
+#		  FFTW3 library (must be installed separately)
+# ---------------------------------------------------------------
+FFT_DIR = FFT991
+
+# C, C++ library, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX = -L/usr/lib -L/usr/lib/gcc/darwin/3.1 \
+	-L/sw/lib -lg2c -lstdc++ -lm
+
+# Linear Algebra Package (LAPACK) library
+# ---------------------------------------
+LIB_LAPACK = -L/Users/ck/Lapack -llapack 
+
+# Graphical libraries: PGPLOT and X11
+# -----------------------------------
+LIB_PGPLOT = -L/usr/X11R6/lib -L/sw/pgplot -lcpgplot -lpgplot -lpng -lX11
+
+
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
+

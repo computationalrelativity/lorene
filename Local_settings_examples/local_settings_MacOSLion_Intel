@@ -1,0 +1,125 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#    Lorene implementation) must be have been already defined.
+#
+#
+#  Requirements for Macintosh OS X 10.7 LION (intel) to use LORENE
+#
+#  (1) install XCode from Apple Developper
+#   
+#  (2) Install XCode command line tool (newest version)
+#  (3) install gfortran for Mac OS Lion from http://hpc.sourceforge.net/index.php
+#  (4) Install Macports (newest version)
+#  (5) install with macports the following programs
+#              sudo port install gccXX      (XX is the version for the GCC compiler, e.g. gcc44)
+#              sudo port install atlas      (for lapack)
+#              sudo port install fftw-3     (for fftw-3)
+#              sudo port install pgplot     (for pgplot3)
+#              sudo port install latexmk    (for latex)
+#              sudo port install gsl        (for gsl libraires)
+#              sudo port install doxygen    (for doxygen)
+#              
+
+###############################################################
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = /usr/bin/g++
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -O2 -DNDEBUG -Wall -W -Wundef -Wshadow -Wcast-qual \
+  -Wcast-align -Wconversion -Winline \
+  -Wabi -Wold-style-cast -Woverloaded-virtual \
+  -framework vecLib -m386
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -g -Wall -W -Wundef -Wshadow -Wcast-qual \
+  -Wcast-align -Wconversion -Winline \
+  -Wabi -Wold-style-cast -Woverloaded-virtual \
+  -framework vecLib -m386
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include \
+  -I$(HOME_LORENE)/C++/Include_extra \
+  -I/usr/include/c++/4.0.0 -I/usr/include/c++/4.0.0/i686-apple-darwin8 \
+  -I/usr/include/architecture/i386 \
+  -I/System/Library/Frameworks/vecLib.framework/Versions/Current/Headers \
+  -I/opt/local/include
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ranlib
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = /usr/local/bin/gfortran
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -ffixed-form -ffixed-line-length-none -O2 -framework vecLib
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -ffixed-form -ffixed-line-length-none -g -framework vecLib
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+#MAKEDEPEND = cpp $(INC) -M >> $(df).d $<
+MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# FFT library :   FFT991 in Fortran coming with Lorene
+#  (1) install fftw-3 with macports
+# ---------------------------------------------------------------
+FFT_DIR = FFTW3
+
+# C, C++ library, mathematical library and Fortran library
+# ---------------------------------------------------------
+ifeq ($(FFT_DIR),FFTW3)
+LIB_CXX = -L/opt/local/lib -L/opt/local/lib/gcc48 -lfftw3 -lgfortran -lstdc++ -lm
+else
+LIB_CXX = -L/opt/local/lib/gcc46 -lgfortran -lstdc++ -lm
+endif
+
+# Linear Algebra Package (LAPACK) library 
+#  (1) install atlas with macports
+#       look for liblapack.dylib
+# ---------------------------------------
+LIB_LAPACK = \
+  -L/usr/lib \
+  -llapack -lblas
+
+# Graphical libraries: PGPLOT and X11 (Aquaterm)
+#   (1) pgplot is installed in /opt/local/lib
+#   (2) Requires the following option to adjust pgplot
+#       -framework Foundation -framework AppKit -laquaterm
+# -----------------------------------
+LIB_PGPLOT = -L/usr/X11R6/lib -L/opt/local/lib  \
+             -lcpgplot -lpgplot -lpng -lX11 -framework Foundation \
+             -framework AppKit -laquaterm 
+
+# GNU scientific library
+#   (1) gsl libiraries are in /opt/local/lib 
+#           look for libgsl.dylib
+# -----------------------------------
+LIB_GSL = -L/opt/local/lib -lgsl -lgslcblas
