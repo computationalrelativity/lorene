@@ -7,7 +7,7 @@
 1	Conductivity (0: isolator, 1: perfect conductor)
 #################### MAGNETIC PARAMETERS ######################################
 0.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]
-28500.	Requested CFA (current function amplitude) [Lorene unit]
+25000.	Requested CFA (current function amplitude) [Lorene unit]
 0.	Initial charge (mer =< mer_mag) [Lorene unit]
 8000.	Initial CFA    (mer =< mer_mag) [Lorene unit]
 5	mer_mag : step at which magnetic quantites are plugged.
@@ -30,14 +30,14 @@
 1.e-15  precis_adapt : precision in Map_et::adapt
 1       graph : 1 = graphical outputs during the computation 
 #################### MULTI-GRID PARAMETERS ###################################
-3	nz : total number of domains
+4	nz : total number of domains
 1	nzet : number of domains inside the star
 1	nzadapt : number of domains of where the mapping adaptation will be done.
-17	nt: number of points in theta (the same in each domain)
+33	nt: number of points in theta (the same in each domain)
 1	np: number of points in phi   (the same in each domain)
 # Number of points in r and (initial) inner boundary of each domain:
-33	0.	<-   nr	  &   min(r)  in domain 0  (nucleus)  	
-33	1.	<-   nr	  &   min(r)  in domain 1
-17	2.	<-   nr   &   min(r)  in domain 2
-9	3.	<-   nr   &   min(r)  in domain 2
-0.1	enthalpy defining boundary between domains 0 and 1
+65	0.	<-   nr	  &   min(r)  in domain 0  (nucleus)  	
+65	1.	<-   nr	  &   min(r)  in domain 1
+33	2.	<-   nr   &   min(r)  in domain 2
+17	3.	<-   nr   &   min(r)  in domain 2
+0.07	enthalpy defining boundary between domains 0 and 1

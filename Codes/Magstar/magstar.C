@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2012/08/10 12:52:42  j_novak
+ * Minor changes.
+ *
  * Revision 1.10  2006/03/09 08:11:59  j_novak
  * Output of the divergence of B at the end of the iteration.
  *
@@ -43,9 +46,7 @@
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cmath>
 
 // headers Lorene
 #include "et_rot_mag.h"
@@ -76,10 +77,12 @@ int main(){
 
     // Identification of all the subroutines called by the code : 
     
-    system("ident magstar > identif.d") ; 
-
-    // For the display : 
-    char display_bold[]="x[1m" ; display_bold[0] = 27 ;
+    int res = system("ident magstar > identif.d") ; 
+    if (res==-1) {
+      cout << "Problem in shell command:" << endl ;
+      cout << "ident magstar > identif.d" << endl ;
+      cout << "identif.d may be altered." << endl ;
+    }
 
     //------------------------------------------------------------------
     //	    Parameters of the computation 
@@ -94,8 +97,7 @@ int main(){
 	   thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
     
     double Q0, a_j0, Q_ini, a_j_ini ;
-    int mer_mag, mer_change_mag, mer_fix_mag ;
-    int conduct ;
+    int mer_mag, mer_change_mag, mer_fix_mag, conduct ;
 
     ifstream fich("parrot.d") ;
     fich.getline(blabla, 120) ;
@@ -440,7 +442,12 @@ int main(){
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat parrot.d >> calcul.d") ; 
+    res = system("cat parrot.d >> calcul.d") ; 
+    if (res==-1) {
+      cout << "Problem in shell command:" << endl ;
+      cout << "cat parrot.d >> calcul.d" << endl ;
+      cout << "calcul.d may be altered." << endl ;
+    }
 
     fichfinal.open("calcul.d", ios::app) ;
     fichfinal << endl <<
@@ -450,7 +457,12 @@ int main(){
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat par_eos.d >> calcul.d") ;
+    res = system("cat par_eos.d >> calcul.d") ;
+    if (res==-1) {
+      cout << "Problem in shell command:" << endl ;
+      cout << "cat par_eos.d >> calcul.d" << endl ;
+      cout << "calcul.d may be altered." << endl ;
+    }
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
     fichfinal.open("calcul.d", ios::app) ; 
@@ -460,7 +472,12 @@ int main(){
     fichfinal << 
     "================================================================" << endl ; 
     fichfinal.close() ; 
-    system("ident magstar >> calcul.d") ; 
+    res = system("ident magstar >> calcul.d") ; 
+    if (res==-1) {
+      cout << "Problem in shell command:" << endl ;
+      cout << "ident magstar >> calcul.d" << endl ;
+      cout << "calcul.d may be altered." << endl ;
+    }
 
 
     // Saveguard of the whole configuration
