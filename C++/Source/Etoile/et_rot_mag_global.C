@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2012/08/12 17:48:35  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.18  2006/01/31 15:54:57  j_novak
  * Corrected a missing '-' sign for the theta component of the magnetic field in
  * Et_rot_mag::Magn(). This had no influence in the calculations, only in the
@@ -175,7 +178,7 @@ Tenseur Et_rot_mag::Magn() const {
   Bmag.set_etat_qcq() ;
   Bmag.set(0) = B_r ;
   Bmag.set(1) = -B_t ;
-  Bmag.set(2) = 0. ;
+  Bmag.set(2) = B_phi ;
 
     return Bmag*mag_unit ;
 

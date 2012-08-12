@@ -29,6 +29,9 @@ char etoile_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2012/08/12 17:48:36  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.5  2005/01/18 22:37:30  k_taniguchi
  * Modify the method of ray_eq(int kk).
  *
@@ -135,9 +138,21 @@ double Etoile::ray_eq() const {
 
 	}
 	else {
-	    cout << "Etoile::ray_eq : the case type_t = " << type_t
-		 << " is not contemplated yet !" << endl ;
-	    abort() ; 
+
+	    assert( (type_p == SYM) || (type_p == NONSYM) ) ; 
+	    int k = 0 ; 
+	    int j = (nt-1)/2 ; 
+	    int l = l_surf()(k, j) ; 
+	    double xi = xi_surf()(k, j) ; 
+	    double theta = M_PI / 2 ; 
+	    double phi = 0 ; 
+	    
+	    p_ray_eq = new double( mp.val_r(l, xi, theta, phi) ) ;
+
+
+	    //	    cout << "Etoile::ray_eq : the case type_t = " << type_t
+	    //	 << " is not contemplated yet !" << endl ;
+	    //abort() ; 
 	}
 
     }
@@ -192,9 +207,39 @@ double Etoile::ray_eq_pis2() const {
 
 	}
 	else {
-	    cout << "Etoile::ray_eq_pis2 : the case type_t = " << type_t
-	         << " is not contemplated yet !" << endl ;
-	    abort() ; 
+
+	  int j = (nt-1)/2 ; 
+	  double theta = M_PI / 2 ; 
+	    double phi = M_PI / 2 ;
+	    
+	    switch (type_p) {
+	    
+		case SYM : {
+		    int k = np / 2  ; 
+		    int l = l_surf()(k, j) ; 
+		    double xi = xi_surf()(k, j) ; 
+		    p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+		    break ; 
+		}
+	    
+		case NONSYM : {
+		    assert( np % 4 == 0 ) ; 
+		    int k = np / 4  ; 
+		    int l = l_surf()(k, j) ; 
+		    double xi = xi_surf()(k, j) ; 
+		    p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+		    break ; 
+		}
+	    
+		default : {
+		    cout << "Etoile::ray_eq_pis2 : the case type_p = " 
+			<< type_p << " is not contemplated yet !" << endl ;
+		    abort() ; 
+		}
+	    } 
+
+
+
 	}
 
     }
@@ -245,6 +290,36 @@ double Etoile::ray_eq_pi() const {
 	    break ; 
 		}
 	    }
+	}else{
+	  switch (type_p) {
+		
+		case SYM : {
+		    p_ray_eq_pi = new double( ray_eq() ) ;
+		    break ; 
+		}		
+		
+		case NONSYM : {
+		    int k = np / 2  ; 
+		    int j = (nt-1)/2 ; 
+		    int l = l_surf()(k, j) ; 
+		    double xi = xi_surf()(k, j) ; 
+		    double theta = M_PI / 2 ; 
+		    double phi = M_PI ; 
+	    
+		    p_ray_eq_pi = new double( mp.val_r(l, xi, theta, phi) ) ;
+		    break ;
+		}
+		
+		default : {
+
+	    cout << "Etoile::ray_eq_pi : the case type_t = " << type_t
+		 << " and type_p = " << type_p << endl ; 
+	    cout << " is not contemplated yet !" << endl ;
+	    abort() ; 
+	    break ; 
+		}
+	    }
+
 	}
 
     }
@@ -295,9 +370,36 @@ double Etoile::ray_eq_3pis2() const {
 
 	}
 	else {
-	    cout << "Etoile::ray_eq_3pis2 : the case type_t = " << type_t
-	         << " is not contemplated yet !" << endl ;
-	    abort() ; 
+
+	  int j = (nt-1)/2 ; 
+	    double theta = M_PI / 2 ; 
+	    double phi = 3. * M_PI / 2 ;
+	    
+	    switch (type_p) {
+	    
+		case SYM : {
+		    p_ray_eq_3pis2 = new double( ray_eq_pis2() ) ;
+		    break ; 
+		}
+	    
+		case NONSYM : {
+		    assert( np % 4 == 0 ) ; 
+		    int k = 3 * np / 4  ; 
+		    int l = l_surf()(k, j) ; 
+		    double xi = xi_surf()(k, j) ; 
+		    p_ray_eq_3pis2 = new double( mp.val_r(l,xi,theta,phi) ) ;
+		    break ; 
+		}
+	    
+		default : {
+		    cout << "Etoile::ray_eq_3pis2 : the case type_p = " 
+			<< type_p << " is not contemplated yet !" << endl ;
+		    abort() ; 
+		}
+	    } 
+
+
+ 
 	}
 
     }
@@ -374,9 +476,38 @@ double Etoile::ray_eq(int kk) const {
 
     }
     else {
-        cout << "Etoile::ray_eq(kk) : the case type_t = " << type_t
-	     << " is not contemplated yet !" << endl ;
-	abort() ; 
+
+      int j = (nt-1)/2 ; 
+	double theta = M_PI / 2 ; 
+	    
+	switch (type_p) {
+	    
+	    case SYM : {
+	        cout << "Etoile::ray_eq(kk) : the case type_p = " 
+		     << type_p << " is not contemplated yet !" << endl ;
+		abort() ; 
+	    }
+	    
+	    case NONSYM : {
+	        double phi = 2. * kk * M_PI / np ;
+		int l = l_surf()(kk, j) ; 
+		double xi = xi_surf()(kk, j) ; 
+		ray_eq_kk = mp.val_r(l,xi,theta,phi) ;
+		break ; 
+	    }
+	    
+	    default : {
+	        cout << "Etoile::ray_eq(kk) : the case type_p = " 
+		     << type_p << " is not contemplated yet !" << endl ;
+		abort() ; 
+	    }
+	} 
+
+
+
+
+
+
     }
 
     return ray_eq_kk ;

@@ -32,6 +32,9 @@ char map_af_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/08/12 17:48:36  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.3  2002/09/09 13:54:20  e_gourgoulhon
  *
  * Change of name of the Fortran subroutines
@@ -78,6 +81,8 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 
     assert( source_quad.check_dzpuis(4) ) ; 
     
+    int mpsymm = uu.get_mp()->get_mg()->get_type_t();
+
     double& lambda = par.get_double_mod(0) ; 
 
     // Special case of a vanishing source 
@@ -99,9 +104,20 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
     int nz = mg->get_nzone() ;
     int np1 = 1 ;		// Axisymmetry enforced
     int nt = mg->get_nt(0) ; 
-    int nt2 = 2*nt - 1 ;	// Number of points for the theta sampling
-				//  in [0,Pi], instead of [0,Pi/2]
-    
+    int nt2 ;
+
+    switch ( mpsymm ){
+    case SYM: {
+      nt2 = 2*nt - 1 ;	// Number of points for the theta sampling
+      break;				//  in [0,Pi], instead of [0,Pi/2]
+    }
+    case NONSYM: {
+      nt2 = nt;
+      break;
+    }
+    }
+      
+
     // Array NDL
     // ---------
     int* ndl = new int[nz+4] ; 
@@ -199,7 +215,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 		    for (int i=0; i<nr; i++) {
 			tsou_m[ndrtp*l + ndrt*k + ndr*j + i] = 0 ;
 			// point symetrique par rapport au plan theta = pi/2 :
-			tsou_m[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = 0 ;			
+			if ( mpsymm == SYM ) tsou_m[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = 0 ;			
 		    }
 		}
 	    }
@@ -213,7 +229,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 			double xx = s_m->t[l]->t[nrt*k + nr*j + i] ;
 			tsou_m[ndrtp*l + ndrt*k + ndr*j + i] = xx ;
 			// point symetrique par rapport au plan theta = pi/2 :
-			tsou_m[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = xx ;			
+			if ( mpsymm == SYM ) tsou_m[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = xx ;			
 		    }
 		}
 	    }
@@ -243,7 +259,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 			for (int i=0; i<nr; i++) {
 			tsou_q[ndrtp*l + ndrt*k + ndr*j + i] = 0 ;
 			// point symetrique par rapport au plan theta = pi/2 :
-			tsou_q[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = 0 ;			
+			if ( mpsymm == SYM ) tsou_q[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = 0 ;			
 			}
 		    }
 		}
@@ -257,7 +273,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 			double xx = s_q->t[l]->t[nrt*k + nr*j + i] ;
 			tsou_q[ndrtp*l + ndrt*k + ndr*j + i] = xx ;
 			// point symetrique par rapport au plan theta = pi/2 :
-			tsou_q[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = xx ;			
+			if ( mpsymm == SYM ) tsou_q[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = xx ;			
 			}
 		    }
 		}
@@ -276,6 +292,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 
     switch (base_t) {
 
+        case T_COS :
 	case T_COS_P : {
 	
 	    double lambda0 ; 
@@ -288,7 +305,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 	    lambda = lambda0 ; 
 	    break ; 	    
 	}
-	
+        case T_SIN :
 	case T_SIN_I : {
 
 	    double* tsou = new double[taille] ; 

@@ -32,6 +32,9 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2012/08/12 17:48:35  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.8  2005/01/18 22:36:50  k_taniguchi
  * Delete a pointer for ray_eq(int kk).
  *
@@ -597,9 +600,14 @@ void Etoile::equation_of_state() {
 
     if (nzet > 1) {
 
-    	if (nzet > 2) {
+      if(nzet == 3) {
+	fact_ent.set(1) = 1 - 0.5 * epsilon * (xi(1) - 0.5) * (xi(1) - 0.5) ;
+	fact_ent.set(2) = 1 - 0.25 * epsilon * (xi(2) - 1) * (xi(2) - 1) ;
+      }
+      
+      if (nzet > 3) {
     	
-    		cout << "Etoile::equation_of_state: not ready yet for nzet > 2 !"
+    		cout << "Etoile::equation_of_state: not ready yet for nzet > 3 !"
     		     << endl ;    	
     	}
 

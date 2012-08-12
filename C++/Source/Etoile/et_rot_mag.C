@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2012/08/12 17:48:35  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.18  2011/10/06 14:55:36  j_novak
  * equation_of_state() is now virtual to be able to call to the magnetized
  * Eos_mag.
@@ -114,6 +117,7 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
   : Etoile_rot(mp_i, nzet_i, relat, eos_i),
     A_t(mp_i),
     A_phi(mp_i),
+    B_phi(mp_i),
     j_t(mp_i),
     j_phi(mp_i),
     E_em(mp_i),
@@ -125,6 +129,7 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 
   A_t = 0;
   A_phi = 0; 
+  B_phi = 0;
   j_t = 0 ;
   j_phi = 0 ;
 
@@ -135,19 +140,19 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 set_der_0x0() ;  
 }
 
-// Constructor from a file
-// -----------------------
-Et_rot_mag::Et_rot_mag(Map& mp_i, const Eos& eos_i, FILE* fich)
+
+
+Et_rot_mag::Et_rot_mag(Map& mp_i, const Eos& eos_i, FILE* fich, int withbphi)
     : Etoile_rot(mp_i, eos_i, fich), 
       A_t(mp_i),
       A_phi(mp_i),
+      B_phi(mp_i),
       j_t(mp_i),
       j_phi(mp_i),
       E_em(mp_i),
       Jp_em(mp_i),
       Srr_em(mp_i),
       Spp_em(mp_i)
-
 {
 
     // Etoile parameters
@@ -165,7 +170,7 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, const Eos& eos_i, FILE* fich)
 
     Cmp A_phi_file(mp, *mp.get_mg(), fich) ;
     A_phi = A_phi_file ;
-
+  
     Cmp j_t_file(mp, *mp.get_mg(), fich) ;
     j_t = j_t_file ;
 
@@ -184,6 +189,13 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, const Eos& eos_i, FILE* fich)
     Tenseur Spp_em_file(mp, fich) ;
     Spp_em = Spp_em_file ;
 
+    if ( withbphi == 0 ) {
+      B_phi = 0;
+    }else{
+      Cmp B_phi_file(mp, *mp.get_mg(), fich) ;
+      B_phi = B_phi_file ;
+    }
+
     // Pointers of derived quantities initialized to zero 
     // --------------------------------------------------
     set_der_0x0() ;
@@ -198,6 +210,7 @@ Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
   : Etoile_rot(et),
   A_t(et.A_t),
   A_phi(et.A_phi),
+  B_phi(et.B_phi),
   j_t(et.j_t),
   j_phi(et.j_phi),
   E_em(et.E_em),
@@ -257,6 +270,7 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
   Etoile_rot::operator=(et) ;
   A_t    = et.A_t    ;
   A_phi  = et.A_phi  ;
+  B_phi  = et.B_phi  ;
   j_t    = et.j_t    ;
   j_phi  = et.j_phi  ;
   E_em   = et.E_em   ;
@@ -313,9 +327,14 @@ void Et_rot_mag::equation_of_state() {
 
     if (nzet > 1) {
 
-    	if (nzet > 2) {
+      if (nzet == 3) {
+	fact_ent.set(1) = 1 - 0.5 * epsilon * (xi(1) - 0.5) * (xi(1) - 0.5) ;
+	fact_ent.set(2) = 1 - 0.25 * epsilon * (xi(2) - 1) * (xi(2) - 1) ;	
+      }
+
+    	if (nzet > 3) {
     	
-    		cout << "Etoile::equation_of_state: not ready yet for nzet > 2 !"
+    		cout << "Etoile::equation_of_state: not ready yet for nzet > 3 !"
     		     << endl ;    	
     	}
 
@@ -448,6 +467,7 @@ void Et_rot_mag::sauve(FILE* fich) const {
     Jp_em.sauve(fich) ;
     Srr_em.sauve(fich) ;
     Spp_em.sauve(fich) ;
+    B_phi.sauve(fich) ;
     
 }
 

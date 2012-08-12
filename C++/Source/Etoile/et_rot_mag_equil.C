@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2012/08/12 17:48:36  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.17  2004/03/25 10:43:04  j_novak
  * Some units forgotten...
  *
@@ -125,7 +128,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     Map_et& mp_et = dynamic_cast<Map_et&>(mp) ; 
         
     // Index of the point at phi=0, theta=pi/2 at the surface of the star:
-    assert(mg->get_type_t() == SYM) ; 
+    //    assert(mg->get_type_t() == SYM) ; 
     int l_b = nzet - 1 ; 
     int i_b = mg->get_nr(l_b) - 1 ; 
     int j_b = mg->get_nt(l_b) - 1 ; 

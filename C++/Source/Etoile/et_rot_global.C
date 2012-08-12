@@ -31,6 +31,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/08/12 17:48:35  p_cerda
+ * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
+ *
  * Revision 1.4  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -377,10 +380,16 @@ double Etoile_rot::r_circ() const {
 	
 	// Index of the point at phi=0, theta=pi/2 at the surface of the star:
 	const Mg3d* mg = mp.get_mg() ; 
-	assert(mg->get_type_t() == SYM) ; 
+
+
 	int l_b = nzet - 1 ; 
 	int i_b = mg->get_nr(l_b) - 1 ; 
-	int j_b = mg->get_nt(l_b) - 1 ; 
+	int j_b;
+	if (mg->get_type_t() == SYM) {
+	  j_b = mg->get_nt(l_b) - 1 ;
+	}else{
+	  j_b = (mg->get_nt(l_b) - 1)/2 ;
+	}
 	int k_b = 0 ; 
     
 	p_r_circ = new double( bbb()(l_b, k_b, j_b, i_b) * ray_eq() ) ; 
@@ -419,10 +428,14 @@ double Etoile_rot::z_eqf() const {
 	
 	// Index of the point at phi=0, theta=pi/2 at the surface of the star:
 	const Mg3d* mg = mp.get_mg() ; 
-	assert(mg->get_type_t() == SYM) ; 
 	int l_b = nzet - 1 ; 
 	int i_b = mg->get_nr(l_b) - 1 ; 
-	int j_b = mg->get_nt(l_b) - 1 ; 
+	int j_b;
+	if (mg->get_type_t() == SYM) {
+	  j_b = mg->get_nt(l_b) - 1 ; 
+	}else{
+	  j_b = (mg->get_nt(l_b) - 1)/2 ; 
+	}
 	int k_b = 0 ; 
     
 	double u_eq = uuu()(l_b, k_b, j_b, i_b) ; 
@@ -447,10 +460,14 @@ double Etoile_rot::z_eqb() const {
 	
 	// Index of the point at phi=0, theta=pi/2 at the surface of the star:
 	const Mg3d* mg = mp.get_mg() ; 
-	assert(mg->get_type_t() == SYM) ; 
 	int l_b = nzet - 1 ; 
-	int i_b = mg->get_nr(l_b) - 1 ; 
-	int j_b = mg->get_nt(l_b) - 1 ; 
+	int i_b = mg->get_nr(l_b) - 1 ;
+	int j_b;
+	if (mg->get_type_t() == SYM) {
+	  j_b = mg->get_nt(l_b) - 1 ;
+	}else{
+	  j_b = (mg->get_nt(l_b) - 1) / 2 ;
+	}
 	int k_b = 0 ; 
     
 	double u_eq = uuu()(l_b, k_b, j_b, i_b) ; 
