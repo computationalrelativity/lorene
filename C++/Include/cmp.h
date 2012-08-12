@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2012/08/12 17:35:36  p_cerda
+ * Magnetstar: adding new member to class Cmp
+ *
  * Revision 1.19  2010/02/02 13:34:12  e_gourgoulhon
  * Marked DEPRECATED (in the documentation).
  *
@@ -1009,6 +1012,9 @@ class Cmp {
 
 	/// Multiplication by \f$r\sin\theta\f$
 	void mult_rsint() ;
+
+        /// Multiplication by \f\cos\theta\f$
+	void mult_cost() ;
 
 	/// Division by \f$r\sin\theta\f$
 	void div_rsint() ;

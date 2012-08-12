@@ -31,6 +31,9 @@ char cmp_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/08/12 17:35:36  p_cerda
+ * Magnetstar: adding new member to class Cmp
+ *
  * Revision 1.2  2004/10/11 15:09:01  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -110,6 +113,18 @@ void Cmp::mult_rsint() {
     
   Scalar resu(*this) ;
   mp->mult_rsint(resu) ;   // Call of the appropriate routine of the mapping 
+  operator=(resu) ;
+  del_deriv() ;   // Delete the derived members
+
+}
+			//---------------------------//
+			//	    mult_rcost	     //
+			//---------------------------//
+
+void Cmp::mult_cost() {
+    
+  Scalar resu(*this) ;
+  mp->mult_cost(resu) ;   // Call of the appropriate routine of the mapping 
   operator=(resu) ;
   del_deriv() ;   // Delete the derived members
 
