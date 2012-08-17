@@ -5,11 +5,12 @@
 1.    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
 1.60    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
 #################### MAGNETIC PARAMETERS ######################################
-1.e-6	a0_j  deformation amplitude coefficient a_0 (see Gabler et al 2012)
+1.0e-6  m_max deformation amplitude M_max * 6.673e-11 (see Gabler et al 2012)
+1.	a0_j  deformation amplitude coefficient a_0 
 0.      a1_j  deformation amplitude coefficient a_1
 0.      a2_j  deformation amplitude coefficient a_2
 0.      c0_j  deformation amplitude coefficient a_c
-1.0     rc0_j current shape coefficient c
+1.      rc0_j current shape coefficient c
 0.      b0_j  force-free mixed toroidal-poloidal field coeff. b_0
 0.      b1_j  force-free mixed toroidal-poloidal field coeff. b_1
 0. 	b2_j  force-free mixed toroidal-poloidal field coeff. b_2

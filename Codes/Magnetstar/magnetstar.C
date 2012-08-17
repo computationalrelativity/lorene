@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/08/17 15:35:06  p_cerda
+ * Small changes to match the paper
+ *
  * Revision 1.1  2012/08/12 17:57:41  p_cerda
  * Magnetstar code
  *
@@ -173,6 +176,7 @@ int main(){
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
 	   thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
    
+    double m_max;
     double a0_j, a1_j, a2_j, b0_j, b1_j, b2_j, c0_j, c1_j;
     double rc0_j, rc1_j;
 
@@ -189,6 +193,7 @@ int main(){
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
     mbar_wanted *= msol ; 
     fich.getline(blabla, 120) ;
+    fich >> m_max ; fich.getline(blabla,120) ;
     fich >> a0_j ; fich.getline(blabla,120) ;
     fich >> a1_j ; fich.getline(blabla,120) ;
     fich >> a2_j ; fich.getline(blabla,120) ;
@@ -252,12 +257,12 @@ int main(){
 
     Tbl an_j (7);
     an_j.set_etat_qcq();
-    an_j.set(0) = a0_j;
-    an_j.set(1) = a1_j;
-    an_j.set(2) = a2_j;
-    an_j.set(3) = c0_j;
+    an_j.set(0) = a0_j*m_max;
+    an_j.set(1) = a1_j*m_max;
+    an_j.set(2) = a2_j*m_max;
+    an_j.set(3) = c0_j*m_max;
     an_j.set(4) = rc0_j;
-    an_j.set(5) = c1_j;
+    an_j.set(5) = c1_j*m_max;
     an_j.set(6) = rc1_j;
     
     Tbl bn_j (3);
