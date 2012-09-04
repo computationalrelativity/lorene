@@ -32,6 +32,9 @@ char map_af_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/09/04 14:53:28  j_novak
+ * Replacement of the FORTRAN version of huntm by a C one.
+ *
  * Revision 1.4  2012/08/12 17:48:36  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -104,7 +107,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
     int nz = mg->get_nzone() ;
     int np1 = 1 ;		// Axisymmetry enforced
     int nt = mg->get_nt(0) ; 
-    int nt2 ;
+    int nt2 = 0 ;
 
     switch ( mpsymm ){
     case SYM: {

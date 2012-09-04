@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/09/04 14:53:28  j_novak
+ * Replacement of the FORTRAN version of huntm by a C one.
+ *
  * Revision 1.4  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -134,15 +137,12 @@ void F77_poiss2di(int[], int*, int*, int*, int[], double[],
 // Miscellaneous
 // -------------
 #ifdef __aix
-        #define F77_huntm huntm
         #define F77_insmts insmts
 #else
-        #define F77_huntm huntm_
         #define F77_insmts insmts_
 #endif
 
 extern "C" {
-void F77_huntm(double[], int*, double*, int*) ;
 void F77_insmts(int [], int *, double [], double [], double [], double []) ;
 }
 

@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2012/09/04 14:53:28  j_novak
+ * Replacement of the FORTRAN version of huntm by a C one.
+ *
  * Revision 1.7  2011/10/04 16:05:19  j_novak
  * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
  * and use of interpol_herm_2d.
@@ -67,8 +70,56 @@ char interpol_herm_C[] = "$Header$" ;
 // Headers Lorene
 #include "tbl.h"
 
-// Prototypes of F77 subroutines
-#include "proto_f77.h"
+void huntm(const Tbl& xx, double& x, int& i_low) {
+
+  assert (xx.get_etat() == ETATQCQ) ;
+  int nx = xx.get_taille() ;
+  bool ascend = ( xx(nx-1) > xx(0) ) ;
+  int i_hi ;
+  if ( (i_low < 0)||(i_low>=nx) ) {
+    i_low = -1 ;
+    i_hi = nx ;
+  }
+  else {
+    int inc = 1 ;
+    if ( (x >= xx(i_low)) == ascend ) {
+	if (i_low == nx -1) return ;
+	i_hi = i_low + 1 ;
+	while ( (x >= xx(i_hi)) == ascend ) {
+	  i_low = i_hi ;
+	  inc += inc ;
+	  i_hi = i_low + inc ;
+	  if (i_hi >= nx) {
+	    i_hi = nx ;
+	    break ;
+	  }
+	}
+    } else {
+      if (i_low == 0) {
+	i_low = -1 ;
+	return ;
+      }
+      i_hi = i_low-- ;
+      while ( (x < xx(i_low)) == ascend ) {
+	i_hi = i_low ;
+	inc += inc ;
+	if ( inc >= i_hi ) {
+	  i_low = 0 ;
+	  break ;
+	}
+	else i_low = i_hi - inc ;
+      }
+    }
+  }
+  while ( (i_hi - i_low) > 1) {
+    int i_med = (i_hi + i_low) / 2 ;
+    if ( (x>=xx(i_med)) == ascend ) i_low = i_med ;
+    else i_hi = i_med ;
+  }
+  if (x == xx(nx-1)) i_low = nx-2 ;
+  if (x == xx(0)) i_low = 0 ;
+  return ;
+}
 
 // Linear interpolation 
 void interpol_linear(const Tbl& xtab, const Tbl& ytab, 
@@ -77,11 +128,7 @@ void interpol_linear(const Tbl& xtab, const Tbl& ytab,
 	assert(ytab.dim == xtab.dim) ;
 	//assert(dytab.dim == xtab.dim) ;	
 	
-	int np = xtab.get_dim(0) ;
-	
-	F77_huntm(xtab.t, &np, &x, &i) ;
-	
-	i-- ; 	// Fortran --> C
+	huntm(xtab, x, i) ;
 	
 	int i1 = i + 1 ;
 	
@@ -108,11 +155,7 @@ void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 	assert(ytab.dim == xtab.dim) ;
 	assert(dytab.dim == xtab.dim) ;	
 	
-	int np = xtab.get_dim(0) ;
-	
-	F77_huntm(xtab.t, &np, &x, &i) ;
-	
-	i-- ; 	// Fortran --> C
+	huntm(xtab, x, i) ;
 	
 	int i1 = i + 1 ;
 	
@@ -142,12 +185,10 @@ void interpol_herm_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 
 	assert(ytab.dim == xtab.dim) ;
 	assert(dytab.dim == xtab.dim) ;	
+		
+	huntm(xtab, x, i) ;
 	
-	int np = xtab.get_dim(0) ;
-	
-	F77_huntm(xtab.t, &np, &x, &i) ;
-	
-	i-- ; 	// Fortran --> C
+	//	i-- ; 	// Fortran --> C
 	
 	int i1 = i + 1 ;
 	
