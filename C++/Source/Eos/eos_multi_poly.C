@@ -31,6 +31,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2012/10/09 16:15:26  j_novak
+ * Corrected a bug in the constructor and save into a file
+ *
  * Revision 1.6  2009/06/23 14:34:04  k_taniguchi
  * Completely revised.
  *
@@ -170,8 +173,8 @@ Eos_multi_poly::Eos_multi_poly(FILE* fich) : Eos(fich) {
         fread_be(&gamma[l], sizeof(double), 1, fich) ;
     }
 
-    fread_be(&kappa0, sizeof(int), 1, fich) ;
-    fread_be(&logP1, sizeof(int), 1, fich) ;
+    fread_be(&kappa0, sizeof(double), 1, fich) ;
+    fread_be(&logP1, sizeof(double), 1, fich) ;
 
     logRho = new double [npeos-1] ;
 
@@ -389,8 +392,8 @@ void Eos_multi_poly::sauve(FILE* fich) const {
         fwrite_be(&gamma[l], sizeof(double), 1, fich) ;
     }
 
-    fwrite_be(&kappa0, sizeof(int), 1, fich) ;
-    fwrite_be(&logP1, sizeof(int), 1, fich) ;
+    fwrite_be(&kappa0, sizeof(double), 1, fich) ;
+    fwrite_be(&logP1, sizeof(double), 1, fich) ;
 
     for (int l=0; l<npeos-1; l++) {
         fwrite_be(&logRho[l], sizeof(double), 1, fich) ;
