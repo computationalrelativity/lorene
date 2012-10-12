@@ -30,6 +30,9 @@ char vector_poisson_block_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2012/10/12 11:43:38  j_novak
+ * Removed some headers
+ *
  * Revision 1.6  2007/12/21 10:45:06  j_novak
  * Better treatment of spherical symmetry
  *
@@ -55,16 +58,12 @@ char vector_poisson_block_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <stdlib.h>
 #include <math.h>
 
 // Lorene headers
 #include "metric.h"
 #include "diff.h"
-#include "param_elliptic.h"
 #include "proto.h"
-#include "graphique.h"
 
 void Vector::poisson_block(double lam, Vector& resu) const {
 
