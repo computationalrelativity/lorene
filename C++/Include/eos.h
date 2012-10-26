@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2012/10/26 14:09:13  e_gourgoulhon
+ * Added new class Eos_Fermi
+ *
  * Revision 1.17  2011/06/16 10:49:18  j_novak
  * New class Eos_mag for EOSs depending on density and magnetic field.
  *
@@ -231,26 +234,27 @@ class Eos {
 	 * 
 	 *  The fist line of the file must start by the EOS number, according 
 	 *  to the following conventions:
-	 *	- 1 = relativistic polytropic EOS (class \c Eos_poly ). 
-	 *	- 2 = Newtonian polytropic EOS (class \c Eos_poly_newt ). 
-	 *	- 3 = Relativistic incompressible EOS (class \c Eos_incomp ). 
-	 *	- 4 = Newtonian incompressible EOS 
-	 *		    (class \c Eos_incomp_newt ). 
-	 *	- 5 = Strange matter (MIT Bag model) 
-	 *	- 6 = Strange matter (MIT Bag model) with crust 
-	 *	- 10 = SLy4 (Douchin \& Haensel 2001)  
-	 *	- 11 = FPS (Friedman-Pandharipande + Skyrme) 
-	 *	- 12 = BPAL12 (Bombaci et al. 1995) 
-	 *	- 13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) 
-	 *	- 14 = BBB2 (Baldo, Bombaci \& Burgio 1997) 
-	 *	- 15 = BalbN1H1 (Balberg 2000) 
-         *	- 16 = GlendNH3 (Glendenning 1985, case 3)  
-         *	- 17 = Compstar (Tabulated EOS for 2010 CompStar school)  
-	 *	- 100 = Multi-domain EOS (class \c MEos ) 
-	 *	- 110 = Multi-polytropic EOS (class \c Eos_multi_poly ) 
-	 *	- 120 = Fitted SLy4 (Shibata 2004) 
-	 *	- 121 = Fitted FPS (Shibata 2004) 
-	 *	- 122 = Fitted AkmalPR (Taniguchi 2005) 
+	 *  - 1 = relativistic polytropic EOS (class \c Eos_poly ). 
+	 *  - 2 = Newtonian polytropic EOS (class \c Eos_poly_newt ). 
+	 *  - 3 = Relativistic incompressible EOS (class \c Eos_incomp ). 
+	 *  - 4 = Newtonian incompressible EOS (class \c Eos_incomp_newt ). 
+	 *  - 5 = Strange matter (MIT Bag model) 
+	 *  - 6 = Strange matter (MIT Bag model) with crust 
+	 *  - 10 = SLy4 (Douchin \& Haensel 2001)  
+	 *  - 11 = FPS (Friedman-Pandharipande + Skyrme) 
+	 *  - 12 = BPAL12 (Bombaci et al. 1995) 
+	 *  - 13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) 
+	 *  - 14 = BBB2 (Baldo, Bombaci \& Burgio 1997) 
+	 *  - 15 = BalbN1H1 (Balberg 2000) 
+     *  - 16 = GlendNH3 (Glendenning 1985, case 3)
+     *  - 17 = Compstar (Tabulated EOS for 2010 CompStar school)
+     *  - 18 = magnetized (tabulated) equation of state
+     *  - 19 = relativistic ideal Fermi gas at zero temperature (class \c Eos_Fermi)
+     *  - 100 = Multi-domain EOS (class \c MEos ) 
+	 *  - 110 = Multi-polytropic EOS (class \c Eos_multi_poly ) 
+	 *  - 120 = Fitted SLy4 (Shibata 2004) 
+	 *  - 121 = Fitted FPS (Shibata 2004) 
+	 *  - 122 = Fitted AkmalPR (Taniguchi 2005) 
 	 *
 	 *  The second line in the file should contain a name given by the user to the EOS.
 	 *  The following lines should contain the EOS parameters (one
@@ -1515,7 +1519,7 @@ class Eos_incomp_newt : public Eos_incomp {
 /**
  * Strange matter EOS (MIT Bag model).
  * 
- * This equation of state (EOS) corresponds to u,d,s degenerated symetric
+ * This equation of state (EOS) corresponds to u,d,s degenerate symetric
  * matter in the MIT bag model, according to approximate formula
  * given in Zdunik, Astron. Astrophys. \b 359 , 311 (2000). 
  *\ingroup (eos)
@@ -1752,7 +1756,7 @@ class Eos_strange : public Eos {
  * Strange matter EOS (MIT Bag model) with crust.
  *
  * For liquid core, this equation of state (EOS) corresponds to u,d,s
- * degenerated symetric
+ * degenerate symetric
  * matter in the MIT bag model, according to approximate formula
  * given in Zdunik, Astron. Astrophys. \b 359 , 311 (2000).
  * The EOS for crust is a polytropic approximation of the BPS
@@ -2052,6 +2056,202 @@ class Eos_strange_cr : public Eos {
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
 
 };
+
+
+		    //----------------------------//
+		    //		class Eos_Fermi		  //
+		    //----------------------------//
+
+
+/**
+ *  Degenerate ideal Fermi gas
+ *
+ * This equation of state describes an ideal gas of relativistic fermions at zero temperature. 
+ * It has two parameters : the fermion mass \f$m\f$ and the degeneracy \f$g_s\f$ of each momentum state
+ * (for electrons or neutrons : \f$g_s = 2\f$).
+ * 
+ * *** NB: This class is _under construction_ and not fully tested yet ! ***
+ *
+ *\ingroup (eos)
+ */
+class Eos_Fermi : public Eos {
+
+    // Data :
+    // -----
+
+    protected:
+	/** Individual particule mass \f$m_0\f$  
+	 *  [unit: eV/c2].
+	 */
+	double m_0 ;
+
+	/** Degeneracy parameter
+	 */
+    int g_s ; 
+
+
+	/// Number density scale [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+    double n_0 ;  
+    
+    /** Energy density scale [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$]
+     */
+    double ener_0 ; 
+
+
+    /** Pressure scale [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$]
+     */
+    double p_0 ; 
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+
+	/** Standard constructor (sets \c g_s to 2).
+	 * 
+	 *  @param mass  mass of each fermion in eV/c2
+	 *  
+	 */
+	Eos_Fermi(double mass) ;
+
+	/** Standard constructor.
+	 * 
+	 *  @param mass  mass of each fermion in eV/c2
+	 *  @param g_degen  degeneracy factor (value for electrons or neutrons: 2)
+	 *  
+	 */
+	Eos_Fermi(double mass, int g_degen) ;
+
+	Eos_Fermi(const Eos_Fermi& ) ;	///< Copy constructor
+	
+    protected:
+	/** Constructor from a binary file (created by the function
+	 *  \c sauve(FILE*) ).
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function 
+	 *  \c Eos::eos_from_file(FILE*) .
+	 */
+	Eos_Fermi(FILE* ) ;
+
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  \c Eos::eos_from_file(ifstream&) . 
+	 */
+	Eos_Fermi(ifstream& ) ;
+
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ;
+	friend Eos* Eos::eos_from_file(ifstream& ) ; 
+
+    public:
+	virtual ~Eos_Fermi() ;			///< Destructor
+
+    // Assignment
+    // ----------
+	/// Assignment to another \c Eos_Fermi 
+	void operator=(const Eos_Fermi& ) ;
+
+
+    // Miscellaneous
+    // -------------
+
+    public :
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ;
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ;
+
+	/** Returns a number to identify the sub-classe of \c Eos the
+	 *  object belongs to.
+	 */
+	virtual int identify() const ; 
+
+	/// Returns the fermion mass in eV/c2
+	double get_m() const ;
+
+    /// Returns the degeneracy factor
+	int get_g_degen() const ;
+	
+    protected:
+	/** Computes the auxiliary quantities \c n_0 , \c ener_0 
+	 */
+	void set_auxiliary() ;
+
+
+    // Outputs
+    // -------
+
+    public:
+	virtual void sauve(FILE* ) const ;	///< Save in a file
+
+    protected:
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+    public:
+	/** Computes the baryon density from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
+     *  @param par possible extra parameters of the EOS (not used here)
+	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *
+	 */
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
+
+ 	/** Computes the total energy density from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
+     *  @param par possible extra parameters of the EOS (not used here)
+	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
+
+ 	/** Computes the pressure from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
+     *  @param par possible extra parameters of the EOS (not used here)
+	 *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative \f$d\ln n/d\ln H\f$
+	 * from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
+     *  @param par possible extra parameters of the EOS (not used here)
+	 *  @return dln(n)/dln(H)
+	 */
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative \f$d\ln e/d\ln H\f$
+	 * from the log-enthalpy.
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
+     *  @param par possible extra parameters of the EOS (not used here)
+	 *  @return dln(e)/dln(H)
+	 */
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative \f$d\ln p/d\ln H\f$
+	 * from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
+     *  @param par possible extra parameters of the EOS
+	 *  @return dln(p)/dln(H)
+	 */
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
+       
+};
+
+
 
 
                 //------------------------------//
