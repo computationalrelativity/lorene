@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2012/11/09 10:32:44  m_bejger
+ * Implementing der_ener_ent_p
+ *
  * Revision 1.10  2010/02/16 11:14:50  j_novak
  * More verbose opeining of the file.
  *
@@ -506,18 +509,17 @@ double Eos_tabul::der_nbar_ent_p(double ent, const Param* ) const {
 double Eos_tabul::der_ener_ent_p(double ent, const Param* ) const {
 
     if ( ent > hmin ) {
+		
            if (ent > hmax) {
            	cout << "Eos_tabul::der_ener_ent_p : ent > hmax !" << endl ;
            	abort() ;
            }
 
-           cout << "Eos_tabul::der_ener_ent_p : not ready yet !" << endl ;
-           abort() ;
-	   return 0 ;
-    }
-    else{
-	return 0 ;
-    }
+		   return ( der_nbar_ent_p(ent) 
+			     *( double(1.) + press_ent_p(ent)/ener_ent_p(ent) )) ; 
+
+    } else return der_nbar_ent_p(hmin) ;
+    
 }
 
 
