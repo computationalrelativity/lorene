@@ -21,6 +21,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Black_hole; $(MAKE)
 	cd Source/Change_var; $(MAKE)
 	cd Source/Cmp; $(MAKE)
+	cd Source/Compobj; $(MAKE)
 	cd Source/Connection; $(MAKE)
 	cd Source/Coord; $(MAKE)
 	cd Source/Diff; $(MAKE)
