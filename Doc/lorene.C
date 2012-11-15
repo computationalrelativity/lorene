@@ -87,6 +87,10 @@
  *
  */
  
+/**\defgroup compactobjects Stationary compact objects (***under development***)
+ *
+ */
+ 
 
 /**\defgroup ellip General PDE solvers (***under development***)
  *

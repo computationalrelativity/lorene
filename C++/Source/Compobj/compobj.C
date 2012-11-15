@@ -1,0 +1,211 @@
+/*
+ *  Methods of the class Compobj
+ *
+ *    (see file compobj.h for documentation).
+ *
+ */
+
+/*
+ *   Copyright (c) 2012 Claire Some, Eric Gourgoulhon
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char compobj_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2012/11/15 16:20:51  c_some
+ * New class Compobj
+ *
+ *
+ * $Header$
+ *
+ */
+
+
+// C headers
+#include <cassert>
+
+// Lorene headers
+#include "compobj.h"
+
+                   //--------------//
+                   // Constructors //
+                   //--------------//
+
+// Standard constructor
+// --------------------
+Compobj::Compobj(Map& map_i) :
+		mp(map_i) , 
+		nn(map_i) , 
+		beta(map_i, CON, map_i.get_bvect_spher()) ,
+ 		gamma(map_i.flat_met_spher()) ,
+		ener_euler(map_i) ,
+		mom_euler(map_i, CON, map_i.get_bvect_spher()) ,
+		stress_euler(map_i, COV, map_i.get_bvect_spher()) 
+{
+    // Pointers of derived quantities initialized to zero : 
+    set_der_0x0() ;
+
+	// Some initialisations:
+	nn = 1 ; 
+    	nn.std_spectral_base() ; 
+
+	beta.set_etat_zero() ;
+	ener_euler = 0 ; 
+	mom_euler.set_etat_zero() ;
+	stress_euler.set_etat_zero() ;
+	
+}
+
+// Copy constructor
+// --------------------
+Compobj::Compobj(const Compobj& co) :
+		mp(co.mp) , 
+		nn(co.nn) , 
+		beta(co.beta) ,
+ 		gamma(co.gamma) ,
+		ener_euler(co.ener_euler) ,
+		mom_euler(co.mom_euler) ,
+		stress_euler(co.stress_euler) 
+{
+    // Pointers of derived quantities initialized to zero : 
+    set_der_0x0() ;
+}
+
+
+// Constructor from a file
+// -----------------------
+Compobj::Compobj(Map& map_i, FILE* fich) :
+		mp(map_i) , 
+		nn(map_i, *(map_i.get_mg()), fich) , 
+		beta(map_i, map_i.get_bvect_spher(), fich) ,
+ 		gamma(map_i, fich) ,
+		ener_euler(map_i, *(map_i.get_mg()), fich) ,
+		mom_euler(map_i,  map_i.get_bvect_spher(), fich) ,
+		stress_euler(map_i, map_i.get_bvect_spher(), fich)  
+{
+    // Pointers of derived quantities initialized to zero : 
+    set_der_0x0() ;
+}
+
+			    //------------//
+			    // Destructor //
+			    //------------//
+
+Compobj::~Compobj(){
+
+    del_deriv() ; 
+
+}
+
+
+			//----------------------------------//
+			// Management of derived quantities //
+			//----------------------------------//
+
+void Compobj::del_deriv() const {
+
+    if (p_mass_g != 0x0) delete p_mass_g ; 
+
+    Compobj::set_der_0x0() ; 
+}			    
+
+
+void Compobj::set_der_0x0() const {
+
+    p_mass_g = 0x0 ; 
+
+}			    
+
+			    //--------------//
+			    //  Assignment  //
+			    //--------------//
+
+// Assignment to another Compobj
+// ----------------------------
+void Compobj::operator=(const Compobj& co) {
+
+	assert( &(co.mp) == &mp ) ;		    // Same mapping
+    
+	nn = co.nn ;
+	beta = co.beta ;
+ 	gamma = co.gamma ; 
+	ener_euler = co.ener_euler ;
+	mom_euler = co.mom_euler ;
+	stress_euler = co.stress_euler ; 
+
+    	del_deriv() ;  // Deletes all derived quantities
+}	
+
+			    //--------------//
+			    //	  Outputs   //
+			    //--------------//
+
+// Save in a file
+// --------------
+void Compobj::sauve(FILE* fich) const {
+
+		nn.sauve(fich) ; 
+		beta.sauve(fich) ;
+ 		gamma.sauve(fich) ;
+		ener_euler.sauve(fich) ;
+		mom_euler.sauve(fich) ;
+		stress_euler.sauve(fich) ;
+
+}
+
+// Printing
+// --------
+
+ostream& operator<<(ostream& ost, const Compobj& co)  {
+    co >> ost ;
+    return ost ;
+}
+
+
+ostream& Compobj::operator>>(ostream& ost) const {
+    
+    ost << endl << "Compact object (class Compobj) " << endl ; 
+    ost << "Mapping : " << mp << endl ; 
+    ost << "Lapse : " << nn << endl ; 
+	
+    return ost ; 
+      
+}
+
+
+			    //-------------------------//
+			    //	Computational methods  //
+			    //-------------------------//
+			    
+/// Gravitational mass
+double Compobj::mass_g() const {
+
+    if (p_mass_g == 0x0) {    // a new computation is required
+	
+	p_mass_g = new double(0) ; 
+
+    }
+    
+    return *p_mass_g ; 
+
+} 
+	
+
