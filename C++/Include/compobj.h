@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/15 20:50:41  e_gourgoulhon
+ * Corrected the documentation
+ *
  * Revision 1.1  2012/11/15 16:20:51  c_some
  * New class Compobj
  *
@@ -48,7 +51,7 @@
 			//---------------------------//
 
 /**
- * Base class for stationary compact objects (***under development***).
+ * Base class for stationary compact objects (***under development***). 
  * \ingroup(compactobjects)
  *
  * A \c Compobj describes a single compact object (star or black hole), in a stationary state.
@@ -63,7 +66,7 @@
  * The total energy-momentum tensor is orthogonally split with respect to the Eulerian observer as follows:
  * \f[
  *	T_{\alpha\beta} = E n_\alpha n_\beta + P_\alpha n_\beta + n_\alpha P_\beta + S_{\alpha\beta}
- * \]
+ * \f]
  */
 class Compobj {
 
@@ -82,13 +85,13 @@ class Compobj {
  	/// 3-metric  \f$\gamma_{ij}\f$
 	Metric gamma ;
 
-	/// Total energy density \f$E\f$ in the Eulerian frame 
+	/// Total energy density \e E in the Eulerian frame 
 	Scalar ener_euler ; 
 
-	/// Total 3-momentum density \f$P^\alpha\f$ in the Eulerian frame 
+	/// Total 3-momentum density \f$P^i\f$ in the Eulerian frame 
 	Vector mom_euler ; 
 
-	/// Stress tensor \f$S_{\alpha\beta}\f$  with respect to the Eulerian observer
+	/// Stress tensor \f$S_{ij}\f$  with respect to the Eulerian observer
 	Sym_tensor stress_euler ;
 
 
@@ -111,11 +114,10 @@ class Compobj {
 
 	/** Constructor from a file (see \c sauve(FILE* )). 
 	 * 
-	 * @param mp_i Mapping on which the star will be defined
+	 * @param mp_i Mapping on which the object is defined
 	 * @param fich	input file (must have been created by the function
 	 *	\c sauve)
 	 */
-	/// Constructor from a file (see \c sauve(FILE*) )
 	Compobj(Map& map_i, FILE* ) ;    		
 
 	virtual ~Compobj() ;			///< Destructor
@@ -156,13 +158,13 @@ class Compobj {
  	/// Returns the 3-metric \f$\gamma_{ij}\f$.
 	const Metric& get_gamma() const {return gamma;} ;
 
-	/// Returns the total energy density \f$E\f$ in the Eulerian frame 
+	/// Returns the total energy density \e E in the Eulerian frame 
 	const Scalar& get_ener_euler() const {return ener_euler;}  ; 
 
-	/// Returns the total 3-momentum density \f$P^\alpha\f$ in the Eulerian frame 
+	/// Returns the total 3-momentum density \f$P^i\f$ in the Eulerian frame 
 	const Vector& get_mom_euler() const {return mom_euler;} ; 
 
-	/// Returns the stress tensor \f$S_{\alpha\beta}\f$  with respect to the Eulerian observer
+	/// Returns the stress tensor \f$S_{ij}\f$  with respect to the Eulerian observer
 	const Sym_tensor& get_stress_euler() const {return stress_euler;} ;
 
     // Outputs
@@ -180,7 +182,7 @@ class Compobj {
     // Global quantities
     // -----------------
     public:
-	/// Gravitational mass
+	/// Gravitational mass (ADM mass)
     	virtual double mass_g() const ;
 };
 
