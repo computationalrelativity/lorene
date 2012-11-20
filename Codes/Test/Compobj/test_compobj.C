@@ -1,5 +1,5 @@
 /*
- *  Test code for the Compobj class
+ *  Test code for the Compobj and Compobj_QI classes
  *
  *    (see file compobj.h for documentation).
  *
@@ -30,6 +30,9 @@ char test_compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/20 16:30:21  c_some
+ * Added test for class Compobj_QI
+ *
  * Revision 1.1  2012/11/15 16:20:52  c_some
  * New class Compobj
  *
@@ -81,6 +84,12 @@ int main() {
 	
 	Compobj star(map) ; 
 	
-	cout << star << endl ; 	
+	cout << "star :" << star << endl ; 	
+	
+	Compobj_QI starqi(map) ; 
+	
+	cout << "starqi :" << starqi << endl ; 	
+	
+	cout << "ADM mass : " << starqi.mass_g() << endl ;
 	
 }
