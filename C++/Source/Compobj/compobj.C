@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/20 16:24:09  c_some
+ * Added computation of ADM mass (method mass_q())
+ *
  * Revision 1.1  2012/11/15 16:20:51  c_some
  * New class Compobj
  *
@@ -41,9 +44,11 @@ char compobj_C[] = "$Header$" ;
 
 // C headers
 #include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "compobj.h"
+#include "nbr_spx.h"
 
                    //--------------//
                    // Constructors //
@@ -199,11 +204,16 @@ ostream& Compobj::operator>>(ostream& ost) const {
 double Compobj::mass_g() const {
 
     if (p_mass_g == 0x0) {    // a new computation is required
-	
-	p_mass_g = new double(0) ; 
-
-    }
+		
+        const Sym_tensor& gam_dd = gamma.cov() ;  // components \gamma_{ij} of the 3-metric
+        Metric_flat ff(mp, *(gam_dd.get_triad())) ;
     
+        Vector ww = gam_dd.derive_con(ff).trace(1,2).up(0,ff) 
+                    - gam_dd.trace(ff).derive_con(ff) ; 
+
+        p_mass_g = new double( ww.flux(__infinity, ff) / (16.* M_PI) ) ; 
+	}
+            
     return *p_mass_g ; 
 
 } 
