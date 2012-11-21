@@ -25,11 +25,14 @@
  *
  */
 
-char compobj_QI_C[] = "$Header$" ;
+char star_QI_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/21 14:55:27  c_some
+ * Added methods fait_shift and fait_nphi
+ *
  * Revision 1.1  2012/11/20 16:29:50  c_some
  * New class Star_QI
  *
@@ -292,6 +295,78 @@ ostream& Star_QI::operator>>(ostream& ost) const {
     return ost ; 
       
 }
+
+			    //-------------------------//
+			    //	Computational methods  //
+			    //-------------------------//
+			    
+void Star_QI::fait_shift() {
+
+    Vector d_khi = khi_shift.derive_con( mp.flat_met_cart() ) ; 
+    
+    d_khi.dec_dzpuis(2) ;   // divide by r^2 in the external compactified domain  
+ 
+    // x_k dW^k/dx_i
+      Scalar xx(mp) ; 
+      Scalar yy(mp) ; 
+      Scalar zz(mp) ; 
+      Scalar sintcosp(mp) ;
+      Scalar sintsinp(mp) ;
+      Scalar cost(mp) ;
+      xx = mp.x ; 
+      yy = mp.y ; 
+      zz = mp.z ; 
+      sintcosp = mp.sint * mp.cosp ;
+      sintsinp = mp.sint * mp.sinp ;
+      cost = mp.cost ;
+
+      int nz = mp.get_mg()->get_nzone() ;
+      Vector xk(mp, COV, mp.get_bvect_cart()) ;
+      xk.set(1) = xx ;
+      xk.set(1).set_domain(nz-1) = sintcosp.domain(nz-1) ;
+      xk.set(1).set_dzpuis(-1) ;
+      xk.set(2) = yy ;
+      xk.set(2).set_domain(nz-1) = sintsinp.domain(nz-1) ;
+      xk.set(2).set_dzpuis(-1) ;
+      xk.set(3) = zz ;
+      xk.set(3).set_domain(nz-1) = cost.domain(nz-1) ;
+      xk.set(3).set_dzpuis(-1) ;
+      xk.std_spectral_base() ;
+      
+      Tensor d_w = w_shift.derive_con( mp.flat_met_cart() ) ;
+      
+      Vector x_d_w = contract(xk, 0, d_w, 0) ;
+      x_d_w.dec_dzpuis() ;
+
+      double lambda = double(1) / double(3) ; 
+
+      beta = - (lambda+2)/2./(lambda+1) * w_shift
+		+ (lambda/2./(lambda+1))  * (d_khi + x_d_w) ;      
+    
+} 
+
+
+void Star_QI::fait_nphi() {
+
+    if ( (beta(1).get_etat() == ETATZERO) && (beta(2).get_etat() == ETATZERO) ) {
+		tnphi = 0 ; 
+		nphi = 0 ;
+	return ;  
+    }
+
+    // Computation of tnphi
+    // --------------------
+    
+    mp.comp_p_from_cartesian( -beta(1), -beta(2), tnphi ) ; 
+
+    // Computation of nphi
+    // -------------------
+    
+    nphi = tnphi ; 
+    nphi.div_rsint() ; 
+    
+}
+
 
 // Updates the 3-metric and the shift
 
