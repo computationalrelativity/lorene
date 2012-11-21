@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2012/11/21 14:52:13  c_some
+ * Documentation corrected
+ *
  * Revision 1.4  2012/11/20 16:21:16  c_some
  * Added new class Star_QI
  *
@@ -405,7 +408,7 @@ class Compobj_QI : public Compobj {
  *Base class for axisymmetric stationary compact stars in Quasi-Isotropic coordinates (***under development***). 
  * \ingroup(compactobjects)
  *
- * The time slice $t=\mathrm{const}$ has the topology of $R^3$ 
+ * The time slice \f$t=\mathrm{const}\f$ has the topology of \f$R^3\f$ 
  * and the metric is expressed in Quasi-Isotropic (QI) coordinates :
  * \f[
  *   ds^2 = - N^2 dt^2 + A^2 (dr^2 + r^2 d\theta^2)
