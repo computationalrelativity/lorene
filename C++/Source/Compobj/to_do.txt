@@ -1,0 +1,5 @@
+-- Compobj_QI:angu_mom()
+-- Introduce s_euler as a member of Compobj
+-- Improve the display in Compobj, Compobj_QI, Star_QI
+-- Check the constructors from file in Compobj, Compobj_QI, Star_QI
+
