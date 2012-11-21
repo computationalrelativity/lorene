@@ -32,6 +32,9 @@ char compobj_QI_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/21 14:53:45  c_some
+ * corrected mom_euler
+ *
  * Revision 1.1  2012/11/16 16:14:11  c_some
  * New class Compobj_QI
  *
@@ -59,17 +62,8 @@ double Compobj_QI::angu_mom() const {
 
     if (p_angu_mom == 0x0) {    // a new computation is required
 	
-		assert(*(mom_euler.get_triad()) == mp.get_bvect_spher()) ; 
-	
-		Scalar dens = mom_euler(3) ; 
-
-		dens.mult_r() ;			//  Multiplication by
-		dens.set_spectral_va() = (dens.get_spectral_va()).mult_st() ;	//    r sin(theta)
-
-		dens = a_car * b_car * dens ; 
-
-		p_angu_mom = new double( dens.integrale() ) ;
-
+		cerr << "Compobj_QI::angu_mom() : not implemented yet !" << endl ; //## provisory
+		abort() ; 
     }
     
     return *p_angu_mom ; 
