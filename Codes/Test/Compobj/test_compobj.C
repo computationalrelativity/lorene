@@ -1,7 +1,7 @@
 /*
- *  Test code for classes Compobj, Compobj_QI and Star_QI
+ *  Test code for classes Compobj, Compobj_QI, Star_QI and Boson_star
  *
- *    (see file compobj.h for documentation).
+ *    (see files compobj.h and boson_star.h for documentation).
  *
  */
 
@@ -30,6 +30,9 @@ char test_compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/11/22 16:05:42  c_some
+ * Added test for class Boson_star
+ *
  * Revision 1.3  2012/11/21 14:51:26  c_some
  * Added test for class Star_QI
  *
@@ -49,7 +52,7 @@ char test_compobj_C[] = "$Header$" ;
 // C headers
 
 // Lorene headers
-#include "compobj.h"
+#include "boson_star.h"
 #include "nbr_spx.h"
 
 
@@ -88,18 +91,21 @@ int main() {
 	Compobj star(map) ; 
 	
 	cout << "star :" << star << endl ; 	
+	cout << endl << "**************************************************************************" << endl ; 
 	
 	Compobj_QI compqi(map) ; 
 	
 	cout << "compqi :" << compqi << endl ; 	
-	
-	cout << "ADM mass : " << compqi.mass_g() << endl ;
-	
+	cout << endl << "**************************************************************************" << endl ; 
+		
 	Star_QI starqi(map) ; 
 	
 	cout << "starqi :" << starqi << endl ; 	
+	cout << endl << "**************************************************************************" << endl ; 
 	
-	cout << "ADM mass : " << starqi.mass_g() << endl ;
-	cout << "Angular momentum : " << starqi.angu_mom() << endl ;
+
+	Boson_star bostar(map) ; 
+	
+	cout << "bostar :" << bostar << endl ; 	
 	
 }
