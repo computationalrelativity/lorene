@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/11/22 16:04:51  c_some
+ * Minor modifications
+ *
  * Revision 1.2  2012/11/20 16:28:48  c_some
  * -- tkij is created on the Cartesian triad.
  * -- implemented method extrinsic_curvature()
@@ -205,6 +208,31 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
     Compobj::operator>>(ost) ; 
     
     ost << endl << "Axisymmetric stationary compact object in quasi-isotropic coordinates (class Compobj_QI) " << endl ; 
+
+    ost << "Central values of various fields : " << endl ; 
+    ost << "-------------------------------- " << endl ; 
+    ost << "   metric coefficient A^2 : " << a_car.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   metric coefficient B^2 : " << b_car.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   metric coefficient N^phi : " << nphi.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   components of the rescaled extrinsic curvature B^{-2} K_{ij} : " << endl
+    << "    ( " << tkij(1,1).val_grid_point(0,0,0,0) << "  " 
+    		<< tkij(1,2).val_grid_point(0,0,0,0) << "  " 
+     		<< tkij(1,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << tkij(2,1).val_grid_point(0,0,0,0) << "  " 
+    		<< tkij(2,2).val_grid_point(0,0,0,0) << "  " 
+     		<< tkij(2,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << tkij(3,1).val_grid_point(0,0,0,0) << "  " 
+    		<< tkij(3,2).val_grid_point(0,0,0,0) << "  " 
+     		<< tkij(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
+    ost << "   A^2 K_{ij} K^{ij} = " << ak_car.val_grid_point(0,0,0,0) << endl << endl ; 
+
+//##	ost << "Total angular momentum : " << angu_mom() << endl ; 
+	ost << "Circumferential radius of the innermost stable circular orbit (ISCO) : " << 
+		r_isco(0, &ost) << endl ;  
+ 	ost << "Orbital frequency at the ISCO : " << f_isco(0) << endl ; 
+    ost << "Specific energy of a particle on the ISCO : " << espec_isco(0) << endl ;	
+    ost << "Specific angular momentum of a particle on the ISCO : " << lspec_isco(0) << endl ;	
+	
     ost << "A^2 : " << a_car << endl ; 
     ost << "B^2 : " << b_car << endl ; 
     ost << "nphi : " << nphi << endl ; 

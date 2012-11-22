@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/11/22 16:04:51  c_some
+ * Minor modifications
+ *
  * Revision 1.2  2012/11/20 16:24:09  c_some
  * Added computation of ADM mass (method mass_q())
  *
@@ -189,8 +192,33 @@ ostream& Compobj::operator>>(ostream& ost) const {
     
     ost << endl << "Compact object (class Compobj) " << endl ; 
     ost << "Mapping : " << mp << endl ; 
-    ost << "Lapse : " << nn << endl ; 
-	
+    ost << "Central values of various fields : " << endl ; 
+    ost << "-------------------------------- " << endl ; 
+    ost << "   lapse function : N_c = " << nn.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   metric components gamma_{ij} : " << endl
+    << "    ( " << gamma.cov()(1,1).val_grid_point(0,0,0,0) << "  " 
+    		<< gamma.cov()(1,2).val_grid_point(0,0,0,0) << "  " 
+     		<< gamma.cov()(1,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << gamma.cov()(2,1).val_grid_point(0,0,0,0) << "  " 
+    		<< gamma.cov()(2,2).val_grid_point(0,0,0,0) << "  " 
+     		<< gamma.cov()(2,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << gamma.cov()(3,1).val_grid_point(0,0,0,0) << "  " 
+    		<< gamma.cov()(3,2).val_grid_point(0,0,0,0) << "  " 
+     		<< gamma.cov()(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
+    ost << "   energy density / Eulerian observer : E_c = " << ener_euler.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   components of the stress tensor S_{ij} / Eulerian observer : " << endl
+    << "    ( " << stress_euler(1,1).val_grid_point(0,0,0,0) << "  " 
+    		<< stress_euler(1,2).val_grid_point(0,0,0,0) << "  " 
+     		<< stress_euler(1,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << stress_euler(2,1).val_grid_point(0,0,0,0) << "  " 
+    		<< stress_euler(2,2).val_grid_point(0,0,0,0) << "  " 
+     		<< stress_euler(2,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << stress_euler(3,1).val_grid_point(0,0,0,0) << "  " 
+    		<< stress_euler(3,2).val_grid_point(0,0,0,0) << "  " 
+     		<< stress_euler(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
+
+	ost << endl << "ADM mass : " << mass_g() << endl ; 
+	 	
     return ost ; 
       
 }

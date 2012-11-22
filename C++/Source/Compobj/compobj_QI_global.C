@@ -27,11 +27,14 @@
  */
 
 
-char compobj_QI_isco_C[] = "$Header$" ;
+char compobj_QI_global_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/11/22 16:04:51  c_some
+ * Minor modifications
+ *
  * Revision 1.2  2012/11/21 14:53:45  c_some
  * corrected mom_euler
  *

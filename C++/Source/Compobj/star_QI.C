@@ -30,6 +30,9 @@ char star_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/11/22 16:04:51  c_some
+ * Minor modifications
+ *
  * Revision 1.2  2012/11/21 14:55:27  c_some
  * Added methods fait_shift and fait_nphi
  *
@@ -47,6 +50,7 @@ char star_QI_C[] = "$Header$" ;
 
 // Lorene headers
 #include "compobj.h"
+#include "unites.h"
 
                    //--------------//
                    // Constructors //
@@ -286,11 +290,36 @@ void Star_QI::sauve(FILE* fich) const {
 // --------
 
 ostream& Star_QI::operator>>(ostream& ost) const {
-   
-    Compobj_QI::operator>>(ost) ; 
+
+ 	using namespace Unites ;
+	
+	Compobj_QI::operator>>(ost) ; 
     
     ost << endl << "Axisymmetric stationary compact star in quasi-isotropic coordinates (class Star_QI) " << endl ; 
-    ost << "zeta : " << dzeta << endl ; 
+
+    ost << "Central values of various fields : " << endl ; 
+    ost << "-------------------------------- " << endl ; 
+    ost << "   ln(N) : " << logn.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   nuf : " << nuf.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   nuq : " << nuq.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   zeta = ln(AN): " << dzeta.val_grid_point(0,0,0,0) << endl << endl ;
+    
+    ost << "Error on the virial identity GRV2 : " <<  grv2() << endl ; 
+    ost << "Error on the virial identity GRV3 : " <<  grv3(&ost) << endl ; 
+
+    double mom_quad_38si = mom_quad() * rho_unit * (pow(r_unit, double(5.)) 
+ 							/ double(1.e38) ) ;
+    ost << "Quadrupole moment Q : " << mom_quad_38si << " 10^38 kg m^2"
+         << endl ; 
+    ost << "c^4 Q / (G^2 M^3) :      " 
+	 << mom_quad() / ( pow(qpig/(4*M_PI), 2.) * pow(mass_g(), 3.) ) 
+	 << endl ; 
+    
+    ost << "Total angular momentum J :      " 
+	 << angu_mom()/( qpig / (4* M_PI) * msol*msol) << " G M_sol^2 / c"
+	 << endl ; 
+    ost << "c J / (G M^2) :           " 
+	 << angu_mom()/( qpig / (4* M_PI) * pow(mass_g(), 2.) ) << endl ;    	 	
     	
     return ost ; 
       
