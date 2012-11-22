@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2012/11/22 16:02:18  c_some
+ * *** empty log message ***
+ *
  * Revision 1.5  2012/11/21 14:52:13  c_some
  * Documentation corrected
  *
@@ -192,7 +195,7 @@ class Compobj {
     // -----------------
     public:
 	/// Gravitational mass (ADM mass)
-    	virtual double mass_g() const ;
+    virtual double mass_g() const ;
 };
 
 
