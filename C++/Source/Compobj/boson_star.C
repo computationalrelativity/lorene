@@ -29,6 +29,9 @@ char boson_star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/23 15:44:10  c_some
+ * Small changes + method update_ener_mom
+ *
  * Revision 1.1  2012/11/22 16:04:12  c_some
  * New class Boson_star
  *
@@ -43,6 +46,7 @@ char boson_star_C[] = "$Header$" ;
 
 // Lorene headers
 #include "boson_star.h"
+#include "utilitaires.h"
 
                    //--------------//
                    // Constructors //
@@ -50,10 +54,13 @@ char boson_star_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
-Boson_star::Boson_star(Map& mpi) :
+Boson_star::Boson_star(Map& mpi, double m, int k) :
 			 Star_QI(mpi) ,
 			 rphi(mpi), 
-			 iphi(mpi)
+			 iphi(mpi),
+			 omega(0),
+			 kkk(k),
+			 mmm(m) 	 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -69,7 +76,10 @@ Boson_star::Boson_star(Map& mpi) :
 Boson_star::Boson_star(const Boson_star& st) :
 			 Star_QI(st), 
 			 rphi(st.rphi), 
-			 iphi(st.iphi)		 
+			 iphi(st.iphi),
+			 omega(st.omega),
+			 kkk(st.kkk),		 
+			 mmm(st.mmm)		 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -85,6 +95,10 @@ Boson_star::Boson_star(Map& mpi, FILE* fich) :
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
+    
+    fread_be(&omega, sizeof(double), 1, fich) ;		
+    fread_be(&kkk, sizeof(int), 1, fich) ;		
+    fread_be(&mmm, sizeof(double), 1, fich) ;		
         
 }
 
@@ -128,6 +142,9 @@ void Boson_star::operator=(const Boson_star& st) {
     
     rphi = st.rphi ; 
     iphi = st.iphi ; 
+    omega = st.omega ; 
+    kkk = st.kkk ; 
+   	mmm = st.mmm ; 
 
     del_deriv() ;  // Deletes all derived quantities
 }	
@@ -143,6 +160,10 @@ void Boson_star::sauve(FILE* fich) const {
 	Star_QI::sauve(fich) ; 
     rphi.sauve(fich) ; 
     iphi.sauve(fich) ; 
+    fwrite_be(&omega, sizeof(double), 1, fich) ;		
+    fwrite_be(&kkk, sizeof(int), 1, fich) ;		
+    fwrite_be(&mmm, sizeof(double), 1, fich) ;		
+
 }
 
 // Printing
@@ -154,6 +175,10 @@ ostream& Boson_star::operator>>(ostream& ost) const {
     
     ost << endl << "Axisymmetric stationary boson star in quasi-isotropic coordinates (class Boson_star) " << endl ;
     
+    ost << "Boson mass : " << mmm << endl ; //## which units ? 
+    
+    ost << "omega = " << omega << " ,   k = " << kkk << endl ; 
+    
     ost << "Central value of the scalar field : " << rphi.val_grid_point(0,0,0,0) << " + i " << iphi.val_grid_point(0,0,0,0)<< endl ;  
 
     ost << "Real part of the scalar field : " << rphi << endl ; 
@@ -163,5 +188,32 @@ ostream& Boson_star::operator>>(ostream& ost) const {
       
 }
 
+//------------------------
+// Computational routines
+//------------------------
+
+	/* Computes the 3+1 components of the energy-momentum tensor (E, P_i and S_{ij})
+	 *  from the values of the scalar field and the metric 
+	 */
+void Boson_star::update_ener_mom() {
+
+	const Metric_flat& ff = mp.flat_met_spher() ;
+	
+	Scalar mod_phi2 = rphi*rphi + iphi*iphi ; 
+	mod_phi2.inc_dzpuis(4) ; // mod_phi2 multiplied by r^4 in the last domain
+	
+	Sym_tensor dphidphi = rphi.derive_cov(ff) * rphi.derive_cov(ff) 
+					+ iphi.derive_cov(ff) * iphi.derive_cov(ff) ;
+	
+	Scalar tmp = (omega - kkk*nphi)/nn  ;
+
+    ener_euler = 0.5*( tmp*tmp*mod_phi2 + dphidphi.trace(gamma) + mmm*mmm*mod_phi2 ) ;
+    
+	mom_euler.set(1) = 0 ;   // p^(r) = 0
+	mom_euler.set(2) = 0 ;   // p^(theta) = 0
+	mom_euler.set(3) = tmp * mod_phi2 ;
+
+	stress_euler = dphidphi ;
+}
 
 
