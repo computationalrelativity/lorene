@@ -1,5 +1,5 @@
 /*
- *  Definition of Lorene class Compobj, Compobj_QI, Boson_star
+ *  Definition of Lorene class Boson_star
  *
  */
 
@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/23 15:42:14  c_some
+ * Small changes
+ *
  * Revision 1.1  2012/11/22 16:03:16  c_some
  * New class Boson_star
  *
@@ -57,14 +60,26 @@ class Boson_star : public Star_QI {
     // -----
     protected:
 
-	/** Real part of the scalar field
+	/** Real part of the scalar field Phi
 	 */
 	Scalar rphi ;
 
-	/** Imaginary part of the scalar field
+	/** Imaginary part of the scalar field Phi
 	 */
 	Scalar iphi ;
 
+	/**  Coefficient omega in the time dependence of Phi
+	 */
+	 double omega ; 
+	 
+	/**  Coefficient kkk in the azimuthal dependence of Phi
+	 */
+	 int kkk ; 
+
+	/**  Boson mass 
+	 */
+	 double mmm ; 
+	 	 
 
     // Derived data : 
     // ------------
@@ -78,9 +93,11 @@ class Boson_star : public Star_QI {
 	/** Standard constructor. 
 	 * 
 	 * @param mp_i Mapping on which the star is contructed
+	 * @param m Boson mass  //## which unit ?
+	 * @param k Coefficient \e k in the azimuthal dependence of Phi
      *
 	 */
-	Boson_star(Map& mp_i) ;			
+	Boson_star(Map& mp_i, double m, int k) ;			
 	
 	
 	Boson_star(const Boson_star& ) ;		///< Copy constructor
@@ -125,11 +142,11 @@ class Boson_star : public Star_QI {
 
 	/** Sets a value to the real part of the scalar field 
 	 */
-	Scalar& set_rphi() {return rphi;} ;
+	Scalar& set_rphi() {del_deriv(); return rphi;} ;
 
 	/** Sets a value to the imaginary part of the scalar field 
 	 */
-	Scalar& set_iphi() {return iphi;} ;
+	Scalar& set_iphi() {del_deriv(); return iphi;} ;
 
 
     // Outputs
@@ -157,14 +174,12 @@ class Boson_star : public Star_QI {
 	
 	/** Solves the equation satisfied by the scalar field
 	 */
-	void solve_phi() ; 
+	// void solve_phi() ; 
 	
 	/** Computes an equilibrium configuration.
 	 *  
-	 *  @param iphi_c  [input] Central value of the real part of the scalar field
-	 *  @param rphi_c  [input] Central value of the imaginary part of the scalar field
-	 *  @param omega  [input] coefficient omega in the time dependence of Phi
-	 *  @param kkk [input]  coefficient k in the azimuthal dependence of Phi
+	 *  @param rphi_c  [input] Central value of the real part of the scalar field
+	 *  @param iphi_c  [input] Central value of the imaginary part of the scalar field
 	 *  @param nzadapt  [input] Number of (inner) domains where the mapping 
 	 *			    adaptation to an iso-enthalpy surface
 	 *			    should be performed
@@ -232,7 +247,7 @@ class Boson_star : public Star_QI {
 	 *	    \li \c diff(6)  : Relative error in the resolution of the
 	 *			    equation for \c shift  (y comp.)   
 	 */
-	virtual void equilibrium(double rphi_c, double iphi_c, double omega, int kkk, 
+	virtual void equilibrium(double rphi_c, double iphi_c,
 			 int nzadapt, const Tbl& ent_limit,
 			 const Itbl& icontrol, const Tbl& control,
 			 Tbl& diff, Param* = 0x0) ;

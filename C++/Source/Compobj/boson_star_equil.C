@@ -31,6 +31,9 @@ char boson_star_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/11/23 15:43:05  c_some
+ * Small changes
+ *
  * Revision 1.1  2012/11/22 16:04:12  c_some
  * New class Boson_star
  *
@@ -51,7 +54,7 @@ char boson_star_equil_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
-void Boson_star::equilibrium(double, double, double, int,
+void Boson_star::equilibrium(double, double,
 			     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol,
 			     const Tbl& control, Tbl& diff, Param*) {
 			     
