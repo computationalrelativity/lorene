@@ -30,6 +30,9 @@ char bostar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2012/12/03 15:28:03  c_some
+ * First call to Boson_star::equilibrium
+ *
  * Revision 1.1  2012/11/23 15:41:44  c_some
  * First version
  *
@@ -161,6 +164,47 @@ int main() {
     // Initialization of the energy-momentum tensor
     star.update_ener_mom() ; 
 
-	cout << "star :" << star << endl ; 	
+    cout << endl << "Initial star : " 
+	 << endl << "==========   " << endl ;
+	cout <<  star << endl ; 	
+
+
+    //-----------------------------------------------------------------------
+    //		Computation of the rotating equilibrium
+    //-----------------------------------------------------------------------
+
+    Itbl icontrol(8) ;
+    icontrol.set_etat_qcq() ; 
+    icontrol.set(0) = mer_max ; 
+//##    icontrol.set(1) = mer_rot ; 
+//    icontrol.set(2) = mer_change_omega ; 
+//    icontrol.set(3) = mer_fix_omega ; 
+//##    icontrol.set(4) = mer_mass ; 
+    icontrol.set(5) = mermax_poisson ; 
+    icontrol.set(6) = mer_triax ; 
+//##    icontrol.set(7) = delta_mer_kep ; 
+    
+    Tbl control(7) ; 
+    control.set_etat_qcq() ; 
+    control.set(0) = precis ; 
+//##    control.set(1) = omega_ini ; 
+    control.set(2) = relax ; 
+    control.set(3) = relax_poisson ; 
+//##    control.set(4) = thres_adapt ; 
+    control.set(5) = ampli_triax ; 
+    control.set(6) = precis_adapt ; 
+
+    Tbl diff(8) ;     
+
+    Tbl phi_limit(1) ;
+    phi_limit.set_etat_qcq() ;
+    phi_limit.set(0) = 1e-3*rphi_c  ; 	// Phi at the stellar "surface"
+
+	star.equilibrium(rphi_c, iphi_c, nzadapt, phi_limit, icontrol, control, diff) ;
+
+
+    cout << endl << "Final star : " 
+	 << endl << "==========   " << endl ;
+	cout <<  star << endl ; 	
 
 }
