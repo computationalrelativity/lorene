@@ -31,6 +31,9 @@ char boson_star_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/12/03 15:27:30  c_some
+ * Small changes
+ *
  * Revision 1.2  2012/11/23 15:43:05  c_some
  * Small changes
  *
@@ -55,7 +58,7 @@ char boson_star_equil_C[] = "$Header$" ;
 #include "unites.h"
 
 void Boson_star::equilibrium(double, double,
-			     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol,
+			     int nzadapt, const Tbl& phi_limit, const Itbl& icontrol,
 			     const Tbl& control, Tbl& diff, Param*) {
 			     
     // Fundamental constants and units
@@ -87,34 +90,19 @@ void Boson_star::equilibrium(double, double,
     int k_b = 0 ; 
     
     // Value of the enthalpy defining the surface of the star
-    // double ent_b = ent_limit(nzet-1) ;
+    // double ent_b = phi_limit(nzet-1) ;
     
     // Parameters to control the iteration
     // -----------------------------------
     
     int mer_max = icontrol(0) ; 
-    int mer_rot = icontrol(1) ;
-    int mer_change_omega = icontrol(2) ; 
-    int mer_fix_omega = icontrol(3) ; 
+//    int mer_rot = icontrol(1) ;
+//    int mer_change_omega = icontrol(2) ; 
+//    int mer_fix_omega = icontrol(3) ; 
 //##    int mer_mass = icontrol(4) ; 
     int mermax_poisson = icontrol(5) ; 
     int mer_triax = icontrol(6) ; 
 //##    int delta_mer_kep = icontrol(7) ; 
-
-    // Protections:
-    if (mer_change_omega < mer_rot) {
-	cout << "Boson_star::equilibrium: mer_change_omega < mer_rot !" << endl ;
-	cout << " mer_change_omega = " << mer_change_omega << endl ; 
-	cout << " mer_rot = " << mer_rot << endl ; 
-	abort() ; 
-    }
-    if (mer_fix_omega < mer_change_omega) {
-	cout << "Boson_star::equilibrium: mer_fix_omega < mer_change_omega !" 
-	     << endl ;
-	cout << " mer_fix_omega = " << mer_fix_omega << endl ; 
-	cout << " mer_change_omega = " << mer_change_omega << endl ; 
-	abort() ; 
-    }
 
 
     double precis = control(0) ; 
@@ -180,13 +168,20 @@ void Boson_star::equilibrium(double, double,
     par_adapt.add_double(alpha_r, 2) ;	// factor by which all the radial 
 					   // distances will be multiplied 
     	   
-    par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
+    par_adapt.add_tbl(phi_limit, 0) ;	// array of values of the field Phi
 				        // to define the isosurfaces. 			   
 
     // Parameters for the function Map_et::poisson for nuf
     // ----------------------------------------------------
 
     double precis_poisson = 1.e-16 ;     
+
+	// Preparations 
+	// ------------
+	
+	// Cartesian components of the shift vector are required
+	beta.change_triad( mp.get_bvect_cart() ) ; 
+
 
     Cmp cssjm1_nuf(ssjm1_nuf) ; 
     Cmp cssjm1_nuq(ssjm1_nuq) ; 
@@ -257,8 +252,12 @@ void Boson_star::equilibrium(double, double,
     // Initializations
     // ---------------
 
-    update_metric() ;	// update of the metric coefficients
-
+	//## Spherical components of the shift vector are restored
+	beta.change_triad( mp.get_bvect_spher() ) ; 
+	update_metric() ; 
+	//## Back to Cartesian components 
+	beta.change_triad( mp.get_bvect_cart() ) ; 
+	
 
     // Quantities at the previous step : 	
     Map_et mp_prev = mp_et ; 
@@ -348,7 +347,9 @@ void Boson_star::equilibrium(double, double,
 	// ----------------
 	    
 	// Matter term: 
-	source_shift = (-4*qpig) * nn * a_car  * mom_euler ;
+	Vector mom_euler_cart = mom_euler ;
+	mom_euler_cart.change_triad(mp.get_bvect_cart()) ;
+	source_shift = (-4*qpig) * nn * a_car  * mom_euler_cart ;
 
 	// Quadratic terms:
 	Vector vtmp =  6 * bet.derive_con( mp.flat_met_spher() ) 
@@ -554,7 +555,11 @@ void Boson_star::equilibrium(double, double,
 
 	// Update of the metric coefficients N, A, B and computation of K_ij :
 
+	//## Spherical components of the shift vector are restored
+	beta.change_triad( mp.get_bvect_spher() ) ; 
 	update_metric() ; 
+	//## Back to Cartesian components 
+	beta.change_triad( mp.get_bvect_cart() ) ; 
 	
 	//-----------------------
 	//  Informations display
@@ -612,6 +617,9 @@ void Boson_star::equilibrium(double, double,
     for (int i=1; i<=3; i++) {
 		ssjm1_wshift.set(i) = cssjm1_wshift(i-1) ; 
     }
+
+	// Spherical components of the shift vector are restored
+	beta.change_triad( mp.get_bvect_spher() ) ; 
 
     fichconv.close() ; 
     fichevol.close() ; 

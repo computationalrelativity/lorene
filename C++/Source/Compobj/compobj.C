@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/12/03 15:27:30  c_some
+ * Small changes
+ *
  * Revision 1.3  2012/11/22 16:04:51  c_some
  * Minor modifications
  *
@@ -130,7 +133,7 @@ Compobj::~Compobj(){
 
 void Compobj::del_deriv() const {
 
-    if (p_mass_g != 0x0) delete p_mass_g ; 
+    if (p_adm_mass != 0x0) delete p_adm_mass ; 
 
     Compobj::set_der_0x0() ; 
 }			    
@@ -138,7 +141,7 @@ void Compobj::del_deriv() const {
 
 void Compobj::set_der_0x0() const {
 
-    p_mass_g = 0x0 ; 
+    p_adm_mass = 0x0 ; 
 
 }			    
 
@@ -217,7 +220,7 @@ ostream& Compobj::operator>>(ostream& ost) const {
     		<< stress_euler(3,2).val_grid_point(0,0,0,0) << "  " 
      		<< stress_euler(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
 
-	ost << endl << "ADM mass : " << mass_g() << endl ; 
+//##	ost << endl << "ADM mass : " << adm_mass() << endl ; 
 	 	
     return ost ; 
       
@@ -229,9 +232,9 @@ ostream& Compobj::operator>>(ostream& ost) const {
 			    //-------------------------//
 			    
 /// Gravitational mass
-double Compobj::mass_g() const {
+double Compobj::adm_mass() const {
 
-    if (p_mass_g == 0x0) {    // a new computation is required
+    if (p_adm_mass == 0x0) {    // a new computation is required
 		
         const Sym_tensor& gam_dd = gamma.cov() ;  // components \gamma_{ij} of the 3-metric
         Metric_flat ff(mp, *(gam_dd.get_triad())) ;
@@ -239,10 +242,10 @@ double Compobj::mass_g() const {
         Vector ww = gam_dd.derive_con(ff).trace(1,2).up(0,ff) 
                     - gam_dd.trace(ff).derive_con(ff) ; 
 
-        p_mass_g = new double( ww.flux(__infinity, ff) / (16.* M_PI) ) ; 
+        p_adm_mass = new double( ww.flux(__infinity, ff) / (16.* M_PI) ) ; 
 	}
             
-    return *p_mass_g ; 
+    return *p_adm_mass ; 
 
 } 
 	

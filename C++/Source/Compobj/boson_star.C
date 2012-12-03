@@ -29,6 +29,9 @@ char boson_star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/12/03 15:27:30  c_some
+ * Small changes
+ *
  * Revision 1.2  2012/11/23 15:44:10  c_some
  * Small changes + method update_ener_mom
  *
@@ -60,7 +63,8 @@ Boson_star::Boson_star(Map& mpi, double m, int k) :
 			 iphi(mpi),
 			 omega(0),
 			 kkk(k),
-			 mmm(m) 	 
+			 mmm(m),
+			 m2(m*m) 	 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -79,7 +83,8 @@ Boson_star::Boson_star(const Boson_star& st) :
 			 iphi(st.iphi),
 			 omega(st.omega),
 			 kkk(st.kkk),		 
-			 mmm(st.mmm)		 
+			 mmm(st.mmm),
+			 m2(st.m2)		 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -98,7 +103,8 @@ Boson_star::Boson_star(Map& mpi, FILE* fich) :
     
     fread_be(&omega, sizeof(double), 1, fich) ;		
     fread_be(&kkk, sizeof(int), 1, fich) ;		
-    fread_be(&mmm, sizeof(double), 1, fich) ;		
+    fread_be(&mmm, sizeof(double), 1, fich) ;	
+    m2 = mmm*mmm ;	
         
 }
 
@@ -145,6 +151,7 @@ void Boson_star::operator=(const Boson_star& st) {
     omega = st.omega ; 
     kkk = st.kkk ; 
    	mmm = st.mmm ; 
+   	m2 = st.m2 ; 
 
     del_deriv() ;  // Deletes all derived quantities
 }	
@@ -181,9 +188,11 @@ ostream& Boson_star::operator>>(ostream& ost) const {
     
     ost << "Central value of the scalar field : " << rphi.val_grid_point(0,0,0,0) << " + i " << iphi.val_grid_point(0,0,0,0)<< endl ;  
 
-    ost << "Real part of the scalar field : " << rphi << endl ; 
-    ost << "Imaginary part of the scalar field : " << iphi << endl ; 
-    	
+    // ost << "Real part of the scalar field : " << rphi << endl ; 
+    // ost << "Imaginary part of the scalar field : " << iphi << endl ; 
+    
+    //## ost << "ADM mass : " << adm_mass() << endl ; 	
+    ost << "Gravitational mass : " << mass_g() << endl ; 	
     return ost ; 
       
 }
@@ -203,17 +212,19 @@ void Boson_star::update_ener_mom() {
 	mod_phi2.inc_dzpuis(4) ; // mod_phi2 multiplied by r^4 in the last domain
 	
 	Sym_tensor dphidphi = rphi.derive_cov(ff) * rphi.derive_cov(ff) 
-					+ iphi.derive_cov(ff) * iphi.derive_cov(ff) ;
+							+ iphi.derive_cov(ff) * iphi.derive_cov(ff) ;
 	
 	Scalar tmp = (omega - kkk*nphi)/nn  ;
+	Scalar tmp2 = tmp*tmp ; 
+	Scalar dphi2 = dphidphi.trace(gamma) ;
 
-    ener_euler = 0.5*( tmp*tmp*mod_phi2 + dphidphi.trace(gamma) + mmm*mmm*mod_phi2 ) ;
+    ener_euler = 0.5*( (tmp2 + m2)*mod_phi2 + dphi2 ) ;
     
 	mom_euler.set(1) = 0 ;   // p^(r) = 0
 	mom_euler.set(2) = 0 ;   // p^(theta) = 0
-	mom_euler.set(3) = tmp * mod_phi2 ;
+	mom_euler.set(3) = -kkk*tmp * mod_phi2 ;
 
-	stress_euler = dphidphi ;
+	stress_euler = dphidphi - 0.5*( (m2-tmp2)*mod_phi2 + dphi2 )*gamma.cov() ;
 }
 
 

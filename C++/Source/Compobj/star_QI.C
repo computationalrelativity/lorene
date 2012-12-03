@@ -30,6 +30,9 @@ char star_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2012/12/03 15:27:30  c_some
+ * Small changes
+ *
  * Revision 1.3  2012/11/22 16:04:51  c_some
  * Minor modifications
  *
@@ -90,7 +93,6 @@ Star_QI::Star_QI(Map& mpi) :
     khi_shift =  0 ; 
 
     beta.set_etat_zero() ; 
-    beta.set_triad( mp.get_bvect_cart() ) ;
 
     ssjm1_nuf = 0 ; 
     ssjm1_nuq = 0 ; 
@@ -220,6 +222,7 @@ void Star_QI::del_deriv() const {
    	if (p_grv2 != 0x0) delete p_grv2 ; 
     if (p_grv3 != 0x0) delete p_grv3 ;
     if (p_mom_quad != 0x0) delete p_mom_quad ;
+    if (p_mass_g != 0x0) delete p_mass_g ;
 
     Star_QI::set_der_0x0() ; 
 }			    
@@ -230,6 +233,7 @@ void Star_QI::set_der_0x0() const {
     p_grv2 = 0x0 ; 
     p_grv3 = 0x0 ;
     p_mom_quad = 0x0 ;
+    p_mass_g = 0x0 ;
  	 
 }			    
 
