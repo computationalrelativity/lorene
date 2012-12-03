@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2012/12/03 15:26:14  c_some
+ * Added data member m2
+ *
  * Revision 1.2  2012/11/23 15:42:14  c_some
  * Small changes
  *
@@ -80,13 +83,15 @@ class Boson_star : public Star_QI {
 	 */
 	 double mmm ; 
 	 	 
+	/**  Boson mass squared
+	 */
+	 double m2 ; 
+	 	 
 
     // Derived data : 
     // ------------
     protected:
 	
-	 
-
     // Constructors - Destructor
     // -------------------------
     public:

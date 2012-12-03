@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2012/12/03 15:26:14  c_some
+ * Added data member m2
+ *
  * Revision 1.6  2012/11/22 16:02:18  c_some
  * *** empty log message ***
  *
@@ -110,7 +113,7 @@ class Compobj {
    // Derived data : 
     // ------------
     protected:
-	mutable double* p_mass_g ;	///< Gravitational mass (ADM mass) 
+	mutable double* p_adm_mass ;	///< ADM mass 
 
     // Constructors - Destructor
     // -------------------------
@@ -194,8 +197,8 @@ class Compobj {
     // Global quantities
     // -----------------
     public:
-	/// Gravitational mass (ADM mass)
-    virtual double mass_g() const ;
+	/// ADM mass (computed as a surface integral at spatial infinity)
+    virtual double adm_mass() const ;
 };
 
 
@@ -521,6 +524,7 @@ class Star_QI : public Compobj_QI {
 	mutable double* p_grv2 ;	///< Error on the virial identity GRV2
 	mutable double* p_grv3 ;	///< Error on the virial identity GRV3
 	mutable double* p_mom_quad ;	///< Quadrupole moment	
+	mutable double* p_mass_g ;	///< Gravitational mass (ADM mass as a volume integral)
 	 
 
     // Constructors - Destructor
