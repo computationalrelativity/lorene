@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.89  2012/12/19 13:59:56  j_penner
+ * added a few lines to the documentation for scalar_match_tau function
+ *
  * Revision 1.88  2012/01/17 15:05:46  j_penner
  * *** empty log message ***
  *
@@ -1065,10 +1068,38 @@ class Scalar : public Tensor {
    * Matching of the field represented by \c this accross domains and imposition of the
    * boundary condition using the tau method.
    * @param par_bc [input] \c Param to control the boundary conditions
+   *	par_bc must contain (at a minimum)
+   *	a modifiable Tbl which specifies a physical boundary
+   *    two integers, one specifying the domain that has the boundary
+   *		      the other specifying the number of conditions 
+   *			1 -> Dirichlet
+   *			2 -> Robin (which may reduce to von Neumann, see below)
+   *	two doubles, specifying the Robin BC parameters. If the first is zero, we see that 
+   *    Robin will reduce to von Neumann
    * @param par_mat [input/output] optional \c Param in which the matching matrices are
    *                stored (together with their LU decomposition).
    */
   void match_tau(Param& par_bc, Param* par_mat=0x0) ;
+
+  /**
+   * Method for matching accross domains and imposing boundary condition.
+   * Matching of the field represented by \c this accross domains and imposition of the
+   * boundary condition using the tau method.
+   * @param par_bc [input] \c Param to control the boundary conditions
+   * @param par_mat [input/output] optional \c Param in which the matching matrices are
+   *                stored (together with their LU decomposition).
+   */
+  void match_tau_shell(Param& par_bc, Param* par_mat=0x0) ;
+
+  /**
+   * Method for matching accross domains and imposing boundary condition.
+   * Matching of the field represented by \c this accross domains and imposition of the
+   * boundary condition using the collocation method.
+   * @param par_bc [input] \c Param to control the boundary conditions
+   * @param par_mat [input/output] optional \c Param in which the matching matrices are
+   *                stored (together with their LU decomposition).
+   */
+  void match_collocation(Param& par_bc, Param* par_mat=0x0) ;
 
   // Outputs
   // -------
