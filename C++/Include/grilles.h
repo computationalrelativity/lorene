@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2013/01/11 15:44:53  j_novak
+ * Addition of Legendre bases (part 2).
+ *
  * Revision 1.19  2012/01/17 10:10:15  j_penner
  * added a constructor in which the nucleus and outer domain are both of type FIN
  *
@@ -833,6 +836,22 @@ class Mg3d {
 	 *  of a pseudo-vector
 	 */ 
 	Base_val** pseudo_base_vect_spher() const ;
+
+	/// Returns the Legendre (in \e r ) standard spectral bases for a scalar
+	Base_val leg_base_scal() const ; 	
+	
+	/// Returns the Legendre (in \e r ) standard odd spectral bases for a scalar
+	Base_val leg_base_scal_odd() const ; 	
+	
+	/** Returns the Legendre (in \e r ) standard spectral bases for the Cartesian 
+	 *  components of a vector
+	 */ 
+	Base_val** leg_base_vect_cart() const ;
+
+	/** Returns the Legendre (in \e r ) standard spectral bases for the spherical  
+	 *  components of a vector
+	 */ 
+	Base_val** leg_base_vect_spher() const ;
 
 };
 ostream& operator<<(ostream& , const Mg3d & ) ;

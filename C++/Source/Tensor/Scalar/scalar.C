@@ -158,8 +158,6 @@ char scalar_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
-#include "map.h"
-#include "scalar.h"
 #include "tensor.h"
 #include "type_parite.h"
 #include "utilitaires.h"
@@ -762,6 +760,19 @@ void Scalar::std_spectral_base() {
 void Scalar::std_spectral_base_odd() {
       
     va.std_base_scal_odd() ;  
+                   
+}    
+
+void Scalar::leg_spectral_base() {
+      
+  c_est_pas_fait("Scalar::leg_spectral_base()") ;  
+                   
+}    
+
+		    
+void Scalar::leg_spectral_base_odd() {
+      
+  c_est_pas_fait("Scalar::leg_spectral_base_odd()") ;
                    
 }    
 

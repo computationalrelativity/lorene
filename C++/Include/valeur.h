@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2013/01/11 15:44:54  j_novak
+ * Addition of Legendre bases (part 2).
+ *
  * Revision 1.16  2012/01/18 14:43:42  j_penner
  * added a routine to return the computational coordinate xi as a Valeur
  *
@@ -477,6 +480,16 @@ class Valeur {
 	 *  to the standard odd ones for a scalar
 	 */
 	void std_base_scal_odd() ;	 
+	
+	/** Sets the bases for spectral expansions (member \c base ) 
+	 *  to the standard Legendre (in \e r ) ones for a scalar
+	 */
+	void leg_base_scal() ;	 
+	
+	/** Sets the bases for spectral expansions (member \c base ) 
+	 *  to the standard Legendre (in \e r ) odd ones for a scalar
+	 */
+	void leg_base_scal_odd() ;	 
 	
 	/** Sets the expansion basis for \e r  (\f$\xi\f$) functions in a 
 	 *  given domain.

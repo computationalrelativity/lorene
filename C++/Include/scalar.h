@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.90  2013/01/11 15:44:54  j_novak
+ * Addition of Legendre bases (part 2).
+ *
  * Revision 1.89  2012/12/19 13:59:56  j_penner
  * added a few lines to the documentation for scalar_match_tau function
  *
@@ -1261,6 +1264,16 @@ class Scalar : public Tensor {
    *  for a scalar field
    */
   virtual void std_spectral_base_odd() ;	 
+  
+  /** Sets the spectral bases of the \c Valeur \c va  to the standard ones ,
+   *  with Legendre decomposition in the radial direction (nucleus + shells) for a scalar field
+   */
+  virtual void leg_spectral_base() ;	 
+  
+ /** Sets the spectral bases of the \c Valeur \c va  to the standard odd ones 
+   * with Legendre decomposition in the radial direction (nucleus + shells) for a scalar field
+   */
+  virtual void leg_spectral_base_odd() ;	 
   
   /** Sets the spectral bases of the \c Valeur \c va  
    */

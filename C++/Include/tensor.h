@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.59  2013/01/11 15:44:54  j_novak
+ * Addition of Legendre bases (part 2).
+ *
  * Revision 1.58  2008/12/05 08:44:02  j_novak
  * New flag to control the "verbosity" of maxabs.
  *
@@ -643,6 +646,20 @@ class Tensor {
 	 * Currently only implemented for a scalar.
 	 */
 	virtual void std_spectral_base_odd() ; 
+	
+	/**
+	 * Sets the Legendre (in \e r ) standard spectal bases of decomposition 
+	 * for each component.
+	 * To be used only with \c valence  lower than or equal 2.
+	 */
+	virtual void leg_spectral_base() ; 
+	
+	/**
+	 * Sets the Legendre (in \e r ) standard odd spectal bases of decomposition 
+	 * for each component.
+	 * Currently only implemented for a scalar.
+	 */
+	virtual void leg_spectral_base_odd() ; 
 	
 	/** Decreases by \c dec  units the value of \c dzpuis  and 
 	 *  changes accordingly the values in the 
