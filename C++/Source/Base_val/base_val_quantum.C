@@ -25,6 +25,9 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2013/01/11 08:20:11  j_novak
+ * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
+ *
  * Revision 1.7  2009/10/23 12:55:16  j_novak
  * New base T_LEG_MI
  *
@@ -222,16 +225,28 @@ void Base_val::give_quant_numbers (int l, int k, int j,
     base_r_1d = R_CHEB ;
     break ;
 
-  case R_JACO02 :
-    base_r_1d = R_JACO02 ;
-    break ;
-    
   case R_CHEBP :
     base_r_1d = R_CHEBP ;
     break ;
     
    case R_CHEBI :
     base_r_1d = R_CHEBI ;
+    break ;
+    
+  case R_LEG :
+    base_r_1d = R_LEG ;
+    break ;
+
+  case R_LEGP :
+    base_r_1d = R_LEGP ;
+    break ;
+    
+   case R_LEGI :
+    base_r_1d = R_LEGI ;
+    break ;
+    
+  case R_JACO02 :
+    base_r_1d = R_JACO02 ;
     break ;
     
   case R_CHEBPIM_P :    

@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2013/01/11 08:20:11  j_novak
+ * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
+ *
  * Revision 1.14  2012/01/17 14:44:19  j_penner
  * Modified phi variables to only use 16 integers in arrays
  *
@@ -252,6 +255,9 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_r[R_CHEBPIM_I >> TRA_R] = "R_CHEBPIM_I" ; 
     nom_r[R_CHEBPI_P >> TRA_R] =  "R_CHEBPI_P " ; 
     nom_r[R_CHEBPI_I >> TRA_R] =  "R_CHEBPI_I " ; 
+    nom_r[R_LEG >> TRA_R] =       "R_LEG      " ; 
+    nom_r[R_LEGP >> TRA_R] =      "R_LEGP     " ; 
+    nom_r[R_LEGI >> TRA_R] =      "R_LEGI     " ; 
     nom_r[R_JACO02 >> TRA_R] =    "R_JACO02   " ;
   
     nom_t[T_COS >> TRA_T] =       "T_COS      " ; 

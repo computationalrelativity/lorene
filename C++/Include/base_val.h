@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2013/01/11 08:20:10  j_novak
+ * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
+ *
  * Revision 1.19  2012/01/17 10:18:17  j_penner
  * changed nzone from a private member to a protected member
  *
@@ -214,7 +217,13 @@ class Mg3d ;
  *	     polynomials for \e m even (resp. odd) (\e r -sampling: \c RARE ) ;
  *   \li \c R_CHEBU  (0x00000008) : Chebyshev polynomials 
  *					    (\e r -sampling: \c UNSURR ) ;
- *   \li \c R_JACO02 (0x0000000b) : Jacobi(0,2) polynomials 
+ *   \li \c R_LEG (0x00000009) : Legendre polynomials 
+ *					    (\e r -sampling: \c FIN);
+ *   \li \c R_LEGP (0x0000000a) : Even Legendre polynomials 
+ *					    (\e r -sampling: \c RARE);
+ *   \li \c R_LEGI (0x0000000b) : Odd Legendre polynomials 
+ *					    (\e r -sampling: \c RARE);
+ *   \li \c R_JACO02 (0x0000000c) : Jacobi(0,2) polynomials 
  *                                          (\e r -sampling: \c FINJAC).
  *
  * The basis functions for expansion with respect to the co-latitude coordinate 

@@ -30,6 +30,9 @@ char base_val_name_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/01/11 08:20:11  j_novak
+ * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
+ *
  * Revision 1.3  2007/12/11 15:28:09  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -62,6 +65,9 @@ void basename_r_chebpim_p(int, int, int, char*) ;
 void basename_r_chebpim_i(int, int, int, char*) ; 
 void basename_r_chebpi_p(int, int, int, char*) ; 
 void basename_r_chebpi_i(int, int, int, char*) ; 
+void basename_r_leg(int, int, int, char*) ; 
+void basename_r_legp(int, int, int, char*) ; 
+void basename_r_legi(int, int, int, char*) ; 
 void basename_r_jaco02(int, int, int, char*) ;
 
 			//----------------------------//
@@ -93,6 +99,9 @@ void Base_val::name_r(int l, int k, int j, int i, char* name) const {
 		vbasename_r[R_CHEBU >> TRA_R] = basename_r_cheb ;
 		vbasename_r[R_CHEBPI_P >> TRA_R] = basename_r_chebpi_p ;
 		vbasename_r[R_CHEBPI_I >> TRA_R] = basename_r_chebpi_i ;
+		vbasename_r[R_LEG >> TRA_R] = basename_r_leg ;
+		vbasename_r[R_LEGP >> TRA_R] = basename_r_legp ;
+		vbasename_r[R_LEGI >> TRA_R] = basename_r_legi ;
 		vbasename_r[R_JACO02 >> TRA_R] = basename_r_jaco02 ;
     }
 	
@@ -223,6 +232,45 @@ void basename_r_chebpi_i(int , int j, int i, char* name) {
 	strcat(name, cxr) ; 
 }	
 
+void basename_r_leg(int, int, int i, char* name) {
+
+	assert( i>=0 ) ; 
+
+	strcpy(name, "P") ; 
+		
+	char cxr[4] ;
+	assert( i < 1000) ; 
+	sprintf(cxr, "%d", i) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_legp(int, int, int i, char* name) {
+
+	assert( i>=0 ) ; 
+
+	strcpy(name, "P") ; 
+		
+	int xr = 2*i ; 
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_legi(int, int, int i, char* name) {
+
+	assert( i>=0 ) ; 
+
+	strcpy(name, "P") ; 
+		
+	int xr = 2*i + 1 ; 
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
 
 void basename_r_jaco02(int, int, int i, char* name) {
 

@@ -27,6 +27,9 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2013/01/11 08:20:11  j_novak
+ * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
+ *
  * Revision 1.8  2009/10/23 12:55:16  j_novak
  * New base T_LEG_MI
  *
@@ -548,6 +551,18 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 		}
 		break ;
 
+	    case R_LEG :
+		switch (b2_r) {
+		    case R_LEG :
+			base = base | R_LEG ;
+			indic_r = 1 ;
+			break ;
+		    
+		    default :
+			break ;
+		}
+		break ;
+
 	    case R_JACO02 :
 		switch (b2_r) {
 		    case R_JACO02 :
@@ -666,6 +681,40 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			
 		    case R_CHEBI : 
 			base = base | R_CHEBP ;
+			indic_r = 1 ;
+			break ;
+			
+		    default :
+			break ;
+		}
+		break ;
+	 
+	    case R_LEGP :
+		switch (b2_r) {
+		    case R_LEGP :
+			base = base | R_LEGP ;
+			indic_r = 1 ;
+			break ;
+			
+		    case R_LEGI : 
+			base = base | R_LEGI ;
+			indic_r = 1 ;
+			break ;
+			
+		    default :
+			break ;
+		}
+		break ;
+		
+	    case R_LEGI :
+		switch (b2_r) {
+		    case R_LEGP :
+			base = base | R_LEGI ;
+			indic_r = 1 ;
+			break ;
+			
+		    case R_LEGI : 
+			base = base | R_LEGP ;
 			indic_r = 1 ;
 			break ;
 			

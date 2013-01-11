@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2013/01/11 08:20:10  j_novak
+ * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
+ *
  * Revision 1.12  2012/01/17 15:06:54  j_penner
  * Added a definition for MAX_BASE_2 for the phi coordinate and possible higher dimensions
  *
@@ -163,12 +166,14 @@
 #define	    R_CHEBPIM_I 0x00000007	
 /// base de Chebychev ordinaire (fin), dev. en 1/r 
 #define	    R_CHEBU	0x00000008	
-/// \f$r^l\f$.Cheb. pair, l et m pair 
-#define	    R_RLCHEB_PP	0x00000009	
-/// \f$r^l\f$.Cheb. pair, l pair ou impair suivant m
-#define	    R_RLCHEB_P	0x0000000a	
+/// base de Legendre ordinaire (fin) 
+#define	    R_LEG 	0x00000009	
+/// base de Legendre paire (rare) seulement
+#define	    R_LEGP	0x0000000a	
+/// base de Legendre impaire (rare) seulement
+#define	    R_LEGI	0x0000000b	
 /// base de Jacobi(0,2) ordinaire (finjac)
-#define     R_JACO02    0x0000000b
+#define     R_JACO02    0x0000000c
 
     /* Theta */
 /// dev. cos-sin alternes, cos pour m=0 
