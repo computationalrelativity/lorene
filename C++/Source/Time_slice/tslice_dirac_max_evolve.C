@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2013/01/24 12:55:18  j_novak
+ * Corrected the declaration of variables for boundary conditions.
+ *
  * Revision 1.19  2012/02/06 12:59:07  j_novak
  * Correction of some errors.
  *
@@ -200,14 +203,14 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     double anm2 = 5./12. ; 
 
     Param par_A ;
-    double l_val_A = 1./Rmax ;
-    double l_der_A = 1. ;
+    double *l_val_A = new double(1./Rmax) ;
+    double *l_der_A = new double(1.) ;
     par_A.add_int(nz_bound, 0) ;
     par_A.add_int(2, 1) ; //matching of function and derivative
     par_A.add_int(0, 2) ;// no shift in l 
     par_A.add_int(2, 3) ; // only for l>=2
-    par_A.add_double_mod(l_val_A, 0) ;
-    par_A.add_double_mod(l_der_A, 1) ;
+    par_A.add_double_mod(*l_val_A, 0) ;
+    par_A.add_double_mod(*l_der_A, 1) ;
     Tbl* tmp_Acc = new Tbl(np2, nt) ;
     Tbl& Acc = *tmp_Acc ;
     Acc.annule_hard() ;
@@ -215,14 +218,14 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Param par_mat_A_hh ;
 
     Param par_B ;
-    double l_val_B = 1./Rmax ;
-    double l_der_B = 1. ; 
+    double* l_val_B = new double(1./Rmax) ;
+    double* l_der_B = new double(1.) ; 
     par_B.add_int(nz_bound, 0) ;
     par_B.add_int(2, 1) ; //matching of function and derivative
     par_B.add_int(-1, 2) ;// shift in l for tilde{B}
     par_B.add_int(2, 3) ; // only for l>=2
-    par_B.add_double_mod(l_val_B, 0) ;
-    par_B.add_double_mod(l_der_B, 1) ;
+    par_B.add_double_mod(*l_val_B, 0) ;
+    par_B.add_double_mod(*l_der_B, 1) ;
     Tbl* tmp_Bcc = new Tbl(np2, nt) ;
     Tbl& Bcc = *tmp_Bcc ;
     Bcc.annule_hard() ;
