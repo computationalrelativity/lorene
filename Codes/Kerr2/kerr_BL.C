@@ -27,6 +27,9 @@ char kerr_BL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/02/20 13:51:46  e_gourgoulhon
+ * Added output of the grid points to a file
+ *
  * Revision 1.3  2012/01/17 22:05:42  e_gourgoulhon
  * Corrected an error in the spectral basis for beta.
  *
@@ -112,6 +115,7 @@ int main() {
     // value of coordinate r at the event horizon: 
     double r_hor = 1 + sqrt(1 - aa2) ; 
     cout << "Value of coordinate r at the event horizon : " << r_hor << " M" << endl << endl ; 
+
     if (r_limits[1] <= r_hor) {
       cerr << "Inner boundary of domain no. 1 below the horizon : " << endl ; 
       cerr << "  r_limits[1] : " << r_limits[1] << endl ; 
@@ -218,7 +222,28 @@ int main() {
     kk.set(2,3) = tmp ;
     kk.set(3,3) = 0 ;
 
+    // Value of (r,theta) at the grid points:
+    // cout.precision(16) ; 
+    ofstream file_grid("grid.d") ; 
+    file_grid.precision(16) ; 
+    for (int l=1; l<nz; l++) {
+        // cout << "Domain no. " << l << endl ; 
+        file_grid << "Domain no. " << l << endl ; 
+        for (int j=0; j<nt; j++) {
+            for (int i=0; i<nr; i++) {
+                double xi = mgrid.get_grille3d(l)->x[i] ; 
+                double theta = mgrid.get_grille3d(l)->tet[j] ; 
+                double phi = 0 ; // axisymmetry
+                double rg = map.val_r(l, xi, theta, phi) ; 
+                 // cout << "j, i = " << j << ", " << i << " : r, theta : " << rg << ", " << theta << endl  ;  
+                file_grid << rg << "  " << theta << endl ; 
+            }
+        }
+    }
+    file_grid.close() ; 
+
     
+
     // Drawings    
     if (graphic_out == 1) {
         des_meridian(nn, 0, 1.5*r_limits[nzm1], "N", 1) ; 
