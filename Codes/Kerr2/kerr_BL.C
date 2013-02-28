@@ -27,6 +27,9 @@ char kerr_BL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/02/28 15:36:59  o_straub
+ * Output file: added spin output
+ *
  * Revision 1.4  2013/02/20 13:51:46  e_gourgoulhon
  * Added output of the grid points to a file
  *
@@ -274,6 +277,7 @@ int main() {
     gamma.sauve(file_out) ;
     inv_gamma.sauve(file_out) ;
     kk.sauve(file_out) ;
+    fwrite_be(&aa, sizeof(double), 1, file_out) ;
 
     fclose(file_out) ;    
     
