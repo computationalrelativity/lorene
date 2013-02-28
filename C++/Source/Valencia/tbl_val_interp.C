@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2013/02/28 16:15:00  j_novak
+ * Minor change.
+ *
  * Revision 1.10  2007/12/21 10:46:29  j_novak
  * In "from_spectral..." functions: better treatment of ETATZERO case.
  *
@@ -311,7 +314,7 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
     return ;
   }
   else {
-    assert(meudon.get_etat() == ETATQCQ) ;
+    assert((meudon.get_etat() == ETATQCQ)||(meudon.get_etat() == ETATUN)) ;
     set_etat_qcq() ;
 
     switch (gval->get_ndim()) {
