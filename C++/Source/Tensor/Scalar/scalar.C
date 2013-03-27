@@ -33,6 +33,23 @@ char scalar_C[] = "$Header$" ;
 
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.36  2013/03/27 09:51:42  e_gourgoulhon
+ * Restored log
+ *
+ *
+ * revision 1.35
+ * date: 2013/01/11 15:44:54;  author: j_novak;  state: Exp;  lines: +15 -4
+ * Addition of Legendre bases (part 2).
+ *
+ * revision 1.34
+ * date: 2012/01/17 15:10:12;  author: j_penner;  state: Exp;  lines: +2 -7
+ *
+ * revision 1.33
+ * date: 2012/01/17 10:26:48;  author: j_penner;  state: Exp;  lines: +11 -3
+ * added a derivative with respect to the computational coordinate xi
+ *
  * Revision 1.32  2011/04/08 12:55:50  e_gourgoulhon
  * Scalar::val_point : division by r^dzpuis to return the actual
  * (i.e. physical) value of the field in the external compactified
