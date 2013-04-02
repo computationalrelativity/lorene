@@ -1,10 +1,10 @@
 /*
- *  Definition of Lorene class Compobj, Compobj_QI, Star_QI
+ *  Definition of Lorene class Compobj, Compobj_QI, Star_QI, Kerr_QI
  *
  */
 
 /*
- *   Copyright (c) 2012 Claire Some, Eric Gourgoulhon
+ *   Copyright (c) 2012, 2013 Claire Some, Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2013/04/02 23:17:18  e_gourgoulhon
+ * New class Kerr_QI
+ *
  * Revision 1.7  2012/12/03 15:26:14  c_some
  * Added data member m2
  *
@@ -733,6 +736,108 @@ class Star_QI : public Compobj_QI {
 	 */
 	static double lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) ;
 		
+};
+
+
+			//---------------------//
+			//   class Kerr_QI     //
+			//---------------------//
+
+/**
+ * Kerr spacetime in Quasi-Isotropic coordinates (***under development***). 
+ * \ingroup(compactobjects)
+ *
+ * The metric is expressed in Quasi-Isotropic (QI) coordinates :
+ * \f[
+ *   ds^2 = - N^2 dt^2 + A^2 (dr^2 + r^2 d\theta^2)
+ *		       + B^2 r^2 \sin^2\theta (d\varphi - N^\varphi dt)^2
+ * \f]
+ *
+ * 
+ */
+class Kerr_QI : public Compobj_QI {
+
+    // Data : 
+    // -----
+    protected:
+
+	/** mass parameter \f$M\f$
+	 */
+	double mm ;
+
+	/** angular momentum parameter \f$a\f$
+	 */
+	double aa ; 
+
+
+    // Derived data : 
+    // ------------
+    protected:
+		 
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+	/** Standard constructor. 
+	 * 
+	 * @param mp_i Mapping on which the star is contructed
+	 * @param mass Black hole mass M
+	 * @param a_over_m Black hole reduced angular momentum a/M (dimensionless)
+     *
+	 */
+	Kerr_QI(Map& mp_i, double mass, double a_over_m) ;			
+	
+	
+	Kerr_QI(const Kerr_QI& ) ;		///< Copy constructor
+
+	/** Constructor from a file (see \c sauve(FILE*) ). 
+	 * 
+	 * @param mp_i Mapping on which the star is constructed
+	 * @param fich	input file (must have been created by the function
+	 *	\c Kerr_QI::sauve )
+	 */
+	Kerr_QI(Map& mp_i, FILE* fich) ;    		
+
+	virtual ~Kerr_QI() ;			///< Destructor
+
+    // Memory management
+    // -----------------
+    protected:
+	/// Deletes all the derived quantities
+	virtual void del_deriv() const ; 
+	
+	/// Sets to \c 0x0  all the pointers on derived quantities
+	virtual void set_der_0x0() const ; 
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/// Assignment to another \c Kerr_QI 
+	void operator=(const Kerr_QI& ) ;	
+	
+    // Accessors
+    // ---------
+    public:
+
+    // Outputs
+    // -------
+    public:
+	virtual void sauve(FILE* ) const ;	    ///< Save in a file
+    
+    protected:
+	/// Operator >> (virtual function called by the operator <<). 
+	virtual ostream& operator>>(ostream& ) const ;    
+
+    // Global quantities
+    // -----------------
+    public:
+			
+
+    // Computational routines
+    // ----------------------
+    public: 
+	
+
 };
 
 
