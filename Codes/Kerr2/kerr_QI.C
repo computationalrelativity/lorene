@@ -27,6 +27,9 @@ char kerrQI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/04/03 12:11:19  e_gourgoulhon
+ * Added member kk to Compobj; suppressed tkij
+ *
  * Revision 1.1  2013/04/02 23:18:30  e_gourgoulhon
  * New code kerr_QI
  *
@@ -125,41 +128,32 @@ int main() {
     
     bh.update_metric() ; 
 
+    cout << bh << endl ; 
+    
     // Drawings    
     if (graphic_out == 1) {
         des_meridian(bh.get_nn(), 0, 1.5*r_limits[nzm1], "N", 1) ; 
 
         des_meridian(bh.get_beta()(3), 0, 1.5*r_limits[nzm1], "beta\\u3\\d (ortho. comp.)", 3) ; 
 
+        des_meridian(bh.get_nphi(), 0, 1.5*r_limits[nzm1], "Nphi", 3) ; 
+
         des_meridian(bh.get_gamma().cov()(1,1), 0, 1.5*r_limits[nzm1], "gamma_11", 4) ; 
         des_meridian(bh.get_gamma().cov()(2,2), 0, 1.5*r_limits[nzm1], "gamma_22", 5) ; 
         des_meridian(bh.get_gamma().cov()(3,3), 0, 1.5*r_limits[nzm1], "gamma_33", 6) ; 
     
-        des_meridian(bh.get_tkij()(1,3), 0, 1.5*r_limits[nzm1], "B^(-2) K_13", 7) ; 
-        des_meridian(bh.get_tkij()(2,3), 0, 1.5*r_limits[nzm1], "B^(-2) K_23", 8) ; 
+        des_meridian(bh.get_kk()(1,3), 0, 1.5*r_limits[nzm1], "K_(r)(ph)", 7) ; 
+        des_meridian(bh.get_kk()(2,3), 0, 1.5*r_limits[nzm1], "K_(th)(ph)", 8) ; 
     
         arrete() ; 
     }
 
-    Sym_tensor kk = bh.get_b_car() * bh.get_tkij() ;  // to be checked ! 
     
-    // Output file
-    //------------
-    FILE* file_out = fopen("gyoto_kerr_QI.d", "w") ;
-    double total_time = 0. ; // for compatibility
-
-    fwrite_be(&total_time, sizeof(double), 1, file_out) ;
-    mgrid.sauve(file_out) ;
-    map.sauve(file_out) ;
-    bh.get_nn().sauve(file_out) ;
-    bh.get_beta().sauve(file_out) ;
-    bh.get_gamma().cov().sauve(file_out) ;
-    bh.get_gamma().con().sauve(file_out) ;
-    kk.sauve(file_out) ;
-    fwrite_be(&a_ov_m, sizeof(double), 1, file_out) ;
-
-    fclose(file_out) ;    
-        
+    // Output file for GYOTO
+    //----------------------
+    
+    bh.gyoto_data("gyoto_kerr_QI.d") ;
+            
     return EXIT_SUCCESS ; 
 
 }

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2013/04/03 12:08:57  e_gourgoulhon
+ * Added member kk to Compobj; suppressed tkij
+ *
  * Revision 1.8  2013/04/02 23:17:18  e_gourgoulhon
  * New class Kerr_QI
  *
@@ -109,9 +112,11 @@ class Compobj {
 	/// Total 3-momentum density \f$P^i\f$ in the Eulerian frame 
 	Vector mom_euler ; 
 
-	/// Stress tensor \f$S_{ij}\f$  with respect to the Eulerian observer
-	Sym_tensor stress_euler ;
+    /// Stress tensor \f$S_{ij}\f$  with respect to the Eulerian observer
+    Sym_tensor stress_euler ;
 
+    /// Extrinsic curvature tensor \f$K_{ij}\f$  
+    Sym_tensor kk ;
 
    // Derived data : 
     // ------------
@@ -182,13 +187,18 @@ class Compobj {
 	/// Returns the total 3-momentum density \f$P^i\f$ in the Eulerian frame 
 	const Vector& get_mom_euler() const {return mom_euler;} ; 
 
-	/// Returns the stress tensor \f$S_{ij}\f$  with respect to the Eulerian observer
-	const Sym_tensor& get_stress_euler() const {return stress_euler;} ;
+    /// Returns the stress tensor \f$S_{ij}\f$  with respect to the Eulerian observer
+    const Sym_tensor& get_stress_euler() const {return stress_euler;} ;
+
+    /// Returns the extrinsic curvature tensor \f$K_{ij}\f$ 
+    const Sym_tensor& get_kk() const {return kk;} ;
 
     // Outputs
     // -------
     public:
 	virtual void sauve(FILE *) const ;	    ///< Save in a file
+    
+    void gyoto_data(const char* file_name) const ; ///< Save in a file for GYOTO
     
 	/// Display
 	friend ostream& operator<<(ostream& , const Compobj& ) ;	
@@ -197,6 +207,13 @@ class Compobj {
 	/// Operator >> (virtual function called by the operator <<). 
 	virtual ostream& operator>>(ostream& ) const ;    
 
+    // Computational methods
+    // ---------------------
+    public:
+    /// Computation of the extrinsic curvature 
+    virtual void extrinsic_curvature() ; 
+    
+    
     // Global quantities
     // -----------------
     public:
@@ -238,13 +255,6 @@ class Compobj_QI : public Compobj {
 
 	/// Metric coefficient \f$N^\varphi\f$
 	Scalar nphi ; 
-
-	/** Tensor \f${\tilde K_{ij}}\f$ related to the extrinsic curvature
-	 *  tensor by \f${\tilde K_{ij}} = B^{-2} K_{ij}\f$.
-	 *  \c tkij  contains the Cartesian components of
-	 *  \f${\tilde K_{ij}}\f$. 
-	 */
-	Sym_tensor tkij ; 
 
 	/** Scalar \f$A^2 K_{ij} K^{ij}\f$.
 	 *  For axisymmetric stars, this quantity is related to the 
@@ -333,12 +343,6 @@ class Compobj_QI : public Compobj {
 	/// Returns the metric coefficient \f$N^\varphi\f$
 	const Scalar& get_nphi() const {return nphi;} ; 
 
-	/** Returns the tensor \f${\tilde K_{ij}}\f$ related to the extrinsic 
-	 *  curvature tensor by \f${\tilde K_{ij}} = B^{-2} K_{ij}\f$.
-	 *  \c tkij  contains the Cartesian components of
-	 *  \f${\tilde K_{ij}}\f$. 
-	 */
-	const Sym_tensor& get_tkij() const {return tkij;} ; 
 
 	/** Returns the scalar \f$A^2 K_{ij} K^{ij}\f$.
 	 *  For axisymmetric stars, this quantity is related to the 
@@ -401,8 +405,8 @@ class Compobj_QI : public Compobj {
 	 */
 	virtual void update_metric() ; 
 		
-	/** Computes \c tkij  and \c ak_car  from 
-	 *  \c beta , \c nn  and \c b_car .
+	/** Computes the extrinsic curvature  and \c ak_car  from 
+	 *  \c nphi , \c nn  and \c b_car .
 	 */
 	virtual void extrinsic_curvature() ;
 	

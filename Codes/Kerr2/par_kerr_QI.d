@@ -6,5 +6,5 @@
 1	np: number of points in phi (the same in each domain)
 4	nz: number of domains
 # inner value of r in each domain (in units of M) :
-0. 0.433013 1. 2. 
+0. 0.45 1. 2. 
   

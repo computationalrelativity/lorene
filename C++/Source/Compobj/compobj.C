@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/03 12:10:13  e_gourgoulhon
+ * Added member kk to Compobj; suppressed tkij
+ *
  * Revision 1.4  2012/12/03 15:27:30  c_some
  * Small changes
  *
@@ -55,6 +58,7 @@ char compobj_C[] = "$Header$" ;
 // Lorene headers
 #include "compobj.h"
 #include "nbr_spx.h"
+#include "utilitaires.h"
 
                    //--------------//
                    // Constructors //
@@ -69,19 +73,21 @@ Compobj::Compobj(Map& map_i) :
  		gamma(map_i.flat_met_spher()) ,
 		ener_euler(map_i) ,
 		mom_euler(map_i, CON, map_i.get_bvect_spher()) ,
-		stress_euler(map_i, COV, map_i.get_bvect_spher()) 
+        stress_euler(map_i, COV, map_i.get_bvect_spher()) ,
+        kk(map_i, COV, map_i.get_bvect_spher()) 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
 
 	// Some initialisations:
 	nn = 1 ; 
-    	nn.std_spectral_base() ; 
+    nn.std_spectral_base() ; 
 
 	beta.set_etat_zero() ;
 	ener_euler = 0 ; 
 	mom_euler.set_etat_zero() ;
-	stress_euler.set_etat_zero() ;
+    stress_euler.set_etat_zero() ;
+    kk.set_etat_zero() ;
 	
 }
 
@@ -94,7 +100,8 @@ Compobj::Compobj(const Compobj& co) :
  		gamma(co.gamma) ,
 		ener_euler(co.ener_euler) ,
 		mom_euler(co.mom_euler) ,
-		stress_euler(co.stress_euler) 
+        stress_euler(co.stress_euler) ,
+        kk(co.kk) 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -110,7 +117,8 @@ Compobj::Compobj(Map& map_i, FILE* fich) :
  		gamma(map_i, fich) ,
 		ener_euler(map_i, *(map_i.get_mg()), fich) ,
 		mom_euler(map_i,  map_i.get_bvect_spher(), fich) ,
-		stress_euler(map_i, map_i.get_bvect_spher(), fich)  
+        stress_euler(map_i, map_i.get_bvect_spher(), fich) ,
+        kk(map_i, COV, map_i.get_bvect_spher()) 
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -160,9 +168,10 @@ void Compobj::operator=(const Compobj& co) {
  	gamma = co.gamma ; 
 	ener_euler = co.ener_euler ;
 	mom_euler = co.mom_euler ;
-	stress_euler = co.stress_euler ; 
+    stress_euler = co.stress_euler ; 
+    kk = co.kk ; 
 
-    	del_deriv() ;  // Deletes all derived quantities
+    del_deriv() ;  // Deletes all derived quantities
 }	
 
 			    //--------------//
@@ -180,6 +189,27 @@ void Compobj::sauve(FILE* fich) const {
 		mom_euler.sauve(fich) ;
 		stress_euler.sauve(fich) ;
 
+}
+
+// Save in a file for GYOTO input
+// ------------------------------
+
+void Compobj::gyoto_data(const char* file_name) const {
+    
+    FILE* file_out = fopen(file_name, "w") ;
+    double total_time = 0. ; // for compatibility
+
+    fwrite_be(&total_time, sizeof(double), 1, file_out) ;
+    mp.get_mg()->sauve(file_out) ;
+    mp.sauve(file_out) ;
+    nn.sauve(file_out) ;
+    beta.sauve(file_out) ;
+    gamma.cov().sauve(file_out) ;
+    gamma.con().sauve(file_out) ;
+    kk.sauve(file_out) ;
+    //## fwrite_be(&a_ov_m, sizeof(double), 1, file_out) ;
+    
+    fclose(file_out) ;    
 }
 
 // Printing
@@ -208,6 +238,16 @@ ostream& Compobj::operator>>(ostream& ost) const {
     << "    ( " << gamma.cov()(3,1).val_grid_point(0,0,0,0) << "  " 
     		<< gamma.cov()(3,2).val_grid_point(0,0,0,0) << "  " 
      		<< gamma.cov()(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
+    ost << "   components of the extrinsic curvature K_{ij} : " << endl
+    << "    ( " << kk(1,1).val_grid_point(0,0,0,0) << "  " 
+            << kk(1,2).val_grid_point(0,0,0,0) << "  " 
+            << kk(1,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << kk(2,1).val_grid_point(0,0,0,0) << "  " 
+            << kk(2,2).val_grid_point(0,0,0,0) << "  " 
+            << kk(2,3).val_grid_point(0,0,0,0) << " )" << endl  
+    << "    ( " << kk(3,1).val_grid_point(0,0,0,0) << "  " 
+            << kk(3,2).val_grid_point(0,0,0,0) << "  " 
+            << kk(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
     ost << "   energy density / Eulerian observer : E_c = " << ener_euler.val_grid_point(0,0,0,0) << endl ; 
     ost << "   components of the stress tensor S_{ij} / Eulerian observer : " << endl
     << "    ( " << stress_euler(1,1).val_grid_point(0,0,0,0) << "  " 
@@ -230,8 +270,28 @@ ostream& Compobj::operator>>(ostream& ost) const {
 			    //-------------------------//
 			    //	Computational methods  //
 			    //-------------------------//
-			    
-/// Gravitational mass
+
+// Extrinsic curvature
+void Compobj::extrinsic_curvature() {
+
+        cout << "WARNING: Compobj::extrinsic_curvature() NOT TESTED !" << endl ; 
+        
+        // Gradient of the shift D_j beta_i
+        Vector cobeta = beta.down(0, gamma) ; 
+    
+        Tensor dn = cobeta.derive_cov(gamma) ;
+    
+        kk.set_etat_qcq() ;
+        for (int i=1; i<=3; i++) {
+            for (int j=i; j<=3; j++) {
+                kk.set(i, j) = (dn(i, j) + dn(j, i))/(2*nn)  ;
+            }
+        }
+
+}
+
+
+// Gravitational mass
 double Compobj::adm_mass() const {
 
     if (p_adm_mass == 0x0) {    // a new computation is required

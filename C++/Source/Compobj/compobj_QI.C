@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/04/03 12:10:13  e_gourgoulhon
+ * Added member kk to Compobj; suppressed tkij
+ *
  * Revision 1.3  2012/11/22 16:04:51  c_some
  * Minor modifications
  *
@@ -64,7 +67,6 @@ Compobj_QI::Compobj_QI(Map& map_i) :
 		bbb(map_i) ,
 		b_car(map_i) ,
 		nphi(map_i) ,
- 		tkij(map_i, COV, map_i.get_bvect_cart()),		
 		ak_car(map_i) 
 {
     // Pointers of derived quantities initialized to zero : 
@@ -77,7 +79,6 @@ Compobj_QI::Compobj_QI(Map& map_i) :
     bbb.std_spectral_base() ; 
     b_car = bbb*bbb ;
     nphi = 0 ;   
-    tkij.set_etat_zero() ; 
     ak_car = 0 ; 
 
 }
@@ -90,7 +91,6 @@ Compobj_QI::Compobj_QI(const Compobj_QI& co) :
 		bbb(co.bbb) , 
 		b_car(co.b_car) ,
  		nphi(co.nphi) ,
-		tkij(co.tkij) ,
 		ak_car(co.ak_car) 
 {
     // Pointers of derived quantities initialized to zero : 
@@ -106,7 +106,6 @@ Compobj_QI::Compobj_QI(Map& map_i, FILE* fich) :
 		bbb(map_i, *(map_i.get_mg()), fich) , 
 		b_car(map_i) , 
 		nphi(map_i, *(map_i.get_mg()), fich) , 
- 		tkij(map_i, COV, map_i.get_bvect_cart()),		
 		ak_car(map_i) 
 {
     // Pointers of derived quantities initialized to zero : 
@@ -120,7 +119,7 @@ Compobj_QI::Compobj_QI(Map& map_i, FILE* fich) :
     // Initialization of gamma_ij:
     update_metric() ; 
     
-    // Computation of tkij and ak_car:
+    // Computation of K_ij and ak_car:
     extrinsic_curvature() ; 
 }
 
@@ -178,7 +177,6 @@ void Compobj_QI::operator=(const Compobj_QI& co) {
     bbb = co.bbb ; 
     b_car = co.b_car ; 
     nphi = co.nphi ; 
-    tkij = co.tkij ; 
     ak_car = co.ak_car ;
 
     del_deriv() ;  // Deletes all derived quantities
@@ -214,16 +212,6 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
     ost << "   metric coefficient A^2 : " << a_car.val_grid_point(0,0,0,0) << endl ; 
     ost << "   metric coefficient B^2 : " << b_car.val_grid_point(0,0,0,0) << endl ; 
     ost << "   metric coefficient N^phi : " << nphi.val_grid_point(0,0,0,0) << endl ; 
-    ost << "   components of the rescaled extrinsic curvature B^{-2} K_{ij} : " << endl
-    << "    ( " << tkij(1,1).val_grid_point(0,0,0,0) << "  " 
-    		<< tkij(1,2).val_grid_point(0,0,0,0) << "  " 
-     		<< tkij(1,3).val_grid_point(0,0,0,0) << " )" << endl  
-    << "    ( " << tkij(2,1).val_grid_point(0,0,0,0) << "  " 
-    		<< tkij(2,2).val_grid_point(0,0,0,0) << "  " 
-     		<< tkij(2,3).val_grid_point(0,0,0,0) << " )" << endl  
-    << "    ( " << tkij(3,1).val_grid_point(0,0,0,0) << "  " 
-    		<< tkij(3,2).val_grid_point(0,0,0,0) << "  " 
-     		<< tkij(3,3).val_grid_point(0,0,0,0) << " )" << endl ; 
     ost << "   A^2 K_{ij} K^{ij} = " << ak_car.val_grid_point(0,0,0,0) << endl << endl ; 
 
 //##	ost << "Total angular momentum : " << angu_mom() << endl ; 
@@ -233,9 +221,9 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
     ost << "Specific energy of a particle on the ISCO : " << espec_isco(0) << endl ;	
     ost << "Specific angular momentum of a particle on the ISCO : " << lspec_isco(0) << endl ;	
 	
-    ost << "A^2 : " << a_car << endl ; 
-    ost << "B^2 : " << b_car << endl ; 
-    ost << "nphi : " << nphi << endl ; 
+  //  ost << "A^2 : " << a_car << endl ; 
+  //  ost << "B^2 : " << b_car << endl ; 
+  //  ost << "nphi : " << nphi << endl ; 
 	
     return ost ; 
       
@@ -287,113 +275,42 @@ void Compobj_QI::extrinsic_curvature() {
 	
  	if ( (mp.get_mg())->get_np(0) == 1) {
  	
- 		tkij.set_etat_zero() ;		// initialisation
+ 		kk.set_etat_zero() ;		// initialisation
 				
 		// Computation of K_xy
 		// -------------------
 		
 		Scalar dnpdr = nphi.dsdr() ; 		// d/dr (N^phi)
- 		Scalar dnpdt = nphi.srdsdt() ; 		// 1/r d/dtheta (N^phi)
+ 		Scalar dnpdt = nphi.dsdt() ; 		// d/dtheta (N^phi)
  		
  		// What follows is valid only for a mapping of class Map_radial :	
 		assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ;
 		
-		if (dnpdr.get_etat() == ETATQCQ) {
-		    // multiplication by sin(theta)
-		    dnpdr.set_spectral_va() = (dnpdr.get_spectral_va()).mult_st() ;	
- 		}
-		
-		if (dnpdt.get_etat() == ETATQCQ) {
-		    // multiplication by cos(theta)
-		    dnpdt.set_spectral_va() = (dnpdt.get_spectral_va()).mult_ct() ;	
- 		}
- 	
-		Scalar tmp = dnpdr + dnpdt ;
- 	
-		tmp.mult_rsint() ;	// multiplication by r sin(theta)
- 	
-		tkij.set(1,2) = - 0.5 * tmp / nn ; 	// component (x,y)
- 	
- 	
-		// Computation of K_yz
-		// -------------------
- 	
-		dnpdr = nphi.dsdr() ; 		// d/dr (N^phi)
- 		dnpdt = nphi.srdsdt() ; 		// 1/r d/dtheta (N^phi)
- 		
-		if (dnpdr.get_etat() == ETATQCQ) {
-		    // multiplication by cos(theta)
-		    dnpdr.set_spectral_va() = (dnpdr.get_spectral_va()).mult_ct() ;	
- 		}
-		
-		if (dnpdt.get_etat() == ETATQCQ) {
-		    // multiplication by sin(theta)
-		    dnpdt.set_spectral_va() = (dnpdt.get_spectral_va()).mult_st() ;	
- 		}
- 	
-		tmp = dnpdr - dnpdt ;
-		
-		tmp.mult_rsint() ;	// multiplication by r sin(theta)
- 		
-		tkij.set(2,3) = - 0.5 * tmp / nn ; 	// component (y,z)
- 	
-		// The other components are set to zero
-		// ------------------------------------
-		tkij.set(1,1) = 0 ;	// component (x,x)
-		tkij.set(1,3) = 0 ;     // component (x,z)
-		tkij.set(2,2) = 0 ;    	// component (y,y)
-		tkij.set(3,3) = 0 ;     // component (z,z)
- 	
- 	}
+        dnpdr.mult_rsint() ;    // multiplication by r sin(theta)
+        kk.set(1,3) = - b_car * dnpdr / (2*nn) ; 
+        
+        dnpdt.mult_sint() ; // multiplication by sin(theta)
+        kk.set(2,3) = - b_car * dnpdt / (2*nn) ; 
+        kk.set(2,3).inc_dzpuis(2) ; 
+        
+        kk.set(1,1) = 0 ; 
+        kk.set(1,2) = 0 ; 
+        kk.set(2,2) = 0 ; 
+        kk.set(3,3) = 0 ; 
+	}
     else {
 
     // ------------
     // General case
     // ------------
 
-    	// Gradient (Cartesian components) of the shift
-    	// D_j N^i
-    
-    	Tensor dn = - beta.derive_cov( mp.flat_met_cart() ) ;
-    
-    	// Trace of D_j N^i = divergence of N^i :
-    	Scalar divn = contract(dn, 0, 1) ;
-    
-    	if (divn.get_etat() == ETATQCQ) {
-    
-		// Computation of B^{-2} K_{ij}
-		// ----------------------------
-		tkij.set_etat_qcq() ;
-		for (int i=1; i<=3; i++) {
-		    for (int j=i; j<=3; j++) {
-			  tkij.set(i, j) = dn(i, j) + dn(j, i)  ;
-		    }
-		    tkij.set(i, i) -= double(2) /double(3) * divn ;
-		}
-    
-		tkij = - 0.5 * tkij / nn ;
-	
-    	}
-    	else{
-		assert( divn.get_etat() == ETATZERO ) ;
-		tkij.set_etat_zero() ;
-    	}
+        Compobj::extrinsic_curvature() ; 
    }
     
     // Computation of A^2 K_{ij} K^{ij}
     // --------------------------------
         
-    ak_car = 0 ;
-    
-    for (int i=1; i<=3; i++) {
-		for (int j=1; j<=3; j++) {
-	
-	    ak_car += tkij(i, j) * tkij(i, j) ;
-	
-		}
-    }
-    
-    ak_car = b_car * ak_car ;
+    ak_car = 2 * ( kk(1,3)*kk(1,3) +  kk(2,3)*kk(2,3) ) / b_car ;
     
 	del_deriv() ; 
 

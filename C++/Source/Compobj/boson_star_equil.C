@@ -31,6 +31,9 @@ char boson_star_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/04/03 12:10:13  e_gourgoulhon
+ * Added member kk to Compobj; suppressed tkij
+ *
  * Revision 1.3  2012/12/03 15:27:30  c_some
  * Small changes
  *
@@ -354,10 +357,10 @@ void Boson_star::equilibrium(double, double,
 	// Quadratic terms:
 	Vector vtmp =  6 * bet.derive_con( mp.flat_met_spher() ) 
 	    - 2 * logn.derive_con( mp.flat_met_spher() ) ;
-	vtmp.change_triad(mp.get_bvect_cart()) ; 
 
-	Vector squad  = nn * contract(tkij, 1, vtmp, 0) ; 
-
+	Vector squad  = nn * contract(kk, 1, vtmp, 0) / b_car ; 
+    squad.change_triad(mp.get_bvect_cart()) ;
+    
 	source_shift = source_shift + squad.up(0, mp.flat_met_cart() ) ; 
 
 	//----------------------------------------------
