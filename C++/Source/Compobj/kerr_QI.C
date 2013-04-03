@@ -30,6 +30,9 @@ char kerr_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/04/03 12:09:50  e_gourgoulhon
+ * New computation of b_car
+ *
  * Revision 1.1  2013/04/02 23:17:18  e_gourgoulhon
  * New class Kerr_QI
  *
@@ -76,13 +79,14 @@ Kerr_QI::Kerr_QI(Map& mpi, double mass, double a_over_m) :
     a_car.set_domain(0) = 1 ; 
     a_car.std_spectral_base() ;
     
-    // Boyer-Lindquist radial coordinate:
+    // Boyer-Lindquist radial coordinate and associated quantities:
     Mtbl rBL = r + hh2/(4*r) + mm ;  // Eq. (110)
     Mtbl rBL2 = rBL*rBL ; 
     Mtbl sigma = rBL2 + aa2*cost2 ;  // Eq. (93)
+    Mtbl rBLovr = 1 + mm/r + r_hor*r_hor/r2 ;   // R/r
     
     // B^2
-    b_car = (rBL2 + aa2 + 2*aa2*mm*rBL*sint2 / sigma) / r2 ;  // Eq. (125)
+    b_car = rBLovr * ( rBLovr + 2*aa2*mm*sint2 / (r*sigma) ) + aa2 / r2 ; // Eq. (125)
     b_car.set_domain(0) = 1 ; 
     b_car.std_spectral_base() ;
     bbb = sqrt(b_car) ; 
