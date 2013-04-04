@@ -27,6 +27,9 @@ char kerrQI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2013/04/04 15:33:47  e_gourgoulhon
+ * Comparison ISCO with analytic formula
+ *
  * Revision 1.2  2013/04/03 12:11:19  e_gourgoulhon
  * Added member kk to Compobj; suppressed tkij
  *
@@ -128,22 +131,33 @@ int main() {
     
     bh.update_metric() ; 
 
+    cout.precision(15) ; 
     cout << bh << endl ; 
-    
+
+    // ISCO from Eq. (21) of Bardeen, Press & Teukolsky, ApJ 178, 347 (1972):
+    double third = double(1)/double(3) ;
+    double z1 = 1 + pow(1-a_ov_m*a_ov_m, third)*( pow(1+a_ov_m, third) +
+                                                  pow(1-a_ov_m, third) ) ;
+    double z2 = sqrt(3*a_ov_m*a_ov_m + z1*z1) ;
+    double R_isco_p =  3 + z2 - sqrt((3-z1)*(3+z1+2*z2))  ; 
+    double R_isco_r =  3 + z2 + sqrt((3-z1)*(3+z1+2*z2))  ; 
+    cout << "Analytic value of R_ISCO (prograde orbits):  " << R_isco_p << " M" << endl ; 
+    cout << "Numerical value of R_ISCO (prograde orbits): " << 
+        bh.r_isco(0)/mass + mass*(1-a_ov_m*a_ov_m)/(4*bh.r_isco(0)) + 1 << " M" << endl ;  
+    cout << "Analytic value of R_ISCO (retrograde orbits): " << R_isco_r << " M" << endl ; 
+        
     // Drawings    
     if (graphic_out == 1) {
-        des_meridian(bh.get_nn(), 0, 1.5*r_limits[nzm1], "N", 1) ; 
+        des_meridian(bh.get_nn(), 0, 1.1*r_limits[nzm1], "N", 1) ; 
 
-        des_meridian(bh.get_beta()(3), 0, 1.5*r_limits[nzm1], "beta\\u3\\d (ortho. comp.)", 3) ; 
+        des_meridian(bh.get_nphi(), 0, 1.1*r_limits[nzm1], "Nphi", 3) ; 
 
-        des_meridian(bh.get_nphi(), 0, 1.5*r_limits[nzm1], "Nphi", 3) ; 
-
-        des_meridian(bh.get_gamma().cov()(1,1), 0, 1.5*r_limits[nzm1], "gamma_11", 4) ; 
-        des_meridian(bh.get_gamma().cov()(2,2), 0, 1.5*r_limits[nzm1], "gamma_22", 5) ; 
-        des_meridian(bh.get_gamma().cov()(3,3), 0, 1.5*r_limits[nzm1], "gamma_33", 6) ; 
+        des_meridian(bh.get_gamma().cov()(1,1), 0, 1.1*r_limits[nzm1], "gamma_11", 4) ; 
+        des_meridian(bh.get_gamma().cov()(2,2), 0, 1.1*r_limits[nzm1], "gamma_22", 5) ; 
+        des_meridian(bh.get_gamma().cov()(3,3), 0, 1.1*r_limits[nzm1], "gamma_33", 6) ; 
     
-        des_meridian(bh.get_kk()(1,3), 0, 1.5*r_limits[nzm1], "K_(r)(ph)", 7) ; 
-        des_meridian(bh.get_kk()(2,3), 0, 1.5*r_limits[nzm1], "K_(th)(ph)", 8) ; 
+        des_meridian(bh.get_kk()(1,3), 0, 1.1*r_limits[nzm1], "K_(r)(ph)", 7) ; 
+        des_meridian(bh.get_kk()(2,3), 0, 1.1*r_limits[nzm1], "K_(th)(ph)", 8) ; 
     
         arrete() ; 
     }
