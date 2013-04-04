@@ -30,6 +30,9 @@ char kerr_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2013/04/04 08:53:47  e_gourgoulhon
+ * Minor improvements
+ *
  * Revision 1.2  2013/04/03 12:09:50  e_gourgoulhon
  * New computation of b_car
  *
@@ -99,7 +102,9 @@ Kerr_QI::Kerr_QI(Map& mpi, double mass, double a_over_m) :
 
     // N^phi
     nphi = 2*aa*mm / (sigma*(rBL+aa2/rBL) + 2*aa2*mm*sint2) ;  // Eq. (126)
-    nphi.set_domain(0) = 0 ; 
+    if (nphi.get_etat() == ETATQCQ) {
+        nphi.set_domain(0) = 0 ; 
+    }
     nphi.std_spectral_base() ;
     
     // Pointers of derived quantities initialized to zero : 

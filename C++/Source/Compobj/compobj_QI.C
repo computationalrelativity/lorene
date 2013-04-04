@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/04 08:53:47  e_gourgoulhon
+ * Minor improvements
+ *
  * Revision 1.4  2013/04/03 12:10:13  e_gourgoulhon
  * Added member kk to Compobj; suppressed tkij
  *
@@ -266,20 +269,14 @@ void Compobj_QI::update_metric() {
 
 
 // Updates the extrinsic curvature
+// -------------------------------
 
 void Compobj_QI::extrinsic_curvature() {
 
-	// ---------------------------------------
-	// Special treatment for axisymmetric case
-	// ---------------------------------------
+	// Special treatment for axisymmetric case:
 	
  	if ( (mp.get_mg())->get_np(0) == 1) {
  	
- 		kk.set_etat_zero() ;		// initialisation
-				
-		// Computation of K_xy
-		// -------------------
-		
 		Scalar dnpdr = nphi.dsdr() ; 		// d/dr (N^phi)
  		Scalar dnpdt = nphi.dsdt() ; 		// d/dtheta (N^phi)
  		
@@ -291,7 +288,7 @@ void Compobj_QI::extrinsic_curvature() {
         
         dnpdt.mult_sint() ; // multiplication by sin(theta)
         kk.set(2,3) = - b_car * dnpdt / (2*nn) ; 
-        kk.set(2,3).inc_dzpuis(2) ; 
+        kk.set(2,3).inc_dzpuis(2) ;  // to have the same dzpuis as kk(1,3)
         
         kk.set(1,1) = 0 ; 
         kk.set(1,2) = 0 ; 
@@ -300,9 +297,7 @@ void Compobj_QI::extrinsic_curvature() {
 	}
     else {
 
-    // ------------
-    // General case
-    // ------------
+    // General case:
 
         Compobj::extrinsic_curvature() ; 
    }
