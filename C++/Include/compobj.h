@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2013/04/04 15:31:34  e_gourgoulhon
+ * r_isco returns now the coordinate r, not the areal r
+ *
  * Revision 1.9  2013/04/03 12:08:57  e_gourgoulhon
  * Added member kk to Compobj; suppressed tkij
  *
@@ -280,11 +283,11 @@ class Compobj_QI : public Compobj {
     // ------------
     protected:
 	mutable double* p_angu_mom ;	///< Angular momentum 
-	mutable double* p_r_isco ;	///< Circumferential radius of the ISCO
+	mutable double* p_r_isco ;	///< Coordinate r of the ISCO
 	mutable double* p_f_isco ;	///< Orbital frequency of the ISCO
-	/// Specific energy of a particle on the ISCO 
+	/// Specific energy of a particle at the ISCO 
 	mutable double* p_espec_isco ;	
-	/// Specific angular momentum of a particle on the ISCO
+	/// Specific angular momentum of a particle at the ISCO
 	mutable double* p_lspec_isco ;	
 
     // Constructors - Destructor
@@ -377,7 +380,7 @@ class Compobj_QI : public Compobj {
     public:
 	virtual double angu_mom() const ;	///< Angular momentum 
 
-	/** Circumferential radius of the innermost stable circular orbit (ISCO).	
+	/** Coordinate r of the innermost stable circular orbit (ISCO).	
 	 *
 	 *  @param lmin index of the domain from which the ISCO is searched outwards ;
 	 *  @param ost output stream to give details of the computation;
@@ -390,10 +393,10 @@ class Compobj_QI : public Compobj {
  	/// Orbital frequency at the innermost stable circular orbit (ISCO).	
  	virtual double f_isco(int lmin) const ;	
 
-	/// Energy of a particle on the ISCO 
+	/// Energy of a particle at the ISCO 
  	virtual double espec_isco(int lmin) const ;	
 	
-	/// Angular momentum of a particle on the ISCO
+	/// Angular momentum of a particle at the ISCO
  	virtual double lspec_isco(int lmin) const ;	
 
     // Computational routines
