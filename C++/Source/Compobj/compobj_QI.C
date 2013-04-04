@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2013/04/04 15:32:32  e_gourgoulhon
+ * Better computation of the ISCO
+ *
  * Revision 1.5  2013/04/04 08:53:47  e_gourgoulhon
  * Minor improvements
  *
@@ -54,6 +57,7 @@ char compobj_QI_C[] = "$Header$" ;
 
 // C headers
 #include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "compobj.h"
@@ -217,9 +221,11 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
     ost << "   metric coefficient N^phi : " << nphi.val_grid_point(0,0,0,0) << endl ; 
     ost << "   A^2 K_{ij} K^{ij} = " << ak_car.val_grid_point(0,0,0,0) << endl << endl ; 
 
-//##	ost << "Total angular momentum : " << angu_mom() << endl ; 
-	ost << "Circumferential radius of the innermost stable circular orbit (ISCO) : " << 
-		r_isco(0, &ost) << endl ;  
+    double risco = r_isco(0, &ost) ; 
+    ost << "Coordinate r at the innermost stable circular orbit (ISCO) : " << 
+        risco  << endl ;  
+    ost << "Circumferential radius of the innermost stable circular orbit (ISCO) : " << 
+        bbb.val_point(risco, M_PI/2, 0)*risco << endl ;  
  	ost << "Orbital frequency at the ISCO : " << f_isco(0) << endl ; 
     ost << "Specific energy of a particle on the ISCO : " << espec_isco(0) << endl ;	
     ost << "Specific angular momentum of a particle on the ISCO : " << lspec_isco(0) << endl ;	

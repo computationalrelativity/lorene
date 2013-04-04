@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/04/04 15:32:32  e_gourgoulhon
+ * Better computation of the ISCO
+ *
  * Revision 1.3  2012/11/22 16:04:51  c_some
  * Minor modifications
  *
@@ -149,12 +152,12 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
 
     const Valeur& vorbit = orbit.get_spectral_va() ;
         
-	for(l = lmin; l <= nzm1; l++) { 
-
     // Preliminary location of the zero
     // of the orbit function with an error = 0.01
     theta_ms = M_PI / 2. ; // pi/2
     phi_ms = 0. ;
+
+    for(l = lmin; l <= nzm1; l++) { 
 
     xi_min = -1. ;
     xi_max = 1. ;
@@ -177,7 +180,7 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
 		} 
 		
   	  }
-  	
+      if (find_status) break ; 
     } 
   	
     Param par_ms ;
@@ -185,7 +188,10 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
     par_ms.add_scalar(orbit) ;
     
   	if(find_status) { 
-  	     					
+  	    
+        cout << "l_ms : " << l_ms << endl ; 
+        cout << "xi_min, xi_max : " << xi_min << " , " << xi_max << endl ; 
+        
      	double precis_ms = 1.e-12 ;    // precision in the determination 
 									   // of xi_ms
      	int nitermax_ms = 100 ;	       // max number of iterations
@@ -211,9 +217,11 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
 	    
 	} 
   	
- 	p_r_isco = new double (
- 		(bbb.get_spectral_va()).val_point(l_ms, xi_ms, theta_ms, phi_ms) * r_ms
-    					  ) ;
+    p_r_isco = new double (r_ms) ;
+
+//     p_r_isco = new double (
+// 		(bbb.get_spectral_va()).val_point(l_ms, xi_ms, theta_ms, phi_ms) * r_ms
+//   					  ) ;
 
 	// Determination of the frequency at the marginally stable orbit
   	// -------------------------------------------------------------				
