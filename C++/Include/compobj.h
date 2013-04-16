@@ -1,5 +1,5 @@
 /*
- *  Definition of Lorene class Compobj, Compobj_QI, Star_QI, Kerr_QI
+ *  Definition of Lorene class Compobj, Compobj_QI, Star_QI, Kerr_QI, AltBH_QI
  *
  */
 
@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2013/04/16 15:26:45  e_gourgoulhon
+ * Added class AltBH_QI
+ *
  * Revision 1.10  2013/04/04 15:31:34  e_gourgoulhon
  * r_isco returns now the coordinate r, not the areal r
  *
@@ -844,6 +847,102 @@ class Kerr_QI : public Compobj_QI {
     // ----------------------
     public: 
 	
+
+};
+
+            //-------------------//
+            //   class AltBH_QI  //
+            //-------------------//
+
+/**
+ * Alternative black hole spacetime in Quasi-Isotropic coordinates (***under development***). 
+ * \ingroup(compactobjects)
+ *
+ * The metric is expressed in Quasi-Isotropic (QI) coordinates :
+ * \f[
+ *   ds^2 = - N^2 dt^2 + A^2 (dr^2 + r^2 d\theta^2)
+ *             + B^2 r^2 \sin^2\theta (d\varphi - N^\varphi dt)^2
+ * \f]
+ *
+ * 
+ */
+class AltBH_QI : public Compobj_QI {
+
+    // Data : 
+    // -----
+    protected:
+
+    char description1[256] ;  ///< String describing the model
+    char description2[256] ;  ///< String describing the model
+    double a_spin ;     ///< Spin parameter of the model
+    
+    // Derived data : 
+    // ------------
+    protected:
+         
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    /** Standard constructor. 
+     * 
+     * @param mp_i Mapping on which the star is contructed
+     * @param file_name Name of the file containing the metric data
+     * @param a_spin_i Spin parameter of the model
+     *
+     */
+    AltBH_QI(Map& mp_i, const char* file_name, double a_spin_i) ;          
+    
+    
+    AltBH_QI(const AltBH_QI& ) ;      ///< Copy constructor
+
+    /** Constructor from a file (see \c sauve(FILE*) ). 
+     * 
+     * @param mp_i Mapping on which the star is constructed
+     * @param fich  input file (must have been created by the function
+     *  \c AltBH_QI::sauve )
+     */
+    AltBH_QI(Map& mp_i, FILE* fich) ;            
+
+    virtual ~AltBH_QI() ;            ///< Destructor
+
+    // Memory management
+    // -----------------
+    protected:
+    /// Deletes all the derived quantities
+    virtual void del_deriv() const ; 
+    
+    /// Sets to \c 0x0  all the pointers on derived quantities
+    virtual void set_der_0x0() const ; 
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+    /// Assignment to another \c AltBH_QI 
+    void operator=(const AltBH_QI& ) ;   
+    
+    // Accessors
+    // ---------
+    public:
+
+    // Outputs
+    // -------
+    public:
+    virtual void sauve(FILE* ) const ;      ///< Save in a file
+    
+    protected:
+    /// Operator >> (virtual function called by the operator <<). 
+    virtual ostream& operator>>(ostream& ) const ;    
+
+    // Global quantities
+    // -----------------
+    public:
+            
+
+    // Computational routines
+    // ----------------------
+    public: 
+    
 
 };
 
