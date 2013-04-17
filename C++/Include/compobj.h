@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2013/04/17 13:01:50  e_gourgoulhon
+ * Some modifications in the class AltBH_QI
+ *
  * Revision 1.11  2013/04/16 15:26:45  e_gourgoulhon
  * Added class AltBH_QI
  *
@@ -876,6 +879,8 @@ class AltBH_QI : public Compobj_QI {
     char description2[256] ;  ///< String describing the model
     double a_spin ;     ///< Spin parameter of the model
     
+    Scalar krphi ; ///< K_{(r)(phi)} read in the file
+    
     // Derived data : 
     // ------------
     protected:
@@ -925,6 +930,9 @@ class AltBH_QI : public Compobj_QI {
     // ---------
     public:
 
+    /// Returns K_{(r)(phi)}/sin(theta).
+    const Scalar& get_krphi() const {return krphi;} ;
+    
     // Outputs
     // -------
     public:
@@ -943,7 +951,9 @@ class AltBH_QI : public Compobj_QI {
     // ----------------------
     public: 
     
-
+    /// Computation of the extrinsic curvature 
+    virtual void extrinsic_curvature() ; 
+ 
 };
 
 
