@@ -27,6 +27,9 @@ char altBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/04/17 13:03:29  e_gourgoulhon
+ * New member krphi
+ *
  * Revision 1.1  2013/04/16 15:29:33  e_gourgoulhon
  * New code for reading Enrico's data
  *
@@ -132,8 +135,9 @@ int main() {
         des_meridian(bh.get_gamma().cov()(1,1), 0, r_max, "gamma_11", 5) ; 
         des_meridian(bh.get_gamma().cov()(3,3), 0, r_max, "gamma_33", 6) ; 
     
-        des_meridian(bh.get_kk()(1,3), 0, r_max, "K_(r)(ph)", 7) ; 
-        des_meridian(bh.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 8) ; 
+        des_meridian(bh.get_kk()(1,3), 0.4, 0.6, "K_(r)(ph)", 7) ; 
+        des_meridian(bh.get_krphi(), 0.4, 0.6, "K_(r)(ph)/sin(theta) from file", 8) ; 
+        des_meridian(bh.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 9) ; 
     
         arrete() ; 
     }
