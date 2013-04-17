@@ -30,6 +30,9 @@ char altBH_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/04/17 13:02:47  e_gourgoulhon
+ * Added member krphi + method extrinsic_curvature
+ *
  * Revision 1.1  2013/04/16 15:27:27  e_gourgoulhon
  * New class AltBH_QI
  *
@@ -55,7 +58,8 @@ char altBH_QI_C[] = "$Header$" ;
 // --------------------
 AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
 			 Compobj_QI(mpi) , 
-			 a_spin(a_spin_i)
+			 a_spin(a_spin_i),
+			 krphi(mpi)
 {
 
     ifstream file(file_name) ; 
@@ -81,6 +85,7 @@ AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
     a_car.set_etat_qcq() ; // Memory allocation for A^2
     nn.set_etat_qcq() ; // Memory allocation for N
     nphi.allocate_all() ; // Memory allocation for N^phi
+    krphi.allocate_all() ; // Memory allocation for K_rphi
     double r_inner = 0 ;
     for (int l=1; l<nz; l++) {
         cout << "l = " << l << endl ; 
@@ -123,6 +128,7 @@ AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
                     a_car.set_grid_point(l,k,j,i) = psi4[i] ;
                     nn.set_grid_point(l,k,j,i) = alpha[i] ;
                     nphi.set_grid_point(l,k,j,i) = - a_spin * beta_phi[i] / psi4[i] / (r_iso[i]*r_iso[i]) ;
+                    krphi.set_grid_point(l,k,j,i) = a_spin * Krphi[i] / r_iso[i] ;
                 }
             }
         }
@@ -137,6 +143,7 @@ AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
     a_car.std_spectral_base() ;
     nn.std_spectral_base() ;
     nphi.std_spectral_base() ;
+    krphi.std_spectral_base() ;
     
     b_car = a_car ; // slow rotation limit: B^2 = A^2 
     
@@ -147,7 +154,8 @@ AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
 // Copy constructor
 // --------------------
 AltBH_QI::AltBH_QI(const AltBH_QI& other) :
-			 Compobj_QI(other)
+			 Compobj_QI(other),
+			 krphi(other.krphi)
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -157,7 +165,8 @@ AltBH_QI::AltBH_QI(const AltBH_QI& other) :
 // Constructor from a file
 // -----------------------
 AltBH_QI::AltBH_QI(Map& mpi, FILE* ) :
-			 Compobj_QI(mpi)
+			 Compobj_QI(mpi),
+			 krphi(mpi)
 {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -241,3 +250,41 @@ ostream& AltBH_QI::operator>>(ostream& ost) const {
 			    //	Computational methods  //
 			    //-------------------------//
 			    
+// Updates the extrinsic curvature
+// -------------------------------
+
+void AltBH_QI::extrinsic_curvature() {
+
+    // Special treatment for axisymmetric case:
+    
+    if ( (mp.get_mg())->get_np(0) == 1) {
+    
+        // What follows is valid only for a mapping of class Map_radial :   
+        assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ;
+        
+        Scalar tmp = krphi ; 
+        tmp.mult_sint() ;  // multiplication by sin(theta)
+        kk.set(1,3) = tmp ; 
+        
+        kk.set(2,3) = 0 ; 
+
+        kk.set(1,1) = 0 ; 
+        kk.set(1,2) = 0 ; 
+        kk.set(2,2) = 0 ; 
+        kk.set(3,3) = 0 ; 
+    }
+    else {
+
+    // General case:
+
+        Compobj::extrinsic_curvature() ; 
+   }
+    
+    // Computation of A^2 K_{ij} K^{ij}
+    // --------------------------------
+        
+    ak_car = 2 * ( kk(1,3)*kk(1,3) +  kk(2,3)*kk(2,3) ) / b_car ;
+    
+    del_deriv() ; 
+
+}
