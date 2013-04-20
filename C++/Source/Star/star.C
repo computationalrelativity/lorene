@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2013/04/20 20:56:15  m_bejger
+ * Fix for three domains in star in Star::equation_of_state from Etoile/etoile.C
+ *
  * Revision 1.19  2010/02/02 12:45:16  e_gourgoulhon
  * Improved the display (operator>>)
  *
@@ -493,9 +496,14 @@ void Star::equation_of_state() {
 
     if (nzet > 1) {
 
-    	if (nzet > 2) {
+      if(nzet == 3) {
+    fact_ent.set_domain(1) = 1 - 0.5 * epsilon * (xi(1) - 0.5) * (xi(1) - 0.5) ;
+    fact_ent.set_domain(2) = 1 - 0.25 * epsilon * (xi(2) - 1) * (xi(2) - 1) ;
+      }
+
+    	if (nzet > 3) {
     	
-    		cout << "Star::equation_of_state: not ready yet for nzet > 2 !"
+    		cout << "Star::equation_of_state: not ready yet for nzet > 3 !"
     		     << endl ;    	
     	}
 
