@@ -30,6 +30,9 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.7  2008/05/30 08:27:38  j_novak
  * New global quantities rp_circ and ellipt (circumferential polar coordinate and
  * ellipticity).
@@ -345,13 +348,15 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
 
      ost << "Ratio T/W :              " << tsw() << endl ;
      ost << "Circumferential equatorial radius R_circ :     "
-	 << r_circ()/km << " km" << endl ;
-     ost << "Circumferential polar radius Rp_circ :     "
-	 << rp_circ()/km << " km" << endl ;
+      	 << r_circ()/km << " km" << endl ;
+     if (mp.get_mg()->get_np(0) == 1) 
+       ost << "Circumferential polar radius Rp_circ :     "
+	   << rp_circ()/km << " km" << endl ;
      ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km"
-	 << endl ;
+      	 << endl ;
      ost << "Flattening r_pole/r_eq :  " << aplat() << endl ;
-     ost << "Ellipticity sqrt(1-(Rp_circ/R_circ)^2) :  " << ellipt() << endl ;
+     if (mp.get_mg()->get_np(0) == 1) 
+       ost << "Ellipticity sqrt(1-(Rp_circ/R_circ)^2) :  " << ellipt() << endl ;
 
      double compact = qpig/(4.*M_PI) * mass_g() / r_circ() ;
      ost << "Compaction parameter M_g / R_circ : " << compact << endl ; 

@@ -30,6 +30,9 @@ char map_af_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/25 15:46:05  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.4  2007/12/20 09:11:05  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -174,7 +177,7 @@ void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
     if (null_infty) 
       for (int k=0; k<np; k++)  //## not very elegant!
 	for(int j=0; j<nt; j++) 
-	  val_rmax.set(k,j) = cprim.val_point_jk(nzm1, 1., j, k) ;
+	  val_rmax.set(k,j) = cprim.val_out_bound_jk(nzm1, j, k) ;
     
     // The output spectral bases (set on the Mtbl_cf) are copied to the Valeur:
     vprim.set_base(bprim) ; 

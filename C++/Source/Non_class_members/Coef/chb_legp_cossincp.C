@@ -94,6 +94,9 @@ char chb_legp_cossincp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/25 15:46:05  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.4  2005/02/18 13:14:10  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -147,26 +150,6 @@ int ip, k2, l, j, i, m ;
     
 // Increment en m pour la matrice bb :
     int mbb = nt * nt  ;
-
-//## Test
-//    double* bbt = bb ;
-//    cout << "chb_legp_cossincp: matrice de passage : " << endl ; 
-//    for ( m=0; m < np/2+1 ; m++) {
-//	cout << "---------------------------------------" << endl ; 
-//	cout << " m = " << m << endl ; 
-//	cout << " " << endl ; 
-//
-//	for (j=0; j<nt; j++) {
-//	    cout << " j = " << j << " : " ; 	    
-//	    for (l=m/2; l<nt; l++) {	
-//		cout << bbt[nt*j + l] << " " ;
-//	    }
-//	    cout << endl ; 
-//	}
-//	arrete() ; 
-//	bbt += mbb ;	// pointeur sur la nouvelle matrice de passage	
-//    }			
-//##    
    
 // Pointeurs de travail :
     double* resu = cfo ;
@@ -177,6 +160,57 @@ int ip, k2, l, j, i, m ;
 
 // Indice courant en phi :
     int k = 0 ;
+
+//----------------------------------------------------------------
+//		    Cas axisymetrique       
+//----------------------------------------------------------------
+
+    if (np == 1) {
+
+	m = 0 ; 
+
+// Boucle sur l'indice j du developpement en cos(2 j theta) 
+
+		for (j=0; j<nt; j++) {
+
+// ... produit matriciel (parallelise sur r)
+		    for (i=0; i<nr; i++) {
+			som[i] = 0 ; 
+		    }
+
+		    for (l=m/2; l<nt; l++) {
+		    
+			double bmjl = bb[nt*j + l] ;
+			for (i=0; i<nr; i++) {
+			    som[i] += bmjl * cc[nr*l + i] ;
+			}
+		    }
+		    
+		    for (i=0; i<nr; i++) {
+			*resu = som[i]  ;
+			resu++ ;  
+		    }
+		    
+		}  // fin de la boucle sur j 
+	
+	// Mise a zero des coefficients k=1 et k=2 :
+	// ---------------------------------------
+	
+	for (i=0; i<2*ntnr; i++) {
+	    *resu = 0 ;
+	    resu++ ;
+	}	    
+
+	// On sort
+	delete [] som ;
+	return ; 
+	
+    }	// fin du cas np=1
+
+
+//----------------------------------------------------------------
+//		    Cas 3-D     
+//----------------------------------------------------------------
 
 // Ordre des harmoniques du developpement de Fourier en phi :
     m = 0 ;	    

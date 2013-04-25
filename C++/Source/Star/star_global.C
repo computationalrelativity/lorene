@@ -29,6 +29,9 @@ char star_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.4  2009/10/26 10:54:33  j_novak
  * Added the case of a NONSYM base in theta.
  *
@@ -146,20 +149,20 @@ double Star::ray_eq_pis2() const {
 	switch (type_p) {
 	    
 	    case SYM : {
-		int k = np / 2  ; 
-		int l = l_surf()(k, j) ; 
-		double xi = xi_surf()(k, j) ; 
-		p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
-		break ; 
+	      int k = np / 2  ; 
+	      int l = l_surf()(k, j) ; 
+	      double xi = xi_surf()(k, j) ; 
+	      p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+	      break ; 
 	    }
 	    
 	    case NONSYM : {
-		assert( np % 4 == 0 ) ; 
-		int k = np / 4  ; 
-		int l = l_surf()(k, j) ; 
-		double xi = xi_surf()(k, j) ; 
-		p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
-		break ; 
+	      assert( (np == 1) || (np % 4 == 0) ) ; 
+	      int k = np / 4  ; 
+	      int l = l_surf()(k, j) ; 
+	      double xi = xi_surf()(k, j) ; 
+	      p_ray_eq_pis2 = new double( mp.val_r(l, xi, theta, phi) ) ;
+	      break ; 
 	    }
 	    
 	    default : {

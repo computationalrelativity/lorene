@@ -84,6 +84,9 @@ char citcossinsi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.1  2004/12/21 17:06:03  j_novak
  * Added all files for using fftw3.
  *
@@ -155,7 +158,7 @@ int i, j, k ;
 	abort () ;
 	exit(-1) ;
     }
-    if (n1c > n1f) {
+    if ( (n1f > 1) && (n1c > n1f)) {
 	cout << "citcossinsi: n1c > n1f : n1c = " << n1c << " ,  n1f = " 
 	<< n1f << endl ;
 	abort () ;
@@ -190,13 +193,15 @@ int i, j, k ;
     int n2n3f = n2f * n3f ;
     int n2n3c = n2c * n3c ;
 
+    int borne_phi =  n1f-1  ;
+    if (n1f == 1) borne_phi = 1 ;
 //=======================================================================
 //				Cas m pair
 //=======================================================================
 
     j = 0 ;
     
-    while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
+    while (j<borne_phi) {   //le dernier coef en phi n'est pas considere
 			// (car nul)
 
 //-----------------------------------------------------------------------
@@ -294,7 +299,7 @@ int i, j, k ;
 
 	j++ ;
 
-	if ( (j != 1) && (j != n1f-1 ) ) {  
+	if ( (j != 1) && (j != borne_phi ) ) {  
 //  on effectue le calcul seulement dans les cas ou les coef en phi ne sont 
 //  pas nuls 
 
@@ -403,7 +408,7 @@ int i, j, k ;
 
     j = 2 ;
     
-    while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
+    while (j < borne_phi) {   //le dernier coef en phi n'est pas considere
 			// (car nul)
 
 //--------------------------------------------------------------------------
@@ -493,7 +498,7 @@ int i, j, k ;
 
 	j++ ;
 
-	if ( j != n1f-1  ) {  
+	if ( j != borne_phi  ) {  
 //  on effectue le calcul seulement dans les cas ou les coef en phi ne sont 
 //  pas nuls 
 

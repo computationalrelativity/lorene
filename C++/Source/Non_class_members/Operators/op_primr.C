@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.7  2007/12/21 13:59:02  j_novak
  * Suppression of call to pow(-1, something).
  *
@@ -350,6 +353,8 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     int nr = tin.get_dim(0) ;	    
     int nt = tin.get_dim(1) ;	    
     int np = tin.get_dim(2) - 2 ;
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
     
 
     // Case of a zero input
@@ -367,7 +372,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
             double* xco = tout.t ;	
 
             // m even part 
-            for (int k=0 ; k<np+1 ; k += 4) {
+            for (int k=0 ; k<borne_phi ; k += 4) {
         	int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
 	        for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
 	            if ((k==0) && (kmod == 1)) {     // jump over the coefficient of sin(0*phi) 
@@ -387,7 +392,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
             
             // m odd part
             xco = tout.t + 2*nr*nt ; 
-            for (int k=2 ; k<np+1 ; k += 4) {
+            for (int k=2 ; k<borne_phi ; k += 4) {
 	        int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
 	        for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
 	            for (int j=0 ; j<nt ; j++) {
@@ -415,7 +420,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
     // m even part 
     // -----------
-    for (int k=0 ; k<np+1 ; k += 4) {
+    for (int k=0 ; k<borne_phi ; k += 4) {
         int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
         for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
             if ((k==0) && (kmod == 1)) {     // jump over the coefficient of sin(0*phi) 
@@ -452,7 +457,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     // ----------
     xci = tin.t + 2*nr*nt ;
     xco = tout.t + 2*nr*nt ;
-    for (int k=2 ; k<np+1 ; k += 4) {
+    for (int k=2 ; k<borne_phi ; k += 4) {
         int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
         for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
             for (int j=0 ; j<nt ; j++) {
@@ -504,7 +509,8 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     int nr = tin.get_dim(0) ;	    
     int nt = tin.get_dim(1) ;	    
     int np = tin.get_dim(2) - 2 ;
-    
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ;     
 
     // Case of a zero input
     // --------------------
@@ -521,7 +527,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
             double* xco = tout.t ;	
 
             // m odd part 
-            for (int k=0 ; k<np+1 ; k += 4) {
+            for (int k=0 ; k<borne_phi ; k += 4) {
         	int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
 	        for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
 	            if ((k==0) && (kmod == 1)) {     // jump over the coefficient of sin(0*phi) 
@@ -541,7 +547,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
             
             // m even part
             xco = tout.t + 2*nr*nt ; 
-            for (int k=2 ; k<np+1 ; k += 4) {
+            for (int k=2 ; k<borne_phi ; k += 4) {
 	        int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
 	        for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
 	                for (int j=0 ; j<nt ; j++) {
@@ -569,7 +575,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
     // m odd part 
     // ----------
-    for (int k=0 ; k<np+1 ; k += 4) {
+    for (int k=0 ; k<borne_phi ; k += 4) {
         int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
         for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
             if ((k==0) && (kmod == 1)) {     // jump over the coefficient of sin(0*phi) 
@@ -610,7 +616,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     // -----------
     xci = tin.t + 2*nr*nt ;
     xco = tout.t + 2*nr*nt ;
-    for (int k=2 ; k<np+1 ; k += 4) {
+    for (int k=2 ; k<borne_phi ; k += 4) {
         int auxiliaire = (k==np) ? 1 : 2 ; // to avoid the last coef
         for (int kmod=0 ; kmod<auxiliaire ; kmod++) {
 

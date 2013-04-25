@@ -36,6 +36,9 @@ char op_dsdphi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.4  2006/03/10 12:45:38  j_novak
  * Use of C++-style cast.
  *
@@ -115,6 +118,12 @@ void _dsdphi_p_cossin(Tbl* tb, int & )
     int nt = (tb->dim).dim[1] ;	    //	 de points
     int np = (tb->dim).dim[2] ;	    //	    physiques REELS
     np = np - 2 ;		    // Nombre de points physiques
+    
+    // Cas particulier de la symetrie axiale : 
+    if (np == 1) {
+	tb->set_etat_zero() ; 
+	return ; 
+    }
     
     // Variables statiques
     static double* cx = 0 ;

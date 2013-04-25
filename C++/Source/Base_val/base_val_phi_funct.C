@@ -31,6 +31,9 @@ char base_val_phi_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/04/25 15:46:05  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.4  2012/01/17 14:44:35  j_penner
  * Modified phi variables to only use 16 integers in arrays
  *
@@ -61,7 +64,6 @@ char base_val_phi_funct_C[] = "$Header$" ;
 
 
 // Headers Lorene
-#include "headcpp.h"
 #include "base_val.h"
 #include "type_parite.h"
 #include "tbl.h"
@@ -169,18 +171,24 @@ void phi_funct_cossin(int np, double* ff) {
 
     double xx = 2.*M_PI / double(np) ;
 
-    for (int i = 0; i < np-1 ; i+=2 ) {
+    if (np == 1) {
+	ff[0] = 1. ; // cos (0 * phi)
+	ff[1] = 0. ; // sin (0 * phi)
+    }
+    else {
+      for (int i = 0; i < np-1 ; i+=2 ) {
 	int m = i/2 ;
 	for (int k = 0; k < np ; k++ ) {
-	    double phi = xx*k ;
-	    ff[np*i + k] = cos(m * phi) ;	
-	    ff[np*(i+1) + k] = sin(m * phi) ;	
+	  double phi = xx*k ;
+	  ff[np*i + k] = cos(m * phi) ;	
+	  ff[np*(i+1) + k] = sin(m * phi) ;	
 	}
-    }
+      }
 
-    for (int k = 0; k < np ; k++ ) {
+      for (int k = 0; k < np ; k++ ) {
 	double phi = xx*k ;
 	ff[np*np + k] = cos(np/2 * phi) ;	
+      }
     }
 
 }

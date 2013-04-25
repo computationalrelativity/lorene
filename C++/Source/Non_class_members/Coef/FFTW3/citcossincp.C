@@ -85,6 +85,9 @@ char citcossincp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.1  2004/12/21 17:06:03  j_novak
  * Added all files for using fftw3.
  *
@@ -155,7 +158,7 @@ void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
     abort () ;
     exit(-1) ;
   }
-  if (n1c > n1f) {
+  if ( (n1f > 1) && (n1c > n1f) ) {
     cout << "citcossincp: n1c > n1f : n1c = " << n1c << " ,  n1f = " 
 	 << n1f << endl ;
     abort () ;
@@ -184,11 +187,19 @@ void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
   // Recherche de la table des sin( theta_l ) :
   double* sinth = chebimp_ini(nt);	
 
-  // boucle sur phi et r (les boucles vont resp. de 0 a dimf[0]-1
-  //			 et 0 a dimf[2])
+  // boucle sur r de 0 a dimf[2])
 
   int n2n3f = n2f * n3f ;
   int n2n3c = n2c * n3c ;
+
+/*   
+ * Borne de la boucle sur phi: 
+ *    si n1f = 1, on effectue la boucle une fois seulement.
+ *    si n1f > 1, on va jusqu'a j = n1f-2 en sautant j = 1 (les coefficients
+ *	j=n1f-1 et j=0 ne sont pas consideres car nuls). 
+ */
+  int borne_phi =  n1f-1  ;
+  if (n1f == 1) borne_phi = 1 ;
 
   //=======================================================================
   //				Cas m pair
@@ -196,7 +207,7 @@ void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
 
   j = 0 ;
     
-  while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
+  while (j < borne_phi) {   //le dernier coef en phi n'est pas considere
     // (car nul)
 
     //-----------------------------------------------------------------------
@@ -286,7 +297,7 @@ void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
 
     j++ ;
 
-    if ( (j != 1) && (j != n1f-1 ) ) {  
+    if ( (j != 1) && (j != borne_phi ) ) {  
       //  on effectue le calcul seulement dans les cas ou les coef en phi ne sont 
       //  pas nuls 
 
@@ -387,7 +398,7 @@ void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
 
   j = 2 ;
     
-  while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
+  while (j < borne_phi) {   //le dernier coef en phi n'est pas considere
     // (car nul)
 
 //--------------------------------------------------------------------------
@@ -485,7 +496,7 @@ void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
 
     j++ ;
 
-    if ( j != n1f-1  ) {  
+    if ( j != borne_phi  ) {  
       //  on effectue le calcul seulement dans les cas ou les coef en phi ne sont 
       //  pas nuls 
 

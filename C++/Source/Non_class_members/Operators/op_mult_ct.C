@@ -25,6 +25,9 @@ char op_mult_ct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/04/25 15:46:06  j_novak
+ * Added special treatment in the case np = 1, for type_p = NONSYM.
+ *
  * Revision 1.6  2009/10/09 14:00:54  j_novak
  * New bases T_cos and T_SIN.
  *
@@ -967,11 +970,14 @@ void _mult_ct_t_cossin_cp(Tbl* tb, int & b)
       som[i] = 0.5*xci[i] ;
     }	// Fin de la boucle sur r
   }   // Fin de la boucle sur theta
-  // j = 0
-  xci -= nr ;
-  xco -= nr ;
-  for (int i = 0; i<nr; i++) {
-    xco[i] = xci[i] + som[i] ;
+
+  if (nt > 1 ) {
+    // j = 0
+    xci -= nr ;
+    xco -= nr ;
+    for (int i = 0; i<nr; i++) {
+      xco[i] = xci[i] + som[i] ;
+    }
   }
   // Positionnement phi suivant
   xci += nr*nt ;
@@ -1454,11 +1460,14 @@ void _mult_ct_t_cossin_sp(Tbl* tb, int & b)
       som[i] = 0.5*xci[i] ;
     }	// Fin de la boucle sur r
   }   // Fin de la boucle sur theta
-  // j = 0 
-  xci -= nr ;
-  xco -= nr ;
-  for (int i=0; i<nr; i++) {
-    xco[i] = som[i] ;
+
+  if (nt > 1 ) {
+    // j = 0 
+    xci -= nr ;
+    xco -= nr ;
+    for (int i=0; i<nr; i++) {
+      xco[i] = som[i] ;
+    }
   }
   // Positionnement phi suivant
   xci += nr*nt ;
