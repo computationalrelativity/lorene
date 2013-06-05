@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2013/06/05 15:43:49  j_novak
+ * Suppression of leg_spectral_base()
+ *
  * Revision 1.40  2013/01/11 15:44:54  j_novak
  * Addition of Legendre bases (part 2).
  *
@@ -913,12 +916,6 @@ void Tensor::sauve(FILE* fd) const {
 
 
 // Sets the standard spectal bases of decomposition for each component
-void Tensor::leg_spectral_base() {
-  c_est_pas_fait("Tensor::leg_spectral_base()") ;
-}
-void Tensor::leg_spectral_base_odd() {
-  c_est_pas_fait("Tensor::leg_spectral_base_odd()") ;
-}
 void Tensor::std_spectral_base() {
 
 	switch (valence) {

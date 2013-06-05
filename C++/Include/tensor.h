@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.60  2013/06/05 15:43:49  j_novak
+ * Suppression of leg_spectral_base()
+ *
  * Revision 1.59  2013/01/11 15:44:54  j_novak
  * Addition of Legendre bases (part 2).
  *
@@ -646,20 +649,6 @@ class Tensor {
 	 * Currently only implemented for a scalar.
 	 */
 	virtual void std_spectral_base_odd() ; 
-	
-	/**
-	 * Sets the Legendre (in \e r ) standard spectal bases of decomposition 
-	 * for each component.
-	 * To be used only with \c valence  lower than or equal 2.
-	 */
-	virtual void leg_spectral_base() ; 
-	
-	/**
-	 * Sets the Legendre (in \e r ) standard odd spectal bases of decomposition 
-	 * for each component.
-	 * Currently only implemented for a scalar.
-	 */
-	virtual void leg_spectral_base_odd() ; 
 	
 	/** Decreases by \c dec  units the value of \c dzpuis  and 
 	 *  changes accordingly the values in the 
