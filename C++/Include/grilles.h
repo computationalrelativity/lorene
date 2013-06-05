@@ -1,7 +1,5 @@
 /*
- *  Definition of Lorene classes Grille3d
- *				 Grille3d_*
- *				 Mg3d
+ *  Definition of Lorene classes Grille3d and Mg3d
  *
  */
 
@@ -34,6 +32,13 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2013/06/05 15:00:26  j_novak
+ * Suppression of all classes derived from Grille3d. Now Grille3d is no
+ * longer an abstract class. r-samplings are only one of RARE, FIN or
+ * UNSURR (FINJAC has been removed). Instead, Mg3d possesses a new member
+ * colloc_r[nzone] defining the type of collocation points (spectral
+ * bases) in each domain.
+ *
  * Revision 1.20  2013/01/11 15:44:53  j_novak
  * Addition of Legendre bases (part 2).
  *
@@ -166,19 +171,15 @@ class Base_val ;
 
 // Classe de base
 /**
- * Base 3D grid class.\ingroup (spec)
+ * 3D grid class in one domain.\ingroup (spec)
  * 
- * This class is an abstract one. It can't be instanciated. 
- * There is no \c ostream 
- * operator. For historical reasons, the mnemonics refer to spherical 
- * coordinates \f$(r,\theta,\phi)\f$. However all this stuff can be used for 
- * any coordinate system if the appropriated constructors are created.
- *
+ * Basic 3D spherical grid class in spherical coordinates \f$(r,\theta,\phi)\f$. 
  * The radial coordinate \f$\xi\f$ lies in the range [0, 1] or [-1, 1]
- * depending upon the sampling. Its relation with the physical radial 
- * coordinate \e r is defined by the mapping (cf. class \c Map) and 
- * is described in Bonazzola, Gourgoulhon \& Marck, \a Phys. \a Rev. \a D
+ * depending upon the sampling (\c RARE or \c FIN ). Its relation with the 
+ * physical radial coordinate \e r is defined by the mapping (cf. class \c Map) 
+ * and is described in Bonazzola, Gourgoulhon \& Marck, \a Phys. \a Rev. \a D
  * \b 58, 104020 (1998).
+ * Note: this monogrid should not be used. Use instead \c Mg3d.
  *
  * @version #$Id$#
  */
@@ -189,9 +190,13 @@ class Grille3d {
 	const int nt ;	///< Number of points in \f$\theta\f$
 	const int np ;	///< Number of points in \f$\phi\f$
 
-	int type_r ;	///< Type of sampling in \e r (\f$\xi\f$) (\c RARE,\c FIN,\c UNSURR,\c FINJAC)
+	///Type of sampling in \e r (\f$\xi\f$) (\c RARE,\c FIN,\c UNSURR )
+	int type_r ;	
 	int type_t ;	///< Type of sampling in \f$\theta\f$ (\c SYM,\c NONSYM)
 	int type_p ;	///< Type of sampling in \f$\phi\f$ (\c SYM,\c NONSYM)
+	/// Type of radial spectral basis (\c BASE_CHEB, \c BASE_LEG, BASE_JAC02 )
+	int base_r ; 
+   
     public:
 	/// Array of values of \f$\xi\f$ at the \c nr collocation points
 	double* x ;	
@@ -200,19 +205,14 @@ class Grille3d {
 	/// Array of values of \f$\phi\f$ at the \c np collocation points
 	double* phi ;	
 
-    protected: 
-	/// Constructor (protected to make \c Grille3d an abstract class) 
-	Grille3d(int n_r, int n_t, int n_p) ;
+	/// Constructor 
+	Grille3d(int n_r, int n_t, int n_p, int typer, int typet, 
+		 int typep, int baser) ;
     
-    private:
-	/** Copy constructor (private and not implemented to make \c Grille3d
-	 * a non-copyable class)
-	 */ 
+	/// Copy constructor 
 	Grille3d(const Grille3d& ) ;
 	
-	/** Assignement operator (private and not implemented to make 
-	 *   \c Grille3d a non-copyable class)
-	 */
+	/// Assignement operator 
 	void operator=(const Grille3d& ) ;
 	 	
     public:
@@ -232,291 +232,15 @@ class Grille3d {
     	int get_type_t() const {return type_t ;} ; 
 	/// Returns \c type_p
     	int get_type_p() const {return type_p ;} ; 
+	/// Returns \c base_r
+	int get_base_r() const {return base_r ;} ;
 
+     protected:
+	/// Computes the collocation point coordinates in the radial direction
+	void compute_radial_grid() ;
 };
 
 
-		    // -------------------- //
-    	    	    // Les classes derivees //
-		    // -------------------- //
-
-/**@name Derived classes of class Grille3d.\ingroup (spec)
- * These derived classes differ only by their constructors 
- * (see the corresponding constructors for details).
- * 
- * Note: the monogrids should not be used. Use instead \c Mg3d.
- */
-//@{
-
-// Cas rare + sans symetrie
-// ------------------------
-/**
- * 3D grid for a spherical kernel without symmetry.
- * It contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- */
-class Grille3d_r : public Grille3d {
-    public:
-	Grille3d_r(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_r() ; ///< Destructor
-};
-
-// cas fin + sans symetrie
-// -----------------------
-/**
- * 3D grid for a spherical shell without symmetry.
- * It contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_f : public Grille3d {
-    public:
-	Grille3d_f(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_f() ; ///< Destructor
-};
-
-// cas echantillonnage (fin) en 1/r + sans symetrie
-// ------------------------------------------------
-/**
- * 3D grid for a compatified spherical shell without symmetry.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_i : public Grille3d {
-    public:
-	Grille3d_i(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_i() ; ///< Destructor
-};
-
-// Cas rare + symetrie equatoriale
-// -------------------------------
-/**
- * 3D grid for a spherical kernel with equatorial symmetry.
- * \f$z \rightarrow -z\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_req : public Grille3d {
-    public:
-	Grille3d_req(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_req() ; ///< Destructor
-};
-
-// cas fin + symetrie equatoriale
-// ------------------------------
-/**
- * 3D grid for a spherical shell with equatorial symmetry 
- * \f$z \rightarrow -z\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_feq : public Grille3d {
-    public:
-	Grille3d_feq(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_feq() ; ///< Destructor
-};
-
-// cas echantillonnage (fin) en 1/r + symetrie equatoriale
-// -------------------------------------------------------
-/**
- * 3D grid for a compatified spherical shell with equatorial symmetry
- * \f$z \rightarrow -z\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_ieq : public Grille3d {
-    public:
-	Grille3d_ieq(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_ieq() ; ///< Destructor
-};
-
-// Cas rare supersymetrique
-// ------------------------
-/**
- * 3D grid for a spherical kernel with super-symmetry 
- * \f$(x,y) \rightarrow (-x,-y)\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_rs : public Grille3d {
-    public:
-	Grille3d_rs(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_rs() ; ///< Destructor
-};
-
-// cas fin supersymetrique
-// -----------------------
-/**
- * 3D grid for a spherical shell with super-symmetry 
- * \f$(x,y) \rightarrow (-x,-y)\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_fs : public Grille3d {
-    public:
-	Grille3d_fs(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_fs() ; ///< Destructor
-};
-
-// cas echantillonnage (fin) en 1/r supersymetrique
-// --------------------------
-/**
- * 3D grid for a compactified spherical shell with super-symmetry 
- * \f$(x,y) \rightarrow (-x,-y)\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_is : public Grille3d {
-    public:
-	Grille3d_is(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_is() ; ///< Destructor
-};
-
-// Cas rare + 2 phi
-// ----------------
-/**
- * 3D grid for a spherical kernel with only even harmonics in \f$\phi\f$. 
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_r2p : public Grille3d {
-    public:
-	Grille3d_r2p(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_r2p() ; ///< Destructor
-};
-
-// cas fin + 2 phi
-// ---------------
-/**
- * 3D grid for a spherical shell with only even harmonics in \f$\phi\f$. 
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_f2p : public Grille3d {
-    public:
-	Grille3d_f2p(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_f2p() ; ///< Destructor
-};
-
-// cas echantillonnage (fin) en 1/r + 2 phi
-// ----------------------------------------
-/**
- * 3D grid for a compactified spherical kernel 
- * with only even harmonics in \f$\phi\f$. 
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_i2p : public Grille3d {
-    public:
-	Grille3d_i2p(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_i2p() ; ///< Destructor
-};
-
-// cas fin de jacobi + sans symetrie
-// ---------------------------------
-/**
- * 3D grid using Jacobi(0,2) polynomials
- * for a spherical kernel without symmetry.
- * It contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_fj : public Grille3d {
-    public:
-	Grille3d_fj(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_fj() ; ///< Destructor
-};
-
-// cas fin de jacobi + symetrie equatoriale
-// ----------------------------------------
-/**
- * 3D grid using Jacobi(0,2) polynomials 
- * for a spherical kernel with equatorial symmetry 
- * \f$z \rightarrow -z\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,2\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_fjeq : public Grille3d {
-    public:
-	Grille3d_fjeq(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_fjeq() ; ///< Destructor
-};
-
-// cas fin de jacobi supersymetrique
-// ---------------------------------
-/**
- * 3D grid using Jacobi(0,2) polynomials 
- * for a spherical kernel with super-symmetry 
- * \f$(x,y) \rightarrow (-x,-y)\f$.
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_fjs : public Grille3d {
-    public:
-	Grille3d_fjs(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_fjs() ; ///< Destructor
-};
-
-// cas fin de jacobi + 2 phi
-// -------------------------
-/**
- * 3D grid using Jacobi(0,2) polynomials 
- * for a spherical kernel with only even harmonics in \f$\phi\f$. 
- * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
- * \f$\phi \in [0,\pi[\f$.
- *
- * @version #$Id$#
- */
-class Grille3d_fj2p : public Grille3d {
-    public:
-	Grille3d_fj2p(int n_r, int n_t, int n_p) ; ///< Constructor
-	~Grille3d_fj2p() ; ///< Destructor
-};
-
-//@}
 
 		    	//---------------//
 		    	// Multi-grilles //
@@ -551,13 +275,21 @@ class Mg3d {
 	int* np ;	///< Array (size: \c nzone) of nb. of points in \f$\phi\f$
 	
 	/** Array (size: \c nzone) of type of sampling in \e r (\f$\xi\f$) 
-     *(\c RARE,\c FIN, c UNSURR,\c FINJAC)
-     */
+	 *(\c RARE,\c FIN, c UNSURR)
+	 */
 	int* type_r ;	
+
 	/// Type of sampling in \f$\theta\f$ (\c SYM, \c NONSYM)
 	int type_t ;
+
 	/// Type of sampling in \f$\phi\f$ (\c SYM, \c NONSYM)	
-	int type_p ;	
+	int type_p ;
+
+	/** Array (size: \c nzone)  of type of collocation points 
+	 * in \e r (\f$\xi\f$) and related decompoisition bases 
+	 * (\c BASE_CHEB, \c BASE_LEG, \c BASE_JAC02 ).
+	 */
+	int* colloc_r ;
 	
 	/// Array (size: \c nzone) of pointers on the \c Grille3d's
 	Grille3d** g ;	
@@ -599,10 +331,13 @@ class Mg3d {
  * @param   typt    [input] Type of sampling in \f$\theta\f$-direction
  * @param   nbp[]   [input] Array (size: \c nz) of NDF in \f$\phi\f$-direction
  * @param   typp    [input] Type of sampling in \f$\phi\f$-direction
+ * @param   base_r  [input] Types of \e r bases in each domain, to define the
+ *                          collocation points: \c BASE_CHEB , \c BASE_LEG or 
+ *                          \c BASE_JAC02. If the pointer is null, BASE_CHEB is set.
  *
  */
 	Mg3d(int nz, int nbr[], int typr[], int nbt[], int typt, int nbp[],
-	     int typp) ;
+	     int typp, int* base_r = 0x0) ;
 
 /**
  * Simplified constructor for a standard multi-grid.
@@ -637,17 +372,21 @@ class Mg3d {
  *			\c NONSYM  for a sampling in \f$[0,2\pi[\f$
  * @param  compact [input] \c true  for the last domain to have 
  *			a \e 1/r  sampling (\c UNSURR ) instead of a
- *			\e r  sampling (\c FIN ). 
+ *			\e r  sampling (\c FIN ).
+ * @param  legendre [input] \c true if the nucleus and shells have Legendre-type
+ *                          collocation points. If \c false, Chebyshev ones shall
+ *                          be used.
  */
 	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
-	     bool compact) ;
+	     bool compact, bool legendre=false) ;
 
 /**
- * Simplified constructor for a standard multi-grid.
+ * Simplified constructor for a standard multi-grid only with shells and Chebyshev.
  * This provides a multi-grid with the same number of degrees of freedom
  * in all the domains. \n
  * ALL DOMAINS ARE TREATED AS SHELLS
- * \f$\xi\in [-1,1]\f$, dense sampling (type \c FIN) near -1 and 1; \n
+ * \f$\xi\in [-1,1]\f$, dense sampling (type \c FIN) near -1 and 1; \n and only 
+ * Chebyshev bases are considered.
  *
  * @param   nz	    [input] Number of domains (zones).
  * @param   nbr     [input] Number of degree of freedom (NDF) in
@@ -668,7 +407,12 @@ class Mg3d {
  */
 	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp) ;
 
-	Mg3d(FILE* ) ;	 ///< Constructor from a file (see \c sauve(FILE*))
+	/**Constructor from a file (see \c sauve(FILE*)).
+	 * If the boolean flag \c read_base is \c false (default) the 
+	 * spectral basis is not saved, for compatibility with older 
+	 * versions. If it is set to \c true , the basis is saved.
+	 */
+	Mg3d(FILE* fd, bool read_base=false) ;	 
 	
    public:
 	/**
@@ -717,8 +461,6 @@ class Mg3d {
      * in domain no.\e l : \n
      *   \c RARE : \f$\xi\in[0,1]\f$ : rarefied at the origin  \n
      *   \c FIN : \f$\xi\in[-1,1]\f$ :  dense at the two extremities \n
-     *   \c FINJAC : \f$\xi\in[-1,1]\f$ : dense at the two extremities,
-     *      using Jacobi(0,2) polynomials \n
      *   \c UNSURR : \f$\xi\in[-1,1]\f$ : dense at the two extremities, 
      *      in view of using \f$u=1/r\f$ as radial variable 
      */
@@ -752,6 +494,17 @@ class Mg3d {
 	    assert(l>=0 && l<nzone) ;
 	    return g[l] ;
 	} ;
+
+	/** Returns the type of collocation points used in domain no. \e l.
+	 * This type depends on the spectral decomposition basis:
+	 * \li \c BASE_CHEB : Chebyshev basis and collocation points
+	 * \li \c BASE_LEG : Legendre basis and collocation points
+	 * \li \c BASE_JAC02 : Jacobi (0,2) polynomials
+	 */
+	int get_colloc_r(int l) const {
+	  assert(l>=0 && l<nzone) ;
+	  return colloc_r[l] ;
+	}
 
 	/// Returns the pointer on the associated angular grid
 	const Mg3d* get_angu() const ;
@@ -788,7 +541,14 @@ class Mg3d {
     // Outputs
     // -------
     public: 
-	void sauve(FILE* ) const ; ///< Save in a file
+	/** Saves into a file.
+	 * By default, if \c save_base is false, the spectral decomposition
+	 * basis \c colloc_r is not saved (for compatibility reasons).
+	 * If \c save_base is \c true, then \c colloc_r is save, too.
+	 * The same value for the flag \c read_base must be given in the
+	 * contructor reading the file.
+	 */
+	void sauve(FILE* fd, bool save_base=false) const ; 
 	
 	friend ostream& operator<<(ostream& , const Mg3d & ) ;	///< Display
 	
@@ -837,23 +597,18 @@ class Mg3d {
 	 */ 
 	Base_val** pseudo_base_vect_spher() const ;
 
-	/// Returns the Legendre (in \e r ) standard spectral bases for a scalar
-	Base_val leg_base_scal() const ; 	
-	
-	/// Returns the Legendre (in \e r ) standard odd spectral bases for a scalar
-	Base_val leg_base_scal_odd() const ; 	
-	
-	/** Returns the Legendre (in \e r ) standard spectral bases for the Cartesian 
-	 *  components of a vector
-	 */ 
-	Base_val** leg_base_vect_cart() const ;
-
-	/** Returns the Legendre (in \e r ) standard spectral bases for the spherical  
-	 *  components of a vector
-	 */ 
-	Base_val** leg_base_vect_spher() const ;
-
 };
 ostream& operator<<(ostream& , const Mg3d & ) ;
+
+
+//======================================
+// One domain standard bases definitions
+//======================================
+int std_base_scal_1z(int type_r, int type_t, int type_p) ; 
+int std_base_scal_odd_1z(int type_r, int type_t, int type_p) ; 
+int leg_base_scal_1z(int type_r, int type_t, int type_p) ; 
+int leg_base_scal_odd_1z(int type_r, int type_t, int type_p) ; 
+int jac02_base_scal_1z(int type_r, int type_t, int type_p) ; 
+int jac02_base_scal_odd_1z(int type_r, int type_t, int type_p) ; 
 
 #endif 

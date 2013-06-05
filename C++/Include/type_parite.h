@@ -37,6 +37,13 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2013/06/05 15:00:26  j_novak
+ * Suppression of all classes derived from Grille3d. Now Grille3d is no
+ * longer an abstract class. r-samplings are only one of RARE, FIN or
+ * UNSURR (FINJAC has been removed). Instead, Mg3d possesses a new member
+ * colloc_r[nzone] defining the type of collocation points (spectral
+ * bases) in each domain.
+ *
  * Revision 1.13  2013/01/11 08:20:10  j_novak
  * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
  *
@@ -119,12 +126,17 @@
 #define	    RARE    1
 #define	    FIN	    0
 #define	    UNSURR  2
-#define     FINJAC  3
 
 /* Symetries en theta */
 /* ------------------ */
 #define	    SYM	    1
 #define	    NONSYM  0
+
+/* Types de bases en r */
+/* ------------------- */
+#define     BASE_CHEB  0
+#define     BASE_LEG   1
+#define     BASE_JAC02 2
 
 /* Les bases de developement */
 /* ------------------------- */

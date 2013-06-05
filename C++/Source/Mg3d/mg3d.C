@@ -31,6 +31,13 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2013/06/05 15:00:26  j_novak
+ * Suppression of all classes derived from Grille3d. Now Grille3d is no
+ * longer an abstract class. r-samplings are only one of RARE, FIN or
+ * UNSURR (FINJAC has been removed). Instead, Mg3d possesses a new member
+ * colloc_r[nzone] defining the type of collocation points (spectral
+ * bases) in each domain.
+ *
  * Revision 1.15  2012/01/17 10:37:42  j_penner
  * added a constructor that treats all domains as type FIN
  *
@@ -141,15 +148,18 @@ char mg3d_C[] = "$Header$" ;
 //=============================================================================
 
 
-Mg3d::Mg3d(int nz,
-    int nbr[], int typr[], int nbt[], int typt, int nbp[], int typp)
+Mg3d::Mg3d(int nz, int nbr[], int typr[], int nbt[], int typt, int nbp[], 
+	   int typp, int* base_r)
     : nzone(nz), type_t(typt), type_p(typp)
 {
 
     // Type d'echantillonnage dans chaque zone
     type_r = new int[nz];
+    colloc_r = new int[nz] ;
+    bool cheb = (base_r == 0x0) ;
     for (int i=0 ; i<nz ; i++) {
 	type_r[i] = typr[i];
+	colloc_r[i] = cheb ? BASE_CHEB : base_r[i] ;
     }
 
     // Nombre de points
@@ -167,165 +177,16 @@ Mg3d::Mg3d(int nz,
     g = new Grille3d*[nz] ;
 
     for (int i=0; i<nz; i++) {
-
-    //... Echantillonnage selon le type demande:
-    switch (type_p) {
-//----------------------------------------------------------------------------
-	case NONSYM :    // echantillonnage en phi sur [0, 2 pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_feq(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case FINJAC :   // echantillonnage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fjeq(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_req(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_ieq(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = NONSYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case FINJAC :   // echantillonnage fin avec Jacobi
-			    g[i] = new 
-			     Grille3d_fj(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_r(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_i(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = NONSYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = NONSYM
-
-//----------------------------------------------------------------------------
-	case SYM :    // echantillonnage en phi sur [0,pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_fs(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case FINJAC :    // echantillonnage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fjs(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_rs(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_is(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = SYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f2p(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case FINJAC :   // echantillonnage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fj2p(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_r2p(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_i2p(nbr[i], nbt[i], nbp[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = SYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = SYM
-
-//----------------------------------------------------------------------------
-	default :
-//----------------------------------------------------------------------------
-	    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-		 << " n'est pas prevu !" << endl ;
-	    abort() ;
-    }	// fin des differents types d'echantillonnage en phi
-}   // fin de la boucle sur les zones
-
+      
+      g[i] = new Grille3d(nr[i], nt[i], np[i], type_r[i], type_t, type_p, 
+			  colloc_r[i]) ;
+    }   // fin de la boucle sur les zones
+    
     // Pointers on derived grids initiated to 0x0:
     // -------------------------------------------
-
+    
     set_deriv_0x0() ;
-
+    
 
 }
 
@@ -334,20 +195,30 @@ Mg3d::Mg3d(int nz,
 //=============================================================================
 
 Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
-	   bool compact)
+	   bool compact, bool leg)
     		: nzone(nz),
     		  type_t(typt),
     		  type_p(typp)   {
 
     // Type of r sampling in each domain: 
     type_r = new int[nz];
+    colloc_r = new int[nz];
     type_r[0] = RARE ;
+    colloc_r[0] = leg ? BASE_LEG : BASE_CHEB ;
     for (int l=1; l<nz-1; l++) {
 	type_r[l] = FIN ;
+	colloc_r[l] = leg ? BASE_LEG : BASE_CHEB ;
     }
     if (nz > 1) {
-		type_r[nz-1] = compact ? UNSURR : FIN ;
-	}
+      if (compact) {
+	type_r[nz-1] = UNSURR ;
+	colloc_r[nz-1] = BASE_CHEB ;
+      }
+      else {
+	type_r[nz-1] = FIN ;
+	colloc_r[nz-1] = leg ? BASE_LEG : BASE_CHEB ;
+      }
+    }
 
     // Same number of points in all domains:
     nr = new int[nz];
@@ -364,149 +235,16 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp,
     g = new Grille3d*[nz] ;
 
     for (int i=0; i<nz; i++) {
-
-    //... Echantillonnage selon le type demande:
-    switch (type_p) {
-//----------------------------------------------------------------------------
-	case NONSYM :    // echantillonnage en phi sur [0, 2 pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_feq(nr[i], nt[i], np[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_req(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_ieq(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = NONSYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f(nr[i], nt[i], np[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_r(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_i(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = NONSYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = NONSYM
-
-//----------------------------------------------------------------------------
-	case SYM :    // echantillonnage en phi sur [0,pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_fs(nr[i], nt[i], np[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_rs(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_is(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = SYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f2p(nr[i], nt[i], np[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_r2p(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_i2p(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = SYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = SYM
-
-//----------------------------------------------------------------------------
-	default :
-//----------------------------------------------------------------------------
-	    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-		 << " n'est pas prevu !" << endl ;
-	    abort() ;
-    }	// fin des differents types d'echantillonnage en phi
-}   // fin de la boucle sur les zones
-
+      
+      g[i] = new Grille3d(nr[i], nt[i], np[i], type_r[i], type_t, type_p, 
+			  colloc_r[i]) ;
+    }   // fin de la boucle sur les zones
+    
     // Pointers on derived grids initiated to 0x0:
     // -------------------------------------------
-
+    
     set_deriv_0x0() ;
-	
+    
 }
 
 //=============================================================================
@@ -521,8 +259,10 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp)
 
     // Type of r sampling in each domain: 
     type_r = new int[nz];
+    colloc_r = new int[nz] ;
     for (int l=0; l<nz; l++) {
 	type_r[l] = FIN ;
+	colloc_r[l] = BASE_CHEB ;
     }
 
     // Same number of points in all domains:
@@ -541,106 +281,10 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp)
 
     for (int i=0; i<nz; i++) {
 
-    //... Echantillonnage selon le type demande:
-    switch (type_p) {
-//----------------------------------------------------------------------------
-	case NONSYM :    // echantillonnage en phi sur [0, 2 pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_feq(nr[i], nt[i], np[i]) ;
-			    break ;
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = NONSYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f(nr[i], nt[i], np[i]) ;
-			    break ;
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = NONSYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = NONSYM
-
-//----------------------------------------------------------------------------
-	case SYM :    // echantillonnage en phi sur [0,pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_fs(nr[i], nt[i], np[i]) ;
-			    break ;
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = SYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f2p(nr[i], nt[i], np[i]) ;
-			    break ;
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = SYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = SYM
-
-//----------------------------------------------------------------------------
-	default :
-//----------------------------------------------------------------------------
-	    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-		 << " n'est pas prevu !" << endl ;
-	    abort() ;
-    }	// fin des differents types d'echantillonnage en phi
-}   // fin de la boucle sur les zones
+      g[i] = new Grille3d(nr[i], nt[i], np[i], type_r[i], type_t, type_p, 
+			  colloc_r[i]) ;
+      
+    }   // fin de la boucle sur les zones
 
     // Pointers on derived grids initiated to 0x0:
     // -------------------------------------------
@@ -659,7 +303,7 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp)
  * Cette facon de faire est abominable. Cependant je ne vois pas comment
  * faire autrement... j.a.
  */
-Mg3d::Mg3d(FILE* fd)
+Mg3d::Mg3d(FILE* fd, bool read_base)
 {
     // Lecture sur le fichier
     fread_be(&nzone, sizeof(int), 1, fd) ;		// nzone
@@ -673,166 +317,20 @@ Mg3d::Mg3d(FILE* fd)
     fread_be(type_r, sizeof(int), nzone, fd) ;	// type_r
     fread_be(&type_t, sizeof(int), 1, fd) ;	// type_t
     fread_be(&type_p, sizeof(int), 1, fd) ;	// type_p
+    colloc_r = new int[nzone] ;
+    if (read_base)
+      fread_be(colloc_r, sizeof(int), nzone, fd) ; // colloc_r
 
     // Les grilles
     // -----------
 
     g = new Grille3d*[nzone] ;
-
     for (int i=0; i<nzone; i++) {
-
-    //... Echantillonnage selon le type demande:
-    switch (type_p) {
-//----------------------------------------------------------------------------
-	case NONSYM :    // echantillonnage en phi sur [0, 2 pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_feq(nr[i], nt[i], np[i]) ;
-			    break ;
-			case FINJAC :    // echantillonage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fjeq(nr[i], nt[i], np[i]);
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_req(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_ieq(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = NONSYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f(nr[i], nt[i], np[i]) ;
-			    break ;
-			case FINJAC :    // echantillonnage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fj(nr[i], nt[i], np[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_r(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_i(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = NONSYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = NONSYM
-
-//----------------------------------------------------------------------------
-	case SYM :    // echantillonnage en phi sur [0,pi[
-//----------------------------------------------------------------------------
-	    switch (type_t) {
-		case SYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_fs(nr[i], nt[i], np[i]) ;
-			    break ;
-			case FINJAC :    // echantillonnage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fjs(nr[i], nt[i], np[i]) ;
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_rs(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_is(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = SYM et type_p = SYM
-
-		case NONSYM :    // echantillonnage en theta sur [0,pi/2]
-		    switch (type_r[i]) {
-			case FIN :    // echantillonnage fin
-			    g[i] = new
-			     Grille3d_f2p(nr[i], nt[i], np[i]) ;
-			    break ;
-			case FINJAC :     // echantillonnage fin avec Jacobi
-			    g[i] = new
-			     Grille3d_fj2p(nr[i], nt[i], np[i]);
-			    break ;
-			case RARE :    // echantillonnage rarefie
-			    g[i] = new
-			     Grille3d_r2p(nr[i], nt[i], np[i]) ;
-			    break ;
-			case UNSURR :    // echantillonnage fin en 1/r
-			    g[i] = new
-			     Grille3d_i2p(nr[i], nt[i], np[i]) ;
-			    break ;
-
-			default :
-			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			     << " , type_t = " << type_t
-			     << " et type_r = " << type_r[i] << endl ;
-			cout << "n'est pas prevu !" << endl ;
-			abort() ;
-			
-		    }	// fin des differents types d'echantillonnage en r
-		    break ;  // fin du cas type_t = NONSYM et type_p = SYM
-
-		default :
-		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-			 << " et type_t = " << type_t <<
-			    " n'est pas prevu !" << endl ;
-		    abort() ;
-		
-	    }  // fin des differents types d'echantillonnage en theta
-	    break ;	// fin du cas type_p = SYM
-
-//----------------------------------------------------------------------------
-	default :
-//----------------------------------------------------------------------------
-	    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
-		 << " n'est pas prevu !" << endl ;
-	    abort() ;
-    }	// fin des differents types d'echantillonnage en phi
-}   // fin de la boucle sur les zones
+      if (!read_base) colloc_r[i] = BASE_CHEB ;
+      g[i] = new Grille3d(nr[i], nt[i], np[i], type_r[i], type_t, type_p, 
+			  colloc_r[i]) ;
+      
+    }   // fin de la boucle sur les zones
 
     // Pointers on derived grids initiated to 0x0:
     // -------------------------------------------
@@ -840,7 +338,6 @@ Mg3d::Mg3d(FILE* fd)
     set_deriv_0x0() ;
 
 }
-
 
 // Destructeur
 // -----------
@@ -852,6 +349,7 @@ Mg3d::~Mg3d() {
     delete [] nt ;
     delete [] np ;
     delete [] type_r ;
+    delete [] colloc_r ;
     for (int i=0 ; i<nzone ; i++) {
 	delete g[i] ;
     }
@@ -863,7 +361,7 @@ Mg3d::~Mg3d() {
 //  Write in a file
 //==================================================================
 
-void Mg3d::sauve(FILE* fd) const {	
+void Mg3d::sauve(FILE* fd, bool save_base) const {	
 	    fwrite_be(&nzone, sizeof(int), 1, fd) ;	// nzone
 	    fwrite_be(nr, sizeof(int), nzone, fd) ;	// nr
 	    fwrite_be(nt, sizeof(int), nzone, fd) ;	// nt
@@ -871,10 +369,20 @@ void Mg3d::sauve(FILE* fd) const {
 	    fwrite_be(type_r, sizeof(int), nzone, fd) ;	// type_r
 	    fwrite_be(&type_t, sizeof(int), 1, fd) ;	// type_t
 	    fwrite_be(&type_p, sizeof(int), 1, fd) ;	// type_p
+	    if (save_base) {
+	      fwrite_be(colloc_r, sizeof(int), nzone, fd) ; // colloc_r
+	    }
+	    else 
+	      for (int l=0; l<nzone; l++) 
+		if (colloc_r[l] != BASE_CHEB) {
+		  cout << "Mg3d::sauve(FILE*, bool) : " << endl ;
+		  cout << "The multi-grid is not with Chebyshev basis!!" << endl ;
+		  cout << "Consider setting the 'save_base' flaf to 'true'!!" 
+		       << endl ;
+		  arrete() ;
+	      
+		}
 }
-
-
-
 
 		//--------------------------//
 		// Surcharge des operateurs //
@@ -882,16 +390,20 @@ void Mg3d::sauve(FILE* fd) const {
 
 // Operateur <<
 ostream& operator<<(ostream& o, const Mg3d& g) {
-    const char* tr[4] ;
-    tr[FIN] = "FIN" ; tr[RARE] = "RARE" ; tr[UNSURR] = "UNSURR" ; tr[FINJAC] = "FINJAC" ;
+    const char* tr[3] ;
+    tr[FIN] = "FIN" ; tr[RARE] = "RARE" ; tr[UNSURR] = "UNSURR" ;
     const char* tang[2] ;
     tang[NONSYM] = "NONSYM" ; tang[SYM] = "SYM" ;
+    const char* tbase[3] ;
+    tbase[BASE_CHEB] = "Chebyshev" ; tbase[BASE_LEG] = "Legendre" ; 
+    tbase[BASE_JAC02] = "Jacobi(0,2)" ;
     o << "Number of domains: " << g.nzone << endl ;
     for (int i=0 ; i< g.nzone ; i++) {
 	o << "  Domain #" << i << ": "
-	<< "nr = " << g.nr[i] << ", " << tr[g.type_r[i]] << "; "
-	<< "nt = " << g.nt[i] << ", " << tang[g.type_t] << "; "
-	<< "np = " << g.np[i] << ", " << tang[g.type_p] << endl ;
+	  << "nr = " << g.nr[i] << ", " << tr[g.type_r[i]] << "; "
+	  << "nt = " << g.nt[i] << ", " << tang[g.type_t] << "; "
+	  << "np = " << g.np[i] << ", " << tang[g.type_p] << "; "
+	  << "Collocation points type : " << tbase[g.colloc_r[i]] << endl ;
     }
     o << endl ;
     return o ;
@@ -908,6 +420,7 @@ bool Mg3d::operator!=(const Mg3d & titi) const {
 	if (np[i] != titi.np[i]) return true ;
 
 	if (type_r[i] != titi.type_r[i]) return true ;
+	if (colloc_r[i] != titi.colloc_r[i]) return true ;
     }
 
     if (type_t != titi.type_t) return true ;
@@ -958,7 +471,8 @@ const Mg3d* Mg3d::get_angu() const {
 	for (int i=0 ; i<nzone ; i++) {
 	    nbr_angu[i] = 1 ;
 	}
-	g_angu = new Mg3d(nzone, nbr_angu, type_r, nt, type_t, np, type_p) ;
+	g_angu = new Mg3d(nzone, nbr_angu, type_r, nt, type_t, np, type_p,
+			  colloc_r) ;
 	delete [] nbr_angu ;
     }
 
@@ -1003,7 +517,7 @@ const Mg3d* Mg3d::get_radial() const {
 	    nbr_radial[i] = 1 ;
 	}
 	g_radial = new Mg3d(nzone, nr, type_r, nbr_radial, SYM, nbr_radial, 
-			  SYM) ;
+			    SYM, colloc_r) ;
 	delete [] nbr_radial ;
     }
 
@@ -1046,7 +560,7 @@ const Mg3d* Mg3d::get_twice() const {
 	    }
 	}
 
-	g_twice = new Mg3d(nzone, nbr, type_r, nbt, type_t, nbp, type_p) ;
+	g_twice = new Mg3d(nzone, nbr, type_r, nbt, type_t, nbp, type_p, colloc_r) ;
 
 	delete [] nbr ;
 	delete [] nbt ;
@@ -1076,7 +590,7 @@ const Mg3d* Mg3d::plus_half() const {
 	nbr[l] = (3*nr[l])/2  ;
     }
     
-    g_plus_half = new Mg3d(nzone, nbr, type_r, nt, type_t, np, type_p) ;
+    g_plus_half = new Mg3d(nzone, nbr, type_r, nt, type_t, np, type_p, colloc_r) ;
 
     delete [] nbr ;
 
@@ -1109,7 +623,7 @@ const Mg3d* Mg3d::get_non_axi() const {
 	  nbp[l] = np[l] ;
     }
     
-    g_non_axi = new Mg3d(nzone, nr, type_r, nbt, type_t, nbp, type_p) ;
+    g_non_axi = new Mg3d(nzone, nr, type_r, nbt, type_t, nbp, type_p, colloc_r) ;
 
     delete [] nbt ;
     delete [] nbp ;
@@ -1135,6 +649,7 @@ bool Mg3d::operator==(const Mg3d& mgi) const {
       if (mgi.get_np(i) != np[i]) resu = false ;
       if (mgi.get_nt(i) != nt[i]) resu = false ;
       if (mgi.get_type_r(i) != type_r[i]) resu =false ;
+      if (mgi.get_colloc_r(i) != colloc_r[i]) resu = false ;
     }
   }
   

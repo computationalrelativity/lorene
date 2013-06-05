@@ -31,6 +31,13 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/06/05 15:00:26  j_novak
+ * Suppression of all classes derived from Grille3d. Now Grille3d is no
+ * longer an abstract class. r-samplings are only one of RARE, FIN or
+ * UNSURR (FINJAC has been removed). Instead, Mg3d possesses a new member
+ * colloc_r[nzone] defining the type of collocation points (spectral
+ * bases) in each domain.
+ *
  * Revision 1.6  2008/08/27 08:47:38  jl_cornou
  * Added R_JACO02 case
  *
@@ -97,20 +104,53 @@ char grille3d_C[] = "$Header$" ;
 #include "type_parite.h"
 #include "proto.h"
 
+
 		    	//-------------//
 		    	// Mono-grille //
 		    	//-------------//
 
-			// Classe de base
-
 // Constructeur
 //-------------
-Grille3d::Grille3d(int nrs, int nts, int nps) 
-    : nr(nrs), nt(nts), np(nps)
+Grille3d::Grille3d(int nrs, int nts, int nps, int typer, int typet,
+		   int typep, int baser) 
+  : nr(nrs), nt(nts), np(nps), type_r(typer), type_t(typet),
+    type_p(typep), base_r(baser)
 {
-    x = new double[nr] ; 
-    tet = new double[nt] ;
-    phi = new double[np] ;
+
+  //Radial part
+  assert(nr > 0) ;
+  x = new double[nr] ;
+  x[0] = 0. ;
+  if (nr > 1) compute_radial_grid() ;
+
+  //Theta part
+  assert(nt > 0) ;
+  tet = new double[nt] ;
+  double fac_tet = M_PI ;
+  if (type_t == SYM) fac_tet *= 0.5 ;
+  if (nt == 1) 
+    fac_tet = 0 ;
+  else 
+    fac_tet /= double(nt-1) ;
+  for (int i=0; i<nt; i++)
+    tet[i] = double(i)*fac_tet ;
+  if ( (type_t != SYM) && (type_t != NONSYM) ) {
+    cout << "Grille3d: unknown type in theta!" << endl ;
+    abort() ;
+  }
+
+  //Phi part
+  assert(np > 0) ;
+  phi = new double[np] ;
+  double fac_phi = M_PI / double(np) ;
+  if (type_p == NONSYM) fac_phi *= 2. ;
+  for (int i=0; i<np; i++)
+    phi[i] = double(i)*fac_phi ;
+  if ( (type_p != SYM) && (type_p != NONSYM) ) {
+    cout << "Grille3d: unknown type in phi!" << endl ;
+    abort() ;
+  }
+  
 }
     
 // Destructeur
@@ -121,699 +161,48 @@ Grille3d::~Grille3d() {
     delete [] phi ; 
 }
 
+void Grille3d::compute_radial_grid() {
 
-			// Cas rare + sans symetrie
+  assert(nr > 1) ;
+  double xx = 0 ;
 
-// Constructeur
-//-------------
-Grille3d_r::Grille3d_r(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    // Cette grille n'a pas de sens si np = 1
-    assert(nps != 1) ;	// ??
-
-      type_r = RARE ; 		// echantillonnage radial rarefie en 0     
-      type_t = NONSYM ;  	// echantillonnage en theta sur [0, pi] 
-      type_p = NONSYM ;  	// echantillonnage en phi sur [0, 2 pi[
-
-    // Partie radiale
-    double xx = 0 ;
-    if (nr>1) xx = M_PI/double(2*(nr-1)) ;
+  switch (base_r) {
+  case BASE_CHEB :
+    switch (type_r) {
+    case RARE:
+      xx = M_PI/double(2*(nr-1)) ;
+      for (int i=0; i<nr; i++)
+	x[i] = sin(xx*double(i)) ;
+      break ;
+    case FIN: case UNSURR :
+      xx = M_PI/double(nr-1) ;
+      for (int i=0 ; i<nr ; i++) 
+	x[i] = -cos(xx*double(i)) ;
+      break ;
+    default:
+      cout << "Grille3d::compute_radial_grid : " << endl ;
+      cout << "Unknown type of sampling for the Chebyshev basis!" << endl ;
+      abort() ;
+    }
+    break ;
+  case BASE_LEG :
+    cout << "Legendre pas fait " << endl ;
+    break ;
+  case BASE_JAC02 : {
+    double* yy = pointsgausslobatto(nr-1); 
     for (int i=0 ; i<nr ; i++) {
-	x[i] = sin(xx*i) ;
+      x[i] = yy[i] ;
     }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
+    delete [] yy ;
+    break ;
+  }
+  default : 
+    cout << "Grille3d::compute_radial_grid : " << endl ;
+    cout << "Unknown type of basis!" << endl ;
+    abort() ;
+    break ;
+  }
 }
 
-// Destructeur 
-//-------------
-Grille3d_r::~Grille3d_r() { }	// ne fait rien (c'est le destructeur
-				// de la classe de base, Grille3d, qui 
-				// fait tout. 
 
 
-// cas fin + sans symetrie
-
-// Constructeur
-//-------------
-Grille3d_f::Grille3d_f(int nrs, int nts, int nps)
-    : Grille3d(nrs, nts, nps)
-{
-    // Cette grille n'a pas de sens si np = 1
-    assert(nps != 1) ;	// ??
-
-    double xx ;
-
-    type_r = FIN ;	// echantillonnage radial fin sur [r_min,r_max]   
-    type_t = NONSYM ;	// echantillonnage en theta sur [0, pi] 
-    type_p = NONSYM ;	// echantillonnage en phi sur [0, 2 pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)  xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_f::~Grille3d_f() { }	// ne fait rien (c'est le destructeur
-				// de la classe de base, Grille3d, qui 
-				// fait tout. 
-
-// cas echantillonnage en 1/r + sans symetrie
-
-// Constructeur
-//-------------
-Grille3d_i::Grille3d_i(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-    // Cette grille n'a pas de sens si np = 1
-    assert(nps != 1) ;	// ??
-
-    double xx ;
-
-    type_r = UNSURR ;	// echantillonnage radial en u=1/r (fin sur [u_min,u_max]) 
-    type_t = NONSYM ;	// echantillonnage en theta sur [0,pi] 
-    type_p = NONSYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)  xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_i::~Grille3d_i() { }	// ne fait rien (c'est le destructeur
-				// de la classe de base, Grille3d, qui 
-				// fait tout. 
-
-// Cas rare + symetrie equatoriale 
-
-// Constructeur
-//-------------
-Grille3d_req::Grille3d_req(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = RARE ;	// echantillonnage radial rarefie en 0     
-    type_t = SYM ;	// echantillonnage en theta sur [0, pi/2] 
-    type_p = NONSYM ;	// echantillonnage en phi sur [0, 2 pi[
-     
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1) xx = M_PI/double(2*(nr-1)) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = sin(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_req::~Grille3d_req() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-
-// cas fin + symetrie equatoriale 
-
-// Constructeur
-//-------------
-Grille3d_feq::Grille3d_feq(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = FIN ;	// echantillonnage radial fin sur [r_min,r_max]   
-    type_t = SYM ;	// echantillonnage en theta sur [0, pi/2] 
-    type_p = NONSYM ;	// echantillonnage en phi sur [0, 2 pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)  xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_feq::~Grille3d_feq() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// cas echantillonnage en 1/r + symetrie equatoriale 
-
-// Constructeur
-//-------------
-Grille3d_ieq::Grille3d_ieq(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = UNSURR ;	// echantillonnage radial en u=1/r (fin sur [u_min,u_max]) 
-    type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
-    type_p = NONSYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)  xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_ieq::~Grille3d_ieq() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// Cas rare + 2 phi
-
-// Constructeur
-//-------------
-Grille3d_r2p::Grille3d_r2p(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = RARE ;	// echantillonnage radial rarefie en 0     
-    type_t = NONSYM ;	// echantillonnage en theta sur [0,pi] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-     
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)     xx = M_PI/double(2*(nr-1)) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = sin(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_r2p::~Grille3d_r2p() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// cas fin + 2 phi
-
-// Constructeur
-//-------------
-Grille3d_f2p::Grille3d_f2p(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = FIN ;	// echantillonnage radial fin sur [r_min,r_max]   
-    type_t = NONSYM ;	// echantillonnage en theta sur [0,pi] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)     xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_f2p::~Grille3d_f2p() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// cas echantillonnage en 1/r + 2 phi
-
-// Constructeur
-//-------------
-Grille3d_i2p::Grille3d_i2p(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = UNSURR ;	// echantillonnage radial en u=1/r (fin sur [u_min,u_max]) 
-    type_t = NONSYM ;	// echantillonnage en theta sur [0,pi] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1) xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_i2p::~Grille3d_i2p() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// Cas rare supersymmetrique
-
-// Constructeur
-//-------------
-Grille3d_rs::Grille3d_rs(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = RARE ;	// echantillonnage radial rarefie en 0     
-    type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-     
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)     xx = M_PI/double(2*(nr-1)) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = sin(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_rs::~Grille3d_rs() { }		// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// cas fin supersymetrique
-
-// Constructeur
-//-------------
-Grille3d_fs::Grille3d_fs(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = FIN ;	// echantillonnage radial fin sur [r_min,r_max]   
-    type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)     xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_fs::~Grille3d_fs() { }		// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-// cas echantillonnage en 1/r supersymetrique
-
-// Constructeur
-//-------------
-Grille3d_is::Grille3d_is(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = UNSURR ;	// echantillonnage radial en u=1/r (fin sur [u_min,u_max]) 
-    type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    xx = 0 ;
-    if (nr>1)     xx = M_PI/double(nr-1) ;
-    for (int i=0 ; i<nr ; i++) {
-	x[i] = -cos(xx*i) ;
-    }
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_is::~Grille3d_is() { }		// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-
-		
-
-
-                     // Cas fin de jacobi + sans symetrie
-
-// Constructeur
-//-------------
-Grille3d_fj::Grille3d_fj(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    // Cette grille n'a pas de sens si np = 1
-    assert(nps != 1) ;	// ??
-
-    double xx ;
-
-      type_r = FINJAC ; 	// echantillonnage radial fin avec Jacobi     
-      type_t = NONSYM ;  	// echantillonnage en theta sur [0, pi] 
-      type_p = NONSYM ;  	// echantillonnage en phi sur [0, 2 pi[
-
-    // Partie radiale
-     if (nr > 1) {
-	double* yy = pointsgausslobatto(nr-1); 
-        for (int i=0 ; i<nr ; i++) {
-		x[i] = yy[i] ;
-		}
-	delete [] yy ;
-	}
-    else 
-	x[0]=0;
-
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_fj::~Grille3d_fj() { }	// ne fait rien (c'est le destructeur
-				// de la classe de base, Grille3d, qui 
-				// fait tout. 
-
-
-
-// cas fin de jacobi + symetrie equatoriale 
-
-// Constructeur
-//-------------
-Grille3d_fjeq::Grille3d_fjeq(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-        
-
-    type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
-    type_t = SYM ;	// echantillonnage en theta sur [0, pi/2] 
-    type_p = NONSYM ;	// echantillonnage en phi sur [0, 2 pi[
-
-    // Partie radiale
-    if (nr > 1) {
-	double* yy = pointsgausslobatto(nr-1); 
-        for (int i=0 ; i<nr ; i++) {
-		x[i] = yy[i] ;
-		}
-	delete [] yy ;
-	}
-    else 
-	x[0]=0;
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = 2.*M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_fjeq::~Grille3d_fjeq() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-
-
-// cas fin de jacobi + 2 phi
-
-// Constructeur
-//-------------
-Grille3d_fj2p::Grille3d_fj2p(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-
-    type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
-    type_t = NONSYM ;	// echantillonnage en theta sur [0,pi] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    if (nr > 1) {
-	double* yy = pointsgausslobatto(nr-1); 
-        for (int i=0 ; i<nr ; i++) {
-		x[i] = yy[i] ;
-		}
-	delete [] yy ;
-	}
-    else 
-	x[0]=0;
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(nt-1) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_fj2p::~Grille3d_fj2p() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
-
-
-
-// cas fin de jacobi supersymetrique
-
-// Constructeur
-//-------------
-Grille3d_fjs::Grille3d_fjs(int nrs, int nts, int nps) 
-    : Grille3d(nrs, nts, nps)
-{
-
-    double xx ;
-    
-    type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
-    type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
-    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
-
-    // Partie radiale
-    
-    
-    if (nr > 1) {
-	double* yy = pointsgausslobatto(nr-1); 
-        for (int i=0 ; i<nr ; i++) {
-		x[i] = yy[i] ;
-		}
-	delete [] yy ;
-	}
-    else 
-	x[0]=0;
-    // Partie en theta
-    if (nt > 1) 
-	xx = M_PI/double(2*(nt-1)) ;
-    else
-	xx = 0. ;
-    for (int i=0 ; i<nt ; i++) {
-	tet[i] = xx*i ;
-    }
-    // Partie longitudinale
-    xx = M_PI/double(np) ;
-    for (int i=0 ; i<np ; i++) {
-	phi[i] = xx*i ;
-    }
-}
-
-// Destructeur 
-//-------------
-Grille3d_fjs::~Grille3d_fjs() { }	// ne fait rien (c'est le destructeur
-					// de la classe de base, Grille3d, qui 
-					// fait tout. 
