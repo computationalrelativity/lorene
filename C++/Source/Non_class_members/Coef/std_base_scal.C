@@ -31,6 +31,9 @@ char std_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2013/06/05 14:54:46  j_novak
+ * Removed the FINJAC sampling (now BASE_JAC02 in Mg3d).
+ *
  * Revision 1.5  2007/12/11 15:28:17  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -102,11 +105,6 @@ int std_base_scal_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 
-      case FINJAC : 
-        // echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; // développement en J_k(x)
-	break ;
-	
       case RARE : 		 
 	// echantillonnage rarefie
 	base_l = base_l | R_CHEBPI_P ;  // developpement en 
@@ -140,11 +138,6 @@ int std_base_scal_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; // développement en J_k(x)
-	break ;
-	
       case RARE : 		 
 	// echantillonnage rarefie
 	base_l = base_l | R_CHEBPIM_P ;  // developpement en 
@@ -191,11 +184,6 @@ int std_base_scal_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; // developpement en J_k(x)
-	break ;
-	
       case RARE :	    // echantillonnage rarefie		 
 	base_l = base_l | R_CHEBPI_P ;  // developpement en 
 	//  T_{2k}(x) pour l pair
@@ -224,11 +212,6 @@ int std_base_scal_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 	
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; // developpement en J_k(x)
-	break ;
-
       case RARE :	    // echantillonnage rarefie	 
 	base_l = base_l | R_CHEBP ;  // developpement en T_{2k}(x) 
 	break ;
@@ -297,11 +280,6 @@ int std_base_scal_odd_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;	
 
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; //developpement en J_k(x)
-	break ;
-	
       case RARE : 		 
 	// echantillonnage rarefie
 	base_l = base_l | R_CHEBPI_I ;  // developpement en 
@@ -335,11 +313,6 @@ int std_base_scal_odd_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 	
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; //developpement en J_k(x)
-	break ;
-
       case RARE : 		 
 	// echantillonnage rarefie
 	base_l = base_l | R_CHEBPIM_I ;  // developpement en 
@@ -386,11 +359,6 @@ int std_base_scal_odd_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; //developpement en J_k(x)
-	break ;
-	
       case RARE :	    // echantillonnage rarefie		 
 	base_l = base_l | R_CHEBPI_I ;  // developpement en 
 	//  T_{2k}(x) pour l impair
@@ -419,11 +387,6 @@ int std_base_scal_odd_1z(int type_r, int type_t, int type_p) {
 	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
 	break ;
 	
-      case FINJAC :
-	// echantillonnage fin de Jacobi
-	base_l = base_l | R_JACO02 ; //developpement en J_k(x)
-	break ;
-
       case RARE :	    // echantillonnage rarefie	 
 	base_l = base_l | R_CHEBI ;  // developpement en T_{2k+1}(x) 
 	break ;
