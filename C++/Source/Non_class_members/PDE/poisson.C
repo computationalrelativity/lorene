@@ -26,6 +26,10 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/06/05 15:10:43  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.6  2007/12/13 15:48:46  jl_cornou
  * *** empty log message ***
  *
@@ -172,7 +176,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
     // Verifications d'usage sur les zones
     int nz = source.get_mg()->get_nzone() ;
     assert (nz>1) ;
-    assert ((source.get_mg()->get_type_r(0) == RARE) || (source.get_mg()->get_type_r(0) == FINJAC)) ;
+    assert ((source.get_mg()->get_type_r(0) == RARE) || (source.get_mg()->get_type_r(0) == FIN)) ;
     assert (source.get_mg()->get_type_r(nz-1) == UNSURR) ;
     for (int l=1 ; l<nz-1 ; l++)
 	assert(source.get_mg()->get_type_r(l) == FIN) ;
@@ -236,6 +240,8 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
 	    {
 	    // calcul des nombres quantiques :
 	    donne_lm(nz, 0, j, k, base, m_quant, l_quant, base_r) ;
+	    assert( (source.get_mg()->get_type_r(0) == RARE) || 
+		    (base_r == R_JACO02) ) ;
 	    
 	    // Construction operateur
 	    operateur = new Matrice(laplacien_mat(nr, l_quant, 0., 0, base_r)) ;

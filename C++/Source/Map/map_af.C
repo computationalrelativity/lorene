@@ -33,6 +33,10 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.16  2012/01/17 15:34:35  j_penner
  * *** empty log message ***
  *
@@ -202,12 +206,6 @@ Map_af::Map_af(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille)
 		break ;
 	    }
 	      
-	    case FINJAC: {
-		alpha[l] = (bornes[l+1] - bornes[l]) * .5 ;
-		beta[l] = (bornes[l+1] + bornes[l]) * .5 ;
-		break ;
-	    }
-	    
 	    case UNSURR: {
 		double umax = 1./bornes[l] ;
 		double umin = 1./bornes[l+1] ;
@@ -248,12 +246,6 @@ Map_af::Map_af(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille)
 	    }
 	    
 	    case FIN:	{
-		alpha[l] = (bornes(l+1) - bornes(l)) * .5 ;
-		beta[l] = (bornes(l+1) + bornes(l)) * .5 ;
-		break ;
-	    }
-	    
-	    case FINJAC: {
 		alpha[l] = (bornes(l+1) - bornes(l)) * .5 ;
 		beta[l] = (bornes(l+1) + bornes(l)) * .5 ;
 		break ;

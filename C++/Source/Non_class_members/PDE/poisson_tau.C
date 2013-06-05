@@ -25,6 +25,10 @@ char poisson_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2013/06/05 15:10:43  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.7  2008/08/27 08:51:15  jl_cornou
  * Added Jacobi(0,2) polynomials
  *
@@ -83,7 +87,7 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
     // Verifications d'usage sur les zones
     int nz = source.get_mg()->get_nzone() ;
     assert (nz>1) ;
-    assert ((source.get_mg()->get_type_r(0) == RARE) || (source.get_mg()->get_type_r(0) == FINJAC)) ;
+    assert ((source.get_mg()->get_type_r(0) == RARE) || (source.get_mg()->get_type_r(0) == FIN)) ;
     assert (source.get_mg()->get_type_r(nz-1) == UNSURR) ;
     for (int l=1 ; l<nz-1 ; l++)
 	assert(source.get_mg()->get_type_r(l) == FIN) ;
@@ -169,8 +173,9 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
 	  }
 	}
 
-	// FINJAC case
+	// JACO02 case
 	else {
+	  assert( base_r == R_JACO02) ;
 	// regularity conditions :
 	if (l_quant == 0) {
 	    nbr_cl = 1 ;

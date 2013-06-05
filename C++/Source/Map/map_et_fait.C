@@ -25,6 +25,10 @@ char map_et_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.6  2012/01/24 14:59:12  j_novak
  * Removed functions XXX_fait_xi()
  *
@@ -98,7 +102,7 @@ Mtbl* map_et_fait_r(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 
-	    case FIN: case RARE: case FINJAC: {
+	    case FIN: case RARE: {
 
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
@@ -541,21 +545,6 @@ Mtbl* map_et_fait_xsr(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-			*p_r = 1. / ( alpha[l] * ( (g->x)[i] 
-						    + aa(i) * ff(l, k, j, 0)
-						    + bb(i) * gg(l, k, j, 0)
-						) + beta[l] );
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-	    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {

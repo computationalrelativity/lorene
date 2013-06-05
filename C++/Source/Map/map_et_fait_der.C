@@ -25,6 +25,10 @@ char map_et_fait_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.4  2008/08/27 08:49:01  jl_cornou
  * Added R_JACO02 case
  *
@@ -99,7 +103,7 @@ Mtbl* map_et_fait_dxdr(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 	
-	    case FIN: case RARE: case FINJAC: {
+	    case FIN: case RARE: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
@@ -180,7 +184,7 @@ Mtbl* map_et_fait_drdt(const Map* cvi) {
 	switch(mg->get_type_r(l)) {
 	
 		    
-	    case RARE : case FIN: case FINJAC :{
+	    case RARE : case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
@@ -259,7 +263,7 @@ Mtbl* map_et_fait_stdrdp(const Map* cvi) {
 	switch(mg->get_type_r(l)) {
 	
 		    
-	    case RARE : case FIN: case FINJAC: {
+	    case RARE : case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
@@ -359,23 +363,6 @@ Mtbl* map_et_fait_srdrdt(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-			*p_r = alpha[l] * (   aa(i) * dffdt(l, k, j, 0)
-					    + bb(i) * dggdt(l, k, j, 0) )
-				/ ( alpha[l] * (
-					(g->x)[i] + aa(i) * ff(l, k, j, 0)
-						  + bb(i) * gg(l, k, j, 0) ) 
-				      + beta[l] ) ; 
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-		    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
@@ -482,23 +469,6 @@ Mtbl* map_et_fait_srstdrdp(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-			*p_r = alpha[l] * (   aa(i) * stdffdp(l, k, j, 0)
-					    + bb(i) * stdggdp(l, k, j, 0) )
-				/ ( alpha[l] * (
-					(g->x)[i] + aa(i) * ff(l, k, j, 0)
-						  + bb(i) * gg(l, k, j, 0) ) 
-				      + beta[l] ) ; 
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-		    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
@@ -607,26 +577,6 @@ Mtbl* map_et_fait_sr2drdt(const Map* cvi) {
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ; 
-	    }
-
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-
-			double ww = alpha[l] * (
-					(g->x)[i] + aa(i) * ff(l, k, j, 0)
-						  + bb(i) * gg(l, k, j, 0) ) 
-				      + beta[l] ; 
-
-			*p_r = alpha[l] * (   aa(i) * dffdt(l, k, j, 0)
-					    + bb(i) * dggdt(l, k, j, 0) )
-				/ ( ww*ww ) ; 
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
 	    }
 
 		    
@@ -748,27 +698,6 @@ Mtbl* map_et_fait_sr2stdrdp(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-
-			double ww = alpha[l] * (
-					(g->x)[i] + aa(i) * ff(l, k, j, 0)
-						  + bb(i) * gg(l, k, j, 0) ) 
-				      + beta[l] ; 
-
-			*p_r = alpha[l] * (   aa(i) * stdffdp(l, k, j, 0)
-					    + bb(i) * stdggdp(l, k, j, 0) )
-				/ ( ww*ww ) ; 
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-
-		    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
@@ -882,25 +811,6 @@ Mtbl* map_et_fait_rsxdxdr(const Map* cvi) {
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ; 
-	    }
-
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-
-			*p_r = ( (g->x)[i] + aa(i) * ff(l, k, j, 0) 
-					   + bb(i) * gg(l, k, j, 0) 
-					   + beta[l]/alpha[l]	     )  /
-			       ( ( 1. + da(i) * ff(l, k, j, 0) 
-				      + db(i) * gg(l, k, j, 0) ) *
-				 ( (g->x)[i] + beta[l]/alpha[l] ) ) ;			
-			
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
 	    }
 
 		    
@@ -1017,27 +927,6 @@ Mtbl* map_et_fait_rsx2drdx(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-
-			double ww = ( (g->x)[i] + aa(i) * ff(l, k, j, 0)
-						+ bb(i) * gg(l, k, j, 0) 
-						+ beta[l]/alpha[l]	  )  /
-				    ( (g->x)[i] + beta[l]/alpha[l] ) ; 
-
-			*p_r = ww * ww * 
-			       ( 1. + da(i) * ff(l, k, j, 0) 
-				    + db(i) * gg(l, k, j, 0) ) ;			
-			
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-
 		    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
@@ -1130,7 +1019,7 @@ Mtbl* map_et_fait_d2rdx2(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 	
-	    case FIN: case RARE: case FINJAC: {
+	    case FIN: case RARE: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
@@ -1243,27 +1132,6 @@ Mtbl* map_et_fait_lapr_tp(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-
-			double ww = alpha[l] * (
-					(g->x)[i] + aa(i) * ff(l, k, j, 0)
-						  + bb(i) * gg(l, k, j, 0) ) 
-				      + beta[l] ; 
-
-			*p_r = alpha[l] * (   aa(i) * lapff(l, k, j, 0)
-					    + bb(i) * lapgg(l, k, j, 0) )
-				/ ( ww*ww ) ; 
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-
-		    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
@@ -1354,7 +1222,7 @@ Mtbl* map_et_fait_d2rdtdx(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 	
-	    case FIN: case RARE: case FINJAC: {
+	    case FIN: case RARE: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
@@ -1431,7 +1299,7 @@ Mtbl* map_et_fait_sstd2rdpdx(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 	
-	    case FIN: case RARE: case FINJAC: {
+	    case FIN: case RARE: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
@@ -1536,27 +1404,6 @@ Mtbl* map_et_fait_sr2d2rdt2(const Map* cvi) {
 	    break ; 
 	    }
 
-	    case FINJAC: {
-	    for (int k=0 ; k<np ; k++) {
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-
-			double ww = alpha[l] * (
-					(g->x)[i] + aa(i) * ff(l, k, j, 0)
-						  + bb(i) * gg(l, k, j, 0) ) 
-				      + beta[l] ; 
-
-			*p_r = alpha[l] * (   aa(i) * d2ffdt2(l, k, j, 0)
-					    + bb(i) * d2ggdt2(l, k, j, 0) )
-				/ ( ww*ww ) ; 
-			p_r++ ;
-		    }	    // Fin de boucle sur r
-		}	// Fin de boucle sur theta
-	    }	    // Fin de boucle sur phi
-	    break ;
-	    }
-
-		    
 	    case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {

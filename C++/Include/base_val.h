@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2013/06/05 15:10:41  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.20  2013/01/11 08:20:10  j_novak
  * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
  *
@@ -224,7 +228,7 @@ class Mg3d ;
  *   \li \c R_LEGI (0x0000000b) : Odd Legendre polynomials 
  *					    (\e r -sampling: \c RARE);
  *   \li \c R_JACO02 (0x0000000c) : Jacobi(0,2) polynomials 
- *                                          (\e r -sampling: \c FINJAC).
+ *                                          (\e r -sampling: \c FIN).
  *
  * The basis functions for expansion with respect to the co-latitude coordinate 
  * \f$\theta\f$ are coded as follows, \e m being the order of the Fourier expansion 

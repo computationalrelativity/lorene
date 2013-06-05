@@ -30,6 +30,10 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.6  2008/09/01 08:12:03  j_novak
  * Improved test on the [rmin, rmax] interval.
  *
@@ -91,7 +95,7 @@ double Map_af::val_r(int l, double xi, double, double) const {
 
     switch( mg->get_type_r(l) ) {
 
-	case FIN: case RARE: case FINJAC : {
+	case FIN: case RARE: {
 	    resu = alpha[l] * xi + beta[l] ;
 	    break ;
 	}
@@ -159,7 +163,7 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 
     switch( mg->get_type_r(lz) ) {
 
-	case FIN: case RARE: case FINJAC : {
+	case FIN: case RARE: {
 	    xi = ( rr - beta[lz] ) / alpha[lz]  ;
 	    break ;
 	}

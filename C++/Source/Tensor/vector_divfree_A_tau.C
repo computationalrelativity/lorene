@@ -25,6 +25,10 @@ char vector_divfree_A_tau[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/06/05 15:10:43  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.1  2008/08/27 09:01:27  jl_cornou
  * Methods for solving Dirac systems for divergence free vectors
  *
@@ -55,15 +59,7 @@ char vector_divfree_A_tau[] = "$Header$" ;
 #include "diff.h"
 #include "proto.h"
 #include "param.h"
-
-// Header C : 
-#include <stdlib.h>
-#include <math.h>
-
-// Headers Lorene :
 #include "matrice.h"
-#include "map.h"
-#include "proto.h"
 #include "type_parite.h"
 
 
@@ -73,7 +69,7 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
 	assert(mp_aff != 0x0) ; // Only affine mapping for the moment
 
 	const Mg3d& mgrid = *mp_aff->get_mg();
-	assert((mgrid.get_type_r(0) == RARE) || (mgrid.get_type_r(0) == FINJAC));
+	assert((mgrid.get_type_r(0) == RARE) || (mgrid.get_type_r(0) == FIN));
 	if (aaa.get_etat() == ETATZERO) {
 		eta_tilde = 0;
 		vr = 0 ;
@@ -146,7 +142,7 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
     	nt = mgrid.get_nt(0) ;
     	
 	
-	double alpha, beta, echelle ; 
+	double alpha, beta ; 
 	int l_quant, m_quant ;    
 
     	// On bosse pour chaque l, m :
@@ -203,8 +199,9 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
 	}
 	}
 
-	// FINJAC case
+	// R_JACO02 case
 	else {
+	  assert (base_r == R_JACO02) ;
 	// regularity conditions for eta :
 	if (l_quant == 0) {
 	    nbr_cl = 1 ;
@@ -277,8 +274,9 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
 	  }
 	}
 
-	// FINJAC case
+	// R_JACO02 case
 	else {
+	  assert (base_r == R_JACO02) ;
 	// regularity conditions for vr :
 	if (l_quant == 0) {
 	    nbr_cl = 1 ;
@@ -336,7 +334,8 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
 		 systeme.set(ligne_courant+1, col+column_courant+nr) = 0 ;
  		}
 	      }
-	     else { // Cas FINJAC
+	     else { // Cas R_JACO02
+	       assert( base_r == R_JACO02 ) ;
 	     // La fonction eta
 	     systeme.set(ligne_courant, col+column_courant) = 1 ;
 	     systeme.set(ligne_courant, col+column_courant+nr) = 0 ; 
@@ -363,7 +362,8 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
 		 systeme.set(ligne_courant+1, col+column_courant+nr) = (2*col+1)*(2*col+1)/alpha ;
  		}
 	      }
-	     else { // Cas FINJAC
+	     else { // Cas R_JACO02
+	       assert( base_r == R_JACO02 ) ;
 	     // La fonction vr
 	     systeme.set(ligne_courant, col+column_courant) = 0 ;
 	     systeme.set(ligne_courant, col+column_courant+nr) = 1 ; 
@@ -385,11 +385,8 @@ void Vector_divfree::sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta_tilde, Scala
 		nr = mgrid.get_nr(l) ; 
 		alpha = (*mp_aff).get_alpha()[l] ;
 		beta = (*mp_aff).get_beta()[l] ;
-		echelle = beta/alpha ;
 		
          	base.give_quant_numbers (l, k, j, m_quant, l_quant, base_r) ;  
-        //	work = new Matrice (laplacien_mat(nr, l_quant, echelle, 0, base_r)) ;
-	//	Diff_dsdx ods(base_r, nr) ; const Matrice& mds = ods.get_matrice() ;
 		Diff_id ois(base_r, nr) ; const Matrice& mis = ois.get_matrice() ;
 		Diff_xdsdx oxds(base_r, nr) ; const Matrice& mxds = oxds.get_matrice() ;
 	

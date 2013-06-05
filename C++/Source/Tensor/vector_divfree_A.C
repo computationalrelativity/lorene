@@ -30,6 +30,10 @@ char sol_Dirac_A_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/06/05 15:10:43  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.3  2009/10/23 13:18:46  j_novak
  * Minor modifications
  *
@@ -420,6 +424,7 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 	
     // Loop on l and m
     //----------------
+    int nr ;
     for (int k=0 ; k<np+1 ; k++)
 	for (int j=0 ; j<nt ; j++) {
 	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
@@ -448,8 +453,6 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 		else {
 		// General case, two zones at least
 		//Nucleus 
-		int nr = mgrid.get_nr(0) ;
-		
 		systeme.set(ligne, colonne) = sol_hom2_vr.val_out_bound_jk(0, j, k) ;
 		sec_membre.set(ligne) = -sol_part_vr.val_out_bound_jk(0, j, k) ;
 		ligne++ ;
@@ -551,7 +554,7 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 		
 		// everything is put to the right place...
 		//----------------------------------------
- 		int nr = mgrid.get_nr(0) ; //nucleus
+ 		nr = mgrid.get_nr(0) ; //nucleus
  		for (int i=0 ; i<nr ; i++) {
 		    mvr.set(0, k, j, i) = sol_part_vr(0, k, j, i)
 			+ facteur(conte)*sol_hom2_vr(0, k, j, i) ;

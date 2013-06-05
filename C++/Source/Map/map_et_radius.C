@@ -30,6 +30,10 @@ char map_et_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.4  2008/08/27 08:49:16  jl_cornou
  * Added R_JACO02 case
  *
@@ -101,16 +105,6 @@ double Map_et::val_r(int l, double xi, double theta, double pphi) const {
 	    break ;
 	}
 
-	case FINJAC: {
-	    double gtp = gg.val_point(l, 0, theta, pphi) ; 
-	    double xm1 = xi - 1. ; 
-	    double xp1 = xi + 1. ; 
-	    double a = 0.25* xm1 * xm1 * (xi + 2.) ;
-	    double b = 0.25* xp1 * xp1 * (2. - xi) ;
-	    resu = alpha[l] * ( xi + a * ftp + b * gtp ) + beta[l] ;
-	    break ;
-	}
-	
 	case FIN: {
 	    double gtp = gg.val_point(l, 0, theta, pphi) ; 
 	    double xm1 = xi - 1. ; 
@@ -218,13 +212,6 @@ void Map_et::val_lx(double rr, double theta, double pphi,
 	    break ;
 	}
 	
-	case FINJAC: {
-	    ftp = double(0) ; 
-	    gtp = gg.val_point(l, 0, theta, pphi) ; 
-	    rmax = alpha[l] * ( double(1) + gtp ) + beta[l] ;
-	    break ;
-	}
-
 	case FIN: {
 	    ftp = double(0) ; 
 	    gtp = gg.val_point(l, 0, theta, pphi) ; 
@@ -322,19 +309,6 @@ void Map_et::val_lx(double rr, double theta, double pphi,
 	    break ;
 	}
 	
-	case FINJAC: {
-	    if ( (ff.get_etat()==ETATZERO) && (gg.get_etat()==ETATZERO) ) {
-		xi = ( rr - beta[lz] ) / alpha[lz]  ;
-	    }
-	    else {
-		double xmin = -1 ; 
-		double xmax = 1 ; 
-		xi = zerosec(fonc_invr_map_et_coq, parzerosec, xmin, xmax, 
-			     precis, nitermax, niter) ;
-	    }
-	    break ;
-	}
-
 	case FIN: {
 	    if ( (ff.get_etat()==ETATZERO) && (gg.get_etat()==ETATZERO) ) {
 		xi = ( rr - beta[lz] ) / alpha[lz]  ;
@@ -416,16 +390,6 @@ double Map_et::val_r_jk(int l, double xi, int j, int k) const {
 	    break ;
 	}
 
-	case FINJAC: {
-	    double gtp = gg(l, k, j, 0) ; // value of G_l(theta_j, phi_k)
-	    double xm1 = xi - 1. ; 
-	    double xp1 = xi + 1. ; 
-	    double a = 0.25* xm1 * xm1 * (xi + 2.) ;
-	    double b = 0.25* xp1 * xp1 * (2. - xi) ;
-	    resu = alpha[l] * ( xi + a * ftp + b * gtp ) + beta[l] ;
-	    break ;
-	}
-	
 	case UNSURR: {
 	    double xm1 = xi - 1. ; 
 	    double a = 0.25* xm1 * xm1 * (xi + 2.) ;

@@ -30,6 +30,10 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.10  2012/01/24 15:02:28  j_novak
  * Minor change to avoid warnings
  *
@@ -82,9 +86,6 @@ char mg3d_std_base_C[] = "$Header$" ;
 #include "base_val.h"
 #include "type_parite.h"
 
-int std_base_scal_1z(int type_r, int type_t, int type_p) ; 
-int std_base_scal_odd_1z(int type_r, int type_t, int type_p) ; 
-
 		    //-----------------------------//
 		    //	Bases for a scalar field   //
 		    //-----------------------------//
@@ -95,8 +96,26 @@ Base_val Mg3d::std_base_scal() const {
     Base_val base(nzone) ;  
      
     for (int l=0; l<nzone; l++) {
+      switch ( colloc_r[l] ) {
+      case BASE_CHEB :
 	base.b[l] = std_base_scal_1z(type_r[l], type_t, type_p) ;
-    }
+	break ;
+
+      case BASE_LEG :
+	base.b[l] = leg_base_scal_1z(type_r[l], type_t, type_p) ;
+	break ;
+
+      case BASE_JAC02 :
+	base.b[l] = jac02_base_scal_1z(type_r[l], type_t, type_p) ;
+	break ;
+
+      default :
+	cout << "Mg3d::std_base_scal : unknown type of radial base!"
+	     << endl ;
+	abort() ;
+
+      } // End of switch
+    } // End of loop on domains
     
     return base ; 
      
@@ -107,8 +126,26 @@ Base_val Mg3d::std_base_scal_odd() const {
     Base_val base(nzone) ;  
      
     for (int l=0; l<nzone; l++) {
+      switch ( colloc_r[l] ) {
+      case BASE_CHEB :
 	base.b[l] = std_base_scal_odd_1z(type_r[l], type_t, type_p) ;
-    }
+	break ;
+
+      case BASE_LEG :
+	base.b[l] = leg_base_scal_odd_1z(type_r[l], type_t, type_p) ;
+	break ;
+
+      case BASE_JAC02 : // No defined parity for Jacobi(0,2) polynomials
+	base.b[l] = jac02_base_scal_1z(type_r[l], type_t, type_p) ;
+	break ;
+
+      default :
+	cout << "Mg3d::std_base_scal_odd : unknown type of radial base!"
+	     << endl ;
+	abort() ;
+
+      } // End of switch
+    } // End of loop on domains
     
     return base ; 
      
@@ -142,6 +179,8 @@ Base_val** Mg3d::std_base_vect_cart() const {
      	        
     // Boucle sur les differentes zones :
     for (int l=0; l<nzone; l++) {
+
+      assert (colloc_r[l] == BASE_CHEB) ;
 
     // Type d'echantillonnage de la zone l :
 	int type_r0 = get_type_r(l) ;
@@ -184,14 +223,6 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
-		    break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 
@@ -243,14 +274,6 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
-		    break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 		    case RARE : 		 
@@ -337,14 +360,6 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base3 = base3 | R_CHEB  ;  
 		    break ;
 
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
-
 		    case RARE : 		 
 // echantillonnage rarefie
 
@@ -392,14 +407,6 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
-		    break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 		    case RARE : 		 
@@ -495,6 +502,8 @@ Base_val** Mg3d::std_base_vect_spher() const {
     // Boucle sur les differentes zones :
     for (int l=0; l<nzone; l++) {
 	
+      assert (colloc_r[l] == BASE_CHEB) ;
+
 	// Type d'echantillonnage de la zone l :
 	int type_r0 = get_type_r(l) ;
 	
@@ -537,14 +546,6 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	  base2 = base2 | R_CHEB  ;  
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
 
 	case RARE : 		 
 // echantillonnage rarefie
@@ -595,14 +596,6 @@ Base_val** Mg3d::std_base_vect_spher() const {
 		      base3 = base3 | R_CHEB  ;  
 		      break ;
 
-		  case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		      
-		      base1 = base1 | R_JACO02  ;  
-		      base2 = base2 | R_JACO02  ;  
-		      base3 = base3 | R_JACO02  ;  
-		      break ;
-		      
 		  case RARE : 		 
 // echantillonnage rarefie
 		      
@@ -680,14 +673,6 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
 
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
-
 	case RARE : 		 
 // echantillonnage rarefie
 
@@ -728,48 +713,40 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	//------------
 	      switch ( type_r0 ) {
 		  
-		  case FIN : 			 
+	      case FIN : 			 
 // echantillonnage fin
 		      
-		      base1 = base1 | R_CHEB  ;  
-		      base2 = base2 | R_CHEB  ;  
-		      base3 = base3 | R_CHEB  ;  
-		      break ;
-
-		  case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		      
-		      base1 = base1 | R_JACO02  ;  
-		      base2 = base2 | R_JACO02  ;  
-		      base3 = base3 | R_JACO02  ;  
-		      break ;
-		      
-		  case RARE : 		 
+		base1 = base1 | R_CHEB  ;  
+		base2 = base2 | R_CHEB  ;  
+		base3 = base3 | R_CHEB  ;  
+		break ;
+		
+	      case RARE : 		 
 // echantillonnage rarefie
 		      
-		      base1 = base1 | R_CHEBPI_I ;  
-		      base2 = base2 | R_CHEBPI_I ;  
-		      base3 = base3 | R_CHEBPI_P ;  
-		    
-		      break ;
+		base1 = base1 | R_CHEBPI_I ;  
+		base2 = base2 | R_CHEBPI_I ;  
+		base3 = base3 | R_CHEBPI_P ;  
+		
+		break ;
 
-	case UNSURR : 		    
+	      case UNSURR : 		    
 // echantillonnage fin (1/r)
 
-	  base1 = base1 | R_CHEBU  ;  
-	  base2 = base2 | R_CHEBU  ;  
-	  base3 = base3 | R_CHEBU  ;  
-	  break ;
+		base1 = base1 | R_CHEBU  ;  
+		base2 = base2 | R_CHEBU  ;  
+		base3 = base3 | R_CHEBU  ;  
+		break ;
 
-      default : 
-	cout << "Mg3d::std_base_vect_spher : le cas type_p, type_t = " 
-	     << type_p<< " " <<type_t << endl ;
-	cout << " dans la zone l = " << l << " n'est pas prevu ! " 
-	     << endl ;
-	abort () ;
+	      default : 
+		cout << "Mg3d::std_base_vect_spher : le cas type_p, type_t = " 
+		     << type_p<< " " <<type_t << endl ;
+		cout << " dans la zone l = " << l << " n'est pas prevu ! " 
+		     << endl ;
+		abort () ;
 	      }
       }	// fin des cas sur type_t 
-
+      
       break ;	// fin du cas symetrie phi -> phi + pi
 
     default : 
@@ -820,6 +797,8 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
     // Boucle sur les differentes zones :
     for (int l=0; l<nzone; l++) {
 
+      assert (colloc_r[l] == BASE_CHEB) ;
+
     // Type d'echantillonnage de la zone l :
 	int type_r0 = get_type_r(l) ;
 
@@ -862,15 +841,6 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
 		    break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
-
 
 		    case RARE : 		 
 // echantillonnage rarefie
@@ -922,14 +892,6 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 		    base3 = base3 | R_CHEB  ;  
 		    break ;
 
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
-
 		    case RARE : 		 
 // echantillonnage rarefie
 
@@ -948,30 +910,30 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 		    break ;
 
 
-		    default : 
-			cout << 
-	    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
-			  << type_p<< " " << type_t<< " " <<type_r0 << endl ;
-			cout << 
-			  " dans la zone l = " << l << " n'est pas prevu ! " 
-			  << endl ;
-			  abort () ;
+		default : 
+		  cout << 
+		    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
+		       << type_p<< " " << type_t<< " " <<type_r0 << endl ;
+		  cout << 
+		    " dans la zone l = " << l << " n'est pas prevu ! " 
+		       << endl ;
+		  abort () ;
 		}
-
+		
 		break ;	// fin du cas type_t = NONSYM
 		    
 
 
 		    
 		default : 
-		    cout << 
-		"Mg3d::std_base_vect_cart : le cas type_p, type_t = " 
-			  << type_p<< " " <<type_t << endl ;
-		    cout << 
-			  " dans la zone l = " << l << " n'est pas prevu ! " 
-			  << endl ;
-		    abort () ;
-
+		  cout << 
+		    "Mg3d::std_base_vect_cart : le cas type_p, type_t = " 
+		       << type_p<< " " <<type_t << endl ;
+		  cout << 
+		    " dans la zone l = " << l << " n'est pas prevu ! " 
+		       << endl ;
+		  abort () ;
+		  
 	    }	// fin des cas sur type_t 
 
 
@@ -1012,14 +974,6 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
-		    break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 		    case RARE : 		 
@@ -1069,14 +1023,6 @@ Base_val** Mg3d::pseudo_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
-		    break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 		    case RARE : 		 
@@ -1171,6 +1117,8 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
   // Boucle sur les differentes zones :
   for (int l=0; l<nzone; l++) {
     
+    assert (colloc_r[l] == BASE_CHEB) ;
+
     // Type d'echantillonnage de la zone l :
     int type_r0 = get_type_r(l) ;
     
@@ -1213,14 +1161,6 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 	  base2 = base2 | R_CHEB  ;  
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
 
 	case RARE : 		 
 // echantillonnage rarefie
@@ -1270,14 +1210,6 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 	  base2 = base2 | R_CHEB  ;  
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
-
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
 
 	case RARE : 		 
 // echantillonnage rarefie
@@ -1356,14 +1288,6 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
 
-		    case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		    
-		    base1 = base1 | R_JACO02  ;  
-		    base2 = base2 | R_JACO02  ;  
-		    base3 = base3 | R_JACO02  ;  
-		    break ;
-
 	case RARE : 		 
 // echantillonnage rarefie
 
@@ -1412,14 +1336,6 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
 		      base3 = base3 | R_CHEB  ;  
 		      break ;
 
-		  case FINJAC : 			 
-// echantillonnage fin de Jacobi
-		      
-		      base1 = base1 | R_JACO02  ;  
-		      base2 = base2 | R_JACO02  ;  
-		      base3 = base3 | R_JACO02  ;  
-		      break ;
-		      
 		  case RARE : 		 
 // echantillonnage rarefie
 		      

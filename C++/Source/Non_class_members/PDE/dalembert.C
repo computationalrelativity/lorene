@@ -25,6 +25,10 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2013/06/05 15:10:43  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.10  2008/08/27 08:51:15  jl_cornou
  * Added Jacobi(0,2) polynomials
  *
@@ -106,7 +110,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   int nz = source.get_mg()->get_nzone() ;
   bool ced = (source.get_mg()->get_type_r(nz-1) == UNSURR ) ;
   int nz0 = (ced ? nz - 1 : nz ) ;
-  assert ((source.get_mg()->get_type_r(0) == RARE)||(source.get_mg()->get_type_r(0) == FINJAC)) ;
+  assert ((source.get_mg()->get_type_r(0) == RARE)||(source.get_mg()->get_type_r(0) == FIN)) ;
   for (int l=1 ; l<nz0 ; l++) {
     assert(source.get_mg()->get_type_r(l) == FIN) ;
     assert(source.get_mg()->get_nt(l) == source.get_mg()->get_nt(0)) ;
@@ -175,6 +179,8 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
       for (int j=0 ; j<nt ; j++) {
 	  // quantic numbers and spectral bases
 	  base.give_quant_numbers(lz, k, j, m_quant, l_quant, base_r) ;
+	  assert( (source.get_mg()->get_type_r(0) == RARE) || 
+		  (base_r == R_JACO02) ) ;
 	  l_quant += dl ;
 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_quant >=l_min) )
 	  {

@@ -29,6 +29,10 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2013/06/05 15:10:42  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.13  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -169,12 +173,6 @@ Map_et::Map_et(const Mg3d& mgrille, const double* bornes)
 		break ; 
 	    }
 
-	    case FINJAC: {
-		alpha[l] = (bornes[l+1] - bornes[l]) * .5;
-		beta[l] = (bornes[l+1] + bornes[l]) * .5;
-		break;
-	    }
-	    
 	    case FIN:	{
 		alpha[l] = (bornes[l+1] - bornes[l]) * .5 ;
 		beta[l] = (bornes[l+1] + bornes[l]) * .5 ;
@@ -660,7 +658,7 @@ void Map_et::fait_poly() {
 
     // Values in the nucleus
     // ---------------------
-    assert( mg->get_type_r(0) == RARE || mg->get_type_r(0) == FINJAC ) ;
+    assert( mg->get_type_r(0) == RARE || mg->get_type_r(0) == FIN ) ;
     
     aa[0]->set_etat_qcq() ;	    // Memory allocation for the Tbl 
     daa[0]->set_etat_qcq() ; 

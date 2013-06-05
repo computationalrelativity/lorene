@@ -32,6 +32,10 @@ char star_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/06/05 15:10:43  j_novak
+ * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
+ * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
+ *
  * Revision 1.1  2010/01/25 18:15:52  e_gourgoulhon
  * First version.
  *
@@ -90,13 +94,6 @@ double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 				break ;
 	    	}
 
-	    	case FINJAC:	{
-				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
-				mpaff.set_alpha( double(.5) * (rmax - rmin), l ) ;
-				mpaff.set_beta( double(.5) * (rmax + rmin), l) ;
-				break ;
-	    	}
-
 	
 	    	case UNSURR: {
 				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
@@ -134,25 +131,6 @@ double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 	    	}
 	
 	    	case FIN:	{
-				double a1 = mpaff.get_alpha()[l] ;
-				double b1 = mpaff.get_beta()[l] ;
-				assert( jac.t[l]->get_etat() == ETATQCQ ) ;
-				double* tjac = jac.t[l]->t ;
-				double* const xi = mg->get_grille3d(l)->x ;
-				for (int k=0; k<mg->get_np(l); k++) {
-					for (int j=0; j<mg->get_nt(l); j++) {
-						for (int i=0; i<mg->get_nr(l); i++) {
-							*tjac = *tjac /
-									(a1 * (a1 * xi[i] + b1) ) ;
-							tjac++ ; 	
-						}
-					}
-				}				
-				
-				break ;
-	    	}
-
-	    	case FINJAC:	{
 				double a1 = mpaff.get_alpha()[l] ;
 				double b1 = mpaff.get_beta()[l] ;
 				assert( jac.t[l]->get_etat() == ETATQCQ ) ;
