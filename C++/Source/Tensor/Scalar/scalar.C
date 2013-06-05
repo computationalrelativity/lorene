@@ -35,6 +35,10 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2013/06/05 15:06:11  j_novak
+ * Legendre bases are treated as standard bases, when the multi-grid
+ * (Mg3d) is built with BASE_LEG.
+ *
  * Revision 1.36  2013/03/27 09:51:42  e_gourgoulhon
  * Restored log
  *
@@ -779,20 +783,6 @@ void Scalar::std_spectral_base_odd() {
     va.std_base_scal_odd() ;  
                    
 }    
-
-void Scalar::leg_spectral_base() {
-      
-  c_est_pas_fait("Scalar::leg_spectral_base()") ;  
-                   
-}    
-
-		    
-void Scalar::leg_spectral_base_odd() {
-      
-  c_est_pas_fait("Scalar::leg_spectral_base_odd()") ;
-                   
-}    
-
 
 void Scalar::set_spectral_base(const Base_val& bi) {
 

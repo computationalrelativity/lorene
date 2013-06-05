@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.48  2013/06/05 15:06:10  j_novak
+ * Legendre bases are treated as standard bases, when the multi-grid
+ * (Mg3d) is built with BASE_LEG.
+ *
  * Revision 1.47  2010/10/22 08:08:40  j_novak
  * Removal of the method Star_rot_dirac::lambda_grv2() and call to the C++ version of integrale2d.
  *
@@ -340,6 +344,9 @@ void cftlegii(const int*, const int*, double*, const int*, double*) ;
 void cfrcheb(const int*, const int*, double*, const int*, double*) ;
 void cfrchebp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebi(const int*, const int*, double*, const int*, double*) ;
+void cfrleg(const int*, const int*, double*, const int*, double*) ;
+void cfrlegp(const int*, const int*, double*, const int*, double*) ;
+void cfrlegi(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimi(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpip(const int*, const int*, double*, const int*, double*) ;
@@ -369,6 +376,9 @@ void citlegii(const int*, const int*, double*, const int*, double*) ;
 void circheb(const int*, const int*, double*, const int*, double*) ;
 void circhebp(const int*, const int*, double*, const int*, double*) ;
 void circhebi(const int*, const int*, double*, const int*, double*) ;
+void cirleg(const int*, const int*, double*, const int*, double*) ;
+void cirlegp(const int*, const int*, double*, const int*, double*) ;
+void cirlegi(const int*, const int*, double*, const int*, double*) ;
 void circhebpimp(const int*, const int*, double*, const int*, double*) ;
 void circhebpimi(const int*, const int*, double*, const int*, double*) ;
 void circhebpip(const int*, const int*, double*, const int*, double*) ;

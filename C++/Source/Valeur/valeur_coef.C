@@ -30,6 +30,10 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2013/06/05 15:06:11  j_novak
+ * Legendre bases are treated as standard bases, when the multi-grid
+ * (Mg3d) is built with BASE_LEG.
+ *
  * Revision 1.15  2012/01/17 17:51:16  j_penner
  * *** empty log message ***
  *
@@ -163,6 +167,9 @@ void Valeur::coef() const {
 	coef_r[R_CHEBPIM_I >> TRA_R] = cfrchebpimi ;	    
 	coef_r[R_CHEBPI_P >> TRA_R] = cfrchebpip ;	    
 	coef_r[R_CHEBPI_I >> TRA_R] = cfrchebpii ;
+	coef_r[R_LEG >> TRA_R] = cfrleg ;	    
+	coef_r[R_LEGP >> TRA_R] = cfrlegp ;	    
+	coef_r[R_LEGI >> TRA_R] = cfrlegi ;	    
 	coef_r[R_JACO02 >> TRA_R] = cfrjaco02 ;
 
 	coef_t[NONDEF] = base_non_def_t ;

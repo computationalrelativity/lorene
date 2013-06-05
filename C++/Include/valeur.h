@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2013/06/05 15:06:10  j_novak
+ * Legendre bases are treated as standard bases, when the multi-grid
+ * (Mg3d) is built with BASE_LEG.
+ *
  * Revision 1.17  2013/01/11 15:44:54  j_novak
  * Addition of Legendre bases (part 2).
  *
@@ -480,16 +484,6 @@ class Valeur {
 	 *  to the standard odd ones for a scalar
 	 */
 	void std_base_scal_odd() ;	 
-	
-	/** Sets the bases for spectral expansions (member \c base ) 
-	 *  to the standard Legendre (in \e r ) ones for a scalar
-	 */
-	void leg_base_scal() ;	 
-	
-	/** Sets the bases for spectral expansions (member \c base ) 
-	 *  to the standard Legendre (in \e r ) odd ones for a scalar
-	 */
-	void leg_base_scal_odd() ;	 
 	
 	/** Sets the expansion basis for \e r  (\f$\xi\f$) functions in a 
 	 *  given domain.
