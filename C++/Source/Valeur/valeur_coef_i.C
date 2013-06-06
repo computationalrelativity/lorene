@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2013/06/06 15:31:33  j_novak
+ * Functions to compute Legendre coefficients (not fully tested yet).
+ *
  * Revision 1.14  2012/01/17 15:08:02  j_penner
  * using MAX_BASE_2 for the phi coordinate
  *
@@ -156,6 +159,9 @@ void Valeur::coef_i() const {
 	invcf_r[R_CHEBPIM_I >> TRA_R] = circhebpimi ;	    
 	invcf_r[R_CHEBPI_P >> TRA_R] = circhebpip ;	    
 	invcf_r[R_CHEBPI_I >> TRA_R] = circhebpii ;	    
+	invcf_r[R_LEG >> TRA_R] = cirleg ;	    
+	invcf_r[R_LEGP >> TRA_R] = cirlegp ;	    
+	invcf_r[R_LEGI >> TRA_R] = cirlegi ;	    
 	invcf_r[R_JACO02 >> TRA_R] = cirjaco02 ;
 
 	invcf_t[NONDEF] = ibase_non_def_t ;

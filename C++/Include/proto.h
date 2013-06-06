@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.49  2013/06/06 15:31:31  j_novak
+ * Functions to compute Legendre coefficients (not fully tested yet).
+ *
  * Revision 1.48  2013/06/05 15:06:10  j_novak
  * Legendre bases are treated as standard bases, when the multi-grid
  * (Mg3d) is built with BASE_LEG.
@@ -344,9 +347,6 @@ void cftlegii(const int*, const int*, double*, const int*, double*) ;
 void cfrcheb(const int*, const int*, double*, const int*, double*) ;
 void cfrchebp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebi(const int*, const int*, double*, const int*, double*) ;
-void cfrleg(const int*, const int*, double*, const int*, double*) ;
-void cfrlegp(const int*, const int*, double*, const int*, double*) ;
-void cfrlegi(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimi(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpip(const int*, const int*, double*, const int*, double*) ;
@@ -426,6 +426,16 @@ double int1d_chebp(int, const double* ) ;
 double int1d_chebi(int, const double* ) ;
 double int1d_cheb(int, const double* ) ;
 
+//Routines Legendre en r
+void cirleg(const int*, const int*, double*, const int*, double*) ;
+void cirlegp(const int*, const int*, double*, const int*, double*) ;
+void cirlegi(const int*, const int*, double*, const int*, double*) ;
+void cfrleg(const int*, const int*, double*, const int*, double*) ;
+void cfrlegp(const int*, const int*, double*, const int*, double*) ;
+void cfrlegi(const int*, const int*, double*, const int*, double*) ;
+void legendre_collocation_points(int, double*) ;
+
+// Routines Jacobi
 double* jacobi(int, double) ;
 double* pointsgausslobatto(int) ;
 Tbl jacobipointsgl(int) ;
@@ -737,10 +747,6 @@ void tensorellipticCt ( Scalar source, Scalar& resu, double fitd1, double fit2d1
  Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb);
 
  Sym_tensor boundfree_tensBC( Sym_tensor source, Vector Beta, Scalar Psi, Scalar Nn, Sym_tensor hij_guess, double precision , int loopmax = 250) ;
-
-// Fonctions diverses : 
-void c_est_pas_fait(char * ) ;
-
 
 // Trucs utilises pour poisson_compact :
 Matrice lap_cpt_mat(int, int, int) ;

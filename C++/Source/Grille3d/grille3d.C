@@ -31,6 +31,9 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2013/06/06 15:31:32  j_novak
+ * Functions to compute Legendre coefficients (not fully tested yet).
+ *
  * Revision 1.7  2013/06/05 15:00:26  j_novak
  * Suppression of all classes derived from Grille3d. Now Grille3d is no
  * longer an abstract class. r-samplings are only one of RARE, FIN or
@@ -96,12 +99,9 @@ char grille3d_C[] = "$Header$" ;
 
 // Fichiers include
 // ----------------
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
+#include <cmath>
 
 #include "grilles.h"
-#include "type_parite.h"
 #include "proto.h"
 
 
@@ -186,7 +186,7 @@ void Grille3d::compute_radial_grid() {
     }
     break ;
   case BASE_LEG :
-    cout << "Legendre pas fait " << endl ;
+    legendre_collocation_points(nr, x) ;
     break ;
   case BASE_JAC02 : {
     double* yy = pointsgausslobatto(nr-1); 
@@ -203,6 +203,5 @@ void Grille3d::compute_radial_grid() {
     break ;
   }
 }
-
 
 

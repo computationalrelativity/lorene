@@ -26,6 +26,9 @@ char cfrleg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/06/06 15:31:32  j_novak
+ * Functions to compute Legendre coefficients (not fully tested yet).
+ *
  * Revision 1.1  2013/06/05 15:08:13  j_novak
  * Initial revision. Not ready yet...
  *
@@ -56,6 +59,7 @@ void cfrleg(const int* deg, const int* dimf, double* ff, const int* dimc,
     int n1f = dimf[0] ;
     int n2f = dimf[1] ;
     int n3f = dimf[2] ;
+    int n1c = dimc[0] ;
     int n2c = dimc[1] ;
     int n3c = dimc[2] ;
 
@@ -63,10 +67,37 @@ void cfrleg(const int* deg, const int* dimf, double* ff, const int* dimc,
     int nr = deg[2] ;
     int nm1 = nr - 1 ;
 
+// Tests de dimension:
+    if (nr > n3f) {
+        cout << "cfrleg: nr > n3f : nr = " << nr << " ,  n3f = " 
+        << n3f << endl ;
+        abort () ;
+        exit(-1) ;
+    }
+    if (nr > n3c) {
+        cout << "cfrleg: nr > n3c : nr = " << nr << " ,  n3c = " 
+        << n3c << endl ;
+        abort () ;
+        exit(-1) ;
+    }
+    if (n1f > n1c) {
+        cout << "cfrleg: n1f > n1c : n1f = " << n1f << " ,  n1c = " 
+        << n1c << endl ;
+        abort () ;
+        exit(-1) ;
+    }
+    if (n2f > n2c) {
+        cout << "cfrleg: n2f > n2c : n2f = " << n2f << " ,  n2c = " 
+        << n2c << endl ;
+        abort () ;
+        exit(-1) ;
+    }
+
     Tbl* Pni = 0x0 ;
     Tbl* wn = 0x0 ;
     get_legendre_data(nr, Pni, wn) ;
     assert( (Pni != 0x0) && (wn != 0x0) ) ;
+    double* cf_tmp = new double[nr] ;
 
     // boucle sur phi et theta
 
@@ -94,17 +125,19 @@ void cfrleg(const int* deg, const int* dimf, double* ff, const int* dimc,
 	    double* cf0 = cf + i0 ;    // tableau resultat
 
 	    for (int ii=0; ii<nr; ii++) {
-	      cf0[ii] = 0. ;
+	      cf_tmp[ii] = 0. ;
 	      for (int jj = 0; jj<nr; jj++) 
-		cf0[ii] += ff0[jj] * (*wn)(jj) * (*Pni)(ii, jj) ;
-	      cf0[ii] /= double(2) / double(2*ii+1) ;
+		cf_tmp[ii] += ff0[jj] * (*wn)(jj) * (*Pni)(ii, jj) ;
+	      cf_tmp[ii] /= double(2) / double(2*ii+1) ;
 	    }
-	    cf0[nm1] /= double(nr+nm1) / double(nm1) ;
+	    cf_tmp[nm1] /= double(nr+nm1) / double(nm1) ;
+	    for (int i=0; i<nr; i++)
+	      cf0[i] = cf_tmp[i] ;
 
 	} 	// fin de la boucle sur theta 
     }	// fin de la boucle sur phi
     
-    
+    delete [] cf_tmp ;
 }
 
 void cfrlegp(const int*, const int*, double*, const int*, double*)
