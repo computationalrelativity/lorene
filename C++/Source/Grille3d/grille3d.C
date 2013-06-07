@@ -31,6 +31,9 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2013/06/07 14:44:33  j_novak
+ * Coefficient computation for even Legendre basis.
+ *
  * Revision 1.8  2013/06/06 15:31:32  j_novak
  * Functions to compute Legendre coefficients (not fully tested yet).
  *
@@ -101,6 +104,7 @@ char grille3d_C[] = "$Header$" ;
 // ----------------
 #include <cmath>
 
+#include "tbl.h"
 #include "grilles.h"
 #include "proto.h"
 
@@ -186,7 +190,23 @@ void Grille3d::compute_radial_grid() {
     }
     break ;
   case BASE_LEG :
-    legendre_collocation_points(nr, x) ;
+    switch (type_r) {
+    case FIN:
+      legendre_collocation_points(nr, x) ;
+      break ;
+    case RARE: {
+      Tbl full_x(2*nr-1) ;
+      full_x.set_etat_qcq() ;
+      legendre_collocation_points(2*nr - 1, full_x.t) ;
+      for (int i=0; i<nr; i++)
+	x[i] = full_x(i+nr-1) ;
+      break ;
+    }
+    default:
+      cout << "Grille3d::compute_radial_grid : " << endl ;
+      cout << "Unknown type of sampling for the Legendre basis!" << endl ;
+      abort() ;
+    }
     break ;
   case BASE_JAC02 : {
     double* yy = pointsgausslobatto(nr-1); 

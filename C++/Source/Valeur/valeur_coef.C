@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2013/06/07 14:44:34  j_novak
+ * Coefficient computation for even Legendre basis.
+ *
  * Revision 1.16  2013/06/05 15:06:11  j_novak
  * Legendre bases are treated as standard bases, when the multi-grid
  * (Mg3d) is built with BASE_LEG.
@@ -327,7 +330,7 @@ void Valeur::coef() const {
 	// Transformation en r:
 	// --------------------
 	if ( nr > 1 ) {
-	    assert( admissible_fft(nr-1) ) ; 
+	  assert( admissible_fft(nr-1) || (mg->get_colloc_r(l) != BASE_CHEB) ) ; 
 	    coef_r[base_r](deg, dim, (cf->t), dim, (cf->t)) ;
 	}	
 	   
