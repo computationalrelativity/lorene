@@ -41,6 +41,9 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2013/06/13 14:18:18  j_novak
+ * Inclusion of new bases R_LEG, R_LEGP and R_LEGI.
+ *
  * Revision 1.8  2008/08/27 08:50:10  jl_cornou
  * Added Jacobi(0,2) polynomials
  *
@@ -588,6 +591,181 @@ double* po = trtp ;	    // pointeur courant sur la sortie
     // Menage
     delete [] cheb ;
     
+}
+			//----------------
+			//- Cas R_LEG  ---
+			//----------------
+
+void som_r_leg
+    (double* ti, const int nr, const int nt, const int np, const double x, 
+    double* trtp) {
+
+// Variables diverses
+int i, j, k ;
+double* pi = ti ;	    // pointeur courant sur l'entree
+double* po = trtp ;	    // pointeur courant sur la sortie
+    
+    // Valeurs des polynomes de Legendre au point x demande
+    double* leg = new double [nr] ;
+    leg[0] = 1. ;
+    if (nr > 1) leg[1] = x ;
+    for (i=2; i<nr; i++) {
+      leg[i] = (double(2*i-1)*x* leg[i-1] - double(i-1)*leg[i-2]) / double(i) ; 
+    }
+    
+    // Sommation pour le premier phi, k=0
+    for (j=0 ; j<nt ; j++) {
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	    *po += (*pi) * leg[i] ;
+	    pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+    }
+    
+    if (np > 1) {	
+
+    // On saute le deuxieme phi (sin(0)), k=1
+    pi += nr*nt ;
+    po += nt ;
+    
+    // Sommation sur les phi suivants (pour k=2,...,np)
+    for (k=2 ; k<np+1 ; k++) {
+	for (j=0 ; j<nt ; j++) {
+	    // Sommation sur r
+	    *po = 0 ;
+	    for (i=0 ; i<nr ; i++) {
+		*po += (*pi) * leg[i] ;
+		pi++ ;	// R suivant
+	    }
+	    po++ ;	// Theta suivant
+	}
+    }
+    
+    }	// fin du cas np > 1 
+
+    // Menage
+    delete [] leg ;
+
+}
+
+
+			//-----------------
+			//- Cas R_LEGP ---
+			//-----------------
+
+void som_r_legp
+    (double* ti, const int nr, const int nt, const int np, const double x, 
+    double* trtp) {
+
+// Variables diverses
+int i, j, k ;
+double* pi = ti ;	    // pointeur courant sur l'entree
+double* po = trtp ;	    // pointeur courant sur la sortie
+    
+    // Valeurs des polynomes de Legendre au point x demande
+    double* leg = new double [nr] ;
+    leg[0] = 1. ;
+    double p2im1 = x ;
+    for (i=1; i<nr; i++) {
+      leg[i] = (double(4*i-1)*x* p2im1 - double(2*i-1)*leg[i-1]) / double(2*i) ;
+      p2im1 = (double(4*i+1)*x* leg[i] - double(2*i)*p2im1) / double(2*i+1) ;	    
+    }
+    
+    // Sommation pour le premier phi, k=0
+    for (j=0 ; j<nt ; j++) {
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	    *po += (*pi) * leg[i] ;
+	    pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+    }
+    
+    if (np > 1) {	
+
+    // On saute le deuxieme phi (sin(0)), k=1
+    pi += nr*nt ;
+    po += nt ;
+    
+    // Sommation sur les phi suivants (pour k=2,...,np)
+    for (k=2 ; k<np+1 ; k++) {
+	for (j=0 ; j<nt ; j++) {
+	    // Sommation sur r
+	    *po = 0 ;
+	    for (i=0 ; i<nr ; i++) {
+		*po += (*pi) * leg[i] ;
+		pi++ ;	// R suivant
+	    }
+	    po++ ;	// Theta suivant
+	}
+    }
+
+    }	// fin du cas np > 1 
+    // Menage
+    delete [] leg ;
+
+}
+
+
+			//-----------------
+			//- Cas R_LEGI ---
+			//-----------------
+
+void som_r_legi
+    (double* ti, const int nr, const int nt, const int np, const double x, 
+    double* trtp) {
+
+// Variables diverses
+int i, j, k ;
+double* pi = ti ;	    // pointeur courant sur l'entree
+double* po = trtp ;	    // pointeur courant sur la sortie
+    
+    // Valeurs des polynomes de Legendre au point x demande
+    double* leg = new double [nr] ;
+    leg[0] = x ;
+    double p2im1 = 1. ;
+    for (i=1; i<nr; i++) {
+      p2im1 = (double(4*i-1)*x* leg[i-1] - double(2*i-1)*p2im1) / double(2*i) ;
+      leg[i] = (double(4*i+1)*x* p2im1 - double(2*i)*leg[i-1]) / double(2*i+1) ;
+    }
+    
+    // Sommation pour le premier phi, k=0
+    for (j=0 ; j<nt ; j++) {
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	    *po += (*pi) * leg[i] ;
+	    pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+    }
+    
+    if (np > 1) {	
+
+    // On saute le deuxieme phi (sin(0)), k=1
+    pi += nr*nt ;
+    po += nt ;
+    
+    // Sommation sur les phi suivants (pour k=2,...,np)
+    for (k=2 ; k<np+1 ; k++) {
+	for (j=0 ; j<nt ; j++) {
+	    // Sommation sur r
+	    *po = 0 ;
+	    for (i=0 ; i<nr ; i++) {
+		*po += (*pi) * leg[i] ;
+		pi++ ;	// R suivant
+	    }
+	    po++ ;	// Theta suivant
+	}
+    }
+
+    }	// fin du cas np > 1 
+    // Menage
+   delete [] leg ;
+
 }
 
 			//----------------

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.50  2013/06/13 14:18:18  j_novak
+ * Inclusion of new bases R_LEG, R_LEGP and R_LEGI.
+ *
  * Revision 1.49  2013/06/06 15:31:31  j_novak
  * Functions to compute Legendre coefficients (not fully tested yet).
  *
@@ -648,6 +651,12 @@ void som_r_chebu_asymy
 void som_r_chebpim_p_asymy
     (double*, const int, const int, const int, const double, double*) ;
 void som_r_chebpim_i_asymy
+    (double*, const int, const int, const int, const double, double*) ;
+void som_r_leg
+    (double*, const int, const int, const int, const double, double*) ;
+void som_r_legi
+    (double*, const int, const int, const int, const double, double*) ;    
+void som_r_legp
     (double*, const int, const int, const int, const double, double*) ;
 void som_r_jaco02
     (double*, const int, const int, const int, const double, double*) ;

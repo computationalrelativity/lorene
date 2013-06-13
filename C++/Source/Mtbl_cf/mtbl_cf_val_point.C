@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2013/06/13 14:18:18  j_novak
+ * Inclusion of new bases R_LEG, R_LEGP and R_LEGI.
+ *
  * Revision 1.13  2012/01/17 15:09:05  j_penner
  * using MAX_BASE_2 for the phi coordinate
  *
@@ -138,6 +141,9 @@ static int premier_appel = 1 ;
 	som_r[R_CHEBPIM_I >> TRA_R] = som_r_chebpim_i ;
 	som_r[R_CHEBPI_P >> TRA_R] = som_r_chebpi_p ;
 	som_r[R_CHEBPI_I >> TRA_R] = som_r_chebpi_i ;
+	som_r[R_LEG >> TRA_R] = som_r_leg ;
+	som_r[R_LEGP >> TRA_R] = som_r_legp ;
+	som_r[R_LEGI >> TRA_R] = som_r_legi ;
 	som_r[R_JACO02 >> TRA_R] = som_r_jaco02 ;
 
 	som_tet[T_COS >> TRA_T] = som_tet_cos ;
