@@ -34,6 +34,9 @@ char valeur_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/06/14 15:54:07  j_novak
+ * Inclusion of Legendre bases.
+ *
  * Revision 1.3  2008/08/27 08:52:55  jl_cornou
  * Added Jacobi(0,2) polynomials case
  *
@@ -93,6 +96,9 @@ void _d2sdx2_r_chebpim_p(Tbl *, int &) ;
 void _d2sdx2_r_chebpim_i(Tbl *, int &) ;
 void _d2sdx2_r_chebpi_p(Tbl *, int &) ;
 void _d2sdx2_r_chebpi_i(Tbl *, int &) ;
+void _d2sdx2_r_leg(Tbl *, int &) ;
+void _d2sdx2_r_legp(Tbl *, int &) ;
+void _d2sdx2_r_legi(Tbl *, int &) ;
 void _d2sdx2_r_jaco02(Tbl *, int &) ;
 
 // Version membre d'un Valeur
@@ -160,6 +166,9 @@ static int nap = 0 ;
 	_d2sdx2[R_CHEBPIM_I >> TRA_R] = _d2sdx2_r_chebpim_i ;
 	_d2sdx2[R_CHEBPI_P >> TRA_R] = _d2sdx2_r_chebpi_p ;
 	_d2sdx2[R_CHEBPI_I >> TRA_R] = _d2sdx2_r_chebpi_i ;
+	_d2sdx2[R_LEG >> TRA_R] = _d2sdx2_r_leg ;
+	_d2sdx2[R_LEGP >> TRA_R] = _d2sdx2_r_legp ;
+	_d2sdx2[R_LEGI >> TRA_R] = _d2sdx2_r_legi ;
 	_d2sdx2[R_JACO02 >> TRA_R] = _d2sdx2_r_jaco02 ;
     }
 

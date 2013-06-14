@@ -37,6 +37,9 @@ char op_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/06/14 15:54:06  j_novak
+ * Inclusion of Legendre bases.
+ *
  * Revision 1.6  2007/12/21 13:59:02  j_novak
  * Suppression of call to pow(-1, something).
  *
@@ -81,7 +84,7 @@ char op_dsdx_C[] = "$Header$" ;
 
 // Fichier includes
 #include "tbl.h"
-#include <math.h>
+#include <cmath>
 
 // Routine pour les cas non prevus
 //--------------------------------
@@ -784,6 +787,230 @@ void _dsdx_r_chebpi_i(Tbl *tb, int & b)
     b = base_p | base_t | R_CHEBPI_P ;
 }
 
+
+// cas R_LEG
+//-----------
+void _dsdx_r_leg(Tbl *tb, int & )
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    if (nr > 1) { // If not an angular grid...
+	// On y va...
+	double* xi = tb->t ;
+	double* xci = xi ;	// Pointeurs
+	double* xco = xo ;	//  courants
+	
+	int borne_phi = np + 1 ; 
+	if (np == 1) borne_phi = 1 ; 
+	
+	for (int k=0 ; k< borne_phi ; k++)
+	    // On evite le coefficient de sin(0*phi)
+	    if (k==1) {
+		xci += nr*nt ;
+		xco += nr*nt ;
+	    }
+	    else {
+		for (int j=0 ; j<nt ; j++) {
+		    
+		    double som ;
+		    
+		    xco[nr-1] = 0 ;
+		    som = xci[nr-1] ;
+		    xco[nr-2] = double(2*nr-3)*som ;
+		    for (int i = nr-4 ; i >= 0 ; i -= 2 ) {
+			som += xci[i+1] ;
+			xco[i] = double(2*i+1)*som ;
+		    }	// Fin de la premiere boucle sur r
+		    som = xci[nr-2] ;
+		    if (nr > 2) xco[nr-3] = double(2*nr-5)*som ;
+		    for (int i = nr-5 ; i >= 0 ; i -= 2 ) {
+			som += xci[i+1] ;
+			xco[i] = double(2*i+1) * som ;
+		    }	// Fin de la deuxieme boucle sur r
+		    
+		    xci += nr ;
+		    xco += nr ;
+		}   // Fin de la boucle sur theta
+	    }	// Fin de la boucle sur phi
+    }
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}
+
+// cas R_LEGP
+//------------
+void _dsdx_r_legp(Tbl *tb, int & b)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_t = b & MSQ_T ;
+	int base_p = b & MSQ_P ;
+	b = base_p | base_t | R_LEGI ;
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
+    
+    for (int k=0 ; k< borne_phi ; k++)
+	
+	// On evite le coefficient de sin(0*phi)
+	
+	if (k==1) {
+	    xco += nr*nt ;
+	    xci += nr*nt ;
+	    }
+	    
+	     
+	else {
+	for (int j=0 ; j<nt ; j++) {
+
+	    double som ;
+	    
+	    xco[nr-1] = 0 ;
+	    som = xci[nr-1] ;
+	    if (nr > 1) xco[nr-2] = double(4*nr-5) * som ;
+	    for (int i = nr-3 ; i >= 0 ; i-- ) {
+	      som += xci[i+1] ;
+	      xco[i] = double(4*i+3) * som ;
+	    }	// Fin de la boucle sur r
+	    
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // pair -> impair
+    int base_t = b & MSQ_T ;
+    int base_p = b & MSQ_P ;
+    b = base_p | base_t | R_LEGI ;
+}
+
+// cas R_LEGI
+//------------
+void _dsdx_r_legi(Tbl *tb, int & b)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_t = b & MSQ_T ;
+	int base_p = b & MSQ_P ;
+	b = base_p | base_t | R_LEGP ;
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
+    
+    for (int k=0 ; k< borne_phi ; k++)
+	// On evite le coefficient de sin(0*phi)
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	}
+	
+	else {
+	for (int j=0 ; j<nt ; j++) {
+
+	    double som ;
+	    
+	    xco[nr-1] = 0 ;
+	    som = xci[nr-2] ;
+	    if (nr > 1) xco[nr-2] = double(4*nr - 7) * som ;
+	    for (int i = nr-3 ; i >= 0 ; i-- ) {
+		som += xci[i] ;
+		xco[i] = double(4*i+1) * som ;
+	    }	// Fin de la boucle sur r
+	    
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // impair -> pair
+    int base_t = b & MSQ_T ;
+    int base_p = b & MSQ_P ;
+    b = base_p | base_t | R_LEGP ;
+}
 
 // cas R_JACO02
 //-----------

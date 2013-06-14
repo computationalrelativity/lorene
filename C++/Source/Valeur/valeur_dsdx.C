@@ -34,6 +34,9 @@ char valeur_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/06/14 15:54:07  j_novak
+ * Inclusion of Legendre bases.
+ *
  * Revision 1.3  2007/12/14 10:19:35  jl_cornou
  * *** empty log message ***
  *
@@ -90,6 +93,9 @@ void _dsdx_r_chebpim_p(Tbl *, int &) ;
 void _dsdx_r_chebpim_i(Tbl *, int &) ;
 void _dsdx_r_chebpi_p(Tbl *, int &) ;
 void _dsdx_r_chebpi_i(Tbl *, int &) ;
+void _dsdx_r_leg(Tbl *, int &) ;
+void _dsdx_r_legp(Tbl *, int &) ;
+void _dsdx_r_legi(Tbl *, int &) ;
 void _dsdx_r_jaco02(Tbl *, int &) ;
 
 // Version membre d'un Valeur
@@ -158,6 +164,9 @@ static int nap = 0 ;
 	_dsdx[R_CHEBPIM_I >> TRA_R] = _dsdx_r_chebpim_i ;
 	_dsdx[R_CHEBPI_P >> TRA_R] = _dsdx_r_chebpi_p ;
 	_dsdx[R_CHEBPI_I >> TRA_R] = _dsdx_r_chebpi_i ;
+	_dsdx[R_LEG >> TRA_R] = _dsdx_r_leg ;
+	_dsdx[R_LEGP >> TRA_R] = _dsdx_r_legp ;
+	_dsdx[R_LEGI >> TRA_R] = _dsdx_r_legi ;
 	_dsdx[R_JACO02 >> TRA_R] = _dsdx_r_jaco02 ;
     }
 
