@@ -32,6 +32,9 @@ char Grille_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2013/07/15 13:14:41  j_novak
+ * Correcting copy constructor and operator =
+ *
  * Revision 1.5  2008/02/18 13:53:48  j_novak
  * Removal of special indentation instructions.
  *
@@ -586,7 +589,7 @@ Gval_spher::Gval_spher(const double irmin, const double irmax, const int np,
 
 // Constructeur par recopie
 Gval_spher::Gval_spher(const Gval_spher& titi)
-  :Grille_val(titi) 
+  :Grille_val(titi), tet(0x0), teti(0x0), phi(0x0), phii(0x0)
 {
   if (titi.tet != 0x0) tet = new Tbl(*titi.tet) ;
   if (titi.teti != 0x0) teti = new Tbl(*titi.teti) ;
@@ -632,10 +635,46 @@ void Gval_spher::operator=(const Gval_spher& titi) {
 
   Grille_val::operator=(titi) ;
 
-  if (titi.tet != 0x0) *tet = *titi.tet ;
-  if (titi.teti != 0x0) *teti = *titi.teti ;
-  if (titi.phi != 0x0) *phi = *titi.phi ;
-  if (titi.phii != 0x0) *phii = *titi.phii ;
+  if (titi.tet != 0x0) {
+    if (tet == 0x0)
+      tet = new Tbl(*titi.tet) ;
+    else 
+      *tet = *titi.tet ;
+  }
+  else {
+    if (tet != 0x0) delete tet ;
+    tet = 0x0 ;
+  }
+  if (titi.teti != 0x0) {
+    if (teti == 0x0)
+      teti = new Tbl(*titi.teti) ;
+    else
+      *teti = *titi.teti ;
+  }
+  else {
+    if (teti != 0x0) delete teti ;
+    teti = 0x0 ;
+  }
+  if (titi.phi != 0x0) {
+    if (phi == 0x0)
+      phi = new Tbl(*titi.phi) ;
+    else
+      *phi = *titi.phi ;
+  }
+  else {
+    if (phi != 0x0) delete phi ;
+    phi = 0x0 ;
+  }
+  if (titi.phii != 0x0) {
+    if (phii == 0x0)
+      phii = new Tbl(*titi.phii) ;
+    else
+      *phii = *titi.phii ;
+  }
+  else {
+    if (phii != 0x0) delete phii ;
+    phii = 0x0 ;
+  }
 }
 
 			//------------//
