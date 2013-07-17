@@ -131,7 +131,7 @@ Connect to the CVS repository in Meudon:
 
    Download Lorene by typing
 
-	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
+	cvs -z5 -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
 
 
 2/ Set of the environment variable HOME_LORENE
