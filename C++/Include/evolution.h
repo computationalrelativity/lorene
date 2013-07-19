@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2013/07/19 15:50:24  j_novak
+ * Implementation of the interpolation function for Evolution, with order=0, 1 or 2.
+ *
  * Revision 1.12  2004/11/26 09:28:50  p_grandclement
  * using in Derived templates are now public
  *
@@ -182,8 +185,8 @@ template<typename TyT> class Evolution {
         /// Returns the time t at time step j
         double get_time(int j) const {return the_time[position(j)];} ;
         
-        /// Returns the value at time t
-        TyT operator()(double t) const ;
+        /// Returns the value at time t, with a scheme of order \c order.
+        TyT operator()(double t, int order=2) const ;
 
         /// Returns the member \c size
         int get_size() const {return size; } ; 

@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2013/07/19 15:50:24  j_novak
+ * Implementation of the interpolation function for Evolution, with order=0, 1 or 2.
+ *
  * Revision 1.15  2008/09/19 13:24:29  j_novak
  * Added the third-order scheme for the time derivativre computation.
  *
@@ -326,12 +329,106 @@ const TyT& Evolution<TyT>::operator[](int j) const {
 
 
 template<typename TyT> 
-TyT Evolution<TyT>::operator()(double ) const {
+TyT Evolution<TyT>::operator()(double t, int order) const {
 
-    cerr << 
-    "Evolution<TyT>::operator()(double ) const : not implemented yet !"
-        << endl ; 
-    abort() ; 
+  assert( order <= 2 ) ;
+
+  int jmin = j_min() ;
+  int jmax = j_max() ;
+  int j0 = jmin ;
+  int j1 = jmax ;
+
+  assert( ( t >= the_time[jmin] ) && ( t <= the_time[jmax] ) ) ;
+  assert ( (jmax - jmin) > order ) ;
+
+  bool found = false ;
+
+  while ( !found) {
+
+    int j_tmp = j0 ;
+
+    do { 
+      j_tmp++ ;
+      assert( j_tmp <= jmax ) ;
+    } while (!is_known(j_tmp)) ;
+
+    if ( the_time[j_tmp] >= t) {
+      found = true  ;
+      j1 = j_tmp ;
+    }
+
+    else j0 = j_tmp ;
+  }
+
+  double x0 = t - the_time[j0] ;
+  double x1 = the_time[j1] - t ;
+  double dx = the_time[j1] - the_time[j0] ;
+
+  assert ( (x0 >= 0) && (x1 >= 0) ) ;
+
+  switch (order) {
+
+  case 0: {
+
+    return ( (x0 > x1) ? operator[](j1) : operator[](j0) ) ;
+
+    break ;
+  }
+    
+  case 1: {
+
+    double a0 = x1 / dx ;
+    double a1 = x0 / dx ;
+
+    return (a0*operator[](j0) + a1*operator[](j1)) ;
+
+    break ;
+  }
+
+  case 2: {
+
+    int j2 = j1 ;
+
+    if ( ((x0 > x1) || (j0 == jmin)) && (j1 != jmax) ) {
+      do { 
+	j2++;
+	assert (j2 <= jmax ) ;
+      } while (!is_known(j2)) ;
+    }
+
+    else {
+      assert ( j0 != jmin ) ;
+      j2 = j0 ;
+      do {
+	j2-- ;
+	assert (j2 >= jmin ) ;
+      } while (!is_known(j2)) ;
+    }
+
+    double x2 = the_time[j2] - t ;
+
+    double dx0 = the_time[j2] - the_time[j1] ;
+    double dx1 = the_time[j2] - the_time[j0] ;
+    double dx2 = dx ;
+
+    double a0 = ( x2*x1 ) / ( dx2*dx1 ) ;
+    double a1 = ( x0*x2 ) / ( dx0*dx2 ) ;
+    double a2 = - ( x0*x1 ) / ( dx0*dx1 ) ;
+
+    return (a0*operator[](j0) + a1*operator[](j1) + a2*operator[](j2)) ;
+
+    break ;
+  }
+
+  default: {
+    cerr << " Evolution<TyT>::operator()(double t, int order) : " << endl ;
+    cerr << " The case order = " << order << " is not implemented!" << endl ;
+    abort() ;
+    break ;
+  }
+  }
+
+  return operator[](j0) ;
 
 }                  
  
