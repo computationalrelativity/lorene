@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2013/07/25 19:44:45  o_straub
+ * calculation of the marginally bound radius
+ *
  * Revision 1.12  2013/04/17 13:01:50  e_gourgoulhon
  * Some modifications in the class AltBH_QI
  *
@@ -295,6 +298,7 @@ class Compobj_QI : public Compobj {
 	mutable double* p_espec_isco ;	
 	/// Specific angular momentum of a particle at the ISCO
 	mutable double* p_lspec_isco ;	
+        mutable double* p_r_mb ;	///< Coordinate r of the marginally bound orbit
 
     // Constructors - Destructor
     // -------------------------
@@ -404,6 +408,10 @@ class Compobj_QI : public Compobj {
 	
 	/// Angular momentum of a particle at the ISCO
  	virtual double lspec_isco(int lmin) const ;	
+
+        /// Coordinate r of the marginally bound circular orbit (R_mb).
+        virtual double r_mb(int lmin, ostream* ost = 0x0) const ;
+
 
     // Computational routines
     // ----------------------

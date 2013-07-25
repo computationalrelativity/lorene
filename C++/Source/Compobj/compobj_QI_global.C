@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2012 Claire Some, Eric Gourgoulhon
+ *   Copyright (c) 2012 Odele Straub, Claire Some, Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/07/25 19:44:11  o_straub
+ * calculation of the marginally bound radius
+ *
  * Revision 1.4  2013/04/04 15:32:32  e_gourgoulhon
  * Better computation of the ISCO
  *
@@ -57,7 +60,8 @@ char compobj_QI_global_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 
-double funct_compobj_QI_isco(double, const Param& ) ; 
+double funct_compobj_QI_isco(double, const Param&) ; 
+double funct_compobj_QI_rmb(double, const Param&) ;
 
 
 			//----------------------------//
@@ -187,13 +191,15 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
     par_ms.add_int(l_ms) ;
     par_ms.add_scalar(orbit) ;
     
+
+
   	if(find_status) { 
   	    
         cout << "l_ms : " << l_ms << endl ; 
         cout << "xi_min, xi_max : " << xi_min << " , " << xi_max << endl ; 
         
-     	double precis_ms = 1.e-12 ;    // precision in the determination 
-									   // of xi_ms
+     	double precis_ms = 1.e-12 ;    // precision in the determination of xi_ms
+									   
      	int nitermax_ms = 100 ;	       // max number of iterations
 
      	int niter ;
@@ -212,8 +218,8 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
 		
 		// ISCO not found
 		r_ms = -1 ; 
-	    xi_ms = -1 ; 
-	    l_ms = lmin ; 
+	        xi_ms = -1 ; 
+	        l_ms = lmin ; 
 	    
 	} 
   	
@@ -280,7 +286,7 @@ double Compobj_QI::lspec_isco(int lmin) const {
 
     if (p_lspec_isco == 0x0) {    // a new computation is required
 
-    	r_isco(lmin) ; 	// lspec_isco is computed in the method r_isco()
+    	r_isco(lmin) ;    	// lspec_isco is computed in the method r_isco()
 
     	assert(p_lspec_isco != 0x0) ;
     }
@@ -297,7 +303,7 @@ double Compobj_QI::espec_isco(int lmin) const {
 
     if (p_espec_isco == 0x0) {    // a new computation is required
 
-    	r_isco(lmin) ; 	// espec_isco is computed in the method r_isco()
+    	r_isco(lmin) ;   	// espec_isco is computed in the method r_isco()
 
     	assert(p_espec_isco != 0x0) ;
     }
@@ -305,6 +311,196 @@ double Compobj_QI::espec_isco(int lmin) const {
     return *p_espec_isco ;
 
 }
+
+
+
+
+
+//=============================================================================
+//		r_mb()
+//=============================================================================
+
+double Compobj_QI::r_mb(int lmin, ostream* ost) const {
+
+    if (p_r_mb == 0x0) {    // a new computation is required
+
+    // Coefficients of the effective potential (A) and its derivative (B)
+    // ------------------------------------------------
+     
+    int nzm1 = mp.get_mg()->get_nzone() - 1 ;   
+    Scalar r(mp) ;
+    r = mp.r ;
+    Scalar r2 = r*r ;
+    r2.annule_domain(nzm1) ;
+
+    Scalar ndn = nn*nn.dsdr() ;
+    ndn.annule_domain(nzm1) ;
+     
+
+    // Scalar V_eff  = A1 + A2 * E^2 + A3 * E * L + A4 * L^2 ;
+    // Scalar dV_eff = B1 + B2 * E^2 + B3 * E * L + B4 * L^2 ;
+
+    Scalar A1 =-bbb*bbb * nn*nn * r2 ;
+    Scalar A2 = bbb*bbb * r2 ;
+    Scalar A3 =-2. * bbb*bbb *  r2 * nphi ;
+    Scalar A4 =-nn*nn + bbb*bbb * r2 * nphi*nphi ;
+
+    Scalar B1 =-2.*r * bbb*bbb * nn*nn - 2.*r2 * bbb*bbb.dsdr() * nn*nn - 2.*r2 * bbb*bbb * nn*nn.dsdr() ;
+    Scalar B2 = 2.*r * bbb*bbb + 2.*r2 * bbb*bbb.dsdr() ;
+    Scalar B3 =-2.*nphi*B2 - 2.*r2 * bbb*bbb * nphi.dsdr() ;
+    Scalar B4 = 2.*r * bbb*bbb * nphi*nphi + 2.*r2 * bbb*bbb.dsdr() * nphi*nphi - 2.*ndn + 2.*r2 * bbb*bbb * nphi*nphi.dsdr() ;
+
+    
+    Scalar C1 = (A1 * B3 - A3 * B1) ;
+    Scalar C2 = (A2 * B3 - A3 * B2) ;
+    Scalar C3 = (A4 * B3 - A3 * B4) ;
+
+
+    Scalar D1 = B4 * C1 - B1 * C3 ; 
+    Scalar D2 = B4 * C2 - B2 * C3 ; 
+    Scalar D3 = B3 * B3 * C1 * C3 ;
+    Scalar D4 = B3 * B3 * C2 * C3 ;
+
+
+
+     
+
+
+    // Constructing the orbital energy of a particle corotating with the star
+    // ----------------------------------------------------------------
+
+    /* B3 * V_eff - A3 * dV_eff = 0. ;         // solve eq. for L
+
+     Scalar L = sqrt((C1 + C2 * E2) / C3) ;    // substitute into the eq. dVeff=0, then solve for E
+
+     Scalar EE = (-(2.*D1*D2 + D3) + sqrt((2.*D1*D2 + D3) * (2.*D1*D2 + D3) - 4.*D1*D1 * (D2*D2 + 
+            D4))) / (2.*(D2*D2 + D4)) ;        // solve eq. EE = 1 for r 
+   */
+
+
+    Scalar bound_orbit = -(2.*D1*D2 + D3) - sqrt((2.*D1*D2 + D3) * (2.*D1*D2 + D3) - 4.*D1*D1 * 
+                             (D2*D2 + D4)) - 2.*(D2*D2 + D4) ;
+
+
+    cout << "bound_orbit :" << bound_orbit << endl ;
+
+    bound_orbit.std_spectral_base() ;
+    
+
+
+    // Search for the zero
+    // -------------------
+
+    int noz(10) ;          // number of zeros    
+    double zeros[1][noz] ; // define array for zeros
+    int i = 0 ;            // counter
+    int l ;                // number of domain
+
+    double rmb, theta_mb, phi_mb, xi_mb;
+    double xi_min = -1, xi_max = 1 ; 
+  
+    const Valeur& vorbit = bound_orbit.get_spectral_va() ;
+        
+
+    // Preliminary location of the zero
+    // of the bound_orbit function with an error = dx
+
+    double dx = 0.001 ; 
+    
+    theta_mb = M_PI / 2. ; 
+    phi_mb = 0. ;
+
+
+    for(l = lmin; l <= nzm1; l++) { 
+
+        xi_min = -1. ;
+
+        double resloc_old ;
+        double xi_f = xi_min;
+    
+        double resloc = vorbit.val_point(l, xi_f, theta_mb, phi_mb) ;
+
+        while(xi_f <= xi_max) { 
+
+		    xi_f = xi_f + dx ;
+
+     	    resloc_old = resloc ;
+     	    resloc = vorbit.val_point(l, xi_f, theta_mb, phi_mb) ;
+
+         	if ( resloc * resloc_old < double(0) ) {
+
+                zeros[0][i] = xi_f ;   // xi_max
+                zeros[1][i] = l ;      // domain number l  
+                i++ ;         
+
+            }
+
+        }         
+
+    }
+ 
+
+
+    int number_of_zeros = i ;
+
+    cout << "number of zeros: " << number_of_zeros << endl ;
+
+
+    double precis_mb = 1.e-9 ;   // precision in the determination of xi_mb: 1.e-12
+				                  
+
+    int nitermax_mb = 100 ;	  // max number of iterations
+
+
+    for(int i = 0; i < number_of_zeros; i++) {
+
+	cout << i << " " << zeros[0][i] << " " << zeros[1][i] << endl ;
+
+	int l_mb = int(zeros[1][i]) ;
+	xi_max = zeros[0][i] ; 
+	xi_min = xi_max - dx ;
+
+
+        Param par_mb ;
+        par_mb.add_scalar(bound_orbit) ;
+        par_mb.add_int(l_mb) ; 
+
+     	int niter ;
+     	xi_mb = zerosec(funct_compobj_QI_rmb, par_mb, xi_min, xi_max, precis_mb, nitermax_mb, niter) ;     					
+  	
+
+	if (niter < nitermax_mb) {
+
+		double zero_mb = mp.val_r(l_mb, xi_mb, theta_mb, phi_mb) ;
+		//double r_hor = radius_hor(0); // set to 1 in the condition below
+	 	double r_ms = r_isco(0) ;
+		if (zero_mb < (1 + r_ms)/2){
+
+		rmb = zero_mb ;
+
+ 		cout << "number of iterations used in zerosec to locate the marginally bound orbit : " 
+                     << niter << endl ;
+                cout << "    zero found at xi = " << xi_mb << endl ;
+                cout << "    radial distance: " << rmb << endl ; 
+        	}
+	} 
+ 
+    }	
+
+    p_r_mb = new double (rmb) ;
+
+    //delete [] zeros ; not used, causes "core dump" in Code kerr_qi
+    
+    }  // End of computation
+
+    
+    return *p_r_mb ;
+   
+}
+
+
+
+
 
 
 
@@ -328,6 +524,24 @@ double funct_compobj_QI_isco(double xi, const Param& par){
 }
 
 
+
+//=============================================================================
+//	Function used to locate the MB orbit
+//=============================================================================
+
+double funct_compobj_QI_rmb(double zeros, const Param& par){
+
+    // Retrieval of the information:
+    int l_mb = par.get_int() ;
+    const Scalar& orbit = par.get_scalar() ;
+    const Valeur& vorbit = orbit.get_spectral_va() ;
+
+    // Value et the desired point
+    double theta = M_PI / 2. ;
+    double phi = 0 ;
+    return vorbit.val_point(l_mb, zeros, theta, phi) ;
+
+}
 
 
 

@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2013/07/25 19:44:11  o_straub
+ * calculation of the marginally bound radius
+ *
  * Revision 1.6  2013/04/04 15:32:32  e_gourgoulhon
  * Better computation of the ISCO
  *
@@ -149,7 +152,8 @@ void Compobj_QI::del_deriv() const {
 
     Compobj::del_deriv() ; 
 
-   	if (p_angu_mom != 0x0) delete p_angu_mom ; 
+    if (p_angu_mom != 0x0) delete p_angu_mom ; 
+    if (p_r_mb != 0x0) delete p_r_mb ;
     if (p_r_isco != 0x0) delete p_r_isco ;
     if (p_f_isco != 0x0) delete p_f_isco ;
     if (p_lspec_isco != 0x0) delete p_lspec_isco ;
@@ -162,6 +166,7 @@ void Compobj_QI::del_deriv() const {
 void Compobj_QI::set_der_0x0() const {
 
     p_angu_mom = 0x0 ; 
+    p_r_mb = 0x0 ;
     p_r_isco = 0x0 ;
     p_f_isco = 0x0 ;
     p_lspec_isco = 0x0 ;
@@ -216,20 +221,26 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
 
     ost << "Central values of various fields : " << endl ; 
     ost << "-------------------------------- " << endl ; 
-    ost << "   metric coefficient A^2 : " << a_car.val_grid_point(0,0,0,0) << endl ; 
-    ost << "   metric coefficient B^2 : " << b_car.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   metric coefficient A^2   : " << a_car.val_grid_point(0,0,0,0) << endl ; 
+    ost << "   metric coefficient B^2   : " << b_car.val_grid_point(0,0,0,0) << endl ; 
     ost << "   metric coefficient N^phi : " << nphi.val_grid_point(0,0,0,0) << endl ; 
-    ost << "   A^2 K_{ij} K^{ij} = " << ak_car.val_grid_point(0,0,0,0) << endl << endl ; 
+    ost << "   A^2 K_{ij} K^{ij}        = " << ak_car.val_grid_point(0,0,0,0) << endl << endl ; 
 
+    
     double risco = r_isco(0, &ost) ; 
     ost << "Coordinate r at the innermost stable circular orbit (ISCO) : " << 
         risco  << endl ;  
-    ost << "Circumferential radius of the innermost stable circular orbit (ISCO) : " << 
-        bbb.val_point(risco, M_PI/2, 0)*risco << endl ;  
- 	ost << "Orbital frequency at the ISCO : " << f_isco(0) << endl ; 
-    ost << "Specific energy of a particle on the ISCO : " << espec_isco(0) << endl ;	
-    ost << "Specific angular momentum of a particle on the ISCO : " << lspec_isco(0) << endl ;	
+     // ost << "Circumferential radius of the innermost stable circular orbit (ISCO) : " << 
+     // bbb.val_point(risco, M_PI/2, 0)*risco << endl ;  
+     //	ost << "Orbital frequency at the ISCO : " << f_isco(0) << endl ; 
+     // ost << "Specific energy of a particle on the ISCO : " << espec_isco(0) << endl ;	
+     // ost << "Specific angular momentum of a particle on the ISCO : " << lspec_isco(0) << endl ;	
 	
+
+    double rmb = r_mb(0, &ost) ; 
+    ost << "Coordinate r at the marginally bound circular orbit (R_mb) : " << rmb  << endl ; 
+
+
   //  ost << "A^2 : " << a_car << endl ; 
   //  ost << "B^2 : " << b_car << endl ; 
   //  ost << "nphi : " << nphi << endl ; 

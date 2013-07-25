@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2013/07/25 19:44:11  o_straub
+ * calculation of the marginally bound radius
+ *
  * Revision 1.5  2013/04/03 12:10:13  e_gourgoulhon
  * Added member kk to Compobj; suppressed tkij
  *
@@ -198,6 +201,9 @@ void Compobj::gyoto_data(const char* file_name) const {
     
     FILE* file_out = fopen(file_name, "w") ;
     double total_time = 0. ; // for compatibility
+    double a_ov_m ;
+    double r_isco ;
+    double r_mb ;
 
     fwrite_be(&total_time, sizeof(double), 1, file_out) ;
     mp.get_mg()->sauve(file_out) ;
@@ -207,8 +213,9 @@ void Compobj::gyoto_data(const char* file_name) const {
     gamma.cov().sauve(file_out) ;
     gamma.con().sauve(file_out) ;
     kk.sauve(file_out) ;
-    //## fwrite_be(&a_ov_m, sizeof(double), 1, file_out) ;
-    
+    fwrite_be(&a_ov_m, sizeof(double), 1, file_out) ;
+    fwrite_be(&r_isco, sizeof(double), 1, file_out) ;
+    fwrite_be(&r_mb, sizeof(double), 1, file_out) ;
     fclose(file_out) ;    
 }
 

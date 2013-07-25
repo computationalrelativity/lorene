@@ -27,6 +27,9 @@ char kerrQI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2013/07/25 19:45:50  o_straub
+ * calculation of the marginally bound radius
+ *
  * Revision 1.3  2013/04/04 15:33:47  e_gourgoulhon
  * Comparison ISCO with analytic formula
  *
@@ -141,11 +144,25 @@ int main() {
     double z2 = sqrt(3*a_ov_m*a_ov_m + z1*z1) ;
     double R_isco_p =  3 + z2 - sqrt((3-z1)*(3+z1+2*z2))  ; 
     double R_isco_r =  3 + z2 + sqrt((3-z1)*(3+z1+2*z2))  ; 
-    cout << "Analytic value of R_ISCO (prograde orbits):  " << R_isco_p << " M" << endl ; 
-    cout << "Numerical value of R_ISCO (prograde orbits): " << 
+    cout << "Analytic value of R_ISCO (prograde orbits)  : " << R_isco_p << " M" << endl ; 
+    cout << "Numerical value of R_ISCO (prograde orbits) : " << 
         bh.r_isco(0)/mass + mass*(1-a_ov_m*a_ov_m)/(4*bh.r_isco(0)) + 1 << " M" << endl ;  
-    cout << "Analytic value of R_ISCO (retrograde orbits): " << R_isco_r << " M" << endl ; 
+    //cout << "Analytic value of R_ISCO (retrograde orbits): " << R_isco_r << " M" << endl ; 
         
+
+
+
+     // R_mb analogue to Eq. (19) of Bardeen, Press & Teukolsky, ApJ 178, 347 (1972):
+     double R_mb = 2 - a_ov_m + 2*sqrt(1 - a_ov_m) ;
+     cout << "Analytic value of R_mb  : " << R_mb << " M" << endl ;  
+     cout << "Numerical value of R_mb : " << bh.r_mb(0)/mass + mass*(1 - a_ov_m*a_ov_m)/(4*bh.r_mb(0)) + 1 << " M ; " << (bh.r_mb(0)) << endl ;
+
+
+
+
+
+
+
     // Drawings    
     if (graphic_out == 1) {
         des_meridian(bh.get_nn(), 0, 1.1*r_limits[nzm1], "N", 1) ; 
