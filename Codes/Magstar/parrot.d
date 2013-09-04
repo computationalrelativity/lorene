@@ -12,10 +12,10 @@
 8000.	Initial CFA    (mer =< mer_mag) [Lorene unit]
 5	mer_mag : step at which magnetic quantites are plugged.
 10	mer_change_mag : step at which they are increased.
-100	mer_fix_mag : step at which they reach their final values.
+50	mer_fix_mag : step at which they reach their final values.
 #################### COMPUTATIONAL PARAMETERS #################################
 300      mer_max : maximum number of steps
-1.e-10   precis : threshold on the enthalpy relative change for ending the computation
+1.e-8   precis : threshold on the enthalpy relative change for ending the computation
 10      mer_rot : step at which the rotation is switched on
 0.    freq_ini_si : initial rotation frequency [Hz] (switched on at mer = mer_rot)
 10      mer_change_omega : step at which f is changed to reach freq_si
@@ -25,12 +25,12 @@
 2000    mer_mass : step from which the baryon mass is forced to converge (if negative, variation of Omega)
 0.5     aexp_mass : exponent for the increase factor of the central enthalpy
 0.5     relax : relaxation factor in the main iteration 
-4       mermax_poisson : maximum number of steps in Map_et::poisson
+16       mermax_poisson : maximum number of steps in Map_et::poisson
 1.5     relax_poisson :  relaxation factor in Map_et::poisson
 1.e-15  precis_adapt : precision in Map_et::adapt
 1       graph : 1 = graphical outputs during the computation 
 #################### MULTI-GRID PARAMETERS ###################################
-4	nz : total number of domains
+3	nz : total number of domains
 1	nzet : number of domains inside the star
 1	nzadapt : number of domains of where the mapping adaptation will be done.
 33	nt: number of points in theta (the same in each domain)
