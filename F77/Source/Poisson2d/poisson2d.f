@@ -24,6 +24,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.7  2013/09/04 13:56:53  j_novak
+C Dynamical memory allocation for working arrays.
+C
 C Revision 1.6  2012/06/08 12:08:35  j_novak
 C Increase of NDR0
 C
@@ -66,22 +69,28 @@ C
 	character*120 header
 	data header/'$Header$'/
 
-	INTEGER NDR0, NDT0, NDF0, NDZ0, N64
-	INTEGER ND64Q, ND2Z, NDEQ
-	PARAMETER (NDR0=300, NDT0=70, NDF0=4, NDZ0=8, N64=20)
+C	INTEGER NDR0, NDT0, NDF0, NDZ0, N64
+	INTEGER N64, ND64Q, ND2Z, NDEQ
+c	PARAMETER (NDR0=1100, NDT0=550, NDF0=4, NDZ0=8, N64=20)
 C##	PARAMETER (ND2Z=MAX(NDZ0,NDF0,8), NDEQ=NDZ0+8)
-	PARAMETER (ND2Z=8, NDEQ=NDZ0+8)
-	PARAMETER (ND64Q=(NDR0+2)*(NDT0+2)*NDF0)
-	REAL*8 CC(ND64Q), CS(ND64Q), C64(ND64Q)
+c	PARAMETER (ND2Z=8, NDEQ=NDZ0+8)
+c	PARAMETER (ND64Q=(NDR0+2)*(NDT0+2)*NDF0)
+c	REAL*8 CC(ND64Q), CS(ND64Q), C64(ND64Q)
 
-	INTEGER NDL(NDEQ)
+c	INTEGER NDL(NDEQ)
 
-	REAL*8 TRA0(NDR0,NDT0),TRA1(NDR0,NDT0),TRA2(NDR0,NDT0)
-	REAL*8 TRA3(NDR0,NDT0)
-	REAL*8 TRAB0(NDR0,NDT0,ND2Z), TRAB1(NDR0,NDT0,ND2Z)
-	REAL*8 DEN1(NDR0,NDT0,ND2Z), DEN2(NDR0,NDT0,ND2Z)
-	REAL*8 BB(NDR0,12), ERRE0(NDR0,ND2Z)
- 	REAL*8 SOLHH(NDR0,NDT0,8,NDZ0)
+	REAL*8,allocatable::  TRA0(:,:),TRA1(:,:),TRA2(:,:),TRA3(:,:)
+	REAL*8,allocatable::  TRAB0(:,:,:), TRAB1(:,:,:)
+	REAL*8,allocatable::  DEN1(:,:,:), DEN2(:,:,:)
+	REAL*8,allocatable::  BB(:,:), ERRE0(:,:), SOLHH(:,:,:,:)
+	REAL*8,allocatable::  CC(:), CS(:), C64(:)
+
+	INTEGER,ALLOCATABLE:: NDL(:)
+
+c	REAL*8 TRAB0(NDR0,NDT0,ND2Z), TRAB1(NDR0,NDT0,ND2Z)
+c	REAL*8 DEN1(NDR0,NDT0,ND2Z), DEN2(NDR0,NDT0,ND2Z)
+c	REAL*8 BB(NDR0,12), ERRE0(NDR0,ND2Z)
+c	REAL*8 SOLHH(NDR0,NDT0,8,NDZ0)
 
 	INTEGER IND, LZON, NR1, LR, LY, NZOE, NZON, NY1, NF, LZ, LT, LF
 	REAL*8 AMAQ, AMAT, X0, X1, C1
@@ -89,37 +98,23 @@ C##	PARAMETER (ND2Z=MAX(NDZ0,NDF0,8), NDEQ=NDZ0+8)
 C******************************************************************************
 
 C 
-C... Test de dimension
+C... Allocation memoire
 C
-	IF (NDR.GT.NDR0) THEN
-		WRITE(*,*) 'POISSON_2D: NDR trop grand !'
-		WRITE(*,*) '  NDR, NDR0 : ', NDR, NDR0
-		STOP
-	ENDIF
-
-	IF (NDT.GT.NDT0) THEN
-		WRITE(*,*) 'POISSON_2D: NDT trop grand !'
-		WRITE(*,*) '  NDT, NDT0 : ', NDT, NDT0
-		STOP
-	ENDIF
-
-	IF (NDF.GT.NDF0) THEN
-		WRITE(*,*) 'POISSON_2D: NDF trop grand !'
-		WRITE(*,*) '  NDF, NDF0 : ', NDF, NDF0
-		STOP
-	ENDIF
-
-
-
-C
-C... Recuperation information nombre de points
-C
+	ND64Q = (NDR+2)*(NDT+2)*NDF
 	NZOE = NDL1(1)
-	IF (NZOE.GT.NDZ0) THEN
-		WRITE(*,*) 'POISSON_2D: NZOE trop grand !'
-		WRITE(*,*) '  NZOE, NDZ0 : ', NZOE, NDZ0
-		STOP
-	ENDIF
+	ND2Z = MAX(NZOE, NDF, 8)
+	NDEQ = NZOE + 8
+	allocate(CC(ND64Q), CS(ND64Q), C64(ND64Q) )
+	allocate(TRA0(NDR,NDT))
+	allocate(TRA1(NDR,NDT))
+	allocate(TRA2(NDR,NDT))
+	allocate(TRA3(NDR,NDT))
+	allocate(TRAB0(NDR,NDT,ND2Z),TRAB1(NDR,NDT,ND2Z))
+	allocate(DEN1(NDR,NDT,ND2Z), DEN2(NDR,NDT,ND2Z) )
+	allocate(BB(NDR,12), ERRE0(NDR, ND2Z) )
+	allocate(SOLHH(NDR, NDT, 8, NZOE) )
+	N64 = 20 
+	ALLOCATE(NDL(NDEQ))
 
 	NZON = NZOE - 1
 	NY1 = NDL1(NZOE+2)
@@ -163,8 +158,8 @@ C
 		C64(LR) = 0
 	ENDDO
 
-	DO LT = 1, NDT0
-		DO LR = 1, NDR0
+	DO LT = 1, NDT
+		DO LR = 1, NDR
 			TRA0(LR,LT) = 0
 			TRA1(LR,LT) = 0
 			TRA2(LR,LT) = 0
@@ -173,8 +168,8 @@ C
 	ENDDO
 	
 	DO LZ = 1, ND2Z
-		DO LT = 1, NDT0
-			DO LR = 1, NDR0
+		DO LT = 1, NDT
+			DO LR = 1, NDR
 				TRAB0(LR,LT,LZ) = 0
 				TRAB1(LR,LT,LZ) = 0
 				DEN1(LR,LT,LZ) = 0
@@ -184,15 +179,15 @@ C
 	ENDDO
 
 	DO LZ = 1, 12
-		DO LR = 1, NDR0
+		DO LR = 1, NDR
 			BB(LR,LZ) = 0 
 		ENDDO
 	ENDDO
 
-	DO LZ = 1, NDZ0
+	DO LZ = 1, NZOE
 		DO LF = 1, 8
-			DO LT = 1, NDT0
-				DO LR = 1, NDR0
+			DO LT = 1, NDT
+				DO LR = 1, NDR
 					SOLHH(LR,LT,LF,LZ) = 0
 				ENDDO
 			ENDDO
@@ -222,7 +217,7 @@ C
 C Calcul de   AMAQ = int_0^{+infini} SOUQUAD(r)(l=0) r dr   [cf. Eq.(4.6)] 
 C
 	IND=2
-	CALL GPAR2S(NDL1,NDR0,IND,C64,ERRE0,TRA0,TRA1)
+	CALL GPAR2S(NDL1,NDR,IND,C64,ERRE0,TRA0,TRA1)
 
 C	PRINT*,'TRA1=',TRA1(1,1),TRA1(2,1)
 	AMAQ=TRA1(1,1)+TRA1(2,1)
@@ -250,7 +245,7 @@ C
 C Calcul de   AMAT = int_0^{+infini} SOUMAT(r)(l=0) r dr   [cf. Eq.(4.6)] 
 
 	IND=1
-	CALL GPAR2S(NDL,NDR0,IND,C64,ERRE0,TRA2,TRA3)
+	CALL GPAR2S(NDL,NDR,IND,C64,ERRE0,TRA2,TRA3)
 	AMAT=TRA3(1,1)
 
 	WRITE (*,*) 'Integrale(l=0) de SOUMAT : ', REAL(AMAT)
@@ -301,7 +296,7 @@ C
 	ENDDO
 	ENDDO
 C
-	CALL GR2P1S(NDL1,NDR0,2,ERRE0,TRA2,TRA0)
+	CALL GR2P1S(NDL1,NDR,2,ERRE0,TRA2,TRA0)
 C
 	CALL GR2P3S(NDL1,NDR,NDT,NDF,INDD,0,CC,C64,BB,DEN1,
      1		    DEN2,TRAB0,TRAB1,ERRE,SOLHH,POT)
@@ -337,6 +332,12 @@ C
      1	DEN2,ERRE,POT)
 
 	WRITE (*,*) '-------------------------------------------'
+
+	deallocate(TRA0, TRA1, TRA2, TRA3)
+	DEALLOCATE(TRAB0, TRAB1, DEN1, DEN2)
+	DEALLOCATE(BB, ERRE0, SOLHH)
+	DEALLOCATE(CC, CS, C64)
+	DEALLOCATE(NDL)
 
 	RETURN 
 
