@@ -23,6 +23,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.8  2013/09/04 14:12:10  j_novak
+C Removed some comments.
+C
 C Revision 1.7  2013/09/04 13:56:53  j_novak
 C Dynamical memory allocation for working arrays.
 C
@@ -68,15 +71,7 @@ C
 	character*120 header
 	data header/'$Header$'/
 
-C	INTEGER NDR0, NDT0, NDF0, NDZ0, N64
 	INTEGER N64, ND64Q, ND2Z, NDEQ
-c	PARAMETER (NDR0=1100, NDT0=550, NDF0=4, NDZ0=8, N64=20)
-C##	PARAMETER (ND2Z=MAX(NDZ0,NDF0,8), NDEQ=NDZ0+8)
-c	PARAMETER (ND2Z=8, NDEQ=NDZ0+8)
-c	PARAMETER (ND64Q=(NDR0+2)*(NDT0+2)*NDF0)
-c	REAL*8 CC(ND64Q), CS(ND64Q), C64(ND64Q)
-
-c	INTEGER NDL(NDEQ)
 
 	REAL*8,allocatable::  TRA0(:,:),TRA1(:,:),TRA2(:,:),TRA3(:,:)
 	REAL*8,allocatable::  TRAB0(:,:,:), TRAB1(:,:,:)
@@ -85,11 +80,6 @@ c	INTEGER NDL(NDEQ)
 	REAL*8,allocatable::  CC(:), CS(:), C64(:)
 
 	INTEGER,ALLOCATABLE:: NDL(:)
-
-c	REAL*8 TRAB0(NDR0,NDT0,ND2Z), TRAB1(NDR0,NDT0,ND2Z)
-c	REAL*8 DEN1(NDR0,NDT0,ND2Z), DEN2(NDR0,NDT0,ND2Z)
-c	REAL*8 BB(NDR0,12), ERRE0(NDR0,ND2Z)
-c	REAL*8 SOLHH(NDR0,NDT0,8,NDZ0)
 
 	INTEGER LZON, NR1, LR, LY, NZOE, NZON, NY1, NF, LZ, LT, LF
 

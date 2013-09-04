@@ -24,6 +24,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.8  2013/09/04 14:12:10  j_novak
+C Removed some comments.
+C
 C Revision 1.7  2013/09/04 13:56:53  j_novak
 C Dynamical memory allocation for working arrays.
 C
@@ -69,15 +72,7 @@ C
 	character*120 header
 	data header/'$Header$'/
 
-C	INTEGER NDR0, NDT0, NDF0, NDZ0, N64
 	INTEGER N64, ND64Q, ND2Z, NDEQ
-c	PARAMETER (NDR0=1100, NDT0=550, NDF0=4, NDZ0=8, N64=20)
-C##	PARAMETER (ND2Z=MAX(NDZ0,NDF0,8), NDEQ=NDZ0+8)
-c	PARAMETER (ND2Z=8, NDEQ=NDZ0+8)
-c	PARAMETER (ND64Q=(NDR0+2)*(NDT0+2)*NDF0)
-c	REAL*8 CC(ND64Q), CS(ND64Q), C64(ND64Q)
-
-c	INTEGER NDL(NDEQ)
 
 	REAL*8,allocatable::  TRA0(:,:),TRA1(:,:),TRA2(:,:),TRA3(:,:)
 	REAL*8,allocatable::  TRAB0(:,:,:), TRAB1(:,:,:)
@@ -86,11 +81,6 @@ c	INTEGER NDL(NDEQ)
 	REAL*8,allocatable::  CC(:), CS(:), C64(:)
 
 	INTEGER,ALLOCATABLE:: NDL(:)
-
-c	REAL*8 TRAB0(NDR0,NDT0,ND2Z), TRAB1(NDR0,NDT0,ND2Z)
-c	REAL*8 DEN1(NDR0,NDT0,ND2Z), DEN2(NDR0,NDT0,ND2Z)
-c	REAL*8 BB(NDR0,12), ERRE0(NDR0,ND2Z)
-c	REAL*8 SOLHH(NDR0,NDT0,8,NDZ0)
 
 	INTEGER IND, LZON, NR1, LR, LY, NZOE, NZON, NY1, NF, LZ, LT, LF
 	REAL*8 AMAQ, AMAT, X0, X1, C1
@@ -120,13 +110,6 @@ C
 	NY1 = NDL1(NZOE+2)
 	NF = NDL1(NZOE+3)
 
-	WRITE (*,*) '------------- POISSON2D -------------------'
-C	WRITE (*,*) 'NZOE, NZON : ', NZOE, NZON	
-C	WRITE (*,*) 'NY1, NF : ', NY1, NF
-C		DO LZON = 1, NZOE
-C	WRITE (*,*) 'LZ : ', LZON, '   NR : ', NDL1(1+LZON)
-C		ENDDO
-	
 C
 C... Tableau NDL decrivant les zones non compactifies:
 C
@@ -222,9 +205,6 @@ C
 C	PRINT*,'TRA1=',TRA1(1,1),TRA1(2,1)
 	AMAQ=TRA1(1,1)+TRA1(2,1)
 
-	WRITE (*,*) 'Integrale(l=0) de SOUQUAD : ', REAL(TRA1(1,1)), 
-     1		REAL(TRA1(2,1)), REAL(AMAQ)
-
 C
 C
 C Les termes matiere sont contenus dans SOUMAT
@@ -248,8 +228,6 @@ C Calcul de   AMAT = int_0^{+infini} SOUMAT(r)(l=0) r dr   [cf. Eq.(4.6)]
 	CALL GPAR2S(NDL,NDR,IND,C64,ERRE0,TRA2,TRA3)
 	AMAT=TRA3(1,1)
 
-	WRITE (*,*) 'Integrale(l=0) de SOUMAT : ', REAL(AMAT)
-
 C
 C----------------------------------------
 C Identite du viriel GRV2 [ Eq.(4.6), Eq.(6.36) ] 
@@ -263,8 +241,6 @@ C
 
 C##	IF(AMAQ.NE.X0) ALAMB=ABS(AMAT/AMAQ)
 	IF(AMAQ.NE.X0) ALAMB = - AMAT / AMAQ 
-C
-C	WRITE (*,*) 'ALAMB, 1-ALAMB : ', ALAMB, REAL(X1-ALAMB)
 C
 C Preparation de la source totale pour dzeta suivant l'Eq.(6.37):
 C
@@ -330,8 +306,6 @@ C Retour dans l'espace des configurations en theta (on y etait deja en r):
 C
 	CALL FCIQ3S(NDL1,NDR,NDT,NDF,INDD,2,0,0,2,C64,CC,CS,DEN1,
      1	DEN2,ERRE,POT)
-
-	WRITE (*,*) '-------------------------------------------'
 
 	deallocate(TRA0, TRA1, TRA2, TRA3)
 	DEALLOCATE(TRAB0, TRAB1, DEN1, DEN2)
