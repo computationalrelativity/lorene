@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2013/11/13 11:20:01  j_novak
+ * Minor correction to compile with older versions of g++
+ *
  * Revision 1.5  2013/07/25 19:44:11  o_straub
  * calculation of the marginally bound radius
  *
@@ -391,8 +394,8 @@ double Compobj_QI::r_mb(int lmin, ostream* ost) const {
     // Search for the zero
     // -------------------
 
-    int noz(10) ;          // number of zeros    
-    double zeros[1][noz] ; // define array for zeros
+    const int noz(10) ;          // number of zeros    
+    double zeros[2][noz] ; // define array for zeros
     int i = 0 ;            // counter
     int l ;                // number of domain
 
