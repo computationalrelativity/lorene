@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2013/11/14 16:12:55  j_novak
+ * Corrected a mistake in the units.
+ *
  * Revision 1.19  2012/08/12 17:48:35  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -363,7 +366,7 @@ void Et_rot_mag::equation_of_state() {
 
       for (int l=0; l< nz; l++) {
 	Tbl* tent = ent_eos.va.c->t[l] ;
-	if (tent->get_etat() == ETATZERO) {
+	if ( (tent->get_etat() == ETATZERO) || (l >= nzet) ) {
 	  nbar.set().set(l).set_etat_zero() ;
 	  ener.set().set(l).set_etat_zero() ;
 	  press.set().set(l).set_etat_zero() ;

@@ -1,5 +1,4 @@
-/*
- *  Methods of class Eos_mag
+ /*  Methods of class Eos_mag
  *
  *  (see file eos_mag.h for documentation).
  *
@@ -7,6 +6,7 @@
 
 /*
  *   Copyright (c) 2011 Thomas Elghozi & Jerome Novak
+ *   Copyright (c) 2013 Debarati Chatterjee
  *
  *   This file is part of LORENE.
  *
@@ -32,9 +32,8 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2011/10/06 14:55:36  j_novak
- * equation_of_state() is now virtual to be able to call to the magnetized
- * Eos_mag.
+ * Revision 1.4  2013/11/14 16:12:55  j_novak
+ * Corrected a mistake in the units.
  *
  * Revision 1.2  2011/10/04 16:05:19  j_novak
  * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
@@ -59,8 +58,7 @@ char eos_mag_C[] = "$Header$" ;
 #include "unites.h"
 
 
-void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, 
-		      const Tbl&, double, double, double&, double&) ;
+void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, double, double, double&, double&) ;
 
 
 			//----------------------------//
@@ -240,20 +238,18 @@ void Eos_mag::read_table() {
   dlpsdB->set_etat_qcq() ;
   d2lp->set_etat_qcq() ;
   
-  double rhonuc_cgs = rhonuc_si * 1e-3 ;
-  double c2_cgs = c_si * c_si * 1e4 ;
-  double MeVpfm3_cgs = 1.6022e33 ;
+  double c2 = c_si * c_si ;
   double mag_PG = mag_unit / 100. ; 
     	
-  int no1, no2 ;
+  int no1 ;
   double nb_fm3, rho_cgs, p_cgs, mu_MeV, magB_PG, magM_PG, chi_PGpMeV ;
     	
   double ww = 0. ;
-    	
+
   for (int j=0; j<nbp2; j++) {
     
     for (int i=0; i<nbp1; i++) {
-      fich >> no1 >> no2 >> nb_fm3 >> rho_cgs >> p_cgs >> mu_MeV 
+      fich >> no1 >> nb_fm3 >> rho_cgs >> p_cgs >> mu_MeV 
 	   >> magB_PG >> magM_PG >> chi_PGpMeV ; 
       fich.ignore(1000,'\n') ;
       if ( (nb_fm3<0) || (rho_cgs<0)) { // || (p_cgs < 0) ){
@@ -264,27 +260,30 @@ void Eos_mag::read_table() {
 	cout << "Aborting..." << endl ;
 	abort() ;
       }
-      double psc2_cgs = p_cgs / c2_cgs ;
-      double h_read = log(mu_MeV) ;
       
+      double p_si = p_cgs*0.1 ; // in N m^-2
+      double psc2 = p_si/c2 ; //  in kg m^-3
+      double rho_si = rho_cgs*1000. ; // in kg m^-3
+
+      double h_read = log(mu_MeV) ;
       if ( (i==0) && (j==0) ) ww = h_read ;
-    		
-      double h_new = h_read - ww + 1.e-14 ;
-      logp->set(j, i) = log10( psc2_cgs / rhonuc_cgs ) ; 
-      logh->set(j, i) = log10( h_new ) ;
-      Bfield->set(j, i) = magB_PG / mag_PG ;
-      dlpsdlh->set(j, i) = h_new * (rho_cgs + psc2_cgs) / psc2_cgs ; 
-      dlpsdB->set(j, i) = (magM_PG * rhonuc_cgs) / (mag_PG * psc2_cgs) ;
-      d2lp->set(j, i) = h_new * mu_MeV * 
-	( (chi_PGpMeV / mag_PG) * (rhonuc_cgs / p_cgs)
-	  - nb_fm3 * (MeVpfm3_cgs / p_cgs) * (*dlpsdB)(j, i) ) ;
+      double h_new = h_read - ww ;
+
+      logp->set(j, i) = psc2/rhonuc_si ; 
+      logh->set(j, i) = h_new ;
+      Bfield->set(j, i) = magB_PG / mag_PG ; // in Lorene units
+      dlpsdlh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
+      dlpsdB->set(j, i) = magM_PG*mag_PG/c2/rhonuc_si; 
+      d2lp->set(j, i) = mu_MeV*chi_PGpMeV*mag_PG/c2/rhonuc_si ; 
+
     }
   }
-            
-  hmin = pow( double(10), (*logh)(0, 0) ) ;
-  hmax = pow( double(10), (*logh)(0, nbp1-1) ) ;
+
+  hmin = (*logh)(0, 0) ;
+  hmax = (*logh)(0, nbp1-1) ;
 
   Bmax = (*Bfield)(nbp2-1, 0) ;
+
 
   fich.close();
  
@@ -300,29 +299,32 @@ void Eos_mag::read_table() {
 
 double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 
-  if ( ent > hmin ) {
+  if ((ent > hmin - 1.e-12) && (ent < hmin))
+    ent = hmin ;
+
+  if ( ent >= hmin) {
     if (ent > hmax) {
       cout << "Eos_tabul::nbar_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
-    double logent0 = log10( ent ) ;
     // recuperer magB0 (input)
     double magB0 = 0. ;
-    if (par->get_n_double_mod() > 0) {
-      magB0 = par->get_double_mod() ;
-    }
-
+    if (par != 0x0) 
+      if (par->get_n_double_mod() > 0) {
+	magB0 = par->get_double_mod() ;
+      }
+    
     double p_int, dp_int ;
-    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
-		     p_int, dp_int) ;
-
-    double nbar_int = pow(double(10), p_int) * dp_int * exp(-ent) / ent ;
-
+    
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, p_int, dp_int) ;
+    
+    double nbar_int = dp_int * exp(-ent) ;
+    
     return nbar_int ;
-    }
-    else{
-	return 0 ;
-    }
+  }
+  else{
+    return 0 ;
+  }
 }
 
 
@@ -331,27 +333,30 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 
 double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
-  if ( ent > hmin ) {
+  
+  if ((ent > hmin - 1.e-12) && (ent < hmin))
+    ent = hmin ;
+
+  if ( ent >= hmin ) {
     if (ent > hmax) {
       cout << "Eos_tabul::ener_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     
-    double logent0 = log10( ent ) ;
     // recuperer magB0 (input)
     double magB0 = 0. ;
-    if (par->get_n_double_mod() > 0) {
-      magB0 = par->get_double_mod() ;
-    }
+    if (par != 0x0) 
+      if (par->get_n_double_mod() > 0) {
+	magB0 = par->get_double_mod() ;
+      }
 
-    double logp_int, dlogp_int ;
-    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
-		     logp_int, dlogp_int) ;
+    double p_int, dp_int ;
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, p_int, dp_int) ;
     
-    double p_int = pow(double(10), logp_int) ;
-    double nbar_int = p_int * dlogp_int * exp(-ent) / ent ;
+    double nbar_int = dp_int * exp(-ent) ;
 
     double f_int = - p_int + exp(ent) * nbar_int;
+
     return f_int ;
   }
   else{
@@ -364,23 +369,26 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
 double Eos_mag::press_ent_p(double ent, const Param* par ) const {
 
-  if ( ent > hmin ) {                              /////////   indices i et j ??
+  if ((ent > hmin - 1.e-12) && (ent < hmin))
+    ent = hmin ;
+
+  if ( ent >= hmin ) {                            
     if (ent > hmax) {
       cout << "Eos_mag::press_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
-    double logent0 = log10( ent ) ;
+
     // recuperer magB0 (input)
     double magB0 = 0. ;
-    if (par->get_n_double_mod() > 0) {
-      magB0 = par->get_double_mod() ;
-    }
+    if (par != 0x0) 
+      if (par->get_n_double_mod() > 0) {
+	magB0 = par->get_double_mod() ;
+      }
     
     double p_int, dp_int ;
-    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, logent0, 
-		     p_int, dp_int) ;
-
-    return pow(10., p_int);
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, p_int, dp_int) ; 
+    
+    return p_int;
   }
   else{
     return 0 ;
