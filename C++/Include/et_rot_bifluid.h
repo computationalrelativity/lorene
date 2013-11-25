@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2013/11/25 13:50:55  j_novak
+ * The inheritance from Etoile_rot is no longer virtual.
+ *
  * Revision 1.15  2011/10/06 14:55:36  j_novak
  * equation_of_state() is now virtual to be able to call to the magnetized
  * Eos_mag.
@@ -125,7 +128,7 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
  * \c ener_euler.
  *
  */
-class Et_rot_bifluid : virtual public Etoile_rot {
+class Et_rot_bifluid : public Etoile_rot {
   
   // Data : 
   // -----
