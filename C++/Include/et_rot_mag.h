@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2013/11/25 13:52:11  j_novak
+ * New class Et_magnetisation to include magnetization terms in the stress energy tensor.
+ *
  * Revision 1.17  2012/08/12 17:48:36  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -96,6 +99,7 @@
 // Headers Lorene
 
 #include "etoile.h"
+#include "tensor.h"
 
 // Local prototype (for determining the surface)
 Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
@@ -109,7 +113,7 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
  * operational.
  *
  */
-class Et_rot_mag : virtual public Etoile_rot {
+class Et_rot_mag : public Etoile_rot {
   
   // Data : 
   // -----
@@ -189,10 +193,10 @@ class Et_rot_mag : virtual public Etoile_rot {
   /// Assignment to another Et_rot_mag
   void operator=(const Et_rot_mag&) ;	
 
-  /** Computes the proper baryon and energy density, as well as
-   *  pressure from the enthalpy.
-   */
-  virtual void equation_of_state() ; 
+  /* /\** Computes the proper baryon and energy density, as well as */
+  /*  *  pressure from the enthalpy. */
+  /*  *\/ */
+  /* virtual void equation_of_state() ;  */
 	
   // Accessors
   // ---------
@@ -448,7 +452,7 @@ class Et_rot_mag : virtual public Etoile_rot {
    *                      coupling function (see Bocquet et al. 1995)
    *                      used for the first integral of stationary motion.
    */
-  void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
+  virtual void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
 		       int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
 		       const Tbl& control, double mbar_wanted, double aexp_mass, 
 		       Tbl& diff, const double Q0, const double a_j0, 
@@ -559,6 +563,173 @@ class Et_rot_mag : virtual public Etoile_rot {
 		       Cmp (*g_j)(const Cmp& x, const Tbl), 
 		       Cmp (*N_j)(const Cmp& x,const Tbl),
                        const double relax_mag);
+};
+
+class Et_magnetisation : public Et_rot_mag {
+
+  // Data : 
+  // -----
+ protected:
+  Scalar xmag ; ///< The magnetisation scalar
+
+  Scalar E_I; ///< Interaction (magnetisation) energy density
+
+  ///Interaction momentum density 3-vector.
+  Vector J_I; 
+
+  ///Interaction stress 3-tensor.
+  Sym_tensor Sij_I;
+
+  // Constructors - Destructor
+  // -------------------------
+ public:
+
+  /// Standard constructor
+  Et_magnetisation(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i); 
+
+
+  Et_magnetisation(const Et_magnetisation& ) ;       ///< Copy constructor
+
+
+  /** Constructor from a file (see \c sauve(FILE*) ). 
+   * 
+   * @param mp_i Mapping on which the star will be defined
+   * @param eos_i Equation of state of the stellar matter
+   * @param fich	input file (must have been created by the function
+   *	\c sauve )
+   */
+  Et_magnetisation(Map& mp_i, const Eos& eos_i, FILE* fich) ;    	
+
+  virtual ~Et_magnetisation() ;			///< Destructor
+ 
+  // Mutators / assignment
+  // ---------------------
+ public:
+
+  /// Assignment to another Et_rot_mag
+  void operator=(const Et_magnetisation&) ;	
+
+  /** Computes the proper baryon and energy density, as well as
+   *  pressure from the enthalpy.
+   */
+  virtual void equation_of_state() ; 
+
+  // Accessors
+  // ---------
+ public:
+  const Scalar& get_magnetisation() const {return xmag;} ;
+  const Scalar& get_E_I() const {return E_I;} ;
+  const Vector& get_J_I() const {return J_I;} ;
+  const Sym_tensor& get_Sij_I() const {return Sij_I;} ; 
+  
+  // Outputs
+  // -------
+ public:
+  virtual void sauve(FILE* ) const ;	    ///< Save in a file
+   
+  /// Operator >> (virtual function called by the operator <<). 
+  virtual ostream& operator>>(ostream& ) const ;    
+
+  /** Computes an equilibrium configuration.
+   *  
+   *  @param ent_c  [input] Central enthalpy 
+   *  @param omega0  [input] Requested angular velocity 
+   *			     (if \c fact_omega=1. )
+   *  @param fact_omega [input] 1.01 = search for the Keplerian frequency,
+   *			      1. = otherwise.
+   *  @param nzadapt  [input] Number of (inner) domains where the mapping 
+   *			    adaptation to an iso-enthalpy surface
+   *			    should be performed
+   *  @param ent_limit [input] 1-D \c Tbl  of dimension \c nzet  which
+   *				defines the enthalpy at the outer boundary
+   *				of each domain
+   *  @param icontrol [input] Set of integer parameters (stored as a
+   *			    1-D \c Itbl  of size 8) to control the 
+   *			    iteration: 
+   *	\li \c icontrol(0) = mer_max  : maximum number of steps 
+   *	\li \c icontrol(1) = mer_rot  : step at which the rotation is 
+   *				      switched on 
+   *	\li \c icontrol(2) = mer_change_omega  : step at which the rotation
+   *			  velocity is changed to reach the final one  
+   *	\li \c icontrol(3) = mer_fix_omega  :  step at which the final
+   *			    rotation velocity must have been reached  
+   *	\li \c icontrol(4) = mer_mass  : the absolute value of 
+   *			    \c mer_mass  is the step from which the 
+   *			    baryon mass is forced to converge, 
+   *			    by varying the central enthalpy 
+   *			    (\c mer_mass > 0 ) or the angular 
+   *			    velocity (\c mer_mass < 0 ) 
+   *	\li \c icontrol(5) = mermax_poisson  : maximum number of steps in 
+   *				\c Map_et::poisson  
+   *	\li \c icontrol(6) = mer_triax  : step at which the 3-D 
+   *				perturbation is switched on 
+   *	\li \c icontrol(7) = delta_mer_kep  : number of steps
+   *			    after \c mer_fix_omega  when \c omega 
+   *			    starts to be increased by \c fact_omega 
+   *			    to search for the Keplerian velocity
+   *    \li \c icontrol(8) = mer_mag  : step at which the electromagnetic
+   *                        part is switched on 
+   *    \li \c icontrol(9) = mer_change_mag  : step at which the amplitude
+   *                        of the current/charge coupling function is changed
+   *                        to reach a_j0 or Q
+   *	\li \c icontrol(10) = mer_fix_mag  :  step at which the final
+   *			    current/charge amplitude a_j0 or Q must have 
+   *                        been reached  
+   *    \li \c icontrol(11) = conduc  : flag 0 -> isolator material, 
+   *                        1 -> perfect conductor 
+   * 	 
+   *  @param control [input] Set of parameters (stored as a 
+   *			    1-D \c Tbl  of size 7) to control the 
+   *			    iteration: 
+   *	\li \c control(0) = precis  : threshold on the enthalpy relative 
+   *				change for ending the computation 
+   *	\li \c control(1) = omega_ini  : initial angular velocity, 
+   *			    switched on only if \c mer_rot < 0 , 
+   *			    otherwise 0 is used  
+   *	\li \c control(2) = relax  : relaxation factor in the main 
+   *				   iteration  
+   *	\li \c control(3) = relax_poisson  : relaxation factor in 
+   *				   \c Map_et::poisson  
+   *	\li \c control(4) = thres_adapt  :  threshold on dH/dr for 
+   *			    freezing the adaptation of the mapping 
+   *	\li \c control(5) = ampli_triax  :  relative amplitude of 
+   *			    the 3-D perturbation 
+   *	\li \c control(6) = precis_adapt  : precision for 
+   *			    \c Map_et::adapt 
+   *	\li \c control(7) = Q_ini  : initial charge (total for the perfect 
+   *                      conductor, per baryon for an isolator)
+   *	\li \c control(8) = a_j_ini  : initial amplitude for the coupling
+   *                      function
+   * 
+   *
+   *  @param mbar_wanted [input] Requested baryon mass (effective only 
+   *				if \c mer_mass>mer_max )
+   *  @param aexp_mass [input] Exponent for the increase factor of the 
+   *			      central enthalpy to converge to the 
+   *			      requested baryon mass
+   *  @param diff [output]   1-D \c Tbl  of size 1 for the storage of 
+   *			    some error indicators : 
+   *	    \li \c diff(0)  : Relative change in the enthalpy field
+   *			      between two successive steps 
+   *  @param Q0 [input] Requested electric charge for the case of a
+   *                    perfect conductor. Charge per baryon for the case
+   *                    of an isolator.
+   *  @param a_j0 [input] Amplitude for the current/charge coupling function
+   *
+   *  @param f_j [input] current or charge coupling function 
+   *                      (see Bocquet et al. 1995).
+   * 
+   *  @param M_j [input] primitive (null for zero) of current/charge 
+   *                      coupling function (see Bocquet et al. 1995)
+   *                      used for the first integral of stationary motion.
+   */
+  virtual void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
+		       int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
+		       const Tbl& control, double mbar_wanted, double aexp_mass, 
+		       Tbl& diff, const double Q0, const double a_j0, 
+		       Cmp (*f_j)(const Cmp& x, const double), 
+		       Cmp (*M_j)(const Cmp& x,const double));
+
 };
 
 #endif
