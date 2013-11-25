@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2013/11/25 15:00:52  j_novak
+ * Correction of memory error.
+ *
  * Revision 1.4  2013/11/14 16:12:55  j_novak
  * Corrected a mistake in the units.
  *
@@ -144,7 +147,7 @@ void Eos_mag::sauve(FILE* fich) const {
   
   Eos::sauve(fich) ;
   
-  fwrite(tablename.c_str(), sizeof(char), 160, fich) ;		
+  fwrite(tablename.c_str(), sizeof(char), tablename.size(), fich) ;		
 
 }
 			//------------------------//
