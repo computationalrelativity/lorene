@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2013/12/12 16:07:30  j_novak
+ * interpol_herm_2d outputs df/dx, used to get the magnetization.
+ *
  * Revision 1.8  2012/09/04 14:53:28  j_novak
  * Replacement of the FORTRAN version of huntm by a C one.
  *
@@ -216,7 +219,7 @@ void interpol_herm_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 
 void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab, 
 		      const Tbl& dfdxtab, const Tbl& dfdytab, const Tbl& d2fdxdytab,
-		      double x, double y, double& f, double& dfdy) {
+		      double x, double y, double& f, double& dfdx, double& dfdy) {
 
   assert(ytab.dim == xtab.dim) ;
   assert(ftab.dim == xtab.dim) ;
@@ -285,6 +288,32 @@ void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab,
 	- d2fdxdytab(i1, j_near) * psi1_1mu * psi1_v
 	- d2fdxdytab(i_near, j1) * psi1_u * psi1_1mv 
 	+ d2fdxdytab(i1, j1) * psi1_1mu * psi1_1mv) * dx * dy ;
+
+  double dpsi0_u = 6.*(u2 - u) ;
+  double dpsi0_1mu = 6.*(u2 - u) ;
+  double dpsi1_u = 3.*u2 - 4.*u + 1. ;
+  double dpsi1_1mu = 3.*u2 - 2.*u ;
+
+  dfdx = (ftab(i_near, j_near) * dpsi0_u * psi0_v
+    - ftab(i1, j_near) * dpsi0_1mu * psi0_v 
+    + ftab(i_near, j1) * dpsi0_u * psi0_1mv
+	  - ftab(i1, j1)  * dpsi0_1mu * psi0_1mv ) / dx;
+
+  dfdx += (dfdxtab(i_near, j_near) * dpsi1_u * psi0_v
+	+ dfdxtab(i1, j_near) * dpsi1_1mu * psi0_v
+	+ dfdxtab(i_near, j1) * dpsi1_u * psi0_1mv
+	+ dfdxtab(i1, j1) * dpsi1_1mu * psi0_1mv) ;
+
+  dfdx += (dfdytab(i_near, j_near) * dpsi0_u * psi1_v
+	- dfdytab(i1, j_near) * dpsi0_1mu * psi1_v
+	- dfdytab(i_near, j1) * dpsi0_u * psi1_1mv
+	+ dfdytab(i1, j1) * dpsi0_1mu * psi1_1mv) * dy /dx ;
+  
+  dfdx += (d2fdxdytab(i_near, j_near) * dpsi1_u * psi1_v
+	+ d2fdxdytab(i1, j_near) * dpsi1_1mu * psi1_v
+	- d2fdxdytab(i_near, j1) * dpsi1_u * psi1_1mv 
+	- d2fdxdytab(i1, j1) * dpsi1_1mu * psi1_1mv) * dy ;
+
 
   double dpsi0_v = 6.*(v2 - v) ;
   double dpsi0_1mv = 6.*(v2 - v) ;

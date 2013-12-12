@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2013/12/12 16:07:30  j_novak
+ * interpol_herm_2d outputs df/dx, used to get the magnetization.
+ *
  * Revision 1.5  2013/11/25 15:00:52  j_novak
  * Correction of memory error.
  *
@@ -61,7 +64,7 @@ char eos_mag_C[] = "$Header$" ;
 #include "unites.h"
 
 
-void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, double, double, double&, double&) ;
+void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, double, double, double&, double&, double&) ;
 
 
 			//----------------------------//
@@ -317,11 +320,12 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 	magB0 = par->get_double_mod() ;
       }
     
-    double p_int, dp_int ;
+    double p_int, dpdb_int, dpdh_int ;
     
-    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, p_int, dp_int) ;
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
+		     p_int, dpdb_int, dpdh_int) ;
     
-    double nbar_int = dp_int * exp(-ent) ;
+    double nbar_int = dpdh_int * exp(-ent) ;
     
     return nbar_int ;
   }
@@ -353,10 +357,12 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 	magB0 = par->get_double_mod() ;
       }
 
-    double p_int, dp_int ;
-    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, p_int, dp_int) ;
+    double p_int, dpdb_int, dpdh_int ;
+
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
+		     p_int, dpdb_int, dpdh_int) ;
     
-    double nbar_int = dp_int * exp(-ent) ;
+    double nbar_int = dpdh_int * exp(-ent) ;
 
     double f_int = - p_int + exp(ent) * nbar_int;
 
@@ -388,8 +394,10 @@ double Eos_mag::press_ent_p(double ent, const Param* par ) const {
 	magB0 = par->get_double_mod() ;
       }
     
-    double p_int, dp_int ;
-    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, p_int, dp_int) ; 
+    double p_int, dpdb_int, dpdh_int ;
+
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
+		     p_int, dpdb_int, dpdh_int) ; 
     
     return p_int;
   }
@@ -397,6 +405,46 @@ double Eos_mag::press_ent_p(double ent, const Param* par ) const {
     return 0 ;
   }
 }
+
+// Magnetization from enthalpy
+//----------------------------
+
+double Eos_mag::mag_ent_p(double ent, const Param* par) const {
+
+  if ((ent > hmin - 1.e-12) && (ent < hmin))
+    ent = hmin ;
+
+  if ( ent >= hmin ) {                            
+    if (ent > hmax) {
+      cout << "Eos_mag::press_ent_p : ent > hmax !" << endl ;
+      abort() ;
+    }
+
+    // recuperer magB0 (input)
+    double magB0 = 0. ;
+    if (par != 0x0) 
+      if (par->get_n_double_mod() > 0) {
+	magB0 = par->get_double_mod() ;
+      }
+    
+    double p_int, dpdb_int, dpdh_int ;
+
+    interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
+		     p_int, dpdb_int, dpdh_int) ; 
+    
+    double magnetization = 4*M_PI * dpdb_int ;
+
+    if (magB0 == 0.) //## Test to be improved...
+      return 0 ;
+    else 
+      return  magnetization / magB0 ;
+  }
+  
+  else 
+    return 0. ;
+
+}
+
 
 // dln(n)/ln(H) from enthalpy 
 //---------------------------
