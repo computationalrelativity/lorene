@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2013/12/13 16:36:51  j_novak
+ * Addition and computation of magnetisation terms in the Einstein equations.
+ *
  * Revision 1.18  2013/11/25 13:52:11  j_novak
  * New class Et_magnetisation to include magnetization terms in the stress energy tensor.
  *
@@ -255,7 +258,7 @@ class Et_rot_mag : public Etoile_rot {
   Tenseur Elec() const ; ///< Computes the electric field spherical components
   Tenseur Magn() const ; ///< Computes the magnetic field spherical components
   /// Computes the electromagnetic part of the stress-energy tensor
-  void MHD_comput() ; 
+  virtual void MHD_comput() ; 
   virtual double mass_g() const ;	    ///< Gravitational mass
   virtual double angu_mom() const ;  ///< Angular momentum
   virtual double grv2() const ;	///< Error on the virial identity GRV2
@@ -351,7 +354,7 @@ class Et_rot_mag : public Etoile_rot {
    *                                  for magnetic potential (see file
    *                                  et_rot_mag_equil.C)
    */
-  void magnet_comput_plus(const int adapt_flag, const int initial_j,
+  virtual void magnet_comput_plus(const int adapt_flag, const int initial_j,
       const Tbl an_j,
       Cmp (*f_j)(const Cmp& x, const Tbl),
       const Tbl bn_j,
@@ -629,6 +632,37 @@ class Et_magnetisation : public Et_rot_mag {
    
   /// Operator >> (virtual function called by the operator <<). 
   virtual ostream& operator>>(ostream& ) const ;    
+
+  // Computational routines
+  // ----------------------
+ public: 
+  /** Computes the electromagnetic quantities solving the Maxwell
+   *  equations (6) and (7) of [Bocquet, Bonazzola, Gourgoulhon and
+   *  Novak, \a Astron. \a Astrophys. \b 301 , 757 (1995)]. In the case 
+   *  of a perfect conductor, le electromagnetic potential may have
+   *  a discontinuous derivative across star's surface.
+   *
+   *  @param conduc [input] flag: 0 for an isolator, 1 for a perfect 
+   *                        conductor
+   *  @param adapt_flag [input] flag: if 0 the mapping is NOT adapted
+   *                             to star's surface
+   *  @param f_j [input] current or charge coupling function 
+   *                      (see Bocquet et al. 1995).
+   *  @param par_poisson_At [input] parameters for controlling the 
+   *                                  solution of the Poisson equation
+   *                                  for At potential (see file
+   *                                  et_rot_mag_equil.C)
+   *  @param par_poisson_Avect [input] parameters for controlling the 
+   *                                  solution of vector Poisson equation
+   *                                  for magnetic potential (see file
+   *                                  et_rot_mag_equil.C)
+   */
+  virtual void magnet_comput(const int adapt_flag,
+			     Cmp (*f_j)(const Cmp& x, const double),
+		      Param& par_poisson_At, Param& par_poisson_Avect) ;
+
+  /// Computes the electromagnetic part of the stress-energy tensor
+  virtual void MHD_comput() ; 
 
   /** Computes an equilibrium configuration.
    *  

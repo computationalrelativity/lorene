@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2013/12/13 16:36:51  j_novak
+ * Addition and computation of magnetisation terms in the Einstein equations.
+ *
  * Revision 1.2  2011/10/04 16:05:18  j_novak
  * Update of Eos_mag class. Suppression of loge, re-definition of the derivatives
  * and use of interpol_herm_2d.
@@ -202,6 +205,10 @@ class Eos_mag : public Eos {
     // -----------------------
 
     public:
+	/** Computes the magnetisation.
+	 */
+	double mag_ent_p(double ent, const Param* par=0x0) const ;
+
 	/** Computes the baryon density from the log-enthalpy.
 	 *
 	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H 
