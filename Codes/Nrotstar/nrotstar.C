@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2013/12/15 17:48:15  e_gourgoulhon
+ * Added output file for GYOTO
+ *
  * Revision 1.11  2012/01/02 13:57:58  j_novak
  * Reverting to version 1.9
  *
@@ -649,6 +652,50 @@ int main(){
    
     seq.close() ; 
 	
+    
+    // Output file for GYOTO
+    //----------------------
+    
+    // Shift vector on spherical triad --> beta
+    Scalar beta_phi = - star.get_nphi() ; // beta^phi = - N^phi
+    Vector beta(star.get_mp(), CON, star.get_mp().get_bvect_spher()) ;
+    beta.set(1) = 0 ;
+    beta.set(2) = 0 ;
+    Scalar tmp = beta_phi ; 
+    tmp.mult_rsint() ; 
+    beta.set(3) = tmp ; 
+    
+    // Extrinsic curvature --> kk
+    Scalar nn = star.get_nn() ;
+    Scalar bb2 = star.get_b_car() ; 
+    Sym_tensor kk(star.get_mp(), COV, star.get_mp().get_bvect_spher()) ;
+    kk.set(1,1) = 0 ; 
+    kk.set(1,2) = 0 ; 
+    tmp = 0.5 * bb2 * beta_phi.dsdr() / nn ;
+    tmp.mult_rsint() ;
+    kk.set(1,3) = tmp ;
+    kk.set(2,2) = 0 ; 
+    tmp = 0.5 * bb2 * beta_phi.dsdt() / nn ;
+    tmp.mult_sint() ;
+    kk.set(2,3) = tmp ;
+    kk.set(3,3) = 0 ;
+
+    // File for GYOTO
+    FILE* file_out = fopen("resu_gyoto.d", "w") ;
+    double total_time = 0. ; // for compatibility
+    fwrite_be(&total_time, sizeof(double), 1, file_out) ;    
+    star.get_mp().get_mg()->sauve(file_out) ;
+    star.get_mp().sauve(file_out) ;
+    star.get_nn().sauve(file_out) ;
+    beta.sauve(file_out) ;
+    star.get_gamma().cov().sauve(file_out) ;
+    star.get_gamma().con().sauve(file_out) ;
+    kk.sauve(file_out) ;
+    //  aa = c J / (G M^2)
+    double aa = star.angu_mom()/( qpig / (4* M_PI) * pow(star.mass_g(), 2.) ) ;
+    fwrite_be(&aa, sizeof(double), 1, file_out) ;
+    fclose(file_out) ;    
+
     // Cleaning
     // --------
 
