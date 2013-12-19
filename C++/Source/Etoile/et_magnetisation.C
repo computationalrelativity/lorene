@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2013/12/19 17:05:40  j_novak
+ * Corrected a dzpuis problem.
+ *
  * Revision 1.2  2013/12/13 16:36:51  j_novak
  * Addition and computation of magnetisation terms in the Einstein equations.
  *
@@ -92,21 +95,21 @@ Et_magnetisation::Et_magnetisation(Map& mp_i, const Eos& eos_i, FILE* fich)
     Sij_I(mp_i, COV, mp_i.get_bvect_spher())
 {
 
-    // Read of the saved fields:
-    // ------------------------
+  // Read of the saved fields:
+  // ------------------------
     
-    Scalar xmag_file(mp, *mp.get_mg(), fich) ;
-    xmag = xmag_file ;
-
-    Scalar E_I_file(mp, *mp.get_mg(), fich) ;
-    E_I = E_I_file ;
-
-    Vector J_I_file(mp, mp.get_bvect_spher(), fich) ;
-    J_I = J_I_file ;
-
-    Sym_tensor Sij_I_file(mp, mp.get_bvect_spher(), fich) ;
-    Sij_I = Sij_I_file ;
-    
+  Scalar xmag_file(mp, *mp.get_mg(), fich) ;
+  xmag = xmag_file ;
+  
+  Scalar E_I_file(mp, *mp.get_mg(), fich) ;
+  E_I = E_I_file ;
+  
+  Vector J_I_file(mp, mp.get_bvect_spher(), fich) ;
+  J_I = J_I_file ;
+  
+  Sym_tensor Sij_I_file(mp, mp.get_bvect_spher(), fich) ;
+  Sij_I = Sij_I_file ;
+  
 }
 
 
@@ -633,6 +636,13 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
 
     MHD_comput() ; // computes EM contributions to T_{mu,nu}
 
+    // S_{rr} + S_{\theta\theta}
+    Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
+    SrrplusStt = SrrplusStt / a_car ; // S^r_r + S^\theta_\theta
+
+    Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
+    Spp = Spp / b_car ; // S^\phi_\phi
+
     //-----------------------------------------------
     //  Sources of the Poisson equations
     //-----------------------------------------------
@@ -643,9 +653,8 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
     beta.set_std_base() ; 
     
     if (relativistic) {
-      Tenseur s_magnetisation(Cmp(E_I + Sij_I(1,1) + Sij_I(2,2) + Sij_I(3,3))) ;
       source_nuf =  
-	qpig * a_car *( ener_euler + s_euler + s_magnetisation ) ; 
+	qpig * a_car *( ener_euler + s_euler + SrrplusStt + Spp ) ; 
       
       source_nuq = ak_car 
 	- flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() 
@@ -662,22 +671,20 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
 
     // Source for dzeta
     // ----------------
-    Tenseur s_magnetisation( Cmp( Sij_I(3,3) ) ) ;
     source_dzf = 2 * qpig * a_car 
-      * (press + (ener_euler+press) * uuu*uuu 
-	 + s_magnetisation ) ;
+      * (press + (ener_euler+press) * uuu*uuu + Spp ) ;
     source_dzf.set_std_base() ; 
-  
+ 
     source_dzq = 2 * qpig * a_car * E_em + 1.5 * ak_car - 
       flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() ) ;  
     source_dzq.set_std_base() ; 	
 	
+
     // Source for tggg
     // ---------------
     
-    s_magnetisation = Cmp(Sij_I(1,1) + Sij_I(2,2)) ;
     source_tggg = 2 * qpig * nnn * a_car * bbb 
-      * ( 2*press + s_magnetisation ) ;
+      * ( 2*press + SrrplusStt ) ;
     source_tggg.set_std_base() ; 
 	
     (source_tggg.set()).mult_rsint() ; 

@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2013/12/19 17:05:40  j_novak
+ * Corrected a dzpuis problem.
+ *
  * Revision 1.1  2013/12/13 16:36:51  j_novak
  * Addition and computation of magnetisation terms in the Einstein equations.
  *
@@ -395,9 +398,9 @@ void Et_magnetisation::MHD_comput() {
 
   Scalar EiEi ( flat_scalar_prod(Efield, Efield)() ) ;
   Scalar BiBi ( flat_scalar_prod(Bfield, Bfield)() ) ;
-  Vector Ui(mp, CON, mp.get_bvect_spher()) ;
+  Vector U_up(mp, CON, mp.get_bvect_spher()) ;
   for (int i=1; i<=3; i++) 
-    Ui.set(i) = u_euler(i-1) ;
+    U_up.set(i) = u_euler(i-1) ;
 
   Sym_tensor gamij(mp, COV, mp.get_bvect_spher()) ;
   for (int i=1; i<=3; i++)
@@ -408,23 +411,26 @@ void Et_magnetisation::MHD_comput() {
   gamij.set(2,2) = a_car() ;
   gamij.set(3,3) = b_car() ;
   Metric met(gamij) ;
-  Ui.down(0, met) ;
+  Vector Ui = U_up.down(0, met) ;
 
   Scalar fac = sqrt(a_car()) ;
-  Vector Bi(mp, CON, mp.get_bvect_spher()) ;
-  Bi.set(1) = Scalar(Bfield(0)) / fac ;
-  Bi.set(2) = Scalar(Bfield(1)) / fac ;
-  Bi.set(3) = 0 ;
-  Bi.down(0, met) ;
+  Vector B_up(mp, CON, mp.get_bvect_spher()) ;
+  B_up.set(1) = Scalar(Bfield(0)) / fac ;
+  B_up.set(2) = Scalar(Bfield(1)) / fac ;
+  B_up.set(3) = 0 ;
+  Vector Bi = B_up.down(0, met) ;
 
   fac = Scalar(gam_euler()*gam_euler()) ;
 
   E_I = 0.5*mu0 * get_magnetisation() * EiEi ;
+
   J_I = 0.5*mu0 * get_magnetisation() * BiBi * Ui ;
   Sij_I = 0.5*mu0 * get_magnetisation() 
     * ( (BiBi / fac) * gamij  + BiBi*Ui*Ui - Bi*Bi / fac ) ;
 
-  Sij_I.up(0, met) ;
+  for (int i=1; i<=3; i++)
+    for (int j=i; j<=3; j++)
+      Sij_I.set(i,j).set_dzpuis(0) ;
 
 
 }
