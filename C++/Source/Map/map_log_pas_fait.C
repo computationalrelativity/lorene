@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/01/08 09:41:22  b_peres
+ * change map_log_pas_fait
+ *
  * Revision 1.8  2012/01/17 10:34:56  j_penner
  * *** empty log message ***
  *
@@ -187,4 +190,16 @@ const Map_af& Map_log::mp_angu(int) const {
     pas_fait() ;
     p_mp_angu = new Map_af(*this) ;
     return *p_mp_angu ;
+}
+
+void Map_log::primr(const Scalar&, Scalar&, bool) const {
+  pas_fait() ;
+}
+
+void Map_log::poisson_falloff(const Cmp&, Param&, Cmp&, int) const {
+  pas_fait() ;
+}
+
+void Map_log::poisson_ylm(const Cmp&, Param&, Cmp&, int, double*) const {
+  pas_fait() ;
 }
