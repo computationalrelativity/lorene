@@ -27,6 +27,9 @@ char altBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/01/14 20:54:47  e_gourgoulhon
+ * Comparison with Kerr_QI; better outputs
+ *
  * Revision 1.2  2013/04/17 13:03:29  e_gourgoulhon
  * New member krphi
  *
@@ -67,32 +70,50 @@ int main() {
     char file_name[256] ; 
     fpar.getline(file_name, 256) ;
     cout << "File to be read: " << file_name << endl ; 
-    double a_spin ; 
-    fpar >> a_spin ; fpar.ignore(1000,'\n') ;
+
+    double mass ; // M
+    fpar >> mass ; fpar.ignore(1000,'\n') ;
+    
+    double a_ov_m ; 
+    fpar >> a_ov_m ; fpar.ignore(1000,'\n') ;
+
     int graphic_out ; // flag for graphical outputs
     fpar >> graphic_out ; fpar.ignore(1000,'\n') ; 
-    
-    fpar.close();
 
-    int nz = 4 ; 
-    int nzm1 = nz-1 ; 
-    double* r_limits = new double[nz+1];  // radial boundaries of each domain in units of M      
-    r_limits[0] = 0 ; 
-    for (int l=1; l<nz; l++) {
-       r_limits[l] = pow(2,l); 
+    int nr ; // Number of collocation points in r in each domain
+    fpar >> nr; fpar.ignore(1000,'\n') ;
+
+    int nt ; // Number of collocation points in theta in each domain
+    fpar >> nt; fpar.ignore(1000,'\n') ;
+
+    int np ; // Number of collocation points in phi in each domain
+    fpar >> np; fpar.ignore(1000,'\n') ;
+
+    int nz ; // Number of domains
+    fpar >> nz ; fpar.ignore(1000,'\n') ;
+    int nzm1 = nz - 1 ; // Index of outermost domain
+
+    fpar.ignore(1000,'\n') ; // skip title
+    double* r_limits = new double[nz+1];  // inner boundaries of each domain in units of M      
+    for (int l=0; l<nz; l++) {
+        fpar >> r_limits[l]; 
     }
     r_limits[nz] = __infinity ;
-
+    
+    fpar.close();
+    
+    cout << "M = " << mass << ",  a/M = " << a_ov_m << endl ; 
+    double r_hor = double(0.5)*mass*sqrt(double(1)-a_ov_m*a_ov_m) ; 
+    cout << "Value of coordinate r at the event horizon : " << r_hor  << endl ; 
     cout << "r_limits : " ; 
     for (int l=0; l<nz+1; l++) {
-      cout << r_limits[l] << "  " ; 
-    }
+        cout << r_limits[l] << "  " ; 
+        }
     cout << endl ; 
     
-    int nr = 33 ; 
-    int nt = 5 ; 
-    int np = 1 ; 
-    
+    arrete() ; 
+
+
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
@@ -113,34 +134,86 @@ int main() {
     // Construction of the AltBH_QI object:
     // ----------------------------------
     
-    AltBH_QI bh(map, file_name, a_spin) ; 
-    
+    AltBH_QI bh(map, file_name, a_ov_m) ; 
+    Kerr_QI bh2(map, 1., a_ov_m) ; 
+
     bh.update_metric() ; 
+    bh2.update_metric() ; 
+
 
     cout.precision(15) ; 
+    cout << endl << "******* bh ******** " << endl ; 
     cout << bh << endl ; 
+    arrete() ;
+    cout << endl << "******* bh2 ******** " << endl ; 
+    cout << bh2 << endl ; 
+    Scalar diffn = bh.get_nn() - bh2.get_nn();
+    cout << "max(N - N(2)) : " << max(diffn) << endl ; 
+    Scalar tmp = bh.get_nn().dsdr() ; 
+    tmp.annule_domain(nzm1) ;
+    tmp = tmp.dsdr() ; 
+    Scalar tmp2 = bh2.get_nn().dsdr() ; 
+    tmp2.annule_domain(nzm1) ;
+    tmp2 = tmp2.dsdr() ; 
+    Scalar diffddn = tmp - tmp2;
+    cout << "max(d2N - d2N(2)) : " << max(diffddn) << endl ; 
+    Scalar diffa2 = bh.get_a_car() - bh2.get_a_car();
+    cout << "max(A^2 - A^2(2)) : " << max(diffa2) << endl ; 
+    Scalar diffb2 = bh.get_b_car() - bh2.get_b_car();
+    cout << "max(B^2 - B^2(2)) : " << max(diffb2) << endl ; 
+    Scalar diffnp = bh.get_nphi() - bh2.get_nphi();
+    cout << "max(Nphi - Nphi(2)) : " << max(diffnp) << endl ; 
+    arrete() ;
+    
+
+
 
     // ISCO from Eq. (21) of Bardeen, Press & Teukolsky, ApJ 178, 347 (1972):
-    cout << "Numerical value of r_ISCO (prograde orbits): " << 
-        bh.r_isco(0) << endl ;  
-        
-    // Drawings    
-    if (graphic_out == 1) {
-        double r_max = 2*map.val_r(nzm1,-1.,0.,0.) ; 
+    double third = double(1)/double(3) ;
+    double z1 = 1 + pow(1-a_ov_m*a_ov_m, third)*( pow(1+a_ov_m, third) +
+                                                  pow(1-a_ov_m, third) ) ;
+    double z2 = sqrt(3*a_ov_m*a_ov_m + z1*z1) ;
+
+    double R_isco =  3 + z2 - sqrt((3-z1)*(3+z1+2*z2))  ; 
+
+    cout.precision(15) ; 
+    cout << "Analytic value of R_ISCO (Kerr):         " << R_isco << " M" << endl ; 
+    cout << "Numerical value of R_ISCO (Kerr_QI):     " << 
+       bh2.r_isco(0)/mass + mass*(1-a_ov_m*a_ov_m)/(4*bh2.r_isco(0)) + 1 << " M ; " << (bh2.r_isco(0)) << endl ; 
+    cout << "Numerical value of R_ISCO (alternative): " << 
+       bh.r_isco(0)/mass + mass*(1-a_ov_m*a_ov_m)/(4*bh.r_isco(0)) + 1 << " M ; " << (bh.r_isco(0)) << endl ;  
+
+
+
+     // R_mb analogue to Eq. (19) of Bardeen, Press & Teukolsky, ApJ 178, 347 (1972):
+
+     double R_mb = 2 - a_ov_m + 2 * sqrt(1 - a_ov_m) ;
+     cout << "Analytical value of R_mb (Kerr):       " << R_mb << " M" << endl ;  
+     cout << "Numerical value of R_mb (Kerr_QI):     " << bh2.r_mb(0)/mass + mass*(1 - a_ov_m*a_ov_m)/(4*bh2.r_mb(0)) + 1 << " M ; " << (bh2.r_mb(0)) << endl ;
+     cout << "Numerical value of R_mb (alternative): " << bh.r_mb(0)/mass + mass*(1 - a_ov_m*a_ov_m)/(4*bh.r_mb(0)) + 1 << " M ; " << (bh.r_mb(0)) << endl ;
+
+
+
+
+// Drawings    
+      if (graphic_out == 1) {
+        double r_max = 1.5*map.val_r(nzm1,-1.,0.,0.) ; 
         des_meridian(bh.get_nn(), 0, r_max, "N", 1) ; 
+        des_meridian(diffn , 0, r_max, "N - N(2)", 2) ; 
+        des_meridian(diffddn , 0, r_max, "diff d2N", 3) ; 
 
-        des_meridian(bh.get_nphi(), 0, r_max, "Nphi", 3) ; 
-        des_meridian(bh.get_nphi().dsdr(), 0, r_max, "dNphi/dr", 4) ; 
+       des_meridian(bh.get_nphi(), 0, r_max, "Nphi", 4) ; 
+       des_meridian(bh.get_nphi().dsdr(), 0, r_max, "dNphi/dr", 5) ; 
 
-        des_meridian(bh.get_gamma().cov()(1,1), 0, r_max, "gamma_11", 5) ; 
-        des_meridian(bh.get_gamma().cov()(3,3), 0, r_max, "gamma_33", 6) ; 
-    
-        des_meridian(bh.get_kk()(1,3), 0.4, 0.6, "K_(r)(ph)", 7) ; 
-        des_meridian(bh.get_krphi(), 0.4, 0.6, "K_(r)(ph)/sin(theta) from file", 8) ; 
-        des_meridian(bh.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 9) ; 
-    
-        arrete() ; 
-    }
+      des_meridian(bh.get_gamma().cov()(1,1), 0, r_max, "gamma_11", 6) ; 
+      des_meridian(bh.get_gamma().cov()(3,3), 0, r_max, "gamma_33", 7) ; 
+  
+      des_meridian(bh.get_kk()(1,3), 0.4, 0.6, "K_(r)(ph)", 8) ; 
+      des_meridian(bh.get_krphi(), 0.4, 0.6, "K_(r)(ph)/sin(theta) from file", 9) ; 
+      des_meridian(bh.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 10) ; 
+   
+     arrete() ; 
+      }
 
     
     // Output file for GYOTO
