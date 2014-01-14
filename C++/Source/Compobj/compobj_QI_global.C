@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/01/14 20:52:53  e_gourgoulhon
+ * ISCO searched downwards
+ *
  * Revision 1.7  2014/01/14 16:35:46  e_gourgoulhon
  * Changed output printing in ISCO search
  *
@@ -167,7 +170,7 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
     theta_ms = M_PI / 2. ; // pi/2
     phi_ms = 0. ;
 
-    for(l = lmin; l <= nzm1; l++) { 
+    for(l = nzm1-1; l >= lmin; l--) { 
 
     xi_min = -1. ;
     xi_max = 1. ;
