@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/01/14 16:35:46  e_gourgoulhon
+ * Changed output printing in ISCO search
+ *
  * Revision 1.6  2013/11/13 11:20:01  j_novak
  * Minor correction to compile with older versions of g++
  *
@@ -198,8 +201,6 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
 
   	if(find_status) { 
   	    
-        cout << "l_ms : " << l_ms << endl ; 
-        cout << "xi_min, xi_max : " << xi_min << " , " << xi_max << endl ; 
         
      	double precis_ms = 1.e-12 ;    // precision in the determination of xi_ms
 									   
@@ -209,9 +210,10 @@ double Compobj_QI::r_isco(int lmin, ostream* ost) const {
      	xi_ms = zerosec(funct_compobj_QI_isco, par_ms, xi_min, xi_max,
      					precis_ms, nitermax_ms, niter) ;     					
   		if (ost != 0x0) {
-     		* ost <<
-     		"    number of iterations used in zerosec to locate the ISCO : "
-	  		 << niter << endl ;
+            *ost << "ISCO search: " << endl ; 
+            *ost << "    Domain number: " << l_ms << endl ; 
+            *ost << "    xi_min, xi_max : " << xi_min << " , " << xi_max << endl ; 
+     		*ost << "    number of iterations used in zerosec: " << niter << endl ;
      		*ost << "    zero found at xi = " << xi_ms << endl ;
         }
 
@@ -385,7 +387,7 @@ double Compobj_QI::r_mb(int lmin, ostream* ost) const {
                              (D2*D2 + D4)) - 2.*(D2*D2 + D4) ;
 
 
-    cout << "bound_orbit :" << bound_orbit << endl ;
+    // cout << "bound_orbit :" << bound_orbit << endl ;
 
     bound_orbit.std_spectral_base() ;
     
