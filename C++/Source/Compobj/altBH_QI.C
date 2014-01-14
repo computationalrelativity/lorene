@@ -30,6 +30,9 @@ char altBH_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/01/14 16:36:11  e_gourgoulhon
+ * Corrected initialization of bbb
+ *
  * Revision 1.2  2013/04/17 13:02:47  e_gourgoulhon
  * Added member krphi + method extrinsic_curvature
  *
@@ -146,7 +149,9 @@ AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
     krphi.std_spectral_base() ;
     
     b_car = a_car ; // slow rotation limit: B^2 = A^2 
-    
+    bbb = sqrt(b_car) ; 
+    bbb.std_spectral_base() ;
+   
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
 }
