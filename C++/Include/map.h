@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.57  2014/01/14 13:24:02  b_peres
+ * *** empty log message ***
+ *
  * Revision 1.56  2012/01/24 14:58:54  j_novak
  * Removed functions XXX_fait_xi()
  *
@@ -3783,9 +3786,12 @@ class Map_log : public Map_radial {
 	virtual void laplacien (const Scalar&, int, Scalar&) const ;/// < Not implemented
 	virtual void laplacien (const Cmp&, int, Cmp&) const ;/// < Not implemented
 	virtual void lapang (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual void primr(const Scalar&, Scalar&, bool) const ;/// < Not implemented
 	virtual Tbl* integrale (const Cmp&) const ;/// < Not implemented
 	virtual void poisson (const Cmp&, Param&, Cmp&) const ;/// < Not implemented
 	virtual void poisson_tau (const Cmp&, Param&, Cmp&) const ;/// < Not implemented
+	virtual void poisson_falloff(const Cmp&, Param&, Cmp&, int) const ;/// < Not implemented
+	virtual void poisson_ylm(const Cmp&, Param&, Cmp&, int, double*) const ;/// < Not implemented
 	virtual void poisson_regular (const Cmp&, int, int, double, Param&, Cmp&, Cmp&, Cmp&, 
 				      Tenseur&, Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void poisson_angu (const Scalar&, Param&, Scalar&, double=0) const ;/// < Not implemented
