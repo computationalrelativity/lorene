@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/01/14 20:53:39  e_gourgoulhon
+ * Updated documentation of r_isco
+ *
  * Revision 1.13  2013/07/25 19:44:45  o_straub
  * calculation of the marginally bound radius
  *
@@ -392,7 +395,9 @@ class Compobj_QI : public Compobj {
 
 	/** Coordinate r of the innermost stable circular orbit (ISCO).	
 	 *
-	 *  @param lmin index of the domain from which the ISCO is searched outwards ;
+	 *  @param lmin index of the innermost domain in which the ISCO is searched: 
+     *         the ISCO is searched inwards from the last but one domain to 
+     *         the domain of index lmin. 
 	 *  @param ost output stream to give details of the computation;
 	 *		if set to 0x0 [default value], no details will be
 	 *		given.
