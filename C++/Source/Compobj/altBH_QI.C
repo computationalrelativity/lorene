@@ -30,6 +30,9 @@ char altBH_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/01/17 07:33:13  o_straub
+ * adjustment to read in files with 4 lines in the header
+ *
  * Revision 1.3  2014/01/14 16:36:11  e_gourgoulhon
  * Corrected initialization of bbb
  *
@@ -82,6 +85,7 @@ AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
 
     const Mg3d* mg = mp.get_mg() ; 
     double tmp ; 
+    file.ignore(1000,'\n') ;
     file.ignore(1000,'\n') ;
     int nz = mg->get_nzone() ; 
     cout << "nz : " << nz << endl ; 
