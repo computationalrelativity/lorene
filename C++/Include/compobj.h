@@ -1,5 +1,5 @@
 /*
- *  Definition of Lorene class Compobj, Compobj_QI, Star_QI, Kerr_QI, AltBH_QI
+ *  Definition of Lorene class Compobj, Compobj_QI, Star_QI, Kerr_QI, AltBH_QI, HiggsMonopole
  *
  */
 
@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/01/29 16:29:16  e_gourgoulhon
+ * Added new class HiggsMonopole
+ *
  * Revision 1.14  2014/01/14 20:53:39  e_gourgoulhon
  * Updated documentation of r_isco
  *
@@ -968,6 +971,92 @@ class AltBH_QI : public Compobj_QI {
     virtual void extrinsic_curvature() ; 
  
 };
+
+
+            //------------------------//
+            //   class HiggsMonopole  //
+            //------------------------//
+
+/**
+ * Higgs monopole (***under development***). 
+ * \ingroup(compactobjects)
+ *
+ * 
+ */
+class HiggsMonopole : public Compobj {
+
+    // Data : 
+    // -----
+    protected:
+
+    Scalar hh ; /// Higgs scalar field
+
+    // Derived data : 
+    // ------------
+    protected:
+         
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    /** Standard constructor. 
+     * 
+     * @param mp_i Mapping on which the Higgs monopole is contructed
+     * @param file_name Name of the file containing the data
+     *
+     */
+    HiggsMonopole(Map& mp_i, const char* file_name) ;          
+    
+    HiggsMonopole(const HiggsMonopole& ) ;      ///< Copy constructor
+
+    virtual ~HiggsMonopole() ;            ///< Destructor
+
+    // Memory management
+    // -----------------
+    protected:
+    /// Deletes all the derived quantities
+    // virtual void del_deriv() const ; 
+    
+    /// Sets to \c 0x0  all the pointers on derived quantities
+    // virtual void set_der_0x0() const ; 
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+    /// Assignment to another \c AltBH_QI 
+    // void operator=(const AltBH_QI& ) ;   
+    
+    // Accessors
+    // ---------
+    public:
+
+    /// Returns Higgs field
+    const Scalar& get_higgs() const {return hh;} ;
+    
+    // Outputs
+    // -------
+    public:
+    // virtual void sauve(FILE* ) const ;      ///< Save in a file
+    
+    protected:
+    /// Operator >> (virtual function called by the operator <<). 
+    virtual ostream& operator>>(ostream& ) const ;    
+
+    // Global quantities
+    // -----------------
+    public:
+            
+
+    // Computational routines
+    // ----------------------
+    public: 
+    
+    /// Computation of the extrinsic curvature 
+    // virtual void extrinsic_curvature() ; 
+ 
+};
+
+
 
 
 #endif
