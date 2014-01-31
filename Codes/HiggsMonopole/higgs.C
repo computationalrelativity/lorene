@@ -27,6 +27,9 @@ char higgs_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/01/31 15:36:06  e_gourgoulhon
+ * Added drawings
+ *
  * Revision 1.1  2014/01/29 16:34:36  e_gourgoulhon
  * New main code for reading Higgs monopoles
  *
@@ -77,7 +80,7 @@ int main() {
 
     int nz ; // Number of domains
     fpar >> nz ; fpar.ignore(1000,'\n') ;
-    //int nzm1 = nz - 1 ; // Index of outermost domain
+    int nzm1 = nz - 1 ; // Index of outermost domain
 
     fpar.ignore(1000,'\n') ; // skip title
     double* r_limits = new double[nz+1];  // inner boundaries of each domain in units of M      
@@ -93,7 +96,7 @@ int main() {
         cout << r_limits[l] << "  " ; 
         }
     cout << endl ; 
-    arrete() ; 
+    //arrete() ; 
 
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
@@ -128,6 +131,20 @@ int main() {
     HiggsMonopole hmonop(map, file_name) ; 
     
     cout << hmonop << endl ;
+
+// Drawings    
+    if (graphic_out == 1) {
+        double r_max = map.val_r(nzm1, 1.,0.,0.) ; 
+
+        des_meridian(hmonop.get_nn(), 0, r_max, "N", 1) ; 
+        des_meridian(hmonop.get_grr() , 0, r_max, "g_rr", 2) ; 
+        des_meridian(hmonop.get_higgs() , 0, r_max, "h", 3) ; 
+       des_meridian(hmonop.get_press() , 0, r_max, "P", 4) ; 
+   
+    arrete() ; 
+    }
+
+
 
     return EXIT_SUCCESS ; 
 
