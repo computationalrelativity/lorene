@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/01/31 15:34:54  e_gourgoulhon
+ * Added members to class HiggsMonopole
+ *
  * Revision 1.15  2014/01/29 16:29:16  e_gourgoulhon
  * Added new class HiggsMonopole
  *
@@ -989,7 +992,14 @@ class HiggsMonopole : public Compobj {
     // -----
     protected:
 
-    Scalar hh ; /// Higgs scalar field
+    char description1[256] ;  ///< String describing the model
+    char description2[256] ;  ///< String describing the model
+
+    Scalar hh ; ///< Higgs scalar field
+    
+    Scalar grr ; ///< Metric coefficient g_rr
+
+    Scalar press ; ///< Fluid pressure
 
     // Derived data : 
     // ------------
@@ -1032,6 +1042,12 @@ class HiggsMonopole : public Compobj {
 
     /// Returns Higgs field
     const Scalar& get_higgs() const {return hh;} ;
+    
+    /// Returns the metric coefficient g_rr
+    const Scalar& get_grr() const {return grr;} ;
+    
+    /// Returns the fluid pressure
+    const Scalar& get_press() const {return press;} ;
     
     // Outputs
     // -------
