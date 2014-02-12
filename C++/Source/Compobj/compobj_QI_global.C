@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/02/12 16:46:54  o_straub
+ * Rmb : cleaner prompt
+ *
  * Revision 1.8  2014/01/14 20:52:53  e_gourgoulhon
  * ISCO searched downwards
  *
@@ -462,37 +465,35 @@ double Compobj_QI::r_mb(int lmin, ostream* ost) const {
 
     for(int i = 0; i < number_of_zeros; i++) {
 
-	cout << i << " " << zeros[0][i] << " " << zeros[1][i] << endl ;
+    	//cout << i << " " << zeros[0][i] << " " << zeros[1][i] << endl ;
 
-	int l_mb = int(zeros[1][i]) ;
-	xi_max = zeros[0][i] ; 
-	xi_min = xi_max - dx ;
-
+    	int l_mb = int(zeros[1][i]) ;
+    	xi_max = zeros[0][i] ; 
+    	xi_min = xi_max - dx ;
 
         Param par_mb ;
         par_mb.add_scalar(bound_orbit) ;
         par_mb.add_int(l_mb) ; 
 
-     	int niter ;
-     	xi_mb = zerosec(funct_compobj_QI_rmb, par_mb, xi_min, xi_max, precis_mb, nitermax_mb, niter) ;     					
-  	
+        int niter ;
+        xi_mb = zerosec(funct_compobj_QI_rmb, par_mb, xi_min, xi_max, precis_mb, nitermax_mb, niter) ;     					
+      	if (ost != 0x0) {
+            *ost << "RMB search: " << endl ; 
+            *ost << "    Domain number: " << l_mb << endl ; 
+            *ost << "    xi_min, xi_max : " << xi_min << " , " << xi_max << endl ; 
+            *ost << "    number of iterations used in zerosec: " << niter << endl ;
+            *ost << "    zero found at xi = " << xi_mb << endl ;
+        }
 
-	if (niter < nitermax_mb) {
-
-		double zero_mb = mp.val_r(l_mb, xi_mb, theta_mb, phi_mb) ;
-		//double r_hor = radius_hor(0); // set to 1 in the condition below
-	 	double r_ms = r_isco(0) ;
-		if (zero_mb < (1 + r_ms)/2){
-
-		rmb = zero_mb ;
-
- 		cout << "number of iterations used in zerosec to locate the marginally bound orbit : " 
-                     << niter << endl ;
-                cout << "    zero found at xi = " << xi_mb << endl ;
-                cout << "    radial distance: " << rmb << endl ; 
-        	}
-	} 
- 
+    	if (niter < nitermax_mb) {
+            double zero_mb = mp.val_r(l_mb, xi_mb, theta_mb, phi_mb) ;
+    		//double r_hor = radius_hor(0); // set to 1 in the condition below
+    	 	double r_ms = r_isco(0) ;
+    	    if (zero_mb < (1 + r_ms)/2){
+                
+                rmb = zero_mb ;
+            }
+    	} 
     }	
 
     p_r_mb = new double (rmb) ;
