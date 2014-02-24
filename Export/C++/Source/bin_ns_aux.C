@@ -31,6 +31,9 @@ char bin_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/02/24 16:08:11  e_gourgoulhon
+ * Eulerian velocities set to zero outside the stars
+ *
  * Revision 1.5  2006/09/12 08:04:07  j_novak
  * Removal of the include path Export/C++/Include, updating of the relevant
  * source files in Export/C++/Source.
@@ -309,12 +312,25 @@ Bin_NS::Bin_NS(int nbpoints, const double* xi, const double* yi,
     vener1.coef() ;
     vener2.coef() ;
 
-    const Valeur& vueulerx1 = (star(1).get_u_euler()(0)).va ;
-    const Valeur& vueulerx2 = (star(2).get_u_euler()(0)).va ;
-    const Valeur& vueulery1 = (star(1).get_u_euler()(1)).va ;
-    const Valeur& vueulery2 = (star(2).get_u_euler()(1)).va ;
-    const Valeur& vueulerz1 = (star(1).get_u_euler()(2)).va ;
-    const Valeur& vueulerz2 = (star(2).get_u_euler()(2)).va ;
+    Valeur vueulerx1 = (star(1).get_u_euler()(0)).va ;
+    Valeur vueulerx2 = (star(2).get_u_euler()(0)).va ;
+    Valeur vueulery1 = (star(1).get_u_euler()(1)).va ;
+    Valeur vueulery2 = (star(2).get_u_euler()(1)).va ;
+    Valeur vueulerz1 = (star(1).get_u_euler()(2)).va ;
+    Valeur vueulerz2 = (star(2).get_u_euler()(2)).va ;
+
+    // Velocities set to zero outside the stars:
+    int nzet1 = star(1).get_nzet() ; 
+    int nz1m1 = mg1.get_nzone() - 1 ; 
+    int nzet2 = star(2).get_nzet() ; 
+    int nz2m1 = mg2.get_nzone() - 1 ; 
+    vueulerx1.annule(nzet1, nz1m1) ; 
+    vueulery1.annule(nzet1, nz1m1) ; 
+    vueulerz1.annule(nzet1, nz1m1) ; 
+    vueulerx2.annule(nzet2, nz2m1) ; 
+    vueulery2.annule(nzet2, nz2m1) ; 
+    vueulerz2.annule(nzet2, nz2m1) ; 
+    
     vueulerx1.coef() ;
     vueulerx2.coef() ;
     vueulery1.coef() ;
