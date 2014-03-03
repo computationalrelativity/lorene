@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/03/03 16:23:08  j_novak
+ * Updated error message
+ *
  * Revision 1.6  2013/12/12 16:07:30  j_novak
  * interpol_herm_2d outputs df/dx, used to get the magnetization.
  *
@@ -416,7 +419,7 @@ double Eos_mag::mag_ent_p(double ent, const Param* par) const {
 
   if ( ent >= hmin ) {                            
     if (ent > hmax) {
-      cout << "Eos_mag::press_ent_p : ent > hmax !" << endl ;
+      cout << "Eos_mag::mag_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
 
