@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/03/06 15:53:35  j_novak
+ * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
+ *
  * Revision 1.11  2012/10/26 14:09:33  e_gourgoulhon
  * Added new class Eos_Fermi
  *
@@ -136,7 +139,7 @@ int Eos_BalbN1H1::identify() const	{ return 15; }
 
 int Eos_GlendNH3::identify() const	{ return 16; }
 
-int Eos_Compstar::identify() const	{ return 17; }
+int Eos_CompOSE::identify() const	{ return 17; }
 
 int Eos_mag::identify() const	{ return 18; }
 
@@ -232,7 +235,7 @@ Eos* Eos::eos_from_file(FILE* fich) {
 	}
 
 	case 17 : {
-	    p_eos = new Eos_Compstar(fich) ;
+	    p_eos = new Eos_CompOSE(fich) ;
 	    break ;
 	}
 
@@ -366,7 +369,7 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	}
 
 	case 17 : {
-	    p_eos = new Eos_Compstar(fich) ;
+	    p_eos = new Eos_CompOSE(fich) ;
 	    break ;
 	}
 

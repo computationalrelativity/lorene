@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/03/06 15:53:35  j_novak
+ * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
+ *
  * Revision 1.11  2012/11/09 10:32:44  m_bejger
  * Implementing der_ener_ent_p
  *
@@ -92,9 +95,9 @@ char eos_tabul_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // Headers Lorene
 #include "eos.h"
@@ -117,9 +120,9 @@ void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
 Eos_tabul::Eos_tabul(const char* name_i, const char* table,
 		     const char* path) : Eos(name_i) {	
 
-	strcpy(tablename, path) ;
-	strcat(tablename, "/") ;
-	strcat(tablename, table) ;
+	tablename = path ;
+	tablename += "/" ;
+	tablename += table ;
 	
 	read_table() ; 	
 
@@ -130,7 +133,7 @@ Eos_tabul::Eos_tabul(const char* name_i, const char* table,
 Eos_tabul::Eos_tabul(const char* name_i, const char* file_name) 
   : Eos(name_i) {	
 
-	strcpy(tablename, file_name) ;
+	tablename = file_name ;
 	
 	read_table() ; 	
 
@@ -141,9 +144,11 @@ Eos_tabul::Eos_tabul(const char* name_i, const char* file_name)
 // ----------------------------
 Eos_tabul::Eos_tabul(FILE* fich) : Eos(fich) {
 
-       fread(tablename, sizeof(char), 160, fich) ;		
+  char tmp_string[160] ;
+  fread(tmp_string, sizeof(char), 160, fich) ;
+  tablename = tmp_string ;
 
-       read_table() ;
+  read_table() ;
 
 }
 
@@ -153,27 +158,19 @@ Eos_tabul::Eos_tabul(FILE* fich) : Eos(fich) {
 // ---------------------------------
 Eos_tabul::Eos_tabul(ifstream& fich, const char* table) : Eos(fich) {
 
-	char path[160] ; 	
+  fich >> tablename ;
+  tablename += "/" ;
+  tablename += table ;
 	
-	fich.getline(path, 160) ;
-	
-	strcpy(tablename, path) ;
-	strcat(tablename, "/") ;
-	strcat(tablename, table) ;
-	
-	read_table() ; 	
+  read_table() ; 	
 
 }
 
 Eos_tabul::Eos_tabul(ifstream& fich) : Eos(fich) {
 
-	char file_name[160] ; 	
+  fich >> tablename ;
 	
-	fich.getline(file_name, 160) ;
-	
-	strcpy(tablename, file_name) ;
-	
-	read_table() ; 	
+  read_table() ; 	
 
 }
 
@@ -196,9 +193,11 @@ Eos_tabul::~Eos_tabul(){
 
 void Eos_tabul::sauve(FILE* fich) const {
 
-	Eos::sauve(fich) ;
-
-    	fwrite(tablename, sizeof(char), 160, fich) ;		
+  Eos::sauve(fich) ;
+  
+  char tmp_string[160] ;
+  strcpy(tmp_string, tablename.c_str()) ;
+  fwrite(tmp_string, sizeof(char), 160, fich) ;		
 
 }
 
@@ -210,31 +209,35 @@ void Eos_tabul::read_table() {
 
   using namespace Unites ;
     	
- 	ifstream fich(tablename) ;
+  ifstream fich(tablename.data()) ;
 
 	if (!fich) {
-	  cout << "Eos_tabul::read_table(): " << endl ;
-	  cout << "Problem in opening the EOS file!" << endl ;
-	  cout << "Aborting..." << endl ;
+	  cerr << "Eos_tabul::read_table(): " << endl ;
+	  cerr << "Problem in opening the EOS file!" << endl ;
+	  cerr << "While trying to open " << tablename << endl ; 
+	  cerr << "Aborting..." << endl ;
 	  abort() ;
 	}
 
-	for (int i=0; i<5; i++) {		//  jump over the file
+	fich.ignore(1000, '\n') ;             // Jump over the first header
+	fich.ignore(1) ;
+	getline(fich, authors, '\n') ;
+	for (int i=0; i<3; i++) {		//  jump over the file
 	  fich.ignore(1000, '\n') ;             // header
     	}                                       //
 
     	int nbp ;
     	fich >> nbp ; fich.ignore(1000, '\n') ;   // number of data
 	if (nbp<=0) {
-	  cout << "Eos_tabul::read_table(): " << endl ;
-	  cout << "Wrong value for the number of lines!" << endl ;
-	  cout << "nbp = " << nbp << endl ;
-	  cout << "Aborting..." << endl ;
+	  cerr << "Eos_tabul::read_table(): " << endl ;
+	  cerr << "Wrong value for the number of lines!" << endl ;
+	  cerr << "nbp = " << nbp << endl ;
+	  cerr << "Aborting..." << endl ;
 	  abort() ;
 	}
 
 	for (int i=0; i<3; i++) {		//  jump over the table
-	  fich.ignore(1000, '\n') ;
+	  fich.ignore(1000, '\n') ;             // description
     	}                                      
 
         press = new double[nbp] ;

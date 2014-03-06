@@ -7,10 +7,12 @@
  *				 Eos_BBB2
  *				 Eos_BalbN1H1
  *                               Eos_GlendNH3
+ *                               Eos_CompOSE
  */
 
 /*
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *             (c) 2014 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -37,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/03/06 15:53:34  j_novak
+ * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
+ *
  * Revision 1.10  2010/02/02 14:26:10  j_novak
  * *** empty log message ***
  *
@@ -97,10 +102,11 @@
  */
 
 // Standard C++
+#include <string>
 #include "headcpp.h"
 
 // Headers C
-#include <stdio.h>
+#include <cstdio>
 
 // Lorene classes
 class Tbl ;
@@ -133,8 +139,10 @@ class Eos_tabul : public Eos {
 
     protected:
     	/// Name of the file containing the tabulated data
-    	char tablename[160] ;
+    	string tablename ;
     	
+	string authors ; ///<Authors - reference for the table
+
     	/// Lower boundary of the enthalpy interval
     	double hmin ;
     	
@@ -892,23 +900,21 @@ class Eos_GlendNH3 : public Eos_tabul {
 };
 
 		    //------------------------------------//
-		    //	     class Eos_Compstar        	  //
+		    //	     class Eos_CompOSE        	  //
 		    //------------------------------------//
 
 
 /**
- * Equation of state for the 2010 CompStar school. 
+ * Equation of state for the CompOSE database. 
  *
  * General tabulated EOS, reading a table passed as an argument to the 
- * constructor. When built with \c Eos::eos_from_file(), the file must contain
- * the following lines:
+ * constructor. When built with \c Eos::eos_from_file(), the file must 
+ * be composed of the following lines:
  * \verbatim 17	Type of the EOS 
-/full/path/to/the/eos/table/name_of_the_table.d 
+Tabulated EoS
 /full/path/to/the/eos/table/name_of_the_table.d \endverbatim
- * (Note the two identical lines).
  */
-class Eos_Compstar : public Eos_tabul {
-
+class Eos_CompOSE : public Eos_tabul {
 
     // Constructors - Destructor
     // -------------------------
@@ -919,7 +925,7 @@ class Eos_Compstar : public Eos_tabul {
 	 * @param file_name Absolute name (including path) containing 
 	 *                  the EOS file
 	 */
-	Eos_Compstar(const char* file_name) ;	
+	Eos_CompOSE(const char* file_name) ;	
 
 	
     protected:
@@ -929,20 +935,20 @@ class Eos_Compstar : public Eos_tabul {
 	 *  from a binary file must be done via the function
 	 * \c Eos::eos_from_file(FILE*) .
 	 */
-	Eos_Compstar(FILE* ) ;
+	Eos_CompOSE(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
 	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
-	Eos_Compstar(ifstream& ) ;
+	Eos_CompOSE(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make \c  Eos_Compstar 
+	/** Copy constructor (private to make \c  Eos_CompOSE 
 	 *  a non-copiable class)
 	 */	
-	Eos_Compstar(const Eos_Compstar& ) ;	
+	Eos_CompOSE(const Eos_CompOSE& ) ;	
 	
 	
 	/// The construction functions from a file
@@ -950,7 +956,7 @@ class Eos_Compstar : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_Compstar() ;			///< Destructor
+	virtual ~Eos_CompOSE() ;			///< Destructor
 
     // Miscellaneous
     // -------------

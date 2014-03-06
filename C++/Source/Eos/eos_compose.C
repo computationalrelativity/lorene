@@ -1,12 +1,12 @@
 /*
- *  Methods of class Eos_Compstar
+ *  Methods of class Eos_CompOSE
  *
  *  (see file eos_tabul.h for documentation).
  *
  */
 
 /*
- *   Copyright (c) 2010 Jerome Novak
+ *   Copyright (c) 2010, 2014 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -27,11 +27,14 @@
  */
 
 
-char eos_compstar_C[] = "$Header$" ;
+char eos_compose_C[] = "$Header: " ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.1  2014/03/06 15:53:34  j_novak
+ * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
+ *
  * Revision 1.1  2010/02/03 14:56:45  j_novak
  * *** empty log message ***
  *
@@ -43,6 +46,7 @@ char eos_compstar_C[] = "$Header$" ;
 // Headers Lorene
 #include "headcpp.h"
 #include "eos.h"
+#include "tbl.h"
 
 			//----------------------------//
 			//   	Constructors	      //
@@ -50,21 +54,20 @@ char eos_compstar_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------			
-Eos_Compstar::Eos_Compstar(const char* file_name)
-		: Eos_tabul("EOS Compstar", file_name)
+Eos_CompOSE::Eos_CompOSE(const char* file_name)
+		: Eos_tabul("Tabulated EoS", file_name)
 {}
 
 
 // Constructor from binary file
 // ----------------------------
-Eos_Compstar::Eos_Compstar(FILE* fich) : Eos_tabul(fich) {}
+Eos_CompOSE::Eos_CompOSE(FILE* fich) : Eos_tabul(fich) {}
 
 
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_Compstar::Eos_Compstar(ifstream& fich) : Eos_tabul(fich)
- {}
+Eos_CompOSE::Eos_CompOSE(ifstream& fich) : Eos_tabul(fich) {}
 
 
 
@@ -72,7 +75,7 @@ Eos_Compstar::Eos_Compstar(ifstream& fich) : Eos_tabul(fich)
 			//  Destructor  //
 			//--------------//
 
-Eos_Compstar::~Eos_Compstar(){
+Eos_CompOSE::~Eos_CompOSE(){
 
     // does nothing
 
@@ -84,12 +87,12 @@ Eos_Compstar::~Eos_Compstar(){
 			//------------------------//
 
 
-bool Eos_Compstar::operator==(const Eos& eos_i) const {
+bool Eos_CompOSE::operator==(const Eos& eos_i) const {
 
     bool resu = true ;
 
     if ( eos_i.identify() != identify() ) {
-	cout << "The second EOS is not of type Eos_Compstar !" << endl ;
+	cout << "The second EOS is not of type Eos_CompOSE !" << endl ;
 	resu = false ;
     }
 
@@ -97,7 +100,7 @@ bool Eos_Compstar::operator==(const Eos& eos_i) const {
 
 }
 
-bool Eos_Compstar::operator!=(const Eos& eos_i) const {
+bool Eos_CompOSE::operator!=(const Eos& eos_i) const {
 
     return !(operator==(eos_i)) ;
 
@@ -108,11 +111,12 @@ bool Eos_Compstar::operator!=(const Eos& eos_i) const {
 			//------------//
 
 
-ostream& Eos_Compstar::operator>>(ostream & ost) const {
+ostream& Eos_CompOSE::operator>>(ostream & ost) const {
 
-    ost <<
-    "EOS of class Eos_Compstar : tabulated EOS for the 2010 CompStar school."
-    	<< endl ;
+    ost << "EOS of class Eos_CompOSE." << endl ;
+    ost << "Built from file " << tablename << endl ;
+    ost << "Authors : " << authors << endl ;
+    ost << "Number of points in file : " << logh->get_taille() << endl ;
     	
     return ost ;
 
