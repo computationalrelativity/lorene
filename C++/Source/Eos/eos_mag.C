@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/03/11 14:27:26  j_novak
+ * Corrected a missing 4pi term.
+ *
  * Revision 1.7  2014/03/03 16:23:08  j_novak
  * Updated error message
  *
@@ -282,7 +285,7 @@ void Eos_mag::read_table() {
       logh->set(j, i) = h_new ;
       Bfield->set(j, i) = magB_PG / mag_PG ; // in Lorene units
       dlpsdlh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
-      dlpsdB->set(j, i) = magM_PG*mag_PG/c2/rhonuc_si; 
+      dlpsdB->set(j, i) = magM_PG*mag_PG/c2/rhonuc_si/(4*M_PI) ; 
       d2lp->set(j, i) = mu_MeV*chi_PGpMeV*mag_PG/c2/rhonuc_si ; 
 
     }
