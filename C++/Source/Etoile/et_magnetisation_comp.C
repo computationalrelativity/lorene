@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/03/17 15:52:08  j_novak
+ * Inclusion of mgnetisation terms in the Maxwell equations.
+ *
  * Revision 1.2  2013/12/19 17:05:40  j_novak
  * Corrected a dzpuis problem.
  *
@@ -123,8 +126,35 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   Cmp gtphi( - b_car()*ttnphi) ;
   
   // Calcul de j_t grace a Maxwell-Gauss
-  Cmp tmp(((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
-	  / gtt);
+//  Cmp tmp(((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
+//	  / gtt);
+  // modified to include Magnetisation
+// components of F
+  Cmp F01 = 1/(a_car()*nnn()*nnn())*A_0t.dsdr() 
+        +   1/(a_car()*nnn()*nnn())*nphi()*A_phi.dsdr() ;
+
+  Cmp F02 =  1/(a_car()*nnn()*nnn())*A_0t.srdsdt()
+        +   1/(a_car()*nnn()*nnn())*nphi()*A_phi.srdsdt() ;
+//      F02.div_r();  absorbed into x.srdsdt
+
+  Cmp a2brst = sqrt(b_car());
+      a2brst.mult_rsint();
+  Cmp F31 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.dsdr()
+       +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.dsdr() 
+       +    1/(a_car()*a2brst*a2brst)*A_phi.dsdr() ;
+
+  Cmp F32 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.srdsdt()
+       +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.srdsdt()
+       +    1/(a_car()*a2brst*a2brst)*A_phi.srdsdt() ;
+//      F32.div_r();  absorbed into x.srdsdt
+
+  Cmp x = get_magnetisation();
+    
+  Cmp tmp(((BLAH - A_0t.laplacien())*(1-x)/a_car()
+	   - gtphi*j_phi 
+	   - gtt*(F01*x.dsdr()+F02*x.srdsdt())
+	   - gtphi*(F31*x.dsdr()+F32*x.srdsdt()) ) / gtt);
+ 
   tmp.annule(nzet, Z-1) ;
   if (adapt) {
     j_t = tmp ;
@@ -161,8 +191,18 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   d_grad4.div_rsint() ;
   source_tAphi.set(0)=0 ;
   source_tAphi.set(1)=0 ;
-  source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
-    + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
+//  source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
+//    + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
+
+// modified to include Magnetisation
+  Cmp phifac = (F31-nphi()*F01)*x.dsdr()
+             + (F32-nphi()*F02)*x.srdsdt() ;
+      phifac.mult_rsint();
+
+  source_tAphi.set(2)= -b_car()*a_car()/(1-x)
+      *(tjphi-tnphi()*j_t + phifac)
+    + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)
+    + d_grad4 ;
   
   source_tAphi.change_triad(mp.get_bvect_cart());
   
@@ -198,7 +238,13 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   
   // Resolution de Maxwell-Ampere : A_1
   
-  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
+//  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
+
+// modified to include Magnetisation
+  Cmp source_A_1t(-a_car()*( j_t*gtt + j_phi*gtphi 
+   + gtt*(F01*x.dsdr()+F02*x.srdsdt())
+   + gtphi*(F31*x.dsdr()+F32*x.srdsdt()) )/(1-x) 
+   + BLAH);
   
   Cmp A_1t(mp);
   A_1t = 0 ;
