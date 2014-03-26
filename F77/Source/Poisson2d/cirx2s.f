@@ -74,6 +74,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.3  2014/03/26 10:44:19  j_novak
+C Minor modifications to be compatible with intel 12 compiler.
+C
 C Revision 1.2  2012/03/30 12:12:43  j_novak
 C Cleaning of fortran files
 C
@@ -91,7 +94,7 @@ C
 	data header/'$Header$'/
 
 
-       DIMENSION DEN(NDIMY,*),C64(*),CC(*),CS(*),NDEG(3)
+       DIMENSION DEN(NDIMY,*),C64(*),CC(*),CS(*),NDEG(2)
        DATA NDY,NDZ,NEQ,INITI/0,0,0,0/
 
 	save	NZ64,MULTZ,NZ65,NZR64,NZR65
