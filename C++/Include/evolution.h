@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/03/27 16:59:41  j_novak
+ * Added methods next_position(int) and previous_position(int). Changed (corrected + simplified) the interpolation method.
+ *
  * Revision 1.13  2013/07/19 15:50:24  j_novak
  * Implementation of the interpolation function for Evolution, with order=0, 1 or 2.
  *
@@ -177,7 +180,13 @@ template<typename TyT> class Evolution {
          * \c val corresponding to the time step j
          */
         int position(int j) const ; 
-        
+
+	/// Returns the next valid position (returns -1 if none is found)
+	int next_position(int i) const ;
+
+	/// Returns the previous valid position (returns -1 if none is found)
+	int previous_position(int i) const ;
+
     public:
         /// Returns the value at time step j
         const TyT& operator[](int j) const ;

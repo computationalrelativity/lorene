@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/03/27 16:59:41  j_novak
+ * Added methods next_position(int) and previous_position(int). Changed (corrected + simplified) the interpolation method.
+ *
  * Revision 1.16  2013/07/19 15:50:24  j_novak
  * Implementation of the interpolation function for Evolution, with order=0, 1 or 2.
  *
@@ -101,10 +104,9 @@
 #include "headcpp.h" 
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
-#include <time.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 class Tbl ;
 
@@ -291,8 +293,40 @@ int Evolution<TyT>::position(int j) const {
     
     return pos ; 
 }
-                 
+   
+template<typename TyT> 
+int Evolution<TyT>::next_position(int j) const {
+
+  assert( (j>=0) && (j<=pos_jtop) ) ;
+  assert( step[j] != UNDEF_STEP ) ;
+
+  int n_pos = -1 ;
+
+  while ( (n_pos == -1) && ( j < pos_jtop ) ) {
+    
+    j++ ;
+    if (step[j] != UNDEF_STEP) n_pos = j ;
+  }
+  return n_pos ;
+}
+
+template<typename TyT> 
+int Evolution<TyT>::previous_position(int j) const {              
                     
+  assert( (j>=0) && (j<=pos_jtop) ) ;
+  assert( step[j] != UNDEF_STEP ) ;
+
+  int n_pos = -1 ;
+
+  while ( (n_pos == -1) && ( j > 0 ) ) {
+    
+    j-- ;
+    if (step[j] != UNDEF_STEP) n_pos = j ;
+  }
+  return n_pos ;
+}
+
+
 template<typename TyT> 
 bool Evolution<TyT>::is_known(int j) const {
 
@@ -331,104 +365,93 @@ const TyT& Evolution<TyT>::operator[](int j) const {
 template<typename TyT> 
 TyT Evolution<TyT>::operator()(double t, int order) const {
 
-  assert( order <= 2 ) ;
+  int imin = position( j_min() ) ;
 
-  int jmin = j_min() ;
-  int jmax = j_max() ;
-  int j0 = jmin ;
-  int j1 = jmax ;
-
-  assert( ( t >= the_time[jmin] ) && ( t <= the_time[jmax] ) ) ;
-  assert ( (jmax - jmin) > order ) ;
-
-  bool found = false ;
-
-  while ( !found) {
-
-    int j_tmp = j0 ;
-
-    do { 
-      j_tmp++ ;
-      assert( j_tmp <= jmax ) ;
-    } while (!is_known(j_tmp)) ;
-
-    if ( the_time[j_tmp] >= t) {
-      found = true  ;
-      j1 = j_tmp ;
-    }
-
-    else j0 = j_tmp ;
+  if ( ( t < the_time[ imin ] ) || ( t > the_time[pos_jtop] ) ) {
+    cerr << "Evolution<TyT>::operator()(double t, int order) : \n"
+	 << "Requested time outside stored range!" << endl ;
+    abort() ;
   }
+  assert ( order <= 2 ) ;
+  assert ( pos_jtop > order ) ;
 
-  double x0 = t - the_time[j0] ;
-  double x1 = the_time[j1] - t ;
-  double dx = the_time[j1] - the_time[j0] ;
+  int j0 = imin ;
 
-  assert ( (x0 >= 0) && (x1 >= 0) ) ;
+  while ((the_time[j0] < t) && ( j0 < pos_jtop )) {
+    j0 = next_position(j0) ;
+    assert( j0 != -1 ) ;
+  }
 
   switch (order) {
 
   case 0: {
 
-    return ( (x0 > x1) ? operator[](j1) : operator[](j0) ) ;
+    return (*val[j0]) ;
 
     break ;
   }
     
   case 1: {
+    
+    int j1 = ( (j0 > imin) ? previous_position(j0) : next_position(j0) ) ;
+    assert( j1 != -1) ;
 
+    double x0 = the_time[j1] - t ;
+    double x1 = the_time[j0] - t ;
+    double dx = the_time[j0] - the_time[j1] ;
+    
     double a0 = x1 / dx ;
     double a1 = x0 / dx ;
 
-    return (a0*operator[](j0) + a1*operator[](j1)) ;
+    return (a0*(*val[j0]) - a1*(*val[j1])) ;
 
     break ;
   }
 
   case 2: {
 
-    int j2 = j1 ;
+    int j1 = ( (j0 == imin) ? next_position(j0) : previous_position(j0) ) ;
+    assert( j1 != -1) ;
 
-    if ( ((x0 > x1) || (j0 == jmin)) && (j1 != jmax) ) {
-      do { 
-	j2++;
-	assert (j2 <= jmax ) ;
-      } while (!is_known(j2)) ;
-    }
-
+    int j2 = -1 ;
+    if (j0 == imin) 
+      j2 = next_position(j1) ;
     else {
-      assert ( j0 != jmin ) ;
-      j2 = j0 ;
-      do {
-	j2-- ;
-	assert (j2 >= jmin ) ;
-      } while (!is_known(j2)) ;
+      if (j1 == imin) 
+	j2 = next_position(j0) ;
+      else
+	j2 = previous_position(j1) ;
     }
+    assert (j2 != -1 ) ;
 
-    double x2 = the_time[j2] - t ;
+    double x0 = t - the_time[j0] ;
+    double x1 = t - the_time[j1] ;
+    double dx = the_time[j0] - the_time[j1] ;
+    
+    double x2 = t - the_time[j2] ;
 
-    double dx0 = the_time[j2] - the_time[j1] ;
-    double dx1 = the_time[j2] - the_time[j0] ;
+    double dx0 = the_time[j1] - the_time[j2] ;
+    double dx1 = the_time[j0] - the_time[j2] ;
     double dx2 = dx ;
 
     double a0 = ( x2*x1 ) / ( dx2*dx1 ) ;
     double a1 = ( x0*x2 ) / ( dx0*dx2 ) ;
-    double a2 = - ( x0*x1 ) / ( dx0*dx1 ) ;
+    double a2 = ( x0*x1 ) / ( dx0*dx1 ) ;
 
-    return (a0*operator[](j0) + a1*operator[](j1) + a2*operator[](j2)) ;
+    return ( a0*(*val[j0]) - a1*(*val[j1]) + a2*(*val[j2]) ) ;
 
     break ;
   }
 
   default: {
-    cerr << " Evolution<TyT>::operator()(double t, int order) : " << endl ;
+    cerr << " Evolution<TyT>::operator()(double t, int order) : \n" << endl ;
     cerr << " The case order = " << order << " is not implemented!" << endl ;
     abort() ;
     break ;
   }
   }
 
-  return operator[](j0) ;
+  return *val[j0] ;
 
 }                  
  
