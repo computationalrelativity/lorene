@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/04/11 17:22:07  o_straub
+ * Risco and Rms output for GYOTO
+ *
  * Revision 1.6  2013/07/25 19:44:11  o_straub
  * calculation of the marginally bound radius
  *
@@ -84,13 +87,13 @@ Compobj::Compobj(Map& map_i) :
 
 	// Some initialisations:
 	nn = 1 ; 
-    nn.std_spectral_base() ; 
+        nn.std_spectral_base() ; 
 
 	beta.set_etat_zero() ;
 	ener_euler = 0 ; 
 	mom_euler.set_etat_zero() ;
-    stress_euler.set_etat_zero() ;
-    kk.set_etat_zero() ;
+        stress_euler.set_etat_zero() ;
+        kk.set_etat_zero() ;
 	
 }
 
@@ -203,7 +206,7 @@ void Compobj::gyoto_data(const char* file_name) const {
     double total_time = 0. ; // for compatibility
     double a_ov_m ;
     double r_isco ;
-    double r_mb ;
+    double r_mb;
 
     fwrite_be(&total_time, sizeof(double), 1, file_out) ;
     mp.get_mg()->sauve(file_out) ;

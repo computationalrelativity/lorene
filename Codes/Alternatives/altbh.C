@@ -27,6 +27,9 @@ char altBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/04/11 17:22:07  o_straub
+ * Risco and Rms output for GYOTO
+ *
  * Revision 1.4  2014/02/12 16:44:54  o_straub
  * New output : calculates radii for a range of spin and stores them in file
  *
@@ -191,8 +194,8 @@ int main() {
 
 	cout.precision(15) ; 
 	cout << "Analytic value of R_ISCO (Kerr):         " << R_isco     << " M " << endl ; 
-	cout << "Numerical value of R_ISCO (Kerr_QI):     " << R_isco_QI  << " M " << endl ; 
-	cout << "Numerical value of R_ISCO (alternative): " << R_isco_alt << " M " << endl ;  
+	cout << "Numerical value of R_ISCO (Kerr_QI):     " << R_isco_QI  << " M - at " << bh2.r_isco(0) << endl ; 
+	cout << "Numerical value of R_ISCO (alternative): " << R_isco_alt << " M - at " << bh.r_isco(0) << endl ;  
 
 
 
@@ -203,8 +206,8 @@ int main() {
 
 	cout.precision(15) ; 
 	cout << "Analytical value of R_mb (Kerr):       " << R_mb     << " M " << endl ;  
-	cout << "Numerical value of R_mb (Kerr_QI):     " << R_mb_QI  << " M " << endl ;
-	cout << "Numerical value of R_mb (alternative): " << R_mb_alt << " M " << endl ;
+	cout << "Numerical value of R_mb (Kerr_QI):     " << R_mb_QI  << " M - at " << bh2.r_mb(0) << endl ;
+	cout << "Numerical value of R_mb (alternative): " << R_mb_alt << " M - at " << bh.r_mb(0) << endl ;
 
 
 
