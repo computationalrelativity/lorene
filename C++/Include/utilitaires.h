@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/04/25 10:43:50  j_novak
+ * The member 'name' is of type string now. Correction of a few const-related issues.
+ *
  * Revision 1.11  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -331,16 +334,16 @@ char *load_file_buffered(char *fname);
  *   NOTE: rather use one of the type-specific overloaded functions below whenever possible
  *   (safer due to type-checking)
  */
-int read_variable(char *fname, char *var_name, char *fmt, void *varp);
+int read_variable(const char *fname, const char *var_name, char *fmt, void *varp);
 
 /// Read an integer-variable from file (cf \c read_variable(char *, char *, char *, void *) ).
-int read_variable(char *fname, char *var_name, int &var);
+int read_variable(const char *fname, const char *var_name, int &var);
 /// Read a bool variable from file (cf \c read_variable(char *, char *, char *, void *) ).
-int read_variable(char *fname, char *var_name, bool &var);
+int read_variable(const char *fname, const char *var_name, bool &var);
 /// Read a double variable from file (cf \c read_variable(char *, char *, char *, void *) ).
-int read_variable(char *fname, char *var_name, double &var);
+int read_variable(const char *fname, const char *var_name, double &var);
 /// Read a (ANSI C) string variable from file.
-int read_variable (char *fname, char *var_name, char **str);
+int read_variable (const char *fname, const char *var_name, char **str);
 
 /// 'Improved' malloc that sets memory to 0 and also auto-terminates on error.
 void *MyMalloc (long bytes);

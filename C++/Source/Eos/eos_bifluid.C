@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/04/25 10:43:51  j_novak
+ * The member 'name' is of type string now. Correction of a few const-related issues.
+ *
  * Revision 1.16  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -111,8 +114,8 @@ char eos_bifluid_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "eos_bifluid.h"
@@ -127,29 +130,20 @@ char eos_bifluid_C[] = "$Header$" ;
 // Standard constructor without name
 // ---------------------------------
 Eos_bifluid::Eos_bifluid() :
-  m_1(1), m_2(1)
-{
-  name = NULL;
-  set_name("") ; 
-}
+  name("EoS bi-fluid"), m_1(1), m_2(1)
+{ }
 
 // Standard constructor with name and masses
 // ---------------------------------
 Eos_bifluid::Eos_bifluid(const char* name_i, double mass1, double mass2) :
-  m_1(mass1), m_2(mass2)
-{
-  name = NULL;
-  set_name(name_i) ; 
-}
+  name(name_i), m_1(mass1), m_2(mass2)
+{ }
 
 // Copy constructor
 // ----------------
 Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
-  m_1(eos_i.m_1), m_2(eos_i.m_2)
-{
-  name = NULL;
-  set_name(eos_i.name) ; 
-}
+  name(eos_i.name), m_1(eos_i.m_1), m_2(eos_i.m_2)
+{ }
 
 // Constructor from a binary file
 // ------------------------------
@@ -157,8 +151,7 @@ Eos_bifluid::Eos_bifluid(FILE* fich)
 {
   char dummy [MAX_EOSNAME];
   fread(dummy, sizeof(char),MAX_EOSNAME, fich) ;
-  name = reinterpret_cast<char*>(MyMalloc(strlen(dummy)+1));
-  strcpy (name, dummy);
+  name = dummy ;
   fread_be(&m_1, sizeof(double), 1, fich) ;		
   fread_be(&m_2, sizeof(double), 1, fich) ;	
     
@@ -166,20 +159,24 @@ Eos_bifluid::Eos_bifluid(FILE* fich)
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bifluid::Eos_bifluid(char *fname)
+Eos_bifluid::Eos_bifluid(const char *fname)
 {
   int res=0;
-  name = NULL;
+  char* dummy = 0x0 ;
   char* char_name = const_cast<char*>("name");
   char* char_m1 = const_cast<char*>("m_1") ;
   char* char_m2 = const_cast<char*>("m_2") ;
-  res += read_variable (fname, char_name, &name);
+  res += read_variable (fname, char_name, &dummy);
   res += read_variable (fname, char_m1, m_1);
   res += read_variable (fname, char_m2, m_2);
 
+  name = dummy ;
+
+  free(dummy) ;
+
   if (res)
     {
-      cerr << "ERROR: Eos_bifluid(char*): could not read either of \
+      cerr << "ERROR: Eos_bifluid(const char*): could not read either of \
 the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
       exit (-1);
     }
@@ -193,45 +190,19 @@ the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
 			//--------------//
 
 Eos_bifluid::~Eos_bifluid()
-{
-  if (name)
-    free (name);
-}
+{ }
 
 			//--------------//
 			//  Assignment  //
 			//--------------//
 void Eos_bifluid::operator=(const Eos_bifluid& eosi) {
     
-    set_name(eosi.name) ; 
-
+    name = eosi.name ; 
     m_1 = eosi.m_1;
     m_2 = eosi.m_2;
     
 }
 
-
-
-			//-------------------------//
-			//  Manipulation of name   //
-			//-------------------------//
-			
-			
-void Eos_bifluid::set_name(const char* name_i) 
-{
-  if (name)
-    free (name);
-
-  name = reinterpret_cast<char*>(MyMalloc (strlen(name_i) +1));
-  strcpy(name, name_i);
-    
-}
-
-const char* Eos_bifluid::get_name() const {
-    
-    return name ; 
-    
-}
 
 			//------------//
 			//  Outputs   //
@@ -239,12 +210,13 @@ const char* Eos_bifluid::get_name() const {
 
 void Eos_bifluid::sauve(FILE* fich) const 
 {
+  assert(name.size() < MAX_EOSNAME) ;
   char dummy [MAX_EOSNAME];
   int ident = identify() ; 
 
   fwrite_be(&ident, sizeof(int), 1, fich) ;	
 
-  strncpy (dummy, name, MAX_EOSNAME);
+  strncpy (dummy, name.c_str(), MAX_EOSNAME);
   dummy[MAX_EOSNAME-1] = 0;
   fwrite(dummy, sizeof(char), MAX_EOSNAME, fich );
 

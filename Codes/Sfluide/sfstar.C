@@ -70,9 +70,6 @@ int main(){
 
   using namespace Unites ; 
 
-    // For the display : 
-    char display_bold[]="x[1m" ; display_bold[0] = 27 ;
-
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
@@ -87,7 +84,7 @@ int main(){
     double thres_adapt = 0.0;
     double precis_adapt = 1.e-14;
 
-    char *parrot = "settings.par"; // config-file
+    const char *parrot = "settings.par"; // config-file
     int res = 0;
 
     res += read_variable (parrot, "relat", relat);
@@ -224,7 +221,7 @@ int main(){
     /* Directory to store results in */
     char *resdir = NULL;
     if ( read_variable (NULL, "resdir", &resdir) != 0)
-      resdir = "Results";	/* default value */
+      resdir = const_cast<char*>("Results");	/* default value */
 
     // Particular cases
     // ----------------
@@ -849,12 +846,7 @@ get_file_base (bool relat, double xp0, double sig0)
 {
   ostringstream s;
   char cbuf[50]; // man, <ios> does not seem to exist here... 
-  char *head;
-
-  if (relat)
-    head = "Rel";
-  else
-    head = "Newt";
+  const char *head = relat ? "Rel" : "Newt" ;
 
   sprintf (cbuf, "%s_xp%4.2f_sig%4.2f", head, xp0, sig0);
 

@@ -31,6 +31,9 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/04/25 10:43:51  j_novak
+ * The member 'name' is of type string now. Correction of a few const-related issues.
+ *
  * Revision 1.6  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -117,7 +120,7 @@ Eos_bifluid* Eos_bifluid::eos_from_file(FILE* fich) {
 		//    EOS construction from a formatted file    //
 		//----------------------------------------------//
 
-Eos_bifluid* Eos_bifluid::eos_from_file(char *fname) {
+Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) {
     
     int identificator ; 
 

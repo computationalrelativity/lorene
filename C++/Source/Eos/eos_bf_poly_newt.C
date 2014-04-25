@@ -31,6 +31,9 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/04/25 10:43:51  j_novak
+ * The member 'name' is of type string now. Correction of a few const-related issues.
+ *
  * Revision 1.12  2003/12/17 23:12:32  r_prix
  * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
  * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
@@ -106,7 +109,7 @@ double enthal(const double x, const Param& parent) ;
 Eos_bf_poly_newt::Eos_bf_poly_newt(double kappa1, double kappa2, double kappa3,
 				   double bet) :
   Eos_bf_poly(kappa1, kappa2, kappa3, bet) {
-  set_name("bi-fluid polytropic non-relativistic EOS") ;
+  name = "bi-fluid polytropic non-relativistic EOS" ;
 }  
 
 // Standard constructor with everything specified
@@ -119,7 +122,7 @@ Eos_bf_poly_newt::Eos_bf_poly_newt(double gamma1, double gamma2, double gamma3,
   Eos_bf_poly(gamma1, gamma2, gamma3, gamma4, gamma5, gamma6,
 	      kappa1, kappa2, kappa3, bet, mass1, mass2, l_relax, l_precis, 
 	      l_ecart) {
-  set_name("bi-fluid polytropic non-relativistic EOS") ;
+  name = "bi-fluid polytropic non-relativistic EOS" ;
 } 
   
 // Copy constructor
@@ -135,7 +138,7 @@ Eos_bf_poly_newt::Eos_bf_poly_newt(FILE* fich) :
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bf_poly_newt::Eos_bf_poly_newt(char *fname) : 
+Eos_bf_poly_newt::Eos_bf_poly_newt(const char *fname) : 
   Eos_bf_poly(fname) {} 
 
 			//--------------//

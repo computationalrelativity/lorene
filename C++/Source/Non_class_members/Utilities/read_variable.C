@@ -22,10 +22,10 @@
  */
 char read_variable_C[] = "$Header$";
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <ctype.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+#include <cctype>
 
 #include "headcpp.h"
 #include "utilitaires.h"
@@ -39,7 +39,7 @@ char read_variable_C[] = "$Header$";
  * returns NULL on error
  *----------------------------------------------------------------------*/
 char *
-load_file (char *fname)
+load_file (const char *fname)
 {
   FILE *fp;
   char *data;
@@ -72,7 +72,7 @@ load_file (char *fname)
  *  
  * ----------------------------------------------------------------------*/
 char *
-load_file_buffered (char *fname)
+load_file_buffered (const char *fname)
 {
   static char *prev_fname = NULL;
   static char *data = NULL;
@@ -107,7 +107,7 @@ load_file_buffered (char *fname)
  * 		0 if found&read
  * ----------------------------------------------------------------------*/
 int
-read_variable (char *fname, char *var_name, char *fmt, void *varp)
+read_variable (const char *fname, const char *var_name, char *fmt, void *varp)
 {
   char *found = NULL;
   char *seek, *pos, *bol;
@@ -208,7 +208,7 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
  * specialize to a few common types:
  *----------------------------------------------------------------------*/
 int 
-read_variable (char *fname, char *var_name, int &var)
+read_variable (const char *fname, const char *var_name, int &var)
 {
     int ret = read_variable(fname, var_name, const_cast<char*>("%d"), &var);
 
@@ -218,7 +218,7 @@ read_variable (char *fname, char *var_name, int &var)
 }
 
 int 
-read_variable (char *fname, char *var_name, bool &var)
+read_variable (const char *fname, const char *var_name, bool &var)
 {
   int buf;
   int ret = read_variable(fname, var_name, const_cast<char*>("%d"), &buf);
@@ -231,7 +231,7 @@ read_variable (char *fname, char *var_name, bool &var)
 }
 
 int 
-read_variable (char *fname, char *var_name, double &var)
+read_variable (const char *fname, const char *var_name, double &var)
 {
     int ret = read_variable(fname, var_name, const_cast<char*>("%lf"), &var);
 
@@ -241,7 +241,7 @@ read_variable (char *fname, char *var_name, double &var)
 }
 
 int
-read_variable (char *fname, char *var_name, char **str)
+read_variable (const char *fname, const char *var_name, char **str)
 {
   char *cstr;
 

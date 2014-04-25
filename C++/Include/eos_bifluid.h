@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/04/25 10:43:50  j_novak
+ * The member 'name' is of type string now. Correction of a few const-related issues.
+ *
  * Revision 1.17  2004/09/01 09:49:46  r_prix
  * adapted to change in read_variable() for strings
  *
@@ -112,9 +115,10 @@
 
 // Standard C++
 #include "headcpp.h"
+#include <string>
 
 // Headers C
-#include <stdio.h>
+#include <cstdio>
 
 // Lorene classes
 #include "param.h"
@@ -127,7 +131,6 @@ class Eos_poly ;
 		    //------------------------------------//
 		    //   base class Eos for two fluids	  //
 		    //------------------------------------//
-
 #define MAX_EOSNAME 100
 
 /**
@@ -160,7 +163,7 @@ class Eos_bifluid {
     // -----
 
     protected: 
-	char *name;	    ///< EOS name
+	string name;	    ///< EOS name
 
 	/** Individual particle mass \f$m_1\f$  
 	 *  [unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$]. 
@@ -195,14 +198,14 @@ class Eos_bifluid {
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
-	 *  \c Eos_bifluid::eos_from_file(char*). 
+	 *  \c Eos_bifluid::eos_from_file(const char*). 
 	 *
 	 *  The following fields have to be present in the config-file:\\
 	 *  name: [string] name of the EOS
 	 *  m_1, m_2: [double] baryon masses of the 2-fluids
 	 *
 	 */
-	Eos_bifluid (char *fname ) ; 
+	Eos_bifluid (const char *fname ) ; 
 	
 	
     public:
@@ -217,10 +220,8 @@ class Eos_bifluid {
     // Name manipulation
     // -----------------
     public:
-	const char* get_name() const ;	///< Returns the EOS name
-
-	/// Sets the EOS name
-	void set_name(const char* name_i) ; 
+	/// Returns the EOS name
+	string get_name() const {return name;} ; 
 
     // Miscellaneous
     // -------------
@@ -251,7 +252,7 @@ class Eos_bifluid {
 	 *	1 = relativistic polytropic EOS (class \c Eos_bf_poly ). \\
 	 *      2 = Newtonian polytropic EOS (class \c Eos_bf_poly_newt ).
 	 */
-	static Eos_bifluid* eos_from_file ( char *fname ) ; 
+	static Eos_bifluid* eos_from_file ( const char *fname ) ; 
 	
 	/// Comparison operator (egality)
 	virtual bool operator==(const Eos_bifluid& ) const = 0 ; 
@@ -833,14 +834,14 @@ class Eos_bf_poly : public Eos_bifluid {
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
-	 *  \c Eos_bifluid::eos_from_file(char*) . 
+	 *  \c Eos_bifluid::eos_from_file(const char*) . 
 	 *
 	 */
-	Eos_bf_poly (char *fname) ; 
+	Eos_bf_poly (const char *fname) ; 
 	
 	/// The construction functions from a file
 	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ; 
-	friend Eos_bifluid* Eos_bifluid::eos_from_file(char *fname ) ; 
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname ) ; 
 
         public:
 	virtual ~Eos_bf_poly() ;			///< Destructor
@@ -1193,13 +1194,13 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
-	 *  \c Eos_bifluid::eos_from_file(char* ) . 
+	 *  \c Eos_bifluid::eos_from_file(const char* ) . 
 	 */
-	Eos_bf_poly_newt(char *fname ) ; 
+	Eos_bf_poly_newt(const char *fname ) ; 
 	
 	/// The construction functions from a file
 	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ; 
-	friend Eos_bifluid* Eos_bifluid::eos_from_file(char *fname) ; 
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) ; 
 
     public:
 	virtual ~Eos_bf_poly_newt() ;			///< Destructor

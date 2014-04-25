@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/04/25 10:43:51  j_novak
+ * The member 'name' is of type string now. Correction of a few const-related issues.
+ *
  * Revision 1.19  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -217,8 +220,8 @@ Eos_bf_poly::Eos_bf_poly(FILE* fich) :
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bf_poly::Eos_bf_poly( char *fname ) : 
-	Eos_bifluid(fname) 
+Eos_bf_poly::Eos_bf_poly(const char *fname ) : 
+  Eos_bifluid(fname), relax(0.5), precis(1.e-8), ecart(1.e-7)
 {
   int res = 0;
 
