@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/04/28 14:53:29  j_novak
+ * Minor modif.
+ *
  * Revision 1.4  2014/04/28 12:48:13  j_novak
  * Minor modifications.
  *
@@ -57,6 +60,7 @@ char et_magnetisation_comp_C[] = "$Header $" ;
 #include "param.h"
 #include "proto_f77.h"
 #include "unites.h"
+#include "graphique.h"
 
   using namespace Unites_mag ;
 
@@ -137,7 +141,7 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
         +   1/(a_car()*nnn()*nnn())*nphi()*A_phi.srdsdt() ;
 //      F02.div_r();  absorbed into x.srdsdt
 
-  Cmp a2brst = sqrt(b_car());
+  Cmp a2brst = bbb();
       a2brst.mult_rsint();
   Cmp F31 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.dsdr()
        +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.dsdr() 
@@ -149,6 +153,8 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
 //      F32.div_r();  absorbed into x.srdsdt
 
   Cmp x = get_magnetisation();
+
+  des_profile(x, 0, 2, 1, 1) ;
     
   Cmp tmp(((BLAH - A_0t.laplacien())*(1-x)/a_car()
 	   - gtphi*j_phi 
