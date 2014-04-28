@@ -5,7 +5,8 @@
 
 /*
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jerome Novak
+ *   Copyright (c) 2002,2013 Jerome Novak
+ *   Copyright (c) 2013 Deberati Chatterjee
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/04/28 12:48:12  j_novak
+ * Minor modifications.
+ *
  * Revision 1.19  2013/12/13 16:36:51  j_novak
  * Addition and computation of magnetisation terms in the Einstein equations.
  *

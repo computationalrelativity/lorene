@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2013 Jerome Novak, Debarti Chatterjee, Micaela Oertel
+ *   Copyright (c) 2013-2014 Jerome Novak, Debarti Chatterjee, Micaela Oertel
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/04/28 12:48:13  j_novak
+ * Minor modifications.
+ *
  * Revision 1.3  2013/12/19 17:05:40  j_novak
  * Corrected a dzpuis problem.
  *

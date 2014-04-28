@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2013 Jerome Novak
+ *   Copyright (c) 2013 Debarati Chatterjee, Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -31,8 +31,8 @@ char et_magnetisation_comp_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2014/03/17 15:52:08  j_novak
- * Inclusion of mgnetisation terms in the Maxwell equations.
+ * Revision 1.4  2014/04/28 12:48:13  j_novak
+ * Minor modifications.
  *
  * Revision 1.2  2013/12/19 17:05:40  j_novak
  * Corrected a dzpuis problem.
@@ -468,10 +468,10 @@ void Et_magnetisation::MHD_comput() {
 
   fac = Scalar(gam_euler()*gam_euler()) ;
 
-  E_I = 0.5*mu0 * get_magnetisation() * EiEi ;
+  E_I = mu0 * get_magnetisation() * EiEi ;
 
-  J_I = 0.5*mu0 * get_magnetisation() * BiBi * Ui ;
-  Sij_I = 0.5*mu0 * get_magnetisation() 
+  J_I = mu0 * get_magnetisation() * BiBi * Ui ;
+  Sij_I = mu0 * get_magnetisation() 
     * ( (BiBi / fac) * gamij  + BiBi*Ui*Ui - Bi*Bi / fac ) ;
 
   for (int i=1; i<=3; i++)

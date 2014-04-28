@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/04/28 12:48:13  j_novak
+ * Minor modifications.
+ *
  * Revision 1.8  2014/03/11 14:27:26  j_novak
  * Corrected a missing 4pi term.
  *
@@ -273,9 +276,15 @@ void Eos_mag::read_table() {
 	abort() ;
       }
       
+      magM_PG *= 4.*M_PI ;  // 4 pi M in 10^15 G
       double p_si = p_cgs*0.1 ; // in N m^-2
       double psc2 = p_si/c2 ; //  in kg m^-3
       double rho_si = rho_cgs*1000. ; // in kg m^-3
+
+     // double magM_si = (magM_PG*1.e15)*1.e3/(4.*M_PI) ; //in A/m or N m^-2 T^-1
+     // double chi_si = chi_PGpMeV*1.e15*1.e3/(4.*M_PI) ;  //in A/m/MeV or N m^-2 T^-1 MeV^-1
+     // double magB_si = magB_PG * 1.e15/1.e4 ;           // in T
+
 
       double h_read = log(mu_MeV) ;
       if ( (i==0) && (j==0) ) ww = h_read ;
@@ -285,8 +294,8 @@ void Eos_mag::read_table() {
       logh->set(j, i) = h_new ;
       Bfield->set(j, i) = magB_PG / mag_PG ; // in Lorene units
       dlpsdlh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
-      dlpsdB->set(j, i) = magM_PG*mag_PG/c2/rhonuc_si/(4*M_PI) ; 
-      d2lp->set(j, i) = mu_MeV*chi_PGpMeV*mag_PG/c2/rhonuc_si ; 
+      dlpsdB->set(j, i) = magM_PG*mag_PG*1.e29/c2/rhonuc_si/(4*M_PI) ; 
+      d2lp->set(j, i) = mu_MeV*chi_PGpMeV*mag_PG*1.e29/c2/rhonuc_si/(4*M_PI) ; 
 
     }
   }
@@ -438,7 +447,8 @@ double Eos_mag::mag_ent_p(double ent, const Param* par) const {
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
 		     p_int, dpdb_int, dpdh_int) ; 
     
-    double magnetization = 4*M_PI * dpdb_int ;
+    double magnetization = dpdb_int ;
+//    double magnetization = dpdb_int*c2*rhonuc_si/(mag_PG*1.d11) ;
 
     if (magB0 == 0.) //## Test to be improved...
       return 0 ;
