@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/04/29 13:46:06  j_novak
+ * Addition of switches 'use_B_in_eos' and 'include_magnetisation' to control the model.
+ *
  * Revision 1.20  2014/04/28 12:48:12  j_novak
  * Minor modifications.
  *
@@ -577,9 +580,16 @@ class Et_magnetisation : public Et_rot_mag {
   // Data : 
   // -----
  protected:
-  Scalar xmag ; ///< The magnetisation scalar
 
-  Scalar E_I; ///< Interaction (magnetisation) energy density
+  ///Flag : true if the value of the magnetic field is used in the Eos.
+  bool use_B_in_eos ; 
+
+  ///Flag : true if magnetisation terms are included in the equations.
+  bool include_magnetisation ;
+
+  Scalar xmag ; ///< The magnetisation scalar.
+
+  Scalar E_I; ///< Interaction (magnetisation) energy density.
 
   ///Interaction momentum density 3-vector.
   Vector J_I; 
@@ -592,7 +602,8 @@ class Et_magnetisation : public Et_rot_mag {
  public:
 
   /// Standard constructor
-  Et_magnetisation(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i); 
+  Et_magnetisation(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
+		   bool include_mag=true, bool use_B = true); 
 
 
   Et_magnetisation(const Et_magnetisation& ) ;       ///< Copy constructor
@@ -624,9 +635,22 @@ class Et_magnetisation : public Et_rot_mag {
   // Accessors
   // ---------
  public:
+  ///Public accessor to the \c use_B_in_eos flag.
+  bool B_in_eos() const {return use_B_in_eos;};
+
+  ///Public accessor to the \c include_magnetisation flag.
+  bool use_magnetisation() const {return include_magnetisation;} ;
+
+  ///Accessor to the magnetisation scalar field.
   const Scalar& get_magnetisation() const {return xmag;} ;
+
+  ///Accessor to the interaction energy density.
   const Scalar& get_E_I() const {return E_I;} ;
+
+  ///Accessor to the interaction momentum vector.
   const Vector& get_J_I() const {return J_I;} ;
+
+  ///Accessor to the interaction stress tensor.
   const Sym_tensor& get_Sij_I() const {return Sij_I;} ; 
   
   // Outputs

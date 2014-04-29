@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/04/29 13:46:07  j_novak
+ * Addition of switches 'use_B_in_eos' and 'include_magnetisation' to control the model.
+ *
  * Revision 1.4  2014/04/28 12:48:13  j_novak
  * Minor modifications.
  *
@@ -44,7 +47,7 @@ char et_magnetisation_C[] = "$Header $" ;
  * New class Et_magnetisation to include magnetization terms in the stress energy tensor.
  *
  *
- * $Header $
+ * $Header$
  *
  */
 
@@ -66,8 +69,10 @@ char et_magnetisation_C[] = "$Header $" ;
 
 
 Et_magnetisation::Et_magnetisation(Map& mp_i, int nzet_i, bool relat, 
-				   const Eos& eos_i)
+				   const Eos& eos_i, bool magnetisation, 
+				   bool B_eos)
   : Et_rot_mag(mp_i, nzet_i, relat, eos_i, 1),
+    use_B_in_eos(B_eos), include_magnetisation(magnetisation),
     xmag(mp_i),
     E_I(mp_i),
     J_I(mp_i, COV, mp_i.get_bvect_spher()),
@@ -80,8 +85,14 @@ Et_magnetisation::Et_magnetisation(Map& mp_i, int nzet_i, bool relat,
     cerr << "Aborting ... " << endl ;
     abort() ;
   }
-
-  xmag = 0 ;
+  if ( include_magnetisation && (!use_B_in_eos) ) {
+    cerr << "Et_magnetisation::Et_magnetisation : " << endl ;
+    cerr << "Magnetisation terms can be included only if " 
+	 << "the magnetic field is used in the EoS!" << endl;
+    cerr << "Aborting ... " << endl ;
+    abort() ;
+  }
+ xmag = 0 ;
   E_I = 0 ;
   J_I.set_etat_zero() ;
   Sij_I.set_etat_zero() ;
@@ -92,6 +103,7 @@ Et_magnetisation::Et_magnetisation(Map& mp_i, int nzet_i, bool relat,
 
 Et_magnetisation::Et_magnetisation(Map& mp_i, const Eos& eos_i, FILE* fich)
   : Et_rot_mag(mp_i, eos_i, fich, 0), 
+    use_B_in_eos(true), include_magnetisation(true),
     xmag(mp_i),
     E_I(mp_i),
     J_I(mp_i, COV, mp_i.get_bvect_spher()),
@@ -100,6 +112,10 @@ Et_magnetisation::Et_magnetisation(Map& mp_i, const Eos& eos_i, FILE* fich)
 
   // Read of the saved fields:
   // ------------------------
+
+  fread(&use_B_in_eos, sizeof(bool), 1, fich) ;
+
+  fread(&include_magnetisation, sizeof(bool), 1, fich) ;
     
   Scalar xmag_file(mp, *mp.get_mg(), fich) ;
   xmag = xmag_file ;
@@ -121,10 +137,11 @@ Et_magnetisation::Et_magnetisation(Map& mp_i, const Eos& eos_i, FILE* fich)
 
 Et_magnetisation::Et_magnetisation(const Et_magnetisation& et)
   : Et_rot_mag(et),
-  xmag(et.xmag),
-  E_I(et.E_I),
-  J_I(et.J_I),
-  Sij_I(et.Sij_I)
+    use_B_in_eos(et.use_B_in_eos), include_magnetisation(et.include_magnetisation),
+    xmag(et.xmag),
+    E_I(et.E_I),
+    J_I(et.J_I),
+    Sij_I(et.Sij_I)
 {  }
 
 
@@ -142,6 +159,8 @@ void Et_magnetisation::operator=(const Et_magnetisation& et) {
 
   // Assignement of quantities common to all the derived classes of Et_rot_mag
   Et_rot_mag::operator=(et) ;
+  use_B_in_eos = et.use_B_in_eos;
+  include_magnetisation = et.include_magnetisation ;
   xmag   = et.xmag  ;
   E_I    = et.E_I   ;
   J_I    = et.J_I   ;
@@ -209,12 +228,16 @@ void Et_magnetisation::equation_of_state() {
   // Call to a magnetized EOS
   // with the norm of the magnetic field passed as an argument to the EoS.
   
-  Tenseur Bmag = Magn() ;
-  Cmp norm_b = sqrt(a_car() * ( Bmag(0)*Bmag(0) + Bmag(1)*Bmag(1) )) 
-    / gam_euler() ; // Use of b^\mu in the fluid frame
-  norm_b.std_base_scal() ;
+  double magb0 = 0 ;
+  Cmp norm_b(mp) ;
+  norm_b.set_etat_zero() ;
+  if (use_B_in_eos) {
+    Tenseur Bmag = Magn() ;
+    norm_b = sqrt(a_car() * ( Bmag(0)*Bmag(0) + Bmag(1)*Bmag(1) )) 
+      / gam_euler() ; // Use of b^\mu in the fluid frame
+    norm_b.std_base_scal() ;
+  }
   Param par ;
-  double magb0 ;
   par.add_double_mod(magb0) ;
   
   nbar.set_etat_qcq() ; nbar.set().set_etat_qcq() ;
@@ -252,12 +275,17 @@ void Et_magnetisation::equation_of_state() {
       }
     }
   }
+  
+  if (!include_magnetisation)
+    xmag.set_etat_zero() ;
 
   // Set the bases for spectral expansion
   nbar.set_std_base() ; 
   ener.set_std_base() ; 
   press.set_std_base() ; 
   xmag.std_spectral_base() ;
+
+  cout << xmag.get_spectral_base() ;
   
   // The derived quantities are obsolete
   del_deriv() ; 
@@ -275,6 +303,10 @@ void Et_magnetisation::equation_of_state() {
 void Et_magnetisation::sauve(FILE* fich) const {
     
     Et_rot_mag::sauve(fich) ; 
+
+    fwrite(&use_B_in_eos, sizeof(bool), 1, fich) ;		
+    
+    fwrite(&include_magnetisation, sizeof(bool), 1, fich) ;		
     
     xmag.sauve(fich) ;
     E_I.sauve(fich) ;
@@ -295,10 +327,15 @@ ostream& Et_magnetisation::operator>>(ostream& ost) const {
   Et_rot_mag::operator>>(ost) ;
   //  int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;
   ost << endl ;
-  ost << "Rotating magnetized neutron star with magnetization term..."
+  ost << "Rotating magnetized neutron star"
       << endl ;
-  ost << "Maximal value of the magnetization scalar x : " 
-      << max(maxabs(xmag)) << endl ;
+  if (use_B_in_eos)
+    ost << "Using magnetic field in the EoS" << endl ;
+  if (include_magnetisation) {
+    ost << "Including magnetisation terms in the equations" << endl ;
+    ost << "Maximal value of the magnetization scalar x : " 
+	<< max(maxabs(xmag)) << endl ;
+  }
   return ost ;
 }
 

@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/04/29 13:46:07  j_novak
+ * Addition of switches 'use_B_in_eos' and 'include_magnetisation' to control the model.
+ *
  * Revision 1.5  2014/04/28 14:53:29  j_novak
  * Minor modif.
  *
@@ -153,10 +156,10 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
 //      F32.div_r();  absorbed into x.srdsdt
 
   Cmp x = get_magnetisation();
+  Cmp one_minus_x = 1 - x ;
+  one_minus_x.std_base_scal() ;
 
-  des_profile(x, 0, 2, 1, 1) ;
-    
-  Cmp tmp(((BLAH - A_0t.laplacien())*(1-x)/a_car()
+  Cmp tmp(((BLAH - A_0t.laplacien())*one_minus_x/a_car()
 	   - gtphi*j_phi 
 	   - gtt*(F01*x.dsdr()+F02*x.srdsdt())
 	   - gtphi*(F31*x.dsdr()+F32*x.srdsdt()) ) / gtt);
@@ -205,7 +208,7 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
              + (F32-nphi()*F02)*x.srdsdt() ;
       phifac.mult_rsint();
 
-  source_tAphi.set(2)= -b_car()*a_car()/(1-x)
+  source_tAphi.set(2)= -b_car()*a_car()/one_minus_x
       *(tjphi-tnphi()*j_t + phifac)
     + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)
     + d_grad4 ;
@@ -249,7 +252,7 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
 // modified to include Magnetisation
   Cmp source_A_1t(-a_car()*( j_t*gtt + j_phi*gtphi 
    + gtt*(F01*x.dsdr()+F02*x.srdsdt())
-   + gtphi*(F31*x.dsdr()+F32*x.srdsdt()) )/(1-x) 
+   + gtphi*(F31*x.dsdr()+F32*x.srdsdt()) )/one_minus_x 
    + BLAH);
   
   Cmp A_1t(mp);
