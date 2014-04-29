@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/04/29 13:46:54  j_novak
+ * Addition of swicthes 'use_B_in_eos' and 'include_magnetisation' to control the model.
+ *
  * Revision 1.1  2014/04/28 14:41:15  j_novak
  * Files for magnetisation star main code.
  *
@@ -66,15 +69,6 @@ int main(){
 
   using namespace Unites_mag ;
 
-    // Identification of all the subroutines called by the code : 
-    
-    int res = system("ident mageos > identif.d") ; 
-    if (res==-1) {
-      cout << "Problem in shell command:" << endl ;
-      cout << "ident magstar > identif.d" << endl ;
-      cout << "identif.d may be altered." << endl ;
-    }
-
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
@@ -88,7 +82,7 @@ int main(){
 	   thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
     
     double Q0, a_j0, Q_ini, a_j_ini ;
-    int mer_mag, mer_change_mag, mer_fix_mag, conduct ;
+    int mer_mag, mer_change_mag, mer_fix_mag, mag_in_eos, use_magnetisation ;
 
     ifstream fich("parrot.d") ;
     fich.getline(blabla, 120) ;
@@ -99,7 +93,6 @@ int main(){
     fich >> fact_omega ; fich.getline(blabla, 120) ;
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
     mbar_wanted *= msol ; 
-    fich >> conduct ; fich.getline(blabla, 120) ;
     fich.getline(blabla, 120) ;
     fich >> Q0 ; fich.getline(blabla,120) ;
     fich >> a_j0 ; fich.getline(blabla,120) ;
@@ -108,6 +101,8 @@ int main(){
     fich >> mer_mag ; fich.getline(blabla,120) ;
     fich >> mer_change_mag ; fich.getline(blabla,120) ;
     fich >> mer_fix_mag ; fich.getline(blabla,120);
+    fich >> mag_in_eos ; fich.getline(blabla,120);
+    fich >> use_magnetisation ; fich.getline(blabla,120);
     fich.getline(blabla,120);
     fich >> mer_max ; fich.getline(blabla, 120) ;
     fich >> precis ; fich.getline(blabla, 120) ;
@@ -269,7 +264,8 @@ int main(){
     //		Construction of the star
     //-----------------------------------------------------------------------
     
-    Et_magnetisation star(mp, nzet, relat, eos) ; 
+    Et_magnetisation star(mp, nzet, relat, eos, (use_magnetisation!=0), 
+			  (mag_in_eos!=0) ) ; 
     
     if ( star.is_relativistic() ) {
 	cout << "========================" << endl ;
@@ -372,102 +368,22 @@ int main(){
     Bmag.set(3) = 0 ;
     Tbl maxB = 0.5*(max(abs(Bmag(1))) + max(abs(Bmag(2)))) ;
     cout << maxB ;
-    cout << "div(B) / max(B) in each domain :  " << max(abs(Bmag.divergence(gam))) / maxB ; 
+    cout << "div(B) / max(B) in each domain :  " 
+	 << max(abs(Bmag.divergence(gam))) / maxB ; 
     
-    //-----------------------------------------------
-    //  General features of the final configuration
-    //  saved in a file
-    //-----------------------------------------------
-
-    ofstream fichfinal("calcul.d") ;
-    fichfinal.precision(10) ; 
-    
-    if ( star.is_relativistic() ) {
-	fichfinal << "Relativistic computation" << endl ;
-    }
-    else {
-	fichfinal << "Newtonian computation" << endl ;
-    }
-    
-    fichfinal << star.get_eos() << endl ;
-    
-    fichfinal << endl << "Total CPU time  : " << endl ;
-    fichfinal << "Memory size : " << endl << endl ; 
-
-    fichfinal << endl << endl ; 
-    fichfinal << "Grid : " << endl ; 
-    fichfinal << "------ " << endl ; 
-    fichfinal << *(star.get_mp().get_mg()) << endl ; 
-    fichfinal << endl << "Physical characteristics : " << endl ; 
-    fichfinal	  << "-------------------------" << endl ; 
-    fichfinal << star << endl ;
-
-    fichfinal << endl <<
-    "===================================================================" 
-    << endl ; 
-    fichfinal << "Diff_ent : " << diff(0) << endl ; 
-    fichfinal << "Relative error on the virial theorem GRV2 : "
-	      << star.grv2() << endl ;   
-    fichfinal << "Relative error on the virial theorem GRV3 : "
-	      << star.grv3() << endl ;   
-    
-    fichfinal << endl <<
-    "================================================================" << endl ;
-    fichfinal <<
-    "   PARAMETERS USED FOR THE COMPUTATION (file parrot.d) : " << endl ;
-    fichfinal <<
-    "================================================================" << endl ;
-    fichfinal.close() ;
-    res = system("cat parrot.d >> calcul.d") ; 
-    if (res==-1) {
-      cout << "Problem in shell command:" << endl ;
-      cout << "cat parrot.d >> calcul.d" << endl ;
-      cout << "calcul.d may be altered." << endl ;
-    }
-
-    fichfinal.open("calcul.d", ios::app) ;
-    fichfinal << endl <<
-    "================================================================" << endl ;
-    fichfinal <<
-    "	           EOS PARAMETERS (file par_eos.d) : " << endl ;
-    fichfinal <<
-    "================================================================" << endl ;
-    fichfinal.close() ;
-    res = system("cat par_eos.d >> calcul.d") ;
-    if (res==-1) {
-      cout << "Problem in shell command:" << endl ;
-      cout << "cat par_eos.d >> calcul.d" << endl ;
-      cout << "calcul.d may be altered." << endl ;
-    }
-
-    // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("calcul.d", ios::app) ; 
-    fichfinal << endl <<
-    "================================================================" << endl ; 
-    fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
-    fichfinal << 
-    "================================================================" << endl ; 
-    fichfinal.close() ; 
-    res = system("ident magstar >> calcul.d") ; 
-    if (res==-1) {
-      cout << "Problem in shell command:" << endl ;
-      cout << "ident magstar >> calcul.d" << endl ;
-      cout << "calcul.d may be altered." << endl ;
-    }
-
 
     // Saveguard of the whole configuration
-	// ------------------------------------
+    // ------------------------------------
 
-	FILE* fresu = fopen("resu.d", "w") ;
-
-	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
-	star.get_mp().sauve(fresu) ;                // writing of the mapping
-	star.get_eos().sauve(fresu) ;  				// writing of the EOS
-	star.sauve(fresu) ;                         // writing of the star
-	
-	fclose(fresu) ;
-	
+    FILE* fresu = fopen("resu.d", "w") ;
+    
+    star.get_mp().get_mg()->sauve(fresu) ;	// writing of the grid
+    star.get_mp().sauve(fresu) ;                // writing of the mapping
+    star.get_eos().sauve(fresu) ;  		// writing of the EOS
+    star.sauve(fresu) ;                         // writing of the star
+    
+    fclose(fresu) ;
+    
 	
 
     // Drawings
