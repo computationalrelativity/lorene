@@ -26,11 +26,14 @@
  *
  */
 
-char et_magnetisation_comp_C[] = "$Header $" ;
+char et_magnetisation_comp_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/05/01 13:07:16  j_novak
+ * Fixed two bugs: in the computation of F31,F32 and the triad of U_up.
+ *
  * Revision 1.6  2014/04/29 13:46:07  j_novak
  * Addition of switches 'use_B_in_eos' and 'include_magnetisation' to control the model.
  *
@@ -144,25 +147,31 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
         +   1/(a_car()*nnn()*nnn())*nphi()*A_phi.srdsdt() ;
 //      F02.div_r();  absorbed into x.srdsdt
 
-  Cmp a2brst = bbb();
-      a2brst.mult_rsint();
+  Cmp tmp = A_phi.dsdr() / (bbb() * bbb() * a_car() );
+  tmp.div_rsint() ;
+  tmp.div_rsint() ;
   Cmp F31 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.dsdr()
-       +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.dsdr() 
-       +    1/(a_car()*a2brst*a2brst)*A_phi.dsdr() ;
+    +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.dsdr()  
+    +    tmp ;
+  //       +    1/(a_car()*a2brst*a2brst)*A_phi.dsdr() ;
 
+  tmp = A_phi.srdsdt() / (bbb() * bbb() * a_car() );
+  tmp.div_rsint() ;
+  tmp.div_rsint() ;
   Cmp F32 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.srdsdt()
-       +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.srdsdt()
-       +    1/(a_car()*a2brst*a2brst)*A_phi.srdsdt() ;
+    +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.srdsdt()
+    +    tmp ;
+//       +    1/(a_car()*a2brst*a2brst)*A_phi.srdsdt() ;
 //      F32.div_r();  absorbed into x.srdsdt
 
   Cmp x = get_magnetisation();
   Cmp one_minus_x = 1 - x ;
   one_minus_x.std_base_scal() ;
 
-  Cmp tmp(((BLAH - A_0t.laplacien())*one_minus_x/a_car()
+  tmp = ((BLAH - A_0t.laplacien())*one_minus_x/a_car()
 	   - gtphi*j_phi 
 	   - gtt*(F01*x.dsdr()+F02*x.srdsdt())
-	   - gtphi*(F31*x.dsdr()+F32*x.srdsdt()) ) / gtt);
+	   - gtphi*(F31*x.dsdr()+F32*x.srdsdt()) ) / gtt ;
  
   tmp.annule(nzet, Z-1) ;
   if (adapt) {
@@ -206,7 +215,7 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
 // modified to include Magnetisation
   Cmp phifac = (F31-nphi()*F01)*x.dsdr()
              + (F32-nphi()*F02)*x.srdsdt() ;
-      phifac.mult_rsint();
+  phifac.mult_rsint();
 
   source_tAphi.set(2)= -b_car()*a_car()/one_minus_x
       *(tjphi-tnphi()*j_t + phifac)
@@ -239,6 +248,7 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
     }
     
   }
+
   source_tAphi.poisson_vect(lambda_mag, par_poisson_Avect, AVECT, WORK_VECT,
 			    WORK_SCAL) ;
   AVECT.change_triad(mp.get_bvect_spher());
@@ -258,7 +268,7 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   Cmp A_1t(mp);
   A_1t = 0 ;
   source_A_1t.poisson(par_poisson_At, A_1t) ;
-  
+
   int L = mp.get_mg()->get_nt(0);
   
   Tbl MAT(L,L) ;
@@ -414,7 +424,6 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
   A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
 
-
 }
 
 
@@ -453,9 +462,11 @@ void Et_magnetisation::MHD_comput() {
 
   Scalar EiEi ( flat_scalar_prod(Efield, Efield)() ) ;
   Scalar BiBi ( flat_scalar_prod(Bfield, Bfield)() ) ;
-  Vector U_up(mp, CON, mp.get_bvect_spher()) ;
+
+  Vector U_up(mp, CON, mp.get_bvect_cart()) ;
   for (int i=1; i<=3; i++) 
     U_up.set(i) = u_euler(i-1) ;
+  U_up.change_triad(mp.get_bvect_spher()) ;
 
   Sym_tensor gamij(mp, COV, mp.get_bvect_spher()) ;
   for (int i=1; i<=3; i++)
@@ -486,7 +497,6 @@ void Et_magnetisation::MHD_comput() {
   for (int i=1; i<=3; i++)
     for (int j=i; j<=3; j++)
       Sij_I.set(i,j).set_dzpuis(0) ;
-
 
 }
 
