@@ -30,6 +30,9 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/05/09 14:44:25  j_novak
+ * Tests are now done for the opening of parameter files.
+ *
  * Revision 1.8  2012/05/10 09:05:30  j_novak
  * New code examrot_dirac for reading the results of
  * rotstar_dirac. Simplification of the parrot.d parameter file for
@@ -66,7 +69,7 @@ char rotstar_dirac_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // headers Lorene
 #include "star_rot_dirac.h"
@@ -87,10 +90,6 @@ int main(){
 
   using namespace Unites ; 
 
-    // Identification of all the subroutines called by the code : 
-    
-    system("ident rotstar_dirac > identif.d") ; 
-
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
@@ -104,6 +103,10 @@ int main(){
 	   aexp_mass, relax ;  
     
     ifstream fich("parrot.d") ;
+    if ( !fich.good() ) {
+      cerr << "Problem in opening the file parrot.d ! " << endl ;
+      abort() ;
+    }
     fich.getline(blabla, 120) ; fich.getline(blabla, 120) ;
     fich >> ent_c ; fich.getline(blabla, 120) ;
     fich >> freq_si ; fich.getline(blabla, 120) ;
@@ -170,7 +173,10 @@ int main(){
     //-----------------------------------------------------------------------
 
     fich.open("par_eos.d") ;
-
+    if ( !fich.good() ) {
+      cerr << "Problem in opening the file par_eos.d ! " << endl ;
+      abort() ;
+    }
     Eos* peos = Eos::eos_from_file(fich) ;
     Eos& eos = *peos ;
 
