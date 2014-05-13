@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2014/05/13 10:06:12  j_novak
+ * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
+ *
  * Revision 1.21  2014/04/29 13:46:06  j_novak
  * Addition of switches 'use_B_in_eos' and 'include_magnetisation' to control the model.
  *
@@ -129,15 +132,24 @@ class Et_rot_mag : public Etoile_rot {
   // -----
  protected:
 
-  Cmp A_t ; ///< t-component of the elecctromagnetic potential 1-form
-  Cmp A_phi; ///< \f$\varphi\f$-component of the electromagnetic potential 1-form
+  ///t-component of the elecctromagnetic potential 1-form, divided by \f$\mu_0\f$.
+  Cmp A_t ; 
+  /**
+   * \f$\varphi\f$-component of the electromagnetic potential 1-form
+   * divided by \f$\mu_0\f$.
+   */
+  Cmp A_phi; 
+
   Cmp B_phi; ///< \f$\varphi\f$-component of the magnetic field
   Cmp j_t; ///< t-component of the current 4-vector
   Cmp j_phi; ///< \f$\varphi\f$-component of the current 4-vector
 
   Tenseur E_em; ///< electromagnetic energy density in the Eulerian frame
 
-  ///\f$\varphi\f$ component of the electromagnetic momentum density 3-vector (as measured in the Eulerian frame).
+  /**
+   * \f$\varphi\f$ component of the electromagnetic momentum density 3-vector,
+   * as measured in the Eulerian frame.
+   */
   Tenseur Jp_em; 
 
   ///rr component of the electromagnetic stress 3-tensor, as measured in the Eulerian frame. (not used and set to 0, should be supressed)
@@ -213,10 +225,17 @@ class Et_rot_mag : public Etoile_rot {
  public:
   /// Tells if the star is made of conducting or isolating material
   bool is_conduct() const {return (conduc==1) ;} ;
-  ///Returns the t component of the electromagnetic potential
+  /**
+   * Returns the t component of the electromagnetic potential, 
+   * divided by \f$\mu_0\f$.
+   */
   const Cmp& get_At() const {return A_t ; } ; 
-  ///Returns the \f$\varphi\f$ component of the electromagnetic potential
+  /**
+   * Returns the \f$\varphi\f$ component of the electromagnetic potential
+   * divided by \f$\mu_0\f$.
+   */
   const Cmp& get_Aphi() const {return A_phi ;} ;
+
   ///Returns the \f$\varphi\f$ component of the magnetic field
   const Cmp& get_Bphi() const {return B_phi ;} ;
   ///Returns the t component of the current 4-vector
@@ -261,21 +280,22 @@ class Et_rot_mag : public Etoile_rot {
   // Global quantities
   // -----------------
  public:
-
-  Tenseur Elec() const ; ///< Computes the electric field spherical components
-  Tenseur Magn() const ; ///< Computes the magnetic field spherical components
+  /// Computes the electric field spherical components in Lorene's units
+  Tenseur Elec() const ; 
+  /// Computes the magnetic field spherical components in Lorene's units
+  Tenseur Magn() const ; 
   /// Computes the electromagnetic part of the stress-energy tensor
   virtual void MHD_comput() ; 
   virtual double mass_g() const ;	    ///< Gravitational mass
   virtual double angu_mom() const ;  ///< Angular momentum
   virtual double grv2() const ;	///< Error on the virial identity GRV2
   virtual double tsw() const ; ///< Ratio T/W
-  double MagMom() const ; ///< Magnetic Momentum \f$\cal M\f$
-  /// Computed charge deduced from the asymptotic behaviour of At.
+  double MagMom() const ; ///< Magnetic Momentum \f$\cal M\f$ in SI units
+  /// Computed charge deduced from the asymptotic behaviour of At [SI units].
   double Q_comput() const; 
 
   /** Computed charge from the integration of charge density over the star
-   * (i.e. without surface charge)
+   * (i.e. without surface charge) [SI units].
    */
   double Q_int() const; 
 

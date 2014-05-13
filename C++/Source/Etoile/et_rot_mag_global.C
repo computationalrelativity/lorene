@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/05/13 10:06:13  j_novak
+ * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
+ *
  * Revision 1.19  2012/08/12 17:48:35  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -94,8 +97,8 @@ char et_rot_mag_global_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_mag.h"
@@ -138,10 +141,6 @@ void Et_rot_mag::MHD_comput() {
 Tenseur Et_rot_mag::Elec() const {
 
   using namespace Unites_mag ;
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
 
   Cmp E_r(mp); Cmp E_t(mp);
   E_r = 1/(sqrt(a_car())*nnn())*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
@@ -154,17 +153,13 @@ Tenseur Et_rot_mag::Elec() const {
   Elect.set(1) = E_t ;
   Elect.set(2) = 0. ;
   
-    return Elect*elec_unit ;
+  return Elect*mu0 ;
 
 }
 
 Tenseur Et_rot_mag::Magn() const {
 
   using namespace Unites_mag ;
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
 
   Cmp B_r(mp); Cmp B_t(mp);
   B_r = 1/(sqrt(a_car())*bbb())*A_phi.srdsdt();
@@ -180,17 +175,13 @@ Tenseur Et_rot_mag::Magn() const {
   Bmag.set(1) = -B_t ;
   Bmag.set(2) = B_phi ;
 
-    return Bmag*mag_unit ;
+  return Bmag*mu0 ;
 
 }
 
 double Et_rot_mag::MagMom() const {
 
   using namespace Unites_mag ;
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
 
   int Z = mp.get_mg()->get_nzone();   
   double mm ;
@@ -209,7 +200,7 @@ double Et_rot_mag::MagMom() const {
   delete [] asymp ;
   }
 
-  return mm*mag_unit*r_unit*r_unit*r_unit/mu_si*1.e9 ;
+  return mm*j_unit*pow(r_unit,4) ;
 
 }
 

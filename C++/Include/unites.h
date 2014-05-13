@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/05/13 10:06:12  j_novak
+ * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
+ *
  * Revision 1.4  2004/12/01 12:28:32  p_grandclement
  * Include math.h in unite.h
  *
@@ -104,12 +107,15 @@ namespace Unites_mag {
   const double mu_si = 1.2566370614359173e-6 ;///<Magnetic vacuum permeability
   
   const double j_unit = 1e11 ; ///<Lorene's current density unit [\f$A/m^2\f$]
-  /// Lorene's units for magnetic field [\f$10^9\f$ T]
-  const double mag_unit = mu_si * r_unit * j_unit / 1e9 ;
-  /// Lorene's unit for electric field [\f$10^{12}\f$ V/m]
-  const double elec_unit = mag_unit * c_si / 1e3 ;
+
+  /// Lorene's units for magnetic field 
+  const double mag_unit = rho_unit*v_unit*v_unit/ (r_unit * j_unit) ;
+  /// Lorene's unit for electric field 
+  const double elec_unit = mag_unit * v_unit ;
+
+  /// Lorene's unit for \f$\mu_0\f$
+  const double mu0_unit = rho_unit*v_unit*v_unit / (pow(j_unit ,2)*pow(r_unit,2));
   /// \f$\mu_0\f$ in Lorene's units
-  const double mu0 = mu_si * pow(j_unit ,2) * pow(r_unit,2) 
-    / (rho_unit*pow(c_si,2)) ; 
+  const double mu0 = mu_si / mu0_unit ;
 }
   
