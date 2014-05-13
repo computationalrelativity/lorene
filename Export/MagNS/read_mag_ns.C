@@ -29,6 +29,9 @@ char read_mag_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/05/13 10:06:45  j_novak
+ * Update to take unto account the change in Lorene magnetic units.
+ *
  * Revision 1.1  2009/11/19 16:15:21  j_novak
  * Export class for magnetized neutron stars.
  *
@@ -39,7 +42,7 @@ char read_mag_ns_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Definition of Mag_NS class
 #include "mag_ns.h"

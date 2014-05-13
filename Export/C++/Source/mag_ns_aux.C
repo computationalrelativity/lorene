@@ -31,6 +31,9 @@ char mag_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/05/13 10:06:45  j_novak
+ * Update to take unto account the change in Lorene magnetic units.
+ *
  * Revision 1.1  2009/11/19 16:15:21  j_novak
  * Export class for magnetized neutron stars.
  *
@@ -42,8 +45,8 @@ char mag_ns_aux_C[] = "$Header$" ;
 #include "../Include/mag_ns.h"
 
 // C headers
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 
 // Lorene headers
 #include "tenseur.h"
@@ -132,12 +135,14 @@ Mag_NS::Mag_NS(int nbpoints, const double* xi, const double* yi,
     angu_mom = star.angu_mom() / ( ggrav * msol*msol) ;
     T_over_W =  star.tsw() ;
     magn_mom = star.MagMom() ;
-    b_z_pole = star.Magn()(0).va.val_point(star.l_surf()(0,0),
-					   star.xi_surf()(0,0),0.,0.)  ;
+    b_z_pole = 
+      star.Magn()(0).va.val_point(star.l_surf()(0,0), star.xi_surf()(0,0),0.,0.) 
+      * mag_unit / 1.e9 ;
     int theta_eq = mapping.get_mg()->get_nt(star.get_nzet() - 1) - 1 ;
     b_z_eq = star.Magn()(1).va.val_point(star.l_surf()(0,theta_eq),
-					 star.xi_surf()(0,theta_eq),M_PI_2,0.);
-
+					 star.xi_surf()(0,theta_eq),M_PI_2,0.)
+      * mag_unit / 1.e9 ;
+    
     cout.precision(13) ;
     cout << endl << "Magnetized star read in file : " << endl ;
     cout <<	    "------------------------------ " << endl ;
@@ -223,7 +228,7 @@ Mag_NS::Mag_NS(int nbpoints, const double* xi, const double* yi,
     sp_current.change_triad(mapping.get_bvect_cart()) ;
     Scalar sp_jt = star.get_jt() * j_unit ;
 
-    Scalar fac = sqrt(star.get_a_car()()) ;//to transform B^(i) into B^i
+    Scalar fac = 1.e9*sqrt(star.get_a_car()())/mag_unit ;//to transform B^(i) into B^i
     fac.std_spectral_base() ;
     Vector sp_Bmag(mp, CON, bspher) ;
     sp_Bmag.set(1) = Scalar(star.Magn()(0)) / fac ;
