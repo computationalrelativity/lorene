@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/05/13 15:36:54  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.22  2014/05/13 10:06:13  j_novak
  * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
  *
@@ -385,8 +388,6 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   ost << "Q^2/M^2 :" << mu_si*c_si*c_si*Q_comput()*Q_comput()/(4*M_PI*g_si*mass_g()*mass_g()*m_unit*m_unit) 
       << endl ;
   ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
-    cout << mag_unit << " #, " 
-	 << Magn()(0).va.val_point(l_surf()(0,0), xi_surf()(0,0),0.,0.) << endl ;
 
   return ost ;
 }
