@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/05/13 15:37:12  j_novak
+ * Updated to new magnetic units.
+ *
  * Revision 1.7  2014/05/01 13:07:16  j_novak
  * Fixed two bugs: in the computation of F31,F32 and the triad of U_up.
  *
@@ -457,8 +460,8 @@ void Et_magnetisation::MHD_comput() {
   Spp_em = E_em ;
 
   // ... and those corresponding to the magnetization.
-  Tenseur Efield = Elec() / elec_unit ;
-  Tenseur Bfield = Magn() / mag_unit ;
+  Tenseur Efield = Elec() ;
+  Tenseur Bfield = Magn() ;
 
   Scalar EiEi ( flat_scalar_prod(Efield, Efield)() ) ;
   Scalar BiBi ( flat_scalar_prod(Bfield, Bfield)() ) ;
@@ -488,11 +491,11 @@ void Et_magnetisation::MHD_comput() {
 
   fac = Scalar(gam_euler()*gam_euler()) ;
 
-  E_I = mu0 * get_magnetisation() * EiEi ;
+  E_I = get_magnetisation() * EiEi / mu0 ;
 
-  J_I = mu0 * get_magnetisation() * BiBi * Ui ;
-  Sij_I = mu0 * get_magnetisation() 
-    * ( (BiBi / fac) * gamij  + BiBi*Ui*Ui - Bi*Bi / fac ) ;
+  J_I = get_magnetisation() * BiBi * Ui / mu0 ;
+  Sij_I = get_magnetisation() 
+    * ( (BiBi / fac) * gamij  + BiBi*Ui*Ui - Bi*Bi / fac ) / mu0 ;
 
   for (int i=1; i<=3; i++)
     for (int j=i; j<=3; j++)

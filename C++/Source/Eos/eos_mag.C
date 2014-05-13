@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/05/13 15:37:12  j_novak
+ * Updated to new magnetic units.
+ *
  * Revision 1.9  2014/04/28 12:48:13  j_novak
  * Minor modifications.
  *
@@ -172,7 +175,7 @@ bool Eos_mag::operator==(const Eos& eos_i) const {
     bool resu = true ;
 
     if ( eos_i.identify() != identify() ) {
-	cout << "The second EOS is not of type Eos_mag !" << endl ;
+	cerr << "The second EOS is not of type Eos_mag !" << endl ;
 	resu = false ;
     }
 
@@ -215,9 +218,9 @@ void Eos_mag::read_table() {
   ifstream fich(tablename.data()) ;
 
   if (!fich) {
-    cout << "Eos_mag::read_table(): " << endl ;
-    cout << "Problem in opening the EOS file!" << endl ;
-    cout << "Aborting..." << endl ;
+    cerr << "Eos_mag::read_table(): " << endl ;
+    cerr << "Problem in opening the EOS file!" << endl ;
+    cerr << "Aborting..." << endl ;
     abort() ;
   }
 
@@ -228,10 +231,10 @@ void Eos_mag::read_table() {
   int nbp1, nbp2 ;
   fich >> nbp1 >> nbp2 ; fich.ignore(1000, '\n') ;   // number of data
   if ((nbp1<=0) || (nbp2<=0)) {
-    cout << "Eos_mag::read_table(): " << endl ;
-    cout << "Wrong value for the number of lines!" << endl ;
-    cout << "nbp1 = " << nbp1 << ", nbp2 = " << nbp2 << endl ;
-    cout << "Aborting..." << endl ;
+    cerr << "Eos_mag::read_table(): " << endl ;
+    cerr << "Wrong value for the number of lines!" << endl ;
+    cerr << "nbp1 = " << nbp1 << ", nbp2 = " << nbp2 << endl ;
+    cerr << "Aborting..." << endl ;
     abort() ;
   }
 
@@ -254,7 +257,8 @@ void Eos_mag::read_table() {
   d2lp->set_etat_qcq() ;
   
   double c2 = c_si * c_si ;
-  double mag_PG = mag_unit / 100. ; 
+  double B_unit = mag_unit / 1.e11 ;
+  double M_unit = B_unit*mu0/(4*M_PI) ;
     	
   int no1 ;
   double nb_fm3, rho_cgs, p_cgs, mu_MeV, magB_PG, magM_PG, chi_PGpMeV ;
@@ -268,23 +272,16 @@ void Eos_mag::read_table() {
 	   >> magB_PG >> magM_PG >> chi_PGpMeV ; 
       fich.ignore(1000,'\n') ;
       if ( (nb_fm3<0) || (rho_cgs<0)) { // || (p_cgs < 0) ){
-	cout << "Eos_mag::read_table(): " << endl ;
-	cout << "Negative value in table!" << endl ;
-	cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
+	cerr << "Eos_mag::read_table(): " << endl ;
+	cerr << "Negative value in table!" << endl ;
+	cerr << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
 	  ", p = " << p_cgs << endl ;
-	cout << "Aborting..." << endl ;
+	cerr << "Aborting..." << endl ;
 	abort() ;
       }
       
-      magM_PG *= 4.*M_PI ;  // 4 pi M in 10^15 G
-      double p_si = p_cgs*0.1 ; // in N m^-2
-      double psc2 = p_si/c2 ; //  in kg m^-3
+      double psc2 = 0.1*p_cgs/c2 ; //  in kg m^-3
       double rho_si = rho_cgs*1000. ; // in kg m^-3
-
-     // double magM_si = (magM_PG*1.e15)*1.e3/(4.*M_PI) ; //in A/m or N m^-2 T^-1
-     // double chi_si = chi_PGpMeV*1.e15*1.e3/(4.*M_PI) ;  //in A/m/MeV or N m^-2 T^-1 MeV^-1
-     // double magB_si = magB_PG * 1.e15/1.e4 ;           // in T
-
 
       double h_read = log(mu_MeV) ;
       if ( (i==0) && (j==0) ) ww = h_read ;
@@ -292,10 +289,10 @@ void Eos_mag::read_table() {
 
       logp->set(j, i) = psc2/rhonuc_si ; 
       logh->set(j, i) = h_new ;
-      Bfield->set(j, i) = magB_PG / mag_PG ; // in Lorene units
+      Bfield->set(j, i) = magB_PG / B_unit ; // in Lorene units
       dlpsdlh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
-      dlpsdB->set(j, i) = magM_PG*mag_PG*1.e29/c2/rhonuc_si/(4*M_PI) ; 
-      d2lp->set(j, i) = mu_MeV*chi_PGpMeV*mag_PG*1.e29/c2/rhonuc_si/(4*M_PI) ; 
+      dlpsdB->set(j, i) = magM_PG / M_unit ; 
+      d2lp->set(j, i) = mu_MeV*chi_PGpMeV / (3*M_unit) ;//## '3' has to be removed
 
     }
   }
@@ -305,6 +302,8 @@ void Eos_mag::read_table() {
 
   Bmax = (*Bfield)(nbp2-1, 0) ;
 
+  // cout << "hmin: " << hmin << ", hmax: " << hmax << endl ;
+  // cout << "Bmax: " << Bmax << endl ;
 
   fich.close();
  
@@ -325,7 +324,7 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 
   if ( ent >= hmin) {
     if (ent > hmax) {
-      cout << "Eos_tabul::nbar_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_tabul::nbar_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     // recuperer magB0 (input)
@@ -335,6 +334,11 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 	magB0 = par->get_double_mod() ;
       }
     
+  if ( magB0 > Bmax) {
+      cerr << "Eos_tabul::nbar_ent_p : B > Bmax !" << endl ;
+      abort() ;
+    }
+
     double p_int, dpdb_int, dpdh_int ;
     
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
@@ -361,7 +365,7 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
   if ( ent >= hmin ) {
     if (ent > hmax) {
-      cout << "Eos_tabul::ener_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_tabul::ener_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     
@@ -371,6 +375,12 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
       if (par->get_n_double_mod() > 0) {
 	magB0 = par->get_double_mod() ;
       }
+
+    if ( magB0 > Bmax) {
+      cerr << "Eos_tabul::ener_ent_p : B > Bmax !" << endl ;
+      abort() ;
+    }
+
 
     double p_int, dpdb_int, dpdh_int ;
 
@@ -409,6 +419,11 @@ double Eos_mag::press_ent_p(double ent, const Param* par ) const {
 	magB0 = par->get_double_mod() ;
       }
     
+  if ( magB0 > Bmax) {
+      cerr << "Eos_tabul::press_ent_p : B > Bmax !" << endl ;
+      abort() ;
+    }
+
     double p_int, dpdb_int, dpdh_int ;
 
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
@@ -426,6 +441,8 @@ double Eos_mag::press_ent_p(double ent, const Param* par ) const {
 
 double Eos_mag::mag_ent_p(double ent, const Param* par) const {
 
+  using namespace Unites_mag ;
+
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
 
@@ -442,18 +459,22 @@ double Eos_mag::mag_ent_p(double ent, const Param* par) const {
 	magB0 = par->get_double_mod() ;
       }
     
+    if ( magB0 > Bmax) {
+      cerr << "Eos_tabul::mag_ent_p : B > Bmax !" << endl ;
+      abort() ;
+    }
+
     double p_int, dpdb_int, dpdh_int ;
 
     interpol_herm_2d(*Bfield, *logh, *logp, *dlpsdB, *dlpsdlh, *d2lp, magB0, ent, 
 		     p_int, dpdb_int, dpdh_int) ; 
     
     double magnetization = dpdb_int ;
-//    double magnetization = dpdb_int*c2*rhonuc_si/(mag_PG*1.d11) ;
 
-    if (magB0 == 0.) //## Test to be improved...
+    if (magB0 == 0.) 
       return 0 ;
     else 
-      return  magnetization / magB0 ;
+      return  mu0*magnetization / magB0 ;
   }
   
   else 
