@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/05/14 15:19:05  j_novak
+ * The magnetisation field is now filtered.
+ *
  * Revision 1.8  2014/05/13 15:37:12  j_novak
  * Updated to new magnetic units.
  *
@@ -69,7 +72,6 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 #include "param.h"
 #include "proto_f77.h"
 #include "unites.h"
-#include "graphique.h"
 
   using namespace Unites_mag ;
 

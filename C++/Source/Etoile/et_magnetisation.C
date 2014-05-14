@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/05/14 15:19:05  j_novak
+ * The magnetisation field is now filtered.
+ *
  * Revision 1.5  2014/04/29 13:46:07  j_novak
  * Addition of switches 'use_B_in_eos' and 'include_magnetisation' to control the model.
  *
@@ -215,7 +218,7 @@ void Et_magnetisation::equation_of_state() {
     }
     
     if (nzet > 3) {
-      cout << "Et_magnetisation::equation_of_state: "
+      cerr << "Et_magnetisation::equation_of_state: "
 	   << "not ready yet for nzet > 3 !" << endl ;    	
     }
     
@@ -285,8 +288,10 @@ void Et_magnetisation::equation_of_state() {
   press.set_std_base() ; 
   xmag.std_spectral_base() ;
 
-  cout << xmag.get_spectral_base() ;
-  
+  Scalar tmp_scal(xmag) ;
+  tmp_scal.exponential_filter_r(0, 0, 1) ;
+  xmag = tmp_scal ;
+
   // The derived quantities are obsolete
   del_deriv() ; 
     
@@ -398,17 +403,17 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
 
   // Protections:
   if (mer_change_omega < mer_rot) {
-    cout << "Et_magnetisation::equilibrium_mag: mer_change_omega < mer_rot !" 
+    cerr << "Et_magnetisation::equilibrium_mag: mer_change_omega < mer_rot !" 
 	 << endl ;
-    cout << " mer_change_omega = " << mer_change_omega << endl ; 
-    cout << " mer_rot = " << mer_rot << endl ; 
+    cerr << " mer_change_omega = " << mer_change_omega << endl ; 
+    cerr << " mer_rot = " << mer_rot << endl ; 
     abort() ; 
   }
   if (mer_fix_omega < mer_change_omega) {
-    cout << "Et_magnetisation::equilibrium_mag: mer_fix_omega < mer_change_omega !" 
+    cerr << "Et_magnetisation::equilibrium_mag: mer_fix_omega < mer_change_omega !" 
 	 << endl ;
-    cout << " mer_fix_omega = " << mer_fix_omega << endl ; 
-    cout << " mer_change_omega = " << mer_change_omega << endl ; 
+    cerr << " mer_fix_omega = " << mer_fix_omega << endl ; 
+    cerr << " mer_change_omega = " << mer_change_omega << endl ; 
     abort() ; 
   }
 
