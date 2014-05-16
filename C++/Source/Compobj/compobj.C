@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/05/16 11:55:18  o_straub
+ * fixed: GYOTO output from compobj & compobj_QI
+ *
  * Revision 1.7  2014/04/11 17:22:07  o_straub
  * Risco and Rms output for GYOTO
  *
@@ -204,10 +207,7 @@ void Compobj::gyoto_data(const char* file_name) const {
     
     FILE* file_out = fopen(file_name, "w") ;
     double total_time = 0. ; // for compatibility
-    double a_ov_m ;
-    double r_isco ;
-    double r_mb;
-
+    
     fwrite_be(&total_time, sizeof(double), 1, file_out) ;
     mp.get_mg()->sauve(file_out) ;
     mp.sauve(file_out) ;
@@ -216,10 +216,11 @@ void Compobj::gyoto_data(const char* file_name) const {
     gamma.cov().sauve(file_out) ;
     gamma.con().sauve(file_out) ;
     kk.sauve(file_out) ;
-    fwrite_be(&a_ov_m, sizeof(double), 1, file_out) ;
-    fwrite_be(&r_isco, sizeof(double), 1, file_out) ;
-    fwrite_be(&r_mb, sizeof(double), 1, file_out) ;
+    
     fclose(file_out) ;    
+
+    
+    cout << "WRITING TO GYOTO FILE - OK: " << endl ; 
 }
 
 // Printing

@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/05/16 11:55:18  o_straub
+ * fixed: GYOTO output from compobj & compobj_QI
+ *
  * Revision 1.7  2013/07/25 19:44:11  o_straub
  * calculation of the marginally bound radius
  *
@@ -61,9 +64,14 @@ char compobj_QI_C[] = "$Header$" ;
 // C headers
 #include <cassert>
 #include <cmath>
+#include <cstdio>
 
 // Lorene headers
 #include "compobj.h"
+#include "nbr_spx.h"
+#include "utilitaires.h"
+
+
 
                    //--------------//
                    // Constructors //
@@ -198,6 +206,7 @@ void Compobj_QI::operator=(const Compobj_QI& co) {
 			    //	  Outputs   //
 			    //--------------//
 
+
 // Save in a file
 // --------------
 void Compobj_QI::sauve(FILE* fich) const {
@@ -209,6 +218,41 @@ void Compobj_QI::sauve(FILE* fich) const {
 	nn.sauve(fich) ;     
 
 }
+
+            
+// Save in a file for GYOTO input  
+// -------------------------------
+
+// Redefinition of Compobj::gyoto_data
+
+void Compobj_QI::gyoto_data(const char* file_name) const {
+    
+    FILE* file_out = fopen(file_name, "w") ;
+    double total_time = 0. ; // for compatibility
+    double RISCO=r_isco(0) ;
+    double RMB=r_mb(0);
+
+    fwrite_be(&total_time, sizeof(double), 1, file_out) ;
+    mp.get_mg()->sauve(file_out) ;
+    mp.sauve(file_out) ;
+    nn.sauve(file_out) ;
+    beta.sauve(file_out) ;
+    gamma.cov().sauve(file_out) ;
+    gamma.con().sauve(file_out) ;
+    kk.sauve(file_out) ;
+    fwrite_be(&RISCO, sizeof(double), 1, file_out) ;
+    fwrite_be(&RMB, sizeof(double), 1, file_out) ;
+    fclose(file_out) ;    
+
+    cout << "WRITING RISCO TO GYOTO FILE : " << RISCO << endl ; 
+    cout << "WRITING RMB TO GYOTO FILE   : " << RMB << endl ; 
+    cout << "WRITING TO GYOTO FILE - end of part " << endl ; 
+}
+
+
+
+
+
 
 // Printing
 // --------
@@ -227,9 +271,9 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
     ost << "   A^2 K_{ij} K^{ij}        = " << ak_car.val_grid_point(0,0,0,0) << endl << endl ; 
 
     
-    double risco = r_isco(0, &ost) ; 
+    double RISCO = r_isco(0, &ost) ; 
     ost << "Coordinate r at the innermost stable circular orbit (ISCO) : " << 
-        risco  << endl ;  
+        RISCO  << endl ;  
      // ost << "Circumferential radius of the innermost stable circular orbit (ISCO) : " << 
      // bbb.val_point(risco, M_PI/2, 0)*risco << endl ;  
      //	ost << "Orbital frequency at the ISCO : " << f_isco(0) << endl ; 
@@ -237,8 +281,8 @@ ostream& Compobj_QI::operator>>(ostream& ost) const {
      // ost << "Specific angular momentum of a particle on the ISCO : " << lspec_isco(0) << endl ;	
 	
 
-    double rmb = r_mb(0, &ost) ; 
-    ost << "Coordinate r at the marginally bound circular orbit (R_mb) : " << rmb  << endl ; 
+    double RMB = r_mb(0, &ost) ; 
+    ost << "Coordinate r at the marginally bound circular orbit (R_mb) : " << RMB  << endl ; 
 
 
   //  ost << "A^2 : " << a_car << endl ; 

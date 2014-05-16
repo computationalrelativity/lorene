@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/05/16 11:55:19  o_straub
+ * fixed: GYOTO output from compobj & compobj_QI
+ *
  * Revision 1.16  2014/01/31 15:34:54  e_gourgoulhon
  * Added members to class HiggsMonopole
  *
@@ -214,6 +217,9 @@ class Compobj {
     /// Returns the extrinsic curvature tensor \f$K_{ij}\f$ 
     const Sym_tensor& get_kk() const {return kk;} ;
 
+
+
+
     // Outputs
     // -------
     public:
@@ -221,6 +227,8 @@ class Compobj {
     
     void gyoto_data(const char* file_name) const ; ///< Save in a file for GYOTO
     
+    
+
 	/// Display
 	friend ostream& operator<<(ostream& , const Compobj& ) ;	
 
@@ -385,11 +393,19 @@ class Compobj_QI : public Compobj {
 	 */
 	 const Scalar& get_ak_car() const {return ak_car;} ; 
 
+
+
+
+
+
     // Outputs
     // -------
     public:
 	virtual void sauve(FILE *) const ;	    ///< Save in a file
     
+    void gyoto_data(const char* file_name) const ; ///< Save in a file for GYOTO
+ 	
+ 	
     protected:
 	/// Operator >> (virtual function called by the operator <<). 
 	virtual ostream& operator>>(ostream& ) const ;    
@@ -420,8 +436,8 @@ class Compobj_QI : public Compobj {
 	/// Angular momentum of a particle at the ISCO
  	virtual double lspec_isco(int lmin) const ;	
 
-        /// Coordinate r of the marginally bound circular orbit (R_mb).
-        virtual double r_mb(int lmin, ostream* ost = 0x0) const ;
+    /// Coordinate r of the marginally bound circular orbit (R_mb).
+    virtual double r_mb(int lmin, ostream* ost = 0x0) const ;
 
 
     // Computational routines
