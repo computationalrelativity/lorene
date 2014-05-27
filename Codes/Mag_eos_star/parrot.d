@@ -4,6 +4,7 @@
 0.     freq_si : rotation frequency [Hz]
 1.    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
 1.60    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
+1.e31   Requested magnetic moment [A.m^2] (effective only if mer_mass > mer_magmom)
 #################### MAGNETIC PARAMETERS ######################################
 0.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]
 5000.	Requested CFA (current function amplitude) [Lorene unit]
@@ -13,7 +14,7 @@
 10	mer_change_mag : step at which they are increased.
 20	mer_fix_mag : step at which they reach their final values.
 1	mag_in_eos : use magnetic field value in the EoS (0: false, 1: true)
-0	use_magnetisation : include magnetisation terms in equations (0: false,...)
+1	use_magnetisation : include magnetisation terms in equations (0: false,...)
 #################### COMPUTATIONAL PARAMETERS #################################
 300      mer_max : maximum number of steps
 1.e-8   precis : threshold on the enthalpy relative change for ending the computation
@@ -24,6 +25,7 @@
 1      delta_mer_kep : number of steps after mer_fix_omega to search for Kepler.
 0.2    thres_adapt : threhold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
 2000    mer_mass : step from which the baryon mass is forced to converge (if negative, variation of Omega)
+2000    mer_magmom : step from which the magnetic moment is forced to converge
 0.5     aexp_mass : exponent for the increase factor of the central enthalpy
 0.5     relax : relaxation factor in the main iteration 
 16       mermax_poisson : maximum number of steps in Map_et::poisson

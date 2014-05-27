@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/05/27 12:41:25  j_novak
+ * Added the possibility to converge to a given mgnetic moment.
+ *
  * Revision 1.2  2014/04/29 13:46:54  j_novak
  * Addition of swicthes 'use_B_in_eos' and 'include_magnetisation' to control the model.
  *
@@ -76,13 +79,14 @@ int main(){
     char blabla[120] ;
 
     int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
-	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np ; 
+      delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
+      nt, np ; 
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
-	   thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
+      thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
     
-    double Q0, a_j0, Q_ini, a_j_ini ;
-    int mer_mag, mer_change_mag, mer_fix_mag, mag_in_eos, use_magnetisation ;
+    double Q0, a_j0, Q_ini, a_j_ini, magmom_wanted ;
+    int mer_mag, mer_change_mag, mer_fix_mag, mag_in_eos, mer_magmom, 
+      use_magnetisation ;
 
     ifstream fich("parrot.d") ;
     fich.getline(blabla, 120) ;
@@ -93,6 +97,7 @@ int main(){
     fich >> fact_omega ; fich.getline(blabla, 120) ;
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
     mbar_wanted *= msol ; 
+    fich >> magmom_wanted ; fich.getline(blabla, 120) ;
     fich.getline(blabla, 120) ;
     fich >> Q0 ; fich.getline(blabla,120) ;
     fich >> a_j0 ; fich.getline(blabla,120) ;
@@ -113,6 +118,7 @@ int main(){
     fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
     fich >> thres_adapt ; fich.getline(blabla, 120) ;
     fich >> mer_mass ; fich.getline(blabla, 120) ;
+    fich >> mer_magmom ; fich.getline(blabla, 120) ;
     fich >> aexp_mass ; fich.getline(blabla, 120) ;
     fich >> relax ; fich.getline(blabla, 120) ;
     fich >> mermax_poisson ; fich.getline(blabla, 120) ;
@@ -229,6 +235,10 @@ int main(){
 	cout << "Required Baryon mass [M_sol] : " 
 	     << mbar_wanted / msol << endl ; 
     }
+    if ( mer_magmom < mer_max ) {
+	cout << "Required magnetic moment [SI] : " 
+	     << magmom_wanted << endl ; 
+    }
     cout << endl 
 	 << "==========================================================" << endl
 	 << "               Computational parameters                   " << endl
@@ -247,7 +257,9 @@ int main(){
 	 << relax_poisson << endl ; 
     cout << "Step from which the baryon mass is forced to converge : " 
 	 << mer_mass << endl ; 
-    cout << "Exponent for the increase factor of the central enthalpy : " 
+    cout << "Step from which the magnetic moment is forced to converge : " 
+	 << mer_magmom << endl ; 
+    cout << "Exponent for the increase factor of the central enthalpy/CFA : " 
 	 << aexp_mass << endl ; 
     cout << 
     "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping"
@@ -313,7 +325,7 @@ int main(){
     double omega = 2 * M_PI * freq_si / f_unit ; 
     double omega_ini = 2 * M_PI * freq_ini_si / f_unit ; 
 
-    Itbl icontrol(10) ;
+    Itbl icontrol(11) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
@@ -325,6 +337,7 @@ int main(){
     icontrol.set(7) = mer_mag ;
     icontrol.set(8) = mer_change_mag ;
     icontrol.set(9)= mer_fix_mag ;
+    icontrol.set(10) = mer_magmom ;
     
     Tbl control(8) ; 
     control.set_etat_qcq() ; 
@@ -340,8 +353,8 @@ int main(){
     Tbl diff(1) ;     
     
     star.equilibrium_mag(ent_c, omega, fact_omega, nzadapt, ent_limit, 
-			 icontrol, control, mbar_wanted, aexp_mass, diff, 
-			 Q0, a_j0, &f_j, &M_j) ;
+			 icontrol, control, mbar_wanted, magmom_wanted,
+			 aexp_mass, diff, Q0, a_j0, &f_j, &M_j) ;
 
      
     cout << endl << "Final star : " 
@@ -367,10 +380,15 @@ int main(){
     Bmag.set(2).dec_dzpuis(2) ;
     Bmag.set(3) = 0 ;
     Tbl maxB = 0.5*(max(abs(Bmag(1))) + max(abs(Bmag(2)))) ;
+    Scalar divB = Bmag.divergence(gam) ;
     cout << maxB ;
     cout << "div(B) / max(B) in each domain :  " 
-	 << max(abs(Bmag.divergence(gam))) / maxB ; 
-    
+	 << max(abs(divB)) / maxB ; 
+    Scalar afi = star.get_Aphi() ;
+    Scalar ppp = star.get_press()() ;
+    des_profile(divB, 0, 2, 1, 1) ;
+    des_coef_xi(ppp.get_spectral_va(), 0, 0, 0) ;
+    des_coef_xi(afi.get_spectral_va(), 0, 0, 0) ;
 
     // Saveguard of the whole configuration
     // ------------------------------------
