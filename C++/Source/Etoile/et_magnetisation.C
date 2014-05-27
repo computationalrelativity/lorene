@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/05/27 12:32:28  j_novak
+ * Added possibility to converge to a given magnetic moment.
+ *
  * Revision 1.6  2014/05/14 15:19:05  j_novak
  * The magnetisation field is now filtered.
  *
@@ -290,6 +293,7 @@ void Et_magnetisation::equation_of_state() {
 
   Scalar tmp_scal(xmag) ;
   tmp_scal.exponential_filter_r(0, 0, 1) ;
+  tmp_scal.exponential_filter_ylm(0, 0, 1,-12.) ;
   xmag = tmp_scal ;
 
   // The derived quantities are obsolete
@@ -353,8 +357,9 @@ ostream& Et_magnetisation::operator>>(ostream& ost) const {
 
 void Et_magnetisation::equilibrium_mag(double ent_c, double omega0, 
      double fact_omega, int nzadapt, const Tbl& ent_limit, 
-     const Itbl& icontrol, const Tbl& control, double mbar_wanted, 
-     double aexp_mass, Tbl& diff, const double Q0, const double a_j0, 
+     const Itbl& icontrol, const Tbl& control, double mbar_wanted,
+				       double magmom_wanted,
+     double aexp_mass, Tbl& diff, double Q0, double a_j0, 
      Cmp (*f_j)(const Cmp&, const double), 
      Cmp (*M_j)(const Cmp& x, const double)) {
 			     
@@ -400,6 +405,7 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
   int mer_mag = icontrol(7) ;
   int mer_change_mag = icontrol(8) ;
   int mer_fix_mag = icontrol(9) ;
+  int mer_magmom = icontrol(10) ;
 
   // Protections:
   if (mer_change_omega < mer_rot) {
@@ -1115,6 +1121,34 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
       else {
 	if (mer%4 == 0) omega *= fact ; 
       }
+    }
+        
+    //---------------------------------------------
+    // Convergence towards a given magnetic moment 
+    //---------------------------------------------
+    
+    if (mer > mer_magmom) {
+      
+      // if(mer > mer_mass) {
+      // 	cerr << "et_magnetisation::equilibrium()" << endl ;
+      // 	cerr << "Impossible to converge to a given baryon mass" << endl ;
+      // 	cerr << "and a given magnetic moment!" << endl ;
+      // 	cerr << "Aborting..." << endl ;
+      // 	abort() ;
+      // }
+      double xx = MagMom() / magmom_wanted - 1. ;
+	cout << "Discrep. mag. moment <-> wanted mag. moment : " << xx 
+	     << endl ; 
+
+      double xprog = ( mer > 2*mer_magmom) ? 1. : 
+	double(mer-mer_magmom)/double(mer_magmom) ; 
+      xx *= xprog ; 
+      double ax = .5 * ( 2. + xx ) / (1. + xx ) ; 
+      double fact = pow(ax, aexp_mass) ; 
+      cout << "  xprog, xx, ax, fact : " << xprog << "  " <<
+	xx << "  " << ax << "  " << fact << endl ; 
+      
+      a_j *= fact ; 
     }
         
     //------------------------------------------------------------

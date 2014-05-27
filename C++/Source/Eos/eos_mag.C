@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/05/27 12:32:28  j_novak
+ * Added possibility to converge to a given magnetic moment.
+ *
  * Revision 1.10  2014/05/13 15:37:12  j_novak
  * Updated to new magnetic units.
  *
@@ -292,7 +295,7 @@ void Eos_mag::read_table() {
       Bfield->set(j, i) = magB_PG / B_unit ; // in Lorene units
       dlpsdlh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
       dlpsdB->set(j, i) = magM_PG / M_unit ; 
-      d2lp->set(j, i) = mu_MeV*chi_PGpMeV / (3*M_unit) ;//## '3' has to be removed
+      d2lp->set(j, i) = mu_MeV*chi_PGpMeV / (M_unit) ;
 
     }
   }

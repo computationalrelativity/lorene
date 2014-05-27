@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/05/27 12:32:28  j_novak
+ * Added possibility to converge to a given magnetic moment.
+ *
  * Revision 1.22  2014/05/13 10:06:12  j_novak
  * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
  *
@@ -482,7 +485,7 @@ class Et_rot_mag : public Etoile_rot {
    *                      coupling function (see Bocquet et al. 1995)
    *                      used for the first integral of stationary motion.
    */
-  virtual void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
+  void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
 		       int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
 		       const Tbl& control, double mbar_wanted, double aexp_mass, 
 		       Tbl& diff, const double Q0, const double a_j0, 
@@ -726,7 +729,7 @@ class Et_magnetisation : public Et_rot_mag {
    *				defines the enthalpy at the outer boundary
    *				of each domain
    *  @param icontrol [input] Set of integer parameters (stored as a
-   *			    1-D \c Itbl  of size 8) to control the 
+   *			    1-D \c Itbl  of size 11) to control the 
    *			    iteration: 
    *	\li \c icontrol(0) = mer_max  : maximum number of steps 
    *	\li \c icontrol(1) = mer_rot  : step at which the rotation is 
@@ -743,25 +746,24 @@ class Et_magnetisation : public Et_rot_mag {
    *			    velocity (\c mer_mass < 0 ) 
    *	\li \c icontrol(5) = mermax_poisson  : maximum number of steps in 
    *				\c Map_et::poisson  
-   *	\li \c icontrol(6) = mer_triax  : step at which the 3-D 
-   *				perturbation is switched on 
-   *	\li \c icontrol(7) = delta_mer_kep  : number of steps
+   *	\li \c icontrol(6) = delta_mer_kep  : number of steps
    *			    after \c mer_fix_omega  when \c omega 
    *			    starts to be increased by \c fact_omega 
    *			    to search for the Keplerian velocity
-   *    \li \c icontrol(8) = mer_mag  : step at which the electromagnetic
+   *    \li \c icontrol(7) = mer_mag  : step at which the electromagnetic
    *                        part is switched on 
-   *    \li \c icontrol(9) = mer_change_mag  : step at which the amplitude
+   *    \li \c icontrol(8) = mer_change_mag  : step at which the amplitude
    *                        of the current/charge coupling function is changed
    *                        to reach a_j0 or Q
-   *	\li \c icontrol(10) = mer_fix_mag  :  step at which the final
+   *	\li \c icontrol(9) = mer_fix_mag  :  step at which the final
    *			    current/charge amplitude a_j0 or Q must have 
    *                        been reached  
-   *    \li \c icontrol(11) = conduc  : flag 0 -> isolator material, 
-   *                        1 -> perfect conductor 
+   *	\li \c icontrol(10) = mer_magmom  : step from which the 
+   *			    magnetic moment is forced to converge, 
+   *			    by varying the current function amplitude.
    * 	 
    *  @param control [input] Set of parameters (stored as a 
-   *			    1-D \c Tbl  of size 7) to control the 
+   *			    1-D \c Tbl  of size 8) to control the 
    *			    iteration: 
    *	\li \c control(0) = precis  : threshold on the enthalpy relative 
    *				change for ending the computation 
@@ -774,13 +776,11 @@ class Et_magnetisation : public Et_rot_mag {
    *				   \c Map_et::poisson  
    *	\li \c control(4) = thres_adapt  :  threshold on dH/dr for 
    *			    freezing the adaptation of the mapping 
-   *	\li \c control(5) = ampli_triax  :  relative amplitude of 
-   *			    the 3-D perturbation 
-   *	\li \c control(6) = precis_adapt  : precision for 
+   *	\li \c control(5) = precis_adapt  : precision for 
    *			    \c Map_et::adapt 
-   *	\li \c control(7) = Q_ini  : initial charge (total for the perfect 
+   *	\li \c control(6) = Q_ini  : initial charge (total for the perfect 
    *                      conductor, per baryon for an isolator)
-   *	\li \c control(8) = a_j_ini  : initial amplitude for the coupling
+   *	\li \c control(7) = a_j_ini  : initial amplitude for the coupling
    *                      function
    * 
    *
@@ -805,10 +805,11 @@ class Et_magnetisation : public Et_rot_mag {
    *                      coupling function (see Bocquet et al. 1995)
    *                      used for the first integral of stationary motion.
    */
-  virtual void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
+  void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
 		       int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
-		       const Tbl& control, double mbar_wanted, double aexp_mass, 
-		       Tbl& diff, const double Q0, const double a_j0, 
+		       const Tbl& control, double mbar_wanted, 
+		       double magmom_wanted, double aexp_mass, 
+		       Tbl& diff, double Q0, double a_j0, 
 		       Cmp (*f_j)(const Cmp& x, const double), 
 		       Cmp (*M_j)(const Cmp& x,const double));
 
