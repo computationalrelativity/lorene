@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/05/28 07:46:06  j_novak
+ * Minor modifications.
+ *
  * Revision 1.7  2014/05/27 12:32:28  j_novak
  * Added possibility to converge to a given magnetic moment.
  *
@@ -293,7 +296,6 @@ void Et_magnetisation::equation_of_state() {
 
   Scalar tmp_scal(xmag) ;
   tmp_scal.exponential_filter_r(0, 0, 1) ;
-  tmp_scal.exponential_filter_ylm(0, 0, 1,-12.) ;
   xmag = tmp_scal ;
 
   // The derived quantities are obsolete
