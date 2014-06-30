@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/06/30 16:13:18  j_novak
+ * New methods for reading directly from CompOSE files.
+ *
  * Revision 1.12  2014/03/06 15:53:35  j_novak
  * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
  *
@@ -99,7 +102,7 @@ char eos_from_file_C[] = "$Header$" ;
  */
  
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Header Lorene
 #include "headcpp.h"
@@ -294,10 +297,9 @@ Eos* Eos::eos_from_file(FILE* fich) {
 Eos* Eos::eos_from_file(ifstream& fich) {
     
     int identificator ; 
-    char blabla[80] ;
 
     // EOS identificator : 
-    fich >> identificator ; fich.getline(blabla, 80) ;
+    fich >> identificator ; fich.ignore(1000, '\n') ;
 
     Eos* p_eos ; 
     
@@ -369,8 +371,24 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	}
 
 	case 17 : {
+	  int option ;
+	  fich >> option ;
+	  fich.ignore(1000, '\n') ;
+
+#ifndef NDEBUG
+	  cout << "Reading tabulated EoS, with "
+	       << ( (option == 0) ? "standard LORENE " : "original CompOSE ")
+	       << "format." << endl ;
+#endif
+	  if (option == 1) {
+	    fich.ignore(1000, '\n') ;
+	    string files_path ;
+	    fich >> files_path ;	    
+	    p_eos = new Eos_CompOSE(files_path) ;
+	  }
+	  else 
 	    p_eos = new Eos_CompOSE(fich) ;
-	    break ;
+	  break ;
 	}
 
 	case 18 : {

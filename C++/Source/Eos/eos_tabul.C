@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/06/30 16:13:18  j_novak
+ * New methods for reading directly from CompOSE files.
+ *
  * Revision 1.12  2014/03/06 15:53:35  j_novak
  * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
  *
@@ -174,17 +177,23 @@ Eos_tabul::Eos_tabul(ifstream& fich) : Eos(fich) {
 
 }
 
+// Standard constructor with a name
+// ---------------------------------
+Eos_tabul::Eos_tabul(const char* name_i) : Eos(name_i), logh(0x0), logp(0x0),
+					   dlpsdlh(0x0), lognb(0x0), dlpsdlnb(0x0)
+{}
+
 
 			//--------------//
 			//  Destructor  //
 			//--------------//
 
 Eos_tabul::~Eos_tabul(){
-	delete logh ;
-	delete logp ;
-	delete dlpsdlh ;
-        delete lognb ;
-        delete dlpsdlnb ;
+  if (logh != 0x0) delete logh ;
+  if (logp != 0x0) delete logp ;
+  if (dlpsdlh != 0x0) delete dlpsdlh ;
+  if (lognb != 0x0) delete lognb ;
+  if (dlpsdlnb != 0x0) delete dlpsdlnb ;
 }
 
 			//------------//

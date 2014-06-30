@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/06/30 16:13:18  j_novak
+ * New methods for reading directly from CompOSE files.
+ *
  * Revision 1.11  2014/03/06 15:53:34  j_novak
  * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
  *
@@ -190,6 +193,8 @@ class Eos_tabul : public Eos {
 	Eos_tabul(const char* name_i, const char* file_name) ;
 
 	Eos_tabul(const Eos_tabul& ) ;	///< Copy constructor	
+
+	Eos_tabul(const char* name_i) ; ///< Standard constructor with a name
 	
     protected:
 	
@@ -911,8 +916,14 @@ class Eos_GlendNH3 : public Eos_tabul {
  * constructor. When built with \c Eos::eos_from_file(), the file must 
  * be composed of the following lines:
  * \verbatim 17	Type of the EOS 
+1	0: standard format	1: CompOSE format 
 Tabulated EoS
-/full/path/to/the/eos/table/name_of_the_table.d \endverbatim
+/full/path/to/the/eos/table/name_of_the_table \endverbatim
+ * On the second line '0' means that the table has the standard LORENE format
+ * for tabulated EoSs. '1' means that the files from the CompOSE database
+ * are used and that the 'name_of_the_table' should be withou suffix:
+ * e.g. \c great_eos would stand for files \c great_eos.nb and 
+ * \c great_eos.thermo (see CompOSE documentation).
  */
 class Eos_CompOSE : public Eos_tabul {
 
@@ -943,6 +954,16 @@ class Eos_CompOSE : public Eos_tabul {
 	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_CompOSE(ifstream& ) ;
+
+	/** Constructor from CompOSE data.
+	 *
+	 * @param files_path Absolute name (including path), but without
+	 *                   extensions of teh CompOSE data, e.g.
+	 *                   \c /home/foo/eos/my_eos standing for
+	 *                   files \c my_eos.nb and \c my_eos.thermo
+	 *                   as dowloaded from the CompOSE server.
+	 */
+	Eos_CompOSE(const string& files_path) ;
 
     private:	
 	/** Copy constructor (private to make \c  Eos_CompOSE 
