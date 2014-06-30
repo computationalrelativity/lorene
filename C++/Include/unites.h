@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/06/30 14:34:57  j_novak
+ * Update of the values of some constants (G, M_sol and MeV).
+ *
  * Revision 1.5  2014/05/13 10:06:12  j_novak
  * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
  *
@@ -54,7 +57,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 
                   //--------------------------//
                   //  Standard LORENE units   //
@@ -65,15 +68,15 @@
  *
  * These are the units used in LORENE for space, time and mass. They
  * are mainly designed to study compact objects like neutron stars 
- * and black holes. \ingroup (unites)
+ * and black holes.\ingroup (unites)
  */
 namespace Unites {
-const double g_si = 6.6726E-11 ;	 ///< Newton gravitational constant [SI]
+const double g_si = 6.6738E-11 ;	 ///< Newton gravitational constant [SI]
 const double c_si = 2.99792458E+8 ;	 ///< Velocity of light [m/s]
-const double rhonuc_si = 1.66E+17 ;	 ///< Nuclear density [kg/m3]
+const double rhonuc_si = 1.66E+17 ;	 ///< Nuclear density [kg/m3] (arbitrary)
 const double km_si = 1.E+3 ;	 ///< One kilometer [m]
-const double msol_si = 1.989E+30 ;	 ///< Solar mass [kg]
-const double mev_si = 1.6021892E-13 ;   ///< One MeV [J]
+const double msol_si = 1.9885E+30 ;	 ///< Solar mass [kg]
+const double mev_si = 1.602176565E-13 ;   ///< One MeV [J]
 
 const double r_unit = 1.e4 ;  ///< Lorene's unit of length = 10 km
 const double v_unit = c_si ; ///< Lorene's unit of velocity = c 
@@ -88,7 +91,7 @@ const double qpig = 4 * M_PI * ggrav ; ///< 4 Pi G in Lorene's units
 const double msol = msol_si/m_unit ; ///< Solar mass in Lorene's units
 const double km = km_si/r_unit ;	///< One kilometer in Lorene's units
 /// 1 MeV/fm3 in Lorene's units
-const double mevpfm3 = mev_si/( 1.66E-27 * v_unit *v_unit) *10 ;  
+const double mevpfm3 = mev_si/( rho_unit * v_unit *v_unit) *1.e45 ;  
 
 }
                   //-----------------------------//
