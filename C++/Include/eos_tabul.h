@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/07/01 09:26:20  j_novak
+ * Improvement of comments
+ *
  * Revision 1.12  2014/06/30 16:13:18  j_novak
  * New methods for reading directly from CompOSE files.
  *
@@ -113,7 +116,6 @@
 
 // Lorene classes
 class Tbl ;
-class Cmp ;
 
 		
 		    //------------------------------------//
@@ -910,7 +912,8 @@ class Eos_GlendNH3 : public Eos_tabul {
 
 
 /**
- * Equation of state for the CompOSE database. 
+ * Equation of state for the <a href="http://compose.obspm.fr">CompOSE</a> 
+ * database. 
  *
  * General tabulated EOS, reading a table passed as an argument to the 
  * constructor. When built with \c Eos::eos_from_file(), the file must 
@@ -921,7 +924,7 @@ Tabulated EoS
 /full/path/to/the/eos/table/name_of_the_table \endverbatim
  * On the second line '0' means that the table has the standard LORENE format
  * for tabulated EoSs. '1' means that the files from the CompOSE database
- * are used and that the 'name_of_the_table' should be withou suffix:
+ * are used and that the 'name_of_the_table' should be without suffix:
  * e.g. \c great_eos would stand for files \c great_eos.nb and 
  * \c great_eos.thermo (see CompOSE documentation).
  */
@@ -931,76 +934,90 @@ class Eos_CompOSE : public Eos_tabul {
     // -------------------------
     public:
 
-	/** Standard constructor.
-	 *
-	 * @param file_name Absolute name (including path) containing 
-	 *                  the EOS file
-	 */
-	Eos_CompOSE(const char* file_name) ;	
+  /** Constructor from CompOSE data.
+   *
+   * @param files_path Absolute name (including path), but without
+   *                   extensions of the CompOSE data, e.g.
+   *                   \c /home/foo/eos/my_eos standing for
+   *                   files \c my_eos.nb and \c my_eos.thermo
+   *                   as dowloaded from the <a href="http://compose.obspm.fr">
+   *                   CompOSE server</a>.
+   */
+  Eos_CompOSE(const string& files_path) ;
+  
+  /** Standard constructor.
+   *
+   * @param file_name Absolute name (including path) containing 
+   *                  the EOS file. This file should contain a header 
+   *                  with the following first lines:
+   * \verbatim# Comments ...
+# Name of the authors / reference
+# Comments ...
+# Comments ...
+# Comments
+XXX  <-- Number of lines
+#
+#  index      n_B [fm^{-3}]  rho [g/cm^3]   p [dyn/cm^2]
+# \endverbatim
+   * where 'XXX' is the number of following lines of the EoS, each line containing 
+   * an index (integer), baryon density, energy total density and pressure 
+   * in the units given above.
+   */
+  Eos_CompOSE(const char* file_name) ;	
 
 	
-    protected:
-	/** Constructor from a binary file (created by the function
-	 *  \c sauve(FILE*) ).
-	 *  This constructor is protected because any EOS construction
-	 *  from a binary file must be done via the function
-	 * \c Eos::eos_from_file(FILE*) .
-	 */
-	Eos_CompOSE(FILE* ) ;
+ protected:
+  /** Constructor from a binary file (created by the function
+   *  \c sauve(FILE*) ).
+   *  This constructor is protected because any EOS construction
+   *  from a binary file must be done via the function
+   * \c Eos::eos_from_file(FILE*) .
+   */
+  Eos_CompOSE(FILE* ) ;
+  
+  /** Constructor from a formatted file.
+   *  This constructor is protected because any EOS construction
+   *  from a formatted file must be done via the function
+   *  \c  Eos::eos_from_file(ifstream\& ) .
+   */
+  Eos_CompOSE(ifstream& ) ;
+  
+ private:	
+  /** Copy constructor (private to make \c  Eos_CompOSE 
+   *  a non-copiable class)
+   */	
+  Eos_CompOSE(const Eos_CompOSE& ) ;	
+  
 	
-	/** Constructor from a formatted file.
-	 *  This constructor is protected because any EOS construction
-	 *  from a formatted file must be done via the function
-	 *  \c  Eos::eos_from_file(ifstream\& ) .
-	 */
-	Eos_CompOSE(ifstream& ) ;
-
-	/** Constructor from CompOSE data.
-	 *
-	 * @param files_path Absolute name (including path), but without
-	 *                   extensions of teh CompOSE data, e.g.
-	 *                   \c /home/foo/eos/my_eos standing for
-	 *                   files \c my_eos.nb and \c my_eos.thermo
-	 *                   as dowloaded from the CompOSE server.
-	 */
-	Eos_CompOSE(const string& files_path) ;
-
-    private:	
-	/** Copy constructor (private to make \c  Eos_CompOSE 
-	 *  a non-copiable class)
-	 */	
-	Eos_CompOSE(const Eos_CompOSE& ) ;	
-	
-	
-	/// The construction functions from a file
-	friend Eos* Eos::eos_from_file(FILE* ) ;
-	friend Eos* Eos::eos_from_file(ifstream& ) ;
-
-    public:
-	virtual ~Eos_CompOSE() ;			///< Destructor
-
-    // Miscellaneous
-    // -------------
-
-    public :
-	/// Comparison operator (egality)
-	virtual bool operator==(const Eos& ) const ;
-
-	/// Comparison operator (difference)
-	virtual bool operator!=(const Eos& ) const ;
-
-	/** Returns a number to identify the sub-classe of \c  Eos  the
-	 *  object belongs to.
-	 */
-	virtual int identify() const ;
-
-    // Outputs
-    // -------
-
-    protected:
-	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
-
-
+  /// The construction functions from a file
+  friend Eos* Eos::eos_from_file(FILE* ) ;
+  friend Eos* Eos::eos_from_file(ifstream& ) ;
+  
+ public:
+  virtual ~Eos_CompOSE() ;			///< Destructor
+  
+  // Miscellaneous
+  // -------------
+  
+ public :
+  /// Comparison operator (egality)
+  virtual bool operator==(const Eos& ) const ;
+  
+  /// Comparison operator (difference)
+  virtual bool operator!=(const Eos& ) const ;
+  
+  /** Returns a number to identify the sub-classe of \c  Eos  the
+   *  object belongs to.
+   */
+  virtual int identify() const ;
+  
+  // Outputs
+  // -------
+  
+ protected:
+  virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+  
+  
 };
 
 

@@ -32,6 +32,9 @@ char eos_compose_C[] = "$Header: " ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/07/01 09:26:21  j_novak
+ * Improvement of comments
+ *
  * Revision 1.2  2014/06/30 16:13:18  j_novak
  * New methods for reading directly from CompOSE files.
  *
@@ -67,20 +70,25 @@ Eos_CompOSE::Eos_CompOSE(const char* file_name)
 
 // Constructor from binary file
 // ----------------------------
-Eos_CompOSE::Eos_CompOSE(FILE* fich) : Eos_tabul(fich) {}
+Eos_CompOSE::Eos_CompOSE(FILE* fich) : Eos_tabul(fich) 
+{}
 
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_CompOSE::Eos_CompOSE(ifstream& fich) : Eos_tabul(fich) {}
+Eos_CompOSE::Eos_CompOSE(ifstream& fich) : Eos_tabul(fich) 
+{}
 
 
 // Constructor from CompOSE data files
 // ------------------------------------
-Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
+Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") 
+{
   
   using namespace Unites ;
     	
+  // Files containing data and a test
+  //---------------------------------
   tablename = files ;
   string file_nb = files + ".nb" ;
   string file_thermo = files + ".thermo" ;
@@ -93,6 +101,9 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
     cerr << "Aborting..." << endl ;
     abort() ;
   }
+
+  // obtaining the size of the tables for memory allocation
+  //-------------------------------------------------------
   int index1, index2 ;
   in_nb >> index1 >> index2 ;
   int nbp = index2 - index1 + 1 ;
@@ -114,6 +125,8 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
   lognb->set_etat_qcq() ;
   dlpsdlnb->set_etat_qcq() ;   	
 
+  // Variables and conversion
+  //-------------------------
   double nb_fm3, rho_cgs, p_cgs, p_over_nb_comp, eps_comp ;
   double dummy_x ;
   int dummy_n ;
@@ -138,6 +151,8 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
   double p_convert = mev_si * 1.e45 * 10. ; // Conversion from MeV/fm^3 to cgs
   double eps_convert = mev_si * 1.e42 / (c_si*c_si) ; //From meV/fm^3 to g/cm^3
 
+  // Main loop reading the table
+  //----------------------------
   for (int i=0; i<nbp; i++) {
     in_nb >> nb_fm3 ;
     in_p_rho >> dummy_n >> dummy_n >> dummy_n >> p_over_nb_comp ;
@@ -145,7 +160,6 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
     in_p_rho.ignore(1000, '\n') ;
     p_cgs = p_over_nb_comp * nb_fm3 * p_convert ;
     rho_cgs = ( eps_comp + 1. ) * m_neutron_MeV * nb_fm3 * eps_convert ;
-    //    cout << nb_fm3 << '\t' << p_cgs << '\t' << rho_cgs << endl ;
     
     if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
       cout << "Eos_CompOSE::Eos_CompOSE(string): " << endl ;
@@ -172,12 +186,14 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
     dlpsdlh->set(i) = h * (rho_cgs + psc2_cgs) / psc2_cgs ;
     lognb->set(i) = log10(nb_fm3) ;
     
-  }
+  } // End of reading the table
 
+
+  // Computation of dpdnb
+  //---------------------
   double p0, p1, p2, n0, n1, n2, dpdnb; 
 
   // special case: i=0
-  
   p0 = log(press[0]);
   p1 = log(press[1]);
   p2 = log(press[2]);
@@ -210,8 +226,7 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
 
   } 
      	
-  // special case: i=nbp-1
-  
+  // special case: i=nbp-1 
   p0 = log(press[nbp-3]);
   p1 = log(press[nbp-2]);
   p2 = log(press[nbp-1]);
@@ -228,7 +243,9 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") {
   
   hmin = pow( double(10), (*logh)(0) ) ;
   hmax = pow( double(10), (*logh)(nbp-1) ) ;
- 	  
+ 
+  // Cleaning
+  //---------
   delete [] press ; 
   delete [] nb ; 
   delete [] ro ; 
