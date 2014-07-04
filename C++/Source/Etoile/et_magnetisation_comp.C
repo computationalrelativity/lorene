@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/07/04 12:08:02  j_novak
+ * Added some filtering.
+ *
  * Revision 1.9  2014/05/14 15:19:05  j_novak
  * The magnetisation field is now filtered.
  *
@@ -140,17 +143,14 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
   Cmp gtphi( - b_car()*ttnphi) ;
   
-  // Calcul de j_t grace a Maxwell-Gauss
-//  Cmp tmp(((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
-//	  / gtt);
+  // Computation of j_t thanks to Maxwell-Gauss
   // modified to include Magnetisation
-// components of F
+  // components of F
   Cmp F01 = 1/(a_car()*nnn()*nnn())*A_0t.dsdr() 
         +   1/(a_car()*nnn()*nnn())*nphi()*A_phi.dsdr() ;
 
   Cmp F02 =  1/(a_car()*nnn()*nnn())*A_0t.srdsdt()
         +   1/(a_car()*nnn()*nnn())*nphi()*A_phi.srdsdt() ;
-//      F02.div_r();  absorbed into x.srdsdt
 
   Cmp tmp = A_phi.dsdr() / (bbb() * bbb() * a_car() );
   tmp.div_rsint() ;
@@ -158,7 +158,6 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   Cmp F31 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.dsdr()
     +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.dsdr()  
     +    tmp ;
-  //       +    1/(a_car()*a2brst*a2brst)*A_phi.dsdr() ;
 
   tmp = A_phi.srdsdt() / (bbb() * bbb() * a_car() );
   tmp.div_rsint() ;
@@ -166,8 +165,6 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   Cmp F32 = 1/(a_car()*nnn()*nnn())*nphi()*nphi()*A_phi.srdsdt()
     +    1/(a_car()*nnn()*nnn())*nphi()*A_0t.srdsdt()
     +    tmp ;
-//       +    1/(a_car()*a2brst*a2brst)*A_phi.srdsdt() ;
-//      F32.div_r();  absorbed into x.srdsdt
 
   Cmp x = get_magnetisation();
   Cmp one_minus_x = 1 - x ;
@@ -214,21 +211,26 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   d_grad4.div_rsint() ;
   source_tAphi.set(0)=0 ;
   source_tAphi.set(1)=0 ;
-//  source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
-//    + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
 
 // modified to include Magnetisation
   Cmp phifac = (F31-nphi()*F01)*x.dsdr()
              + (F32-nphi()*F02)*x.srdsdt() ;
   phifac.mult_rsint();
-
   source_tAphi.set(2)= -b_car()*a_car()/one_minus_x
       *(tjphi-tnphi()*j_t + phifac)
     + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)
     + d_grad4 ;
   
   source_tAphi.change_triad(mp.get_bvect_cart());
-  
+
+  // Filtering
+  for (int i=0; i<3; i++) {
+    Scalar tmp_filter = source_tAphi(i) ;
+    tmp_filter.exponential_filter_r(0, 2, 1) ;
+    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+    source_tAphi.set(i) = tmp_filter ;
+  }
+
   Tenseur WORK_VECT(mp, 1, CON, mp.get_bvect_cart()) ;
   WORK_VECT.set_etat_qcq() ;
   for (int i=0; i<3; i++) {
@@ -260,15 +262,16 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   Cmp A_phi_n(AVECT(2));
   A_phi_n.mult_rsint() ;
   
-  // Resolution de Maxwell-Ampere : A_1
-  
-//  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
-
-// modified to include Magnetisation
+  // Solution to Maxwell-Ampere : A_1
+  // modified to include Magnetisation
   Cmp source_A_1t(-a_car()*( j_t*gtt + j_phi*gtphi 
    + gtt*(F01*x.dsdr()+F02*x.srdsdt())
    + gtphi*(F31*x.dsdr()+F32*x.srdsdt()) )/one_minus_x 
    + BLAH);
+  Scalar tmp_filter = source_A_1t ;
+  tmp_filter.exponential_filter_r(0, 2, 1) ;
+  tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+  source_A_1t = tmp_filter ;
   
   Cmp A_1t(mp);
   A_1t = 0 ;
@@ -376,6 +379,11 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
   } 
   A_0t.std_base_scal() ;
   
+  tmp_filter = A_0t ;
+  tmp_filter.exponential_filter_r(0, 2, 1) ;
+  tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+  A_0t = tmp_filter ;
+
   Valeur** asymp = A_0t.asymptot(1) ;
   
   double Q_0 = -4*M_PI*(*asymp[1])(Z-1,0,0,0) ; // utilise A_0t plutot que E
@@ -419,6 +427,10 @@ void Et_magnetisation::magnet_comput(const int adapt_flag,
 				 A_0t(l,0,j,i) + C ) ;    
   }
   A_t_n.std_base_scal() ;
+  tmp_filter = A_t_n ;
+  tmp_filter.exponential_filter_r(0, 2, 1) ;
+  tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+  A_t_n = tmp_filter ;
   
   asymp = A_t_n.asymptot(1) ;
   
