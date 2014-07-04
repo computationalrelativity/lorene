@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/07/04 12:42:41  j_novak
+ * Parameter file for mass-shedding configurations.
+ *
  * Revision 1.11  2012/08/10 12:52:42  j_novak
  * Minor changes.
  *
@@ -512,8 +515,7 @@ int main(){
 
 	int nzdes = star.get_nzet() ; 
 
-	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf,
-		    2.) ; 
+	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf) ; 
 	des_coupe_y(star.get_Aphi(), 0., nzdes, "Magnetic field", &surf) ; 
 	des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
 
