@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/07/04 13:01:47  j_novak
+ * Parameter file for mass-shedding limit.
+ *
  * Revision 1.3  2014/05/27 12:41:25  j_novak
  * Added the possibility to converge to a given mgnetic moment.
  *
@@ -384,11 +387,6 @@ int main(){
     cout << maxB ;
     cout << "div(B) / max(B) in each domain :  " 
 	 << max(abs(divB)) / maxB ; 
-    Scalar afi = star.get_Aphi() ;
-    Scalar ppp = star.get_press()() ;
-    des_profile(divB, 0, 2, 1, 1) ;
-    des_coef_xi(ppp.get_spectral_va(), 0, 0, 0) ;
-    des_coef_xi(afi.get_spectral_va(), 0, 0, 0) ;
 
     // Saveguard of the whole configuration
     // ------------------------------------
