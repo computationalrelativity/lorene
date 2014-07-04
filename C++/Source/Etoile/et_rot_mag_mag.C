@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/07/04 12:15:12  j_novak
+ * Added filtering.
+ *
  * Revision 1.14  2005/06/03 15:31:56  j_novak
  * Better computation when more than one point in phi.
  *
@@ -82,14 +85,19 @@ char et_rot_mag_mag_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_mag.h"
 #include "utilitaires.h"
 #include "param.h"
 #include "proto_f77.h"
+#include "graphique.h"
+#include "tensor.h"
+
+// Local prototype (for drawings only)
+Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 // Algo du papier de 1995
 
@@ -123,7 +131,7 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     // Calcul de A_0t dans l'etoile (conducteur parfait)
 
     Cmp A_0t(- omega * A_phi) ;
-    A_0t.annule(nzet,Z-1) ;
+    //A_0t.annule(nzet,Z-1) ;
  
     Tenseur ATTENS(A_t) ; 
     Tenseur APTENS(A_phi) ;
@@ -200,6 +208,13 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
       + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
 
     source_tAphi.change_triad(mp.get_bvect_cart());
+    for (int i=0; i<3; i++) {
+      Scalar tmp_filter = source_tAphi(i) ;
+      tmp_filter.exponential_filter_r(0, 2, 1) ;
+      tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+      source_tAphi.set(i) = tmp_filter ;
+    }
+
 
     Tenseur WORK_VECT(mp, 1, CON, mp.get_bvect_cart()) ;
     WORK_VECT.set_etat_qcq() ;
@@ -234,12 +249,16 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     // Resolution de Maxwell-Ampere : A_1
 
     Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
+    Scalar tmp_filter = source_A_1t ;
+    tmp_filter.exponential_filter_r(0, 2, 1) ;
+    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+    source_A_1t = tmp_filter ;
 
     Cmp A_1t(mp);
     A_1t = 0 ;
     source_A_1t.poisson(par_poisson_At, A_1t) ;
 
-    int L = mp.get_mg()->get_nt(0);
+    int L = mp.get_mg()->get_nt(0) ;
 
     Tbl MAT(L,L) ;
     Tbl MAT_PHI(L,L);
@@ -254,8 +273,15 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 
     Cmp psi(mp);
     Cmp psi2(mp);
+    Cmp psi3(mp);
     psi.allocate_all() ;
     psi2.allocate_all() ;
+    psi3.allocate_all() ;
+
+    Tbl VEC3(L) ;
+    VEC3.set_etat_qcq() ;
+    for (int i=0; i<L; i++)
+      VEC3.set(i) = 1. / double(i+1) ;
 
     for (int p=0; p<mp.get_mg()->get_np(0); p++) {
 	// leg[k,l] : legendre_l(cos(theta_k))
@@ -306,11 +332,14 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 		for(int k=0;k<L;k++){
 		    psi.set(nz,p,k,i) = 0. ;
 		    psi2.set(nz,p,k,i) = 0. ;
+		    psi3.set(nz,p,k,i) = 0. ;
 		    for(int l=0;l<L;l++){
 			psi.set(nz,p,k,i) += VEC(l)*leg(k,2*l) / 
 			    pow((*mp.r.c)(nz,p,k,i),2*l+1);
 			psi2.set(nz,p,k,i) += VEC2(l)*leg(k,2*l)/
 			    pow((*mp.r.c)(nz, p, k,i),2*l+1);
+			psi3.set(nz,p,k,i) += VEC3(l)*leg(k,2*l)/
+			  (pow((*mp.r.c)(nz, p, k,i),2*l+1)) ;
 		    }
 		}
 	    }
@@ -318,7 +347,7 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     }
     psi.std_base_scal() ;
     psi2.std_base_scal() ;
-  
+
     assert(psi.get_dzpuis() == 0) ;
     int dif = A_1t.get_dzpuis() ;
     if (dif > 0) {
@@ -340,6 +369,11 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 				  A_1t(l,0,j,i) + psi(l,0,j,i) : tmp(l,0,j,i) ) ;
     } 
     A_0t.std_base_scal() ;
+
+    tmp_filter = A_0t ;
+    tmp_filter.exponential_filter_r(0, 2, 1) ;
+    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+    A_0t = tmp_filter ;
 
     Valeur** asymp = A_0t.asymptot(1) ;
 
@@ -378,13 +412,18 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
       A_t_n.allocate_all() ;
       for (int j=0; j<nt; j++) 
 	for (int l=0; l<Z; l++) 
-	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) {
 	    A_t_n.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
 				   A_0t(l,0,j,i) + C*psi2(l,0,j,i) : 
 				   A_0t(l,0,j,i) + C ) ;    
+	  }
     }
     A_t_n.std_base_scal() ;
-
+    tmp_filter = A_t_n ;
+    tmp_filter.exponential_filter_r(0, 2, 1) ;
+    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+    A_t_n = tmp_filter ;
+    
     asymp = A_t_n.asymptot(1) ;
 
     delete asymp[0] ;
@@ -394,12 +433,15 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
     A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
 
-
-  }else{
+  } // End of perfect conductor case
+  
+  else
+    {
     
     /***************
      * CAS ISOLANT *
-     ***************/									
+     ***************/								    
+
     // Calcul de j_t
     j_t = Q*nbar() + (ener()+press())*f_j(omega* A_phi - A_t,a_j) ;
     j_t.annule(nzet,Z-1) ;
