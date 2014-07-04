@@ -33,6 +33,9 @@ char et_rot_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/07/04 12:09:06  j_novak
+ * New argument in zerosec(): a boolean (false by default) for aborting if the number of iteration is greater than the max.
+ *
  * Revision 1.3  2011/01/07 18:20:08  m_bejger
  * Correcting for the case of stiff EOS, in which ISCO may be farther than the first domain outside the star - now searching all non-compactified domains
  *
@@ -175,36 +178,42 @@ double Etoile_rot::r_isco(ostream* ost) const {
     par_ms.add_int(l_ms) ;
     par_ms.add_cmp(orbit) ;
 
-  	if(find_status) { 
-  	
-     	double precis_ms = 1.e-13 ;    // precision in the determination of xi_ms
-     	int nitermax_ms = 200 ;	       // max number of iterations
-     	
-     	int niter ;
-     	xi_ms = zerosec(fonct_etoile_rot_isco, par_ms, xi_min, xi_max,
-     					precis_ms, nitermax_ms, niter) ;
+    if(find_status) { 
+      
+      double precis_ms = 1.e-13 ;    // precision in the determination of xi_ms
+      int nitermax_ms = 200 ;	       // max number of iterations
+      
+      int niter ;
+      xi_ms = zerosec(fonct_etoile_rot_isco, par_ms, xi_min, xi_max,
+		      precis_ms, nitermax_ms, niter, false) ;
+      
+      if (niter > nitermax_ms) {
+	cerr << "Etoile_rot::r_isco : " << endl ;
+	cerr << "result may be wrong ... " << endl ;
+	cerr << "Continuing." << endl ;
+      }
 
-  		if (ost != 0x0) {
-     		* ost <<
-     		"    number of iterations used in zerosec to locate the ISCO : "
-	  		 << niter << endl ;
-     		*ost << "    zero found at xi = " << xi_ms << endl ;
-        }
-
-      	r_ms = mp.val_r(l_ms, xi_ms, theta_ms, phi_ms) ;
-  	
-	} else { 
-		
-		// assuming the ISCO is under the surface of a star 
-		r_ms = ray_eq() ; 
-	    xi_ms = -1 ; 
-	    l_ms = nzet ; 
-	    
-	} 
-
- 	p_r_isco = new double ((bbb().va).val_point(l_ms, xi_ms, theta_ms, phi_ms)
-			 * r_ms ) ;
-
+      if (ost != 0x0) {
+	* ost <<
+	  "    number of iterations used in zerosec to locate the ISCO : "
+	      << niter << endl ;
+	*ost << "    zero found at xi = " << xi_ms << endl ;
+      }
+      
+      r_ms = mp.val_r(l_ms, xi_ms, theta_ms, phi_ms) ;
+      
+    } else { 
+      
+      // assuming the ISCO is under the surface of a star 
+      r_ms = ray_eq() ; 
+      xi_ms = -1 ; 
+      l_ms = nzet ; 
+      
+    } 
+    
+    p_r_isco = new double ((bbb().va).val_point(l_ms, xi_ms, theta_ms, phi_ms)
+			   * r_ms ) ;
+    
 	// Determination of the frequency at the marginally stable orbit
   	// -------------------------------------------------------------				
 

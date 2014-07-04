@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/07/04 12:09:06  j_novak
+ * New argument in zerosec(): a boolean (false by default) for aborting if the number of iteration is greater than the max.
+ *
  * Revision 1.12  2014/04/25 10:43:50  j_novak
  * The member 'name' is of type string now. Correction of a few const-related issues.
  *
@@ -159,13 +162,15 @@ bool zero_premier(double (*f)(double, const Param&), const Param& par,
  *			the returned solution will be x0 +/- precis
  *  @param nitermax [input] Maximum number of iterations in the secant 
  *			    method to compute x0.
- *  @param niter [output] Number of iterations effectively used in computing x0				
+ *  @param niter [output] Number of iterations effectively used in computing x0
+ *  @param abort [input] Should the function abort if the maximal number of
+ *                       iterations has been reached?
  *  @return x0 (zero of function f)
  *
  */
 double zerosec( double (*f)(double, const Param&), const Param& par, 
 		double a, double b, double precis, int nitermax, 
-		int& niter) ;
+		int& niter, bool abort=true) ;
 
 /** Finding the zero a function on a bounded domain.
  * 

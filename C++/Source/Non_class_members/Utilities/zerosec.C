@@ -31,6 +31,9 @@ char zerosec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/07/04 12:09:06  j_novak
+ * New argument in zerosec(): a boolean (false by default) for aborting if the number of iteration is greater than the max.
+ *
  * Revision 1.4  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -66,9 +69,12 @@ char zerosec_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cmath>
+#include <cassert>
+
+// Headers C++
+#include <exception>
 
 // Headers Lorene 
 #include "headcpp.h"
@@ -76,7 +82,8 @@ char zerosec_C[] = "$Header$" ;
 //****************************************************************************
 
 double zerosec(double (*f)(double, const Param&), const Param& parf, 
-    double x1, double x2, double precis, int nitermax, int& niter) {
+	       double x1, double x2, double precis, int nitermax, int& niter, 
+	       bool abor) {
     
     double f0_prec, f0, x0, x0_prec, dx, df ;
 
@@ -125,13 +132,18 @@ double zerosec(double (*f)(double, const Param&), const Param& parf,
 	if (niter > nitermax) {
 	    cout << "zerosec: Maximum number of iterations has been reached ! " 
 	    << endl ;
-	    abort () ;
+	    if (abor)
+	      abort () ;
+	    else {
+	      warning = true ;
+	      f0 = 0. ;
+	    }
 	}
     }
     while ( ( fabs(dx) > precis ) && ( fabs(f0) > 1.e-15 ) ) ;
 
     if (warning) {
-	cout << "      A zero has been found at x0 = " << x0 << endl ; 
+	cout << "      A zero may have been found at x0 = " << x0 << endl ; 
     }
 
     return x0 ;
