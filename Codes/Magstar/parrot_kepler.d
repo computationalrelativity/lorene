@@ -13,6 +13,7 @@
 5	mer_mag : step at which magnetic quantites are plugged.
 10	mer_change_mag : step at which they are increased.
 80	mer_fix_mag : step at which they reach their final values.
+0	mag_filter : 1: filtering sources of Maxwell equations 0: no filtering
 #################### COMPUTATIONAL PARAMETERS #################################
 300      mer_max : maximum number of steps
 1.e-8   precis : threshold on the enthalpy relative change for ending the computation

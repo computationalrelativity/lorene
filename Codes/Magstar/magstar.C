@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/09/03 15:34:02  j_novak
+ * Filtering of Maxwell sources is now optional.
+ *
  * Revision 1.12  2014/07/04 12:42:41  j_novak
  * Parameter file for mass-shedding configurations.
  *
@@ -100,7 +103,7 @@ int main(){
 	   thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
     
     double Q0, a_j0, Q_ini, a_j_ini ;
-    int mer_mag, mer_change_mag, mer_fix_mag, conduct ;
+    int mer_mag, mer_change_mag, mer_fix_mag, mag_filter, conduct ;
 
     ifstream fich("parrot.d") ;
     fich.getline(blabla, 120) ;
@@ -120,6 +123,7 @@ int main(){
     fich >> mer_mag ; fich.getline(blabla,120) ;
     fich >> mer_change_mag ; fich.getline(blabla,120) ;
     fich >> mer_fix_mag ; fich.getline(blabla,120);
+    fich >> mag_filter ; fich.getline(blabla,120) ;
     fich.getline(blabla,120);
     fich >> mer_max ; fich.getline(blabla, 120) ;
     fich >> precis ; fich.getline(blabla, 120) ;
@@ -344,7 +348,7 @@ int main(){
     double omega = 2 * M_PI * freq_si / f_unit ; 
     double omega_ini = 2 * M_PI * freq_ini_si / f_unit ; 
 
-    Itbl icontrol(10) ;
+    Itbl icontrol(11) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
@@ -355,7 +359,8 @@ int main(){
     icontrol.set(6) = delta_mer_kep ; 
     icontrol.set(7) = mer_mag ;
     icontrol.set(8) = mer_change_mag ;
-    icontrol.set(9)= mer_fix_mag ;
+    icontrol.set(9) = mer_fix_mag ;
+    icontrol.set(10) = mag_filter ;
     
     Tbl control(8) ; 
     control.set_etat_qcq() ; 

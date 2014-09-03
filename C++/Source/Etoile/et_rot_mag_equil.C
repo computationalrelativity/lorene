@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/09/03 15:33:42  j_novak
+ * Filtering of Maxwell sources is now optional.
+ *
  * Revision 1.18  2012/08/12 17:48:36  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -150,6 +153,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     int mer_mag = icontrol(7) ;
     int mer_change_mag = icontrol(8) ;
     int mer_fix_mag = icontrol(9) ;
+    int mag_filter = icontrol(10) ;
 
     // Protections:
     if (mer_change_omega < mer_rot) {
@@ -289,6 +293,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     par_poisson_At.add_double(precis_poisson, 1) ; // required precision
     par_poisson_At.add_int_mod(niter, 0) ;  //  number of iterations actually used 
     par_poisson_At.add_cmp_mod( ssjm1_At ) ; 
+    par_poisson_At.add_int(mag_filter, 1) ; //filtering of Maxwell sources
 
     Param par_poisson_Avect ;  // For vector Aphi Poisson equation
 
@@ -301,6 +306,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     par_poisson_Avect.add_cmp_mod( ssjm1_khi_mag ) ; 
     par_poisson_Avect.add_tenseur_mod( ssjm1_w_mag ) ; 
     par_poisson_Avect.add_int_mod(niter, 0) ;   
+    par_poisson_Avect.add_int(mag_filter, 1) ; //filtering of Maxwell sources 
 
 				   
     // Initializations

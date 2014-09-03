@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/09/03 15:33:42  j_novak
+ * Filtering of Maxwell sources is now optional.
+ *
  * Revision 1.15  2014/07/04 12:15:12  j_novak
  * Added filtering.
  *
@@ -106,6 +109,10 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 			       Param& par_poisson_At, 
 			       Param& par_poisson_Avect){
   double relax_mag = 0.5 ;
+
+  int mag_filter = 0 ;
+  if (par_poisson_At.get_n_int() > 1)
+    mag_filter = par_poisson_At.get_int(1) ;
 
   int Z = mp.get_mg()->get_nzone();
 
@@ -208,11 +215,13 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
       + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
 
     source_tAphi.change_triad(mp.get_bvect_cart());
-    for (int i=0; i<3; i++) {
-      Scalar tmp_filter = source_tAphi(i) ;
-      tmp_filter.exponential_filter_r(0, 2, 1) ;
-      tmp_filter.exponential_filter_ylm(0, 2, 1) ;
-      source_tAphi.set(i) = tmp_filter ;
+    if (mag_filter == 1) {
+      for (int i=0; i<3; i++) {
+	Scalar tmp_filter = source_tAphi(i) ;
+	tmp_filter.exponential_filter_r(0, 2, 1) ;
+	tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+	source_tAphi.set(i) = tmp_filter ;
+      }
     }
 
 
@@ -249,10 +258,12 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     // Resolution de Maxwell-Ampere : A_1
 
     Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
-    Scalar tmp_filter = source_A_1t ;
-    tmp_filter.exponential_filter_r(0, 2, 1) ;
-    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
-    source_A_1t = tmp_filter ;
+    if (mag_filter == 1) {
+      Scalar tmp_filter = source_A_1t ;
+      tmp_filter.exponential_filter_r(0, 2, 1) ;
+      tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+      source_A_1t = tmp_filter ;
+    }
 
     Cmp A_1t(mp);
     A_1t = 0 ;
@@ -370,10 +381,12 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     } 
     A_0t.std_base_scal() ;
 
-    tmp_filter = A_0t ;
-    tmp_filter.exponential_filter_r(0, 2, 1) ;
-    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
-    A_0t = tmp_filter ;
+    if (mag_filter == 1) {
+      Scalar tmp_filter = A_0t ;
+      tmp_filter.exponential_filter_r(0, 2, 1) ;
+      tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+      A_0t = tmp_filter ;
+    }
 
     Valeur** asymp = A_0t.asymptot(1) ;
 
@@ -419,11 +432,13 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 	  }
     }
     A_t_n.std_base_scal() ;
-    tmp_filter = A_t_n ;
-    tmp_filter.exponential_filter_r(0, 2, 1) ;
-    tmp_filter.exponential_filter_ylm(0, 2, 1) ;
-    A_t_n = tmp_filter ;
-    
+    if (mag_filter == 1) {
+      Scalar tmp_filter = A_t_n ;
+      tmp_filter.exponential_filter_r(0, 2, 1) ;
+      tmp_filter.exponential_filter_ylm(0, 2, 1) ;
+      A_t_n = tmp_filter ;
+    }
+
     asymp = A_t_n.asymptot(1) ;
 
     delete asymp[0] ;
