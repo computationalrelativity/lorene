@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/09/22 15:00:09  j_novak
+ * Maximal magnetic field display.
+ *
  * Revision 1.4  2014/07/04 13:01:47  j_novak
  * Parameter file for mass-shedding limit.
  *
@@ -382,11 +385,16 @@ int main(){
     Bmag.set(2) = Scalar(star.Magn()(1)) / fac ;
     Bmag.set(2).dec_dzpuis(2) ;
     Bmag.set(3) = 0 ;
+
+    Scalar norm_B_Euler 
+      = sqrt( Scalar(star.get_a_car()())*( Bmag(1)*Bmag(1) + Bmag(2)*Bmag(2) ) ) ;
+    norm_B_Euler.std_spectral_base() ;
     Tbl maxB = 0.5*(max(abs(Bmag(1))) + max(abs(Bmag(2)))) ;
     Scalar divB = Bmag.divergence(gam) ;
-    cout << maxB ;
     cout << "div(B) / max(B) in each domain :  " 
 	 << max(abs(divB)) / maxB ; 
+    cout << "Maximal magnetic field in the Eulerian frame: " 
+	 << max(max(norm_B_Euler))*mag_unit << " [T]" << endl ;
 
     // Saveguard of the whole configuration
     // ------------------------------------
@@ -423,6 +431,7 @@ int main(){
 	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf,
 		    2.) ; 
 	des_coupe_y(star.get_Aphi(), 0., nzdes, "Magnetic field", &surf) ; 
+	des_coupe_y(norm_B_Euler, 0., nzdes, "Magnetic field norm", &surf) ; 
 	des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
 
 	strcpy(title, "Gravitational potential \\gn") ; 
