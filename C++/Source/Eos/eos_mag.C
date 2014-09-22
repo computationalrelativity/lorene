@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/09/22 16:13:10  j_novak
+ * Minor modif.
+ *
  * Revision 1.11  2014/05/27 12:32:28  j_novak
  * Added possibility to converge to a given magnetic moment.
  *
@@ -322,6 +325,8 @@ void Eos_mag::read_table() {
 
 double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 
+  using namespace Unites_mag ;
+
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
 
@@ -339,6 +344,7 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
     
   if ( magB0 > Bmax) {
       cerr << "Eos_tabul::nbar_ent_p : B > Bmax !" << endl ;
+      cerr << "B = " << magB0*mag_unit << ", Bmax = " << Bmax*mag_unit << endl ;
       abort() ;
     }
 
@@ -362,6 +368,7 @@ double Eos_mag::nbar_ent_p(double ent, const Param* par ) const {
 
 double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
+  using namespace Unites_mag ;
   
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
@@ -381,6 +388,7 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
     if ( magB0 > Bmax) {
       cerr << "Eos_tabul::ener_ent_p : B > Bmax !" << endl ;
+      cerr << "B = " << magB0*mag_unit << ", Bmax = " << Bmax*mag_unit << endl ;
       abort() ;
     }
 
@@ -406,6 +414,8 @@ double Eos_mag::ener_ent_p(double ent, const Param* par ) const {
 
 double Eos_mag::press_ent_p(double ent, const Param* par ) const {
 
+  using namespace Unites_mag ;
+
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
 
@@ -424,6 +434,7 @@ double Eos_mag::press_ent_p(double ent, const Param* par ) const {
     
   if ( magB0 > Bmax) {
       cerr << "Eos_tabul::press_ent_p : B > Bmax !" << endl ;
+      cerr << "B = " << magB0*mag_unit << ", Bmax = " << Bmax*mag_unit << endl ;
       abort() ;
     }
 
@@ -464,6 +475,7 @@ double Eos_mag::mag_ent_p(double ent, const Param* par) const {
     
     if ( magB0 > Bmax) {
       cerr << "Eos_tabul::mag_ent_p : B > Bmax !" << endl ;
+      cerr << "B = " << magB0*mag_unit << ", Bmax = " << Bmax*mag_unit << endl ;
       abort() ;
     }
 
