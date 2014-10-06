@@ -88,6 +88,9 @@ char chb_cossinc_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/02/18 13:14:10  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -105,8 +108,8 @@ char chb_cossinc_leg_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // Prototypage
 #include "headcpp.h"

@@ -30,6 +30,9 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.12  2004/01/28 13:25:40  j_novak
  * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
  * In the div/mult _r_dzpuis, there is no more default value.
@@ -85,7 +88,7 @@ char connection_fcart_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "connection.h"

@@ -32,6 +32,9 @@ char vector_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/08/27 08:52:23  jl_cornou
  * Added fonctions for angular potential A
  *
@@ -45,8 +48,8 @@ char vector_etamu_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Headers Lorene
 #include "tensor.h"

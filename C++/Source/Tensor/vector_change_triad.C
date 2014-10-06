@@ -29,6 +29,9 @@ char vector_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2010/01/26 16:47:10  e_gourgoulhon
  * Suppressed the assert on np >= 4 (too strong ?).
  *
@@ -60,7 +63,7 @@ char vector_change_triad_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "tensor.h"

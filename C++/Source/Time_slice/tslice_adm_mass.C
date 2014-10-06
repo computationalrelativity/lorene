@@ -31,6 +31,9 @@ char tslice_adm_mass_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2010/10/20 07:58:09  j_novak
  * Better implementation of the explicit time-integration. Not fully-tested yet.
  *
@@ -55,7 +58,7 @@ char tslice_adm_mass_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "time_slice.h"

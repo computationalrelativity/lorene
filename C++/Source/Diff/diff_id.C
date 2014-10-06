@@ -30,6 +30,9 @@ char diff_id_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:05  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -39,8 +42,8 @@ char diff_id_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // Lorene headers
 #include "diff.h"

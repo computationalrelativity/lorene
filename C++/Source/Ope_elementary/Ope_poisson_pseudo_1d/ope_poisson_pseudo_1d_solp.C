@@ -25,8 +25,8 @@ char ope_poisson_pseudo_1d_solp_C[] = "$Header$" ;
  * $Header$
  *
  */
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "proto.h"
 #include "ope_elementary.h"

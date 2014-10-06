@@ -25,6 +25,9 @@ char sol_elliptic_boundary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/08/20 15:03:55  n_vasset
  * Correction on how the boundary condition is imposed
  *
@@ -39,8 +42,8 @@ char sol_elliptic_boundary_C[] = "$Header$" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "param_elliptic.h"

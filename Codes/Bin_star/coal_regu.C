@@ -30,6 +30,9 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2004/03/25 12:35:36  j_novak
  * now using namespace Unites
  *
@@ -87,9 +90,9 @@ char coal_regu_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 
 // headers Lorene
 #include "binaire.h"

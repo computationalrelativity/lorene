@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2012/01/17 10:21:31  j_penner
  * function added: Heaviside
  *
@@ -71,8 +74,8 @@
  */
 
 // Fichiers includes
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 #include "grille_val.h"
 #include "tensor.h"

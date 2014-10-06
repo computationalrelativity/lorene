@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.16  2006/10/24 13:03:19  j_novak
  * New methods for the solution of the tensor wave equation. Perhaps, first
  * operational version...
@@ -96,8 +99,8 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Headers Lorene
 #include "tensor.h"

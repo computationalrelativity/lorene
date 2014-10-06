@@ -20,6 +20,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2007/05/08 07:08:30  p_grandclement
  * *** empty log message ***
  *
@@ -51,8 +54,8 @@
 char sol_elliptic_sin_zec_C[] = "$Header$" ;
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include <gsl/gsl_sf_bessel.h>
 
 // Headers Lorene :

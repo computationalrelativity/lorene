@@ -41,6 +41,9 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2013/06/13 14:18:18  j_novak
  * Inclusion of new bases R_LEG, R_LEGP and R_LEGI.
  *
@@ -96,7 +99,7 @@ char som_r_C[] = "$Header$" ;
  *
  */
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "headcpp.h"
 #include "proto.h"

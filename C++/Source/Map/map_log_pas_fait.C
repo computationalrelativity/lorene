@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2014/01/08 09:41:22  b_peres
  * change map_log_pas_fait
  *
@@ -69,7 +72,7 @@ char map_log_pas_fait_C[] = "$Header $" ;
  */
 
 // headers C
-#include <math.h>
+#include <cmath>
 
 // headers Lorene
 #include "itbl.h"

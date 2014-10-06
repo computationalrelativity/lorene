@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.16  2008/12/04 18:22:49  j_novak
  * Enhancement of the dzpuis treatment + various bug fixes.
  *
@@ -92,7 +95,7 @@ char time_slice_conf_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "time_slice.h"

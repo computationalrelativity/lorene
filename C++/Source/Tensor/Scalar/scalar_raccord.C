@@ -27,6 +27,9 @@ char scalar_raccord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
  * The method Tensor::get_mp() returns now a reference (and not
  * a pointer) onto a mapping.
@@ -40,7 +43,7 @@ char scalar_raccord_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
+#include <cstdlib>
 
 // LORENE
 #include "tensor.h"

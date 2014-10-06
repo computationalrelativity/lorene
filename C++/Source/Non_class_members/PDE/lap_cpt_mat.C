@@ -25,6 +25,9 @@ char lap_cpt_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2007/06/21 20:06:31  k_taniguchi
  * nmax increased to 200
  *
@@ -47,8 +50,8 @@ char lap_cpt_mat_C[] = "$Header$" ;
 
 
 //fichiers includes
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "matrice.h"
 #include "type_parite.h"

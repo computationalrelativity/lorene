@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2005/02/18 13:14:19  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -58,8 +61,8 @@ char scalar_visu_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 // Lorene headers
 #include "tensor.h"

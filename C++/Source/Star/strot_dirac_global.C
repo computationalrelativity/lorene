@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2010/11/17 11:21:52  j_novak
  * Corrected minor problems in the case nz=1 and nt=1.
  *
@@ -68,8 +71,8 @@ char strot_dirac_global_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "star_rot_dirac.h"

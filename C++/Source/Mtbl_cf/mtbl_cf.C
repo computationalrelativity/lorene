@@ -33,6 +33,9 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -103,9 +106,9 @@ char mtbl_cf_C[] = "$Header$" ;
  *
  */
 // headers C
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "mtbl_cf.h"

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.21  2013/06/05 15:00:26  j_novak
  * Suppression of all classes derived from Grille3d. Now Grille3d is no
  * longer an abstract class. r-samplings are only one of RARE, FIN or
@@ -156,9 +159,9 @@
 // Classes utilisees
 
 // Fichiers includes
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 #include "headcpp.h"
 
 #include "type_parite.h"

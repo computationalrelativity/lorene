@@ -28,6 +28,9 @@ char scalar_raccord_externe_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/09/25 09:22:33  j_novak
  * Added a #include<math.h>
  *
@@ -42,8 +45,8 @@ char scalar_raccord_externe_C[] = "$Header$" ;
 
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "matrice.h"

@@ -26,6 +26,9 @@ char nullite_plm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2009/10/23 12:54:47  j_novak
  * New base T_LEG_MI
  *
@@ -80,7 +83,7 @@ char nullite_plm_C[] = "$Header$" ;
  */
 
 // Entetes C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Entete Lorene
 #include "headcpp.h"

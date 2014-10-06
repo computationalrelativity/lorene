@@ -25,6 +25,9 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:16:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2005/03/11 11:20:26  f_limousin
  * Minor modif
  *
@@ -65,8 +68,8 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "proto.h"

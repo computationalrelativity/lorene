@@ -25,6 +25,9 @@ char helmholtz_minus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2008/07/09 06:51:58  p_grandclement
  * some corrections to helmholtz minus in the nucleus
  *
@@ -52,7 +55,7 @@ char helmholtz_minus_mat_C[] = "$$" ;
  * $Header$
  *
  */
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "matrice.h"
 #include "type_parite.h"

@@ -25,6 +25,9 @@ char d2sdx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2007/12/11 15:28:18  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -58,7 +61,7 @@ char d2sdx2_1d_C[] = "$Header$" ;
  *
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "type_parite.h"
 #include "headcpp.h"
 #include "proto.h"

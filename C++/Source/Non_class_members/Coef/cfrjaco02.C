@@ -82,8 +82,8 @@ char cfrjaco02_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 #include "tbl.h"
 

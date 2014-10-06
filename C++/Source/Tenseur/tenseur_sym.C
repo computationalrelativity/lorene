@@ -33,6 +33,9 @@ char tenseur_sym_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2003/03/03 19:39:58  f_limousin
  * Modification of an assert to have a check on a triad and not only on a pointer.
  *
@@ -72,9 +75,9 @@ char tenseur_sym_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tenseur.h"

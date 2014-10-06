@@ -30,6 +30,9 @@ char sol_Dirac_A_1z_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2009/10/23 13:18:46  j_novak
  * Minor modifications
  *
@@ -43,9 +46,9 @@ char sol_Dirac_A_1z_C[] = "$Header$" ;
 
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:09:43  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2011/03/29 13:45:54  m_bejger
  * Renaming lit_bin.C to xlit_bin.C in order to avoid confusion with previous codes
  *
@@ -56,9 +59,9 @@ char lit_bin_C[] = "$Header$" ;
  */ 
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "unites.h"

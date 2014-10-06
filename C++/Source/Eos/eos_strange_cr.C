@@ -33,6 +33,9 @@ char Eos_strange_cr_cr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/03/25 10:29:02  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -74,9 +77,9 @@ char Eos_strange_cr_cr_C[] = "$Header$" ;
 
 
 // Headers C
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // Headers Lorene
 #include "eos.h"

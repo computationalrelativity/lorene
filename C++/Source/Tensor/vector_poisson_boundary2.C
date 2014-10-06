@@ -30,6 +30,9 @@ char vector_poisson_boundary2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2008/08/20 15:07:36  n_vasset
  * Cleaning up the code...
  *
@@ -55,9 +58,9 @@ char vector_poisson_boundary2_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

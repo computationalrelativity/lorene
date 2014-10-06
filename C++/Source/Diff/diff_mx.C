@@ -30,6 +30,9 @@ char diff_mx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:05  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2007/12/11 15:28:11  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -42,8 +45,8 @@ char diff_mx_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // Lorene headers
 #include "diff.h"

@@ -33,6 +33,9 @@ char star_rot_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2011/01/07 18:20:21  m_bejger
  * Correcting for the case of stiff EOS, in which ISCO may be farther than the first domain outside the star - now searching all non-compactified domains
  *
@@ -48,7 +51,7 @@ char star_rot_isco_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star_rot.h"

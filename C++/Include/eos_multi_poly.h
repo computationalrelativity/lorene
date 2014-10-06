@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2009/06/23 14:33:31  k_taniguchi
  * Completely revised.
  *
@@ -52,8 +55,8 @@
 #include "headcpp.h"
 
 // Headers C
-#include <stdio.h>
-#include <assert.h>
+#include <cstdio>
+#include <cassert>
 
 // Lorene classes
 #include "eos.h"

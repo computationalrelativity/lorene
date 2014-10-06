@@ -28,6 +28,9 @@ char xcoal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:43  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2011/03/29 14:08:07  m_bejger
  * Changing the name from coal to xcoal in the output, ident call etc.
  *
@@ -70,9 +73,9 @@ char xcoal_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 
 // headers Lorene
 #include "unites.h"

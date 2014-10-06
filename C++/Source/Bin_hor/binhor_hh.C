@@ -26,6 +26,9 @@ char binhor_hh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/01/09 14:28:58  jl_jaramillo
  * Improved the construction of hh1 and hh2
  *
@@ -42,7 +45,7 @@ char binhor_hh_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene
 #include "tensor.h"

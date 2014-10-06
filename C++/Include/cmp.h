@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.20  2012/08/12 17:35:36  p_cerda
  * Magnetstar: adding new member to class Cmp
  *
@@ -422,7 +425,7 @@
  *
  */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "valeur.h"
 #include "map.h"

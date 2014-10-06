@@ -28,6 +28,9 @@ char test_vdf_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:12:55  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2003/10/29 13:16:11  e_gourgoulhon
  * Change of method name: Scalar::laplacien --> Scalar::laplacian.
  *
@@ -52,7 +55,7 @@ char test_vdf_poisson_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

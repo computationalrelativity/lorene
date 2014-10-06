@@ -33,6 +33,9 @@ char valeur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2008/08/27 08:52:55  jl_cornou
  * Added Jacobi(0,2) polynomials case
  *
@@ -124,9 +127,9 @@ char valeur_arithm_C[] = "$Header$" ;
 
 // Fichiers include
 // ----------------
-#include <math.h>
-#include <assert.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cassert>
+#include <cstdlib>
 
 #include "mtbl.h"
 #include "valeur.h"

@@ -32,9 +32,9 @@ char lit_bin_ncp_C[] = "$Header$" ;
  *
  */
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "bin_ns_ncp.h"

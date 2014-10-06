@@ -28,6 +28,9 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/06 15:12:53  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.13  2004/02/26 22:53:08  e_gourgoulhon
  * The Lie derivative of K along beta is now computed thanks to the
  * new method Sym_tensor::derive_lie.
@@ -82,11 +85,11 @@ char test_kerr_C[] = "$Header$" ;
  */
 
 // C++ headers
-#include <headcpp.h>
+#include <cheadcpp>
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2012/02/06 12:59:07  j_novak
  * Correction of some errors.
  *
@@ -65,7 +68,7 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "time_slice.h"

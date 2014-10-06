@@ -34,6 +34,9 @@ char valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2005/10/25 08:56:40  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -176,8 +179,8 @@ char valeur_C[] = "$Header$" ;
  */
 
 // headers C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // headers Lorene
 #include "valeur.h"

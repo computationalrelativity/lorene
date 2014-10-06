@@ -34,6 +34,9 @@ char tenseur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2003/10/13 10:33:43  f_limousin
  * *** empty log message ***
  *
@@ -86,9 +89,9 @@ char tenseur_arithm_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tenseur.h"

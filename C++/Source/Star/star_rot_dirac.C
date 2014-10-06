@@ -30,6 +30,9 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2013/04/25 15:46:06  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -68,8 +71,8 @@ char star_rot_dirac_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "star_rot_dirac.h"

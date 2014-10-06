@@ -29,6 +29,9 @@ char test_tenseur_contract_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:12:55  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2008/08/27 08:54:07  jl_cornou
  * Tests for angular potential A added
  *
@@ -51,8 +54,8 @@ char test_tenseur_contract_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "type_parite.h"

@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.15  2003/10/17 13:03:33  f_limousin
  * Add new functions get_cov(), set_cov() and important changes in the functions set_cov() and set_con().
  *
@@ -102,9 +105,9 @@ char metrique_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "metrique.h"

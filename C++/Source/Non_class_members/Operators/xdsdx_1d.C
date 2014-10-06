@@ -25,6 +25,9 @@ char xdsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2002/10/16 14:37:11  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -41,7 +44,7 @@ char xdsdx_1d_C[] = "$Header$" ;
  */
  
  // Includes
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "headcpp.h"
 #include "type_parite.h"

@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.19  2007/05/06 10:48:14  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -97,8 +100,8 @@ char param_elliptic_C[] = "$Header$" ;
 
 #include "headcpp.h"
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "map.h"
 #include "ope_elementary.h"

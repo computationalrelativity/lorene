@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2010/10/20 07:58:09  j_novak
  * Better implementation of the explicit time-integration. Not fully-tested yet.
  *
@@ -73,7 +76,7 @@ char tslice_conf_init_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "time_slice.h"

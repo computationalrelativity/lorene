@@ -31,6 +31,9 @@ char map_et_resize_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/11/30 20:54:24  k_taniguchi
  * *** empty log message ***
  *
@@ -40,7 +43,7 @@ char map_et_resize_extr_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "map.h"

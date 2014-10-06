@@ -90,6 +90,9 @@ char citlegii_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2003/09/16 13:07:41  j_novak
  * New files for coefficient trnasformation to/from the T_LEG_II base.
  *
@@ -99,7 +102,7 @@ char citlegii_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
+#include <cassert>
 
 // headers bien de chez nous
 #include "proto.h"

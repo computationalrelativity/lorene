@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2011/03/30 13:14:27  m_bejger
  * Psi and chi rewritten using auto and comp parts to improve the convergence (in all the remaining fields, not only logn)
  *
@@ -68,7 +71,7 @@ char binary_orbit_xcts_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene 
 #include "binary_xcts.h"

@@ -32,6 +32,9 @@ char vector_divfree_aux[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2008/08/27 09:01:27  jl_cornou
  * Methods for solving Dirac systems for divergence free vectors
  *
@@ -48,7 +51,7 @@ char vector_divfree_aux[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"
@@ -56,8 +59,8 @@ char vector_divfree_aux[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Headers Lorene
 #include "tensor.h"

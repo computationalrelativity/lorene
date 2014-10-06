@@ -30,6 +30,9 @@ char blackhole_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/05/15 19:27:14  k_taniguchi
  * Change of some parameters.
  *
@@ -45,7 +48,7 @@ char blackhole_extr_curv_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "blackhole.h"

@@ -25,6 +25,9 @@ char map_log_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -35,9 +38,9 @@ char map_log_fait_C[] = "$Header$" ;
  */
 
 // Includes
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 #include "mtbl.h"
 #include "map.h"

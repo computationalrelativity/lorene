@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2005/02/28 23:11:05  k_taniguchi
  * Modification to include the case of the conformally flat background metric
  *
@@ -65,7 +68,7 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "et_bin_bhns_extr.h"

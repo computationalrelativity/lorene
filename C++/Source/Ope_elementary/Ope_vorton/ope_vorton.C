@@ -25,8 +25,8 @@ char ope_vorton_C[] = "$Header$" ;
  * $Header$
  *
  */
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "ope_elementary.h"
 

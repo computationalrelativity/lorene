@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.19  2010/10/11 10:23:03  j_novak
  * Removed methods Sym_tensor_trans::solve_hrr() and Sym_tensor_trans::set_WX_det_one(), as they are no longer relevant.
  *
@@ -101,7 +104,7 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "metric.h"

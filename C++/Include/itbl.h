@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2004/03/24 14:53:39  j_novak
  * Double declarations suppressed
  *
@@ -81,8 +84,8 @@
  */
  
 // Fichiers includes
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 #include "type_parite.h"
 #include "dim_tbl.h"

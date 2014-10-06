@@ -34,6 +34,9 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2009/06/15 09:26:57  k_taniguchi
  * Improved the rescaling of the domains.
  *
@@ -122,7 +125,7 @@ char et_bin_equil_regu_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "etoile.h"

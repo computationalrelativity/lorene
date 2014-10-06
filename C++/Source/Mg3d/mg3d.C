@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.16  2013/06/05 15:00:26  j_novak
  * Suppression of all classes derived from Grille3d. Now Grille3d is no
  * longer an abstract class. r-samplings are only one of RARE, FIN or
@@ -130,8 +133,8 @@ char mg3d_C[] = "$Header$" ;
  */
 
 // C Headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "grilles.h"

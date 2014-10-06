@@ -28,6 +28,9 @@ char vect_cont_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:55  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/01/09 11:07:56  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -61,10 +64,10 @@ char vect_cont_C[] = "$Header$" ;
 #include "param.h"
 
 //standard
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <ctime>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 
 Tenseur poisson_vect_oohara (const Tenseur&, double) ;
 

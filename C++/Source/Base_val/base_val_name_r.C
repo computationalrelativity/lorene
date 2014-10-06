@@ -30,6 +30,9 @@ char base_val_name_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2013/01/11 08:20:11  j_novak
  * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
  *
@@ -50,8 +53,8 @@ char base_val_name_r_C[] = "$Header$" ;
  */
 
 // C headers
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 // Lorene headers
 #include "base_val.h"

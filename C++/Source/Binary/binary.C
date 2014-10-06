@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2005/09/15 14:39:14  e_gourgoulhon
  * Added printing of angular momentum in display_poly.
  *
@@ -69,7 +72,7 @@ char Binary_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "binary.h"

@@ -25,6 +25,9 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:12:58  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -78,8 +81,8 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "tenseur.h"

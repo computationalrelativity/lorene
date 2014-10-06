@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2014/10/06 15:13:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.28  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -130,8 +133,8 @@ char init_data_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "isol_hor.h"

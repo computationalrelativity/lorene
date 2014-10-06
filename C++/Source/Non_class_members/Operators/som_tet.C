@@ -39,6 +39,9 @@ char som_tet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2004/11/23 15:16:02  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -90,8 +93,8 @@ char som_tet_C[] = "$Header$" ;
  *
  */
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "headcpp.h"
 

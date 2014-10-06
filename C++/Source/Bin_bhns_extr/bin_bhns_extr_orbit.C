@@ -31,6 +31,9 @@ char bin_bhns_extr_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/02/28 23:07:47  k_taniguchi
  * Addition of the code for the conformally flat case
  *
@@ -43,7 +46,7 @@ char bin_bhns_extr_orbit_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_bhns_extr.h"

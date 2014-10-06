@@ -26,7 +26,7 @@
 char des_coupe_vtk_scalar_C[] = "$ $" ;
 
 // Header C
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <string>
 

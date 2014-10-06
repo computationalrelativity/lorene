@@ -34,6 +34,9 @@ char valeur_mult_st_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:24  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2009/10/09 14:01:06  j_novak
  * New bases T_cos and T_SIN.
  *
@@ -63,7 +66,7 @@ char valeur_mult_st_C[] = "$Header$" ;
 
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

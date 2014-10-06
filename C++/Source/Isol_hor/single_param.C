@@ -30,6 +30,9 @@ char single_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2007/04/13 15:28:35  f_limousin
  * Lots of improvements, generalisation to an arbitrary state of
  * rotation, implementation of the spatial metric given by Samaya.
@@ -43,8 +46,8 @@ char single_param_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "isol_hor.h"

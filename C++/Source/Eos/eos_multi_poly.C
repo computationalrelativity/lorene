@@ -31,6 +31,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2012/10/09 16:15:26  j_novak
  * Corrected a bug in the constructor and save into a file
  *
@@ -59,9 +62,9 @@ char eos_multi_poly_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // Lorene headers
 #include "headcpp.h"

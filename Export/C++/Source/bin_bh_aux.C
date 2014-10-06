@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:25  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2009/09/22 00:01:18  p_grandclement
  * change for reading new bholes
  *
@@ -62,7 +65,7 @@ char bin_bh_aux_C[] = "$Header$" ;
 #include "../Include/bin_bh.h"
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "tenseur.h"

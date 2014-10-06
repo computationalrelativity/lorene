@@ -23,6 +23,9 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2007/05/06 10:48:13  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -42,8 +45,8 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
  * $Header$
  *
  */
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "proto.h"
 #include "ope_elementary.h"

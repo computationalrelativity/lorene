@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2013/02/28 16:15:00  j_novak
  * Minor change.
  *
@@ -77,7 +80,7 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
  */
 
 // headers C
-#include <math.h>
+#include <cmath>
 
 // headers Lorene
 #include "headcpp.h"

@@ -25,6 +25,9 @@ char val_solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2008/02/18 13:53:45  j_novak
  * Removal of special indentation instructions.
  *
@@ -48,9 +51,9 @@ char val_solp_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include "proto.h"
 #include "matrice.h"

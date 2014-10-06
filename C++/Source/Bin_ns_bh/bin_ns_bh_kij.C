@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2008/09/26 08:44:04  p_grandclement
  * Mixted binaries with non vanishing spin
  *
@@ -70,7 +73,7 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_ns_bh.h"

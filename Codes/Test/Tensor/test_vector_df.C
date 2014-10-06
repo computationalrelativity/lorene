@@ -28,6 +28,9 @@ char test_vector_df_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2008/08/27 08:54:28  jl_cornou
  * Added test for angular potential A
  *
@@ -60,7 +63,7 @@ char test_vector_df_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

@@ -30,6 +30,9 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/02/28 23:18:07  k_taniguchi
  * Change the functions to constant ones
  *
@@ -45,8 +48,8 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "map.h"

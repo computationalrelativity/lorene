@@ -29,6 +29,9 @@ char rotdiff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2008/05/08 12:02:35  j_novak
  * saving parameters for rotation profiles definitions
  *
@@ -61,9 +64,9 @@ char rotdiff_C[] = "$Header$" ;
 
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "et_rot_diff.h"

@@ -32,6 +32,9 @@ char et_rot_mag_equil_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2013/11/25 14:03:55  j_novak
  * Commented some variables to avoid warnings
  *
@@ -44,7 +47,7 @@ char et_rot_mag_equil_plus_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_mag.h"

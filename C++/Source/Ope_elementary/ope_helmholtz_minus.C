@@ -23,6 +23,9 @@ char ope_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2008/07/10 10:59:17  p_grandclement
  * forgot another ones
  *
@@ -50,8 +53,8 @@ char ope_helmholtz_minus_C[] = "$Header$" ;
  * $Header$
  *
  */
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "proto.h"
 #include "ope_elementary.h"

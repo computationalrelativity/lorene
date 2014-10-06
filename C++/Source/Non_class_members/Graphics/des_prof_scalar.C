@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:16:05  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2012/01/17 10:35:40  j_penner
  * added point plot
  *
@@ -72,8 +75,8 @@ char des_prof_scalar_C[] = "$Header$" ;
  */
 
 // Header C
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 // Header Lorene
 #include "scalar.h"

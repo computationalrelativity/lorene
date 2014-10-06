@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.22  2005/05/25 16:11:03  j_novak
  * Better handling of the case with no compactified domain.
  *
@@ -121,7 +124,7 @@ char connection_fspher_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "connection.h"

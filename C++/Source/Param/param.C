@@ -33,6 +33,9 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2006/06/15 08:15:39  j_novak
  * Removed members linked to Qtenseur objects.
  * Added members for Matrice objects.
@@ -92,8 +95,8 @@ char param_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Headers Lorene
 #include "param.h"

@@ -29,6 +29,9 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.12  2008/09/26 08:44:04  p_grandclement
  * Mixted binaries with non vanishing spin
  *
@@ -64,8 +67,8 @@ char coal_ns_bh_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "bhole.h"

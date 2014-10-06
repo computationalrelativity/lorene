@@ -32,6 +32,9 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2005/02/14 13:01:50  j_novak
  * p_eta and p_mu are members of the class Vector. Most of associated functions
  * have been moved from the class Vector_divfree to the class Vector.
@@ -57,8 +60,8 @@ char vector_divfree_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Headers Lorene
 #include "tensor.h"

@@ -25,6 +25,9 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2013/01/11 08:20:11  j_novak
  * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
  *
@@ -62,9 +65,9 @@ char base_val_quantum_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdio.h>
-#include <assert.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cassert>
+#include <cstdlib>
 
 // Headers Lorene
 #include "grilles.h"

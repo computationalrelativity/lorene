@@ -25,6 +25,9 @@ char multxpun_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2007/12/11 15:42:22  jl_cornou
  * Premiere version des fonctions liees aux polynomes de Jacobi(0,2)
  *
@@ -44,8 +47,8 @@ char multxpun_1d_C[] = "$Header$" ;
  */
 
 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "tbl.h"
 #include "type_parite.h"

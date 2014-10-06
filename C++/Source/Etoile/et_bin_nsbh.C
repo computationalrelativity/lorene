@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2006/09/25 10:01:49  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -69,7 +72,7 @@ char et_bin_nsbh_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "et_bin_nsbh.h"

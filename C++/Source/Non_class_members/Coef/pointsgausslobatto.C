@@ -1,6 +1,6 @@
 #include <math.h>
 #include "tbl.h"
-#include <assert.h>
+#include <cassert>
 
 double* jacobi(int , double) ;
 

@@ -66,6 +66,9 @@ char cfpcossini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:18:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/12/21 17:06:01  j_novak
  * Added all files for using fftw3.
  *
@@ -88,7 +91,7 @@ char cfpcossini_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "headcpp.h"

@@ -29,6 +29,9 @@ char gibbs_log_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:54  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/01/09 11:07:54  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -58,10 +61,10 @@ char gibbs_log_C[] = "$Header$" ;
 #include "graphique.h"
 
 //standard
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <ctime>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 
 Tbl donne_pl (int l) {
     assert (l>=0) ;

@@ -33,7 +33,7 @@ char valeur_va_x_C[] = "$Header$" ;
 
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl.h"

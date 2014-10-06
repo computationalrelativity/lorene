@@ -31,6 +31,9 @@ char map_af_integ_surf_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/11/30 20:53:08  k_taniguchi
  * *** empty log message ***
  *
@@ -39,8 +42,8 @@ char map_af_integ_surf_falloff_C[] = "$Header$" ;
  *
  */
 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "map.h"
 #include "cmp.h"

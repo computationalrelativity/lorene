@@ -28,6 +28,9 @@ char test_qmetrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:55  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/01/09 11:07:59  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -41,7 +44,7 @@ char test_qmetrique_C[] = "$Header$" ;
  */
 
 //standard
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene :
 #include "qmetrique.h"

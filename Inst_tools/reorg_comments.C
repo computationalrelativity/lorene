@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:05:46  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/10/15 08:43:32  e_gourgoulhon
  * Modif. comments.
  *
@@ -39,19 +42,12 @@
  *
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#ifdef OBSOLETE_HEADERS
-
-#include <iostream.h>
-
-#else
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 #include <iostream>
 using namespace std ;
-#endif 
 
 int main(int argc, char** argv)
 {

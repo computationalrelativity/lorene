@@ -47,6 +47,9 @@ char chebimp_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2005/02/18 13:14:12  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -74,9 +77,9 @@ char chebimp_ini_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
-#include <math.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
 
 #include "headcpp.h"
 

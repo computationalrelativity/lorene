@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.13  2005/02/15 09:45:22  j_novak
  * Correction of an error in the matching.
  *
@@ -50,8 +53,8 @@ char vector_df_poisson_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "tensor.h"

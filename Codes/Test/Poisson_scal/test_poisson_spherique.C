@@ -29,6 +29,9 @@ char test_poisson_spherique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:12:54  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/01/28 16:08:47  j_novak
  * Changed return type of main from void to int
  *
@@ -60,10 +63,10 @@ char test_poisson_spherique_C[] = "$Header$" ;
 #include "graphique.h"
 
 //standard
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <ctime>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 
 int main() { 
     int symetrie = SYM ;

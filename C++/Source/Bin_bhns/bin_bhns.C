@@ -30,6 +30,9 @@ char bin_bhns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/05/15 18:58:01  k_taniguchi
  * Change of some parameters and introduction of new
  * global quantities.
@@ -46,7 +49,7 @@ char bin_bhns_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_bhns.h"

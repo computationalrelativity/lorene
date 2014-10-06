@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2004/02/19 22:15:55  e_gourgoulhon
  * New argument "comment" in functions spectral_display and diffrelmax.
  *
@@ -81,7 +84,7 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

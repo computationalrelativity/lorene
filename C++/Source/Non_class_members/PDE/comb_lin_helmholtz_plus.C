@@ -25,6 +25,9 @@ char comb_lin_helmholtz_plusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/02/18 13:53:43  j_novak
  * Removal of special indentation instructions.
  *
@@ -40,9 +43,9 @@ char comb_lin_helmholtz_plusC[] = "$Header $" ;
  */
 
 //fichiers includes
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include "matrice.h"
 #include "type_parite.h"

@@ -29,6 +29,9 @@ char test_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:12:51  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2002/12/17 13:09:21  e_gourgoulhon
  * Test code for class Bin_ns_bh
  *
@@ -43,7 +46,7 @@ char test_bin_ns_bh_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "bin_ns_bh.h"

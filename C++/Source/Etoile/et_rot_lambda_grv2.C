@@ -32,6 +32,9 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2013/06/05 15:10:42  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -63,7 +66,7 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "etoile.h"

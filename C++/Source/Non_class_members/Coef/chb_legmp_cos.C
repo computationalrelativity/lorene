@@ -86,6 +86,9 @@ char chb_legmp_cos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2009/10/13 13:49:36  j_novak
  * New base T_LEG_MP.
  *
@@ -97,8 +100,8 @@ char chb_legmp_cos_C[] = "$Header$" ;
 
 
 // headers du C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Prototypage
 #include "headcpp.h"

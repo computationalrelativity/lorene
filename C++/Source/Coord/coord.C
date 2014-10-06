@@ -33,6 +33,9 @@ char coord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/02/18 13:53:39  j_novak
  * Removal of special indentation instructions.
  *
@@ -60,8 +63,8 @@ char coord_C[] = "$Header$" ;
  */
 
 // Fichier includes
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include "coord.h"
 #include "mtbl.h"
 

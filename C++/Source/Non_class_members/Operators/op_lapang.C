@@ -39,6 +39,9 @@ char op_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:16:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2009/10/23 12:55:04  j_novak
  * New base T_LEG_MI
  *
@@ -77,7 +80,7 @@ char op_lapang_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "mtbl_cf.h"

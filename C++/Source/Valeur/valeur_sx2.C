@@ -35,6 +35,9 @@ char valeur_sx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:24  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2004/11/23 15:17:20  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -79,7 +82,7 @@ char valeur_sx2_C[] = "$Header$" ;
 
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

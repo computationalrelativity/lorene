@@ -29,6 +29,9 @@ char test_poisson_compact_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:54  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/01/09 11:07:54  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -58,8 +61,8 @@ char test_poisson_compact_C[] = "$Header$" ;
 // version of 13.01.2000
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "tenseur.h"

@@ -28,6 +28,9 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:16:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2009/10/26 10:48:37  j_novak
  * Completed the T_LEG_MI case.
  *
@@ -94,7 +97,7 @@ char donne_lm_C[] = "$Header$" ;
  */
 
 // Entetes C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Entete Lorene
 #include "headcpp.h"

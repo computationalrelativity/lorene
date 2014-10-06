@@ -32,6 +32,9 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2005/10/05 15:15:31  j_novak
  * Added a Param* as parameter of Etoile_rot::equilibrium
  *
@@ -127,7 +130,7 @@ char et_rot_equilibrium_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "etoile.h"

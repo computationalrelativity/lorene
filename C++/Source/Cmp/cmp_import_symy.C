@@ -32,8 +32,11 @@ char cmp_import_symy_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/03/06  10:56:16  eric
  * *** empty log message ***
@@ -46,7 +49,7 @@ char cmp_import_symy_C[] = "$Header$" ;
 
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "cmp.h"

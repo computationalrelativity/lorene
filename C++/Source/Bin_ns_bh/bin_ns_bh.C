@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.13  2007/04/26 14:14:59  f_limousin
  * The function fait_tkij now have default values for bound_nn and lim_nn
  *
@@ -80,7 +83,7 @@ char bin_ns_bh_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "map.h"

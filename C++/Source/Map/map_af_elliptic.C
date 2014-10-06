@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2007/05/06 10:48:11  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -76,8 +79,8 @@ char map_af_elliptic_C[] = "$Header$" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "tbl.h"

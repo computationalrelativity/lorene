@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2005/09/13 19:47:28  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -45,8 +48,8 @@ char init_bin_C[] = "$Header$" ;
 
  
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "unites.h"

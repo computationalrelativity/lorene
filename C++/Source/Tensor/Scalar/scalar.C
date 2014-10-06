@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2014/10/06 15:16:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.37  2013/06/05 15:06:11  j_novak
  * Legendre bases are treated as standard bases, when the multi-grid
  * (Mg3d) is built with BASE_LEG.
@@ -174,9 +177,9 @@ char scalar_C[] = "$Header$" ;
  */
 
 // headers C
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "tensor.h"

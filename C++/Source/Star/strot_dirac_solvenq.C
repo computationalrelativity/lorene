@@ -31,6 +31,9 @@ char strot_dirac_solvenq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/02/17 17:31:29  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -45,8 +48,8 @@ char strot_dirac_solvenq_C[] = "$Header$" ;
  */
 
 // C headers
-#include<math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "star_rot_dirac.h"

@@ -32,6 +32,9 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2006/04/11 14:24:44  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -60,7 +63,7 @@ char star_bin_kinema_C[] = "$Header$" ;
  *
  */
 
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star.h"

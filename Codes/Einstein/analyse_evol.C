@@ -29,6 +29,9 @@ char analyse_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2010/10/20 08:00:43  j_novak
  * New flag to control output on screen.
  *
@@ -44,10 +47,10 @@ char analyse_evol_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
+#include <cstdio>
 
 // Lorene headers
 #include "time_slice.h"

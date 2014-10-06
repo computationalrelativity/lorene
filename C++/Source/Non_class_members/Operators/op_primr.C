@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:16:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2013/04/25 15:46:06  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -62,8 +65,8 @@ char op_primr_C[] = "$Header$" ;
 
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "tbl.h"

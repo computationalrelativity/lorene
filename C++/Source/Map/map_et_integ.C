@@ -30,6 +30,9 @@ char map_et_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/07/26 16:02:23  j_novak
  * Added a flag to specify whether the primitive should be zero either at r=0
  * or at r going to infinity.
@@ -57,7 +60,7 @@ char map_et_integ_C[] = "$Header$" ;
 
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 
 // Headers Lorene

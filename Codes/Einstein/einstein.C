@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:09:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2004/04/05 14:46:33  e_gourgoulhon
  * The graphical functions are now declared in graphique.h and
  * are included in Lorene's library.
@@ -89,9 +92,9 @@ char einstein_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // Lorene headers
 #include "metric.h"

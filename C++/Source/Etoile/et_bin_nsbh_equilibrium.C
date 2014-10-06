@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2008/09/26 08:38:45  p_grandclement
  * get rid of desaliasing
  *
@@ -74,7 +77,7 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "etoile.h"

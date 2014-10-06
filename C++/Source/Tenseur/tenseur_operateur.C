@@ -27,6 +27,9 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2004/05/27 07:17:19  p_grandclement
  * Correction of some shadowed variables
  *
@@ -100,9 +103,9 @@ char tenseur_operateur_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tenseur.h"

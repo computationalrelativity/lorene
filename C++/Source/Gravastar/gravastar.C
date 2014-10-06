@@ -32,7 +32,7 @@ char star_bhns_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "gravastar.h"

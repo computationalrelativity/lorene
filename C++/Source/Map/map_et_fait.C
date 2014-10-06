@@ -25,6 +25,9 @@ char map_et_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2013/06/05 15:10:42  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -58,9 +61,9 @@ char map_et_fait_C[] = "$Header$" ;
 
 
 // Includes
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 #include "map.h"
 

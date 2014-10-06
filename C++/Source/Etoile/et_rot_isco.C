@@ -33,6 +33,9 @@ char et_rot_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2014/07/04 12:09:06  j_novak
  * New argument in zerosec(): a boolean (false by default) for aborting if the number of iteration is greater than the max.
  *
@@ -60,7 +63,7 @@ char et_rot_isco_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "etoile.h"

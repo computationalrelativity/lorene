@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:09:48  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2006/05/30 13:22:20  j_novak
  * Back to previous versions...
  *
@@ -43,9 +46,9 @@
  */
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "headcpp.h"    // standard input/output C++ headers (iostream, fstream)

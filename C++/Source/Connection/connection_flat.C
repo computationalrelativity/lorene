@@ -30,6 +30,9 @@ char connection_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2003/12/30 22:59:35  e_gourgoulhon
  * Suppressed method fait_ricci() (the computation of the Ricci is
  * now devoted to the virtual method ricci()).
@@ -54,7 +57,7 @@ char connection_flat_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "connection.h"

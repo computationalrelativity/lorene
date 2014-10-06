@@ -32,6 +32,9 @@ char mtbl_cf_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2002/10/16 14:36:43  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -68,9 +71,9 @@ char mtbl_cf_arithm_C[] = "$Header$" ;
 
 // Fichiers include
 // ----------------
-#include <math.h>
-#include <assert.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cassert>
+#include <cstdlib>
 
 #include "mtbl_cf.h"
 

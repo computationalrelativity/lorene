@@ -30,6 +30,9 @@ char diff_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:05  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2006/04/10 15:20:52  j_novak
  * Operators dsdx and sx can now be used in the nucleus.
  *
@@ -42,8 +45,8 @@ char diff_dsdx_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // Lorene headers
 #include "diff.h"

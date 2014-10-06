@@ -27,6 +27,9 @@ char valeur_val_propre_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:24  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/08/24 09:14:52  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -41,8 +44,8 @@ char valeur_val_propre_1d_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // headers Lorene
 

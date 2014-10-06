@@ -32,6 +32,9 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.15  2006/05/24 16:52:50  f_limousin
  * New computation of tkij_comp
  *
@@ -84,7 +87,7 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star.h"

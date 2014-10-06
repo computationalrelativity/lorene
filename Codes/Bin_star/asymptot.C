@@ -27,6 +27,9 @@ char asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/03/25 12:35:36  j_novak
  * now using namespace Unites
  *
@@ -45,8 +48,8 @@ char asymptot_C[] = "$Header$" ;
 
 // Headers standard du C
 //  (par exemple definit la macro EXIT_SUCCESS)
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
  
 // Headers Lorene

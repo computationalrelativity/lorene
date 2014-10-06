@@ -32,6 +32,9 @@ char et_rot_diff_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2005/10/05 15:15:30  j_novak
  * Added a Param* as parameter of Etoile_rot::equilibrium
  *
@@ -68,7 +71,7 @@ char et_rot_diff_equil_C[] = "$Header$" ;
 
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_diff.h"

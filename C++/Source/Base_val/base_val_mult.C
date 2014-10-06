@@ -27,6 +27,9 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2013/01/11 08:20:11  j_novak
  * New radial spectral bases with Legendre polynomials (R_LEG, R_LEGP, R_LEGI).
  *
@@ -76,9 +79,9 @@ char base_val_mult_C[] = "$Header$" ;
  */
 
 // Fichier includes
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
 
 #include "headcpp.h"
 #include "type_parite.h"

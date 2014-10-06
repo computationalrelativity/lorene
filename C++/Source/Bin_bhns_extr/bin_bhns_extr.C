@@ -30,6 +30,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2005/02/28 23:06:16  k_taniguchi
  * Modification of some arguments to include the case of the conformally
  * flat background metric.
@@ -61,7 +64,7 @@ char bin_bhns_extr_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_bhns_extr.h"

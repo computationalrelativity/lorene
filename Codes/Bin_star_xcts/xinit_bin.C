@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:43  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2011/06/08 07:06:29  m_bejger
  * star.display_poly() added to the output
  *
@@ -59,8 +62,8 @@ char init_bin_C[] = "$Header$" ;
  */
  
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "unites.h"

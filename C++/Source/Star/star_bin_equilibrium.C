@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2014/10/06 15:13:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.27  2006/08/01 14:26:01  f_limousin
  * Display
  *
@@ -118,7 +121,7 @@ char star_bin_equilibrium_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "cmp.h"

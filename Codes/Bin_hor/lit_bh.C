@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2005/11/16 15:33:39  f_limousin
  * Adaptation of the code for spherical components
  *
@@ -53,8 +56,8 @@ char lit_bh_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

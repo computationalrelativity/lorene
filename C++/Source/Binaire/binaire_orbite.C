@@ -34,6 +34,9 @@ char binaire_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2011/03/27 16:42:21  e_gourgoulhon
  * Added output via new function save_profile for graphics.
  *
@@ -92,7 +95,7 @@ char binaire_orbite_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene 
 #include "binaire.h"

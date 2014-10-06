@@ -1,6 +1,6 @@
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 
 // Headers Lorene :

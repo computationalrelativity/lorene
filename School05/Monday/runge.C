@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:48  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/11/14 14:17:02  e_gourgoulhon
  * Added #include <stdio.h>
  *
@@ -42,10 +45,10 @@
 
 using namespace std ;
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 #include "grid.h"
 #include "plot.h"

@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/06 15:16:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.17  2008/10/03 09:03:52  j_novak
  * Correction of yet another mistake (the array values in physical space was not
  * destroyed).
@@ -89,8 +92,8 @@ char scalar_manip_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "tensor.h"

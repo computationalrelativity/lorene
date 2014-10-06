@@ -32,6 +32,9 @@ char base_vect_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2005/04/06 08:15:03  p_grandclement
  * Correction of change_triad when using sym tensors...
  *
@@ -85,8 +88,8 @@ char base_vect_cart_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Headers Lorene
 #include "headcpp.h"

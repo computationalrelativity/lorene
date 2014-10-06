@@ -23,6 +23,9 @@ char sol_elliptic_no_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:16:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -49,8 +52,8 @@ char sol_elliptic_no_zec_C[] = "$Header$" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "tbl.h"

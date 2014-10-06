@@ -28,6 +28,9 @@ char test_et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:12:52  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2002/12/09 10:29:38  f_limousin
  * Test code for class Et_bin_ncp
  *
@@ -41,7 +44,7 @@ char test_et_bin_ncp_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "et_bin_ncp.h"

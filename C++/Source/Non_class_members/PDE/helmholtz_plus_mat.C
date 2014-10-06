@@ -25,6 +25,9 @@ char helmholtz_plus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2007/05/06 10:48:12  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -41,7 +44,7 @@ char helmholtz_plus_mat_C[] = "$$" ;
  * $Header$
  *
  */
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "matrice.h"
 #include "type_parite.h"

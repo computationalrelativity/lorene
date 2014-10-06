@@ -34,6 +34,9 @@ char valeur_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:24  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2007/12/14 10:19:35  jl_cornou
  * *** empty log message ***
  *
@@ -69,7 +72,7 @@ char valeur_sx_C[] = "$Header$" ;
 
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

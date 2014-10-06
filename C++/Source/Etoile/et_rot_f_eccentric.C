@@ -33,6 +33,9 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2003/12/19 16:31:52  j_novak
  * Still warnings...
  *
@@ -58,7 +61,7 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "etoile.h"

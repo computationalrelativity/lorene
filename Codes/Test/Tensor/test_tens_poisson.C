@@ -28,6 +28,9 @@ char test_tens_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2004/02/18 18:58:36  e_gourgoulhon
  *  Method trace() renamed the_trace().
  *  Tensor::trace used instead of Tensor::scontract.
@@ -50,7 +53,7 @@ char test_tens_poisson_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

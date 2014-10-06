@@ -31,6 +31,9 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2014/04/25 10:43:51  j_novak
  * The member 'name' is of type string now. Correction of a few const-related issues.
  *
@@ -67,7 +70,7 @@ char eos_bf_file_C[] = "$Header$" ;
  */
  
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Header Lorene
 #include "headcpp.h"

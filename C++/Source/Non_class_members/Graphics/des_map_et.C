@@ -33,6 +33,9 @@ char des_map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:05  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -58,8 +61,8 @@ char des_map_et_C[] = "$Header$" ;
  */
 
 // Header C
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 // Headers Lorene
 #include "map.h"

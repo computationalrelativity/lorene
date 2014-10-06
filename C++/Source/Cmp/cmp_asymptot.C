@@ -31,6 +31,9 @@ char cmp_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -56,7 +59,7 @@ char cmp_asymptot_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "cmp.h"

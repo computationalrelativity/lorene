@@ -30,6 +30,9 @@ char test_time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:12:52  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/04/05 11:54:43  j_novak
  * First operational (but not tested!) version of checks of Eintein equation.
  *
@@ -54,7 +57,7 @@ char test_time_slice_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "nbr_spx.h"

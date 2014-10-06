@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.17  2004/02/18 18:44:22  e_gourgoulhon
  * Method Tensor::scontract renammed Tensor::trace.
  *
@@ -105,7 +108,7 @@ char connection_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "connection.h"

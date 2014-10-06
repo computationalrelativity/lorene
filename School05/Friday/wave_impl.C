@@ -4,7 +4,7 @@
 
 ******************************************************************************/
 
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

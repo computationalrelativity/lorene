@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:12:51  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2005/01/11 12:48:46  f_limousin
  * Implement the function operator=(const Evolution_std<TyT>& ).
  *
@@ -73,8 +76,8 @@
 #include "headcpp.h" 
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 
 

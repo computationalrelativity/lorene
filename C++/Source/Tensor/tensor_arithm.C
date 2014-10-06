@@ -35,6 +35,9 @@ char tensor_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/01/08 09:24:11  e_gourgoulhon
  * Added arithmetics common to Scalar and Tensor.
  * Corrected treatment ETATUN in Tensor / Scalar.
@@ -53,9 +56,9 @@ char tensor_arithm_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

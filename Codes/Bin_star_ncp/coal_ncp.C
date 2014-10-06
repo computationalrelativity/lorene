@@ -37,8 +37,8 @@ char coal_ncp_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "bin_ns_ncp.h"

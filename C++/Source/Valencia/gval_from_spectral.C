@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.12  2009/10/28 13:40:23  j_novak
  * General case for the theta symmetry (now should work).
  *
@@ -69,7 +72,7 @@ char gval_from_spectral_C[] = "$Header$" ;
  *
  */
 
-#include<math.h>
+#include <cmath>
 
 // Lorene headers
 #include "grille_val.h"

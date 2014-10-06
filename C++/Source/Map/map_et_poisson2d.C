@@ -32,6 +32,9 @@ char map_et_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2002/02/07 14:55:58  e_gourgoulhon
  * Corrected a bug when the source is known only in the coefficient
  * space.
@@ -60,7 +63,7 @@ char map_et_poisson2d_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene:
 #include "map.h"

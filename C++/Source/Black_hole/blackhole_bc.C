@@ -31,6 +31,9 @@ char blackhole_bc_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/07/03 14:53:47  k_taniguchi
  * Modification of a signature in bc_shift_x and bc_shift_y.
  *
@@ -49,7 +52,7 @@ char blackhole_bc_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "blackhole.h"

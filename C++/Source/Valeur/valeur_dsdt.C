@@ -34,6 +34,9 @@ char valeur_dsdt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2009/10/08 16:23:14  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -77,7 +80,7 @@ char valeur_dsdt_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

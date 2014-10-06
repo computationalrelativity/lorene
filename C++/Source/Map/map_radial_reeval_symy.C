@@ -25,6 +25,9 @@ char map_radial_reeval_symy_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2007/05/15 12:43:57  p_grandclement
  * Scalar version of reevaluate
  *
@@ -41,7 +44,7 @@ char map_radial_reeval_symy_C[] = "$Header$" ;
 
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "map.h"

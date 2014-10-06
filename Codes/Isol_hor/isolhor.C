@@ -30,6 +30,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.35  2014/10/06 15:09:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.34  2007/01/22 14:49:53  jl_jaramillo
  * versions ok for running tests
  *
@@ -132,9 +135,9 @@ char isolhor_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // Lorene headers
 #include "tenseur.h"

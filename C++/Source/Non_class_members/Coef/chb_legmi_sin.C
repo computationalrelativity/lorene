@@ -88,6 +88,9 @@ char chb_legmi_sin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2009/10/23 12:54:47  j_novak
  * New base T_LEG_MI
  *
@@ -97,8 +100,8 @@ char chb_legmi_sin_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Headers Lorene
 #include "headcpp.h"

@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.24  2008/12/04 18:22:49  j_novak
  * Enhancement of the dzpuis treatment + various bug fixes.
  *
@@ -123,7 +126,7 @@ char tslice_dirac_max_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "time_slice.h"

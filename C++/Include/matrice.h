@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.12  2005/10/24 09:22:21  p_grandclement
  * addition of annule_hard for matrices
  *
@@ -123,7 +126,7 @@
  */
 
 //fichiers includes
-#include <stdio.h>
+#include <cstdio>
 
 #include "type_parite.h"
 #include "tbl.h"

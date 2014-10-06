@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/03/22 13:12:40  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -69,8 +72,8 @@
  */
 
 // Fichier includes
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include "mtbl.h"
 
 class Map ;

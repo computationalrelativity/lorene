@@ -28,6 +28,9 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2010/12/09 10:43:53  m_bejger
  * Small changes, annule --> annule_domain
  *
@@ -44,7 +47,7 @@ char star_bin_kinema_xcts_C[] = "$Header$" ;
  *
  */
 
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star.h"

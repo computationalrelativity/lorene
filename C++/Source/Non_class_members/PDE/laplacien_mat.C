@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2007/12/11 15:28:22  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -107,8 +110,8 @@ char laplacien_mat_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "diff.h"
 #include "proto.h"

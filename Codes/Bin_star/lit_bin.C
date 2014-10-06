@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:09:43  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2008/11/14 13:55:44  e_gourgoulhon
  * Added more outputs in the case of more than one domain inside the
  * stars.
@@ -128,9 +131,9 @@ char lit_bin_C[] = "$Header$" ;
  *
  */
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "binaire.h"

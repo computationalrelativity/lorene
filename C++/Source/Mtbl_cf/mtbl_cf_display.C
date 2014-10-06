@@ -30,6 +30,9 @@ char mtbl_cf_display_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2003/10/19 19:51:58  e_gourgoulhon
  * First version
  *
@@ -40,8 +43,8 @@ char mtbl_cf_display_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "mtbl_cf.h"

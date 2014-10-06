@@ -67,6 +67,9 @@ char mat_leg_cossinc_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/02/18 13:14:15  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -84,8 +87,8 @@ char mat_leg_cossinc_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Prototypage
 #include "headcpp.h"

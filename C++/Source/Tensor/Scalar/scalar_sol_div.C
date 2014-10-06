@@ -30,6 +30,9 @@ char scalar_sol_div_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/09/16 14:33:00  j_novak
  * Added #include <math.h>.
  *
@@ -45,8 +48,8 @@ char scalar_sol_div_C[] = "$Header$" ;
  */
 
 // C headers
-#include<assert.h>
-#include<math.h>
+#include <cassert>
+#include <cmath>
 
 //Lorene headers
 #include "tensor.h"

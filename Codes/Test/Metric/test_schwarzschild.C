@@ -28,6 +28,9 @@ char test_schwarzschild_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:53  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2004/01/28 15:27:59  e_gourgoulhon
  * Minor modifs.
  *
@@ -40,11 +43,11 @@ char test_schwarzschild_C[] = "$Header$" ;
  */
 
 // C++ headers
-#include <headcpp.h>
+#include <cheadcpp>
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

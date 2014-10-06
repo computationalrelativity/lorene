@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:25  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2009/11/19 16:15:21  j_novak
  * Export class for magnetized neutron stars.
  *
@@ -40,19 +43,11 @@
  */
 
 // Headers C
-#include <stdio.h>
-
-#ifdef OBSOLETE_HEADERS
-
-#include <iostream.h>
-#include <fstream.h>
-
-#else
+#include <cstdio>
 
 #include <iostream>
 #include <fstream>
 using namespace std ;
-#endif 
 
 /**
  * Magnetized neutron star configuration on a Cartesian grid.

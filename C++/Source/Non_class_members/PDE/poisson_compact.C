@@ -27,6 +27,9 @@ char poisson_compact_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2007/10/16 21:54:23  e_gourgoulhon
  * Added new function sol_poisson_compact (multi-domain version).
  *
@@ -55,9 +58,9 @@ char poisson_compact_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cmath>
+#include <cassert>
 
 // Headers Lorene
 #include "map.h"

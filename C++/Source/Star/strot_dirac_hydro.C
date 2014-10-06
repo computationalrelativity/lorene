@@ -30,6 +30,9 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2007/12/21 16:07:49  j_novak
  * Use of direct filtering of Vector and Sym_tensor.
  *
@@ -55,8 +58,8 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 
 
 // C headers
-#include<math.h>
-#include<assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include"star_rot_dirac.h"

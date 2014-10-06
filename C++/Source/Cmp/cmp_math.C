@@ -32,8 +32,11 @@ char cmp_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  1999/12/02  17:59:16  phil
  * /
@@ -50,7 +53,7 @@ char cmp_math_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "cmp.h"

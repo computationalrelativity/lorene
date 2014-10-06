@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.20  2014/04/25 10:43:51  j_novak
  * The member 'name' is of type string now. Correction of a few const-related issues.
  *
@@ -121,8 +124,8 @@ char eos_bf_poly_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "eos_bifluid.h"

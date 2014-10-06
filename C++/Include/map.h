@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.58  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.57  2014/01/14 13:24:02  b_peres
  * *** empty log message ***
  *
@@ -608,7 +611,7 @@
  *
  */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "coord.h"
 #include "base_vect.h"

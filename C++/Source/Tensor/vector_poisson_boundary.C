@@ -33,6 +33,9 @@ char vector_poisson_boundary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2005/06/09 08:00:09  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -44,9 +47,9 @@ char vector_poisson_boundary_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

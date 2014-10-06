@@ -25,8 +25,11 @@ char poisson_frontiere_double_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:16:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/05/15  15:46:43  phil
  * *** empty log message ***
@@ -41,8 +44,8 @@ char poisson_frontiere_double_C[] = "$Header$" ;
 
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "matrice.h"

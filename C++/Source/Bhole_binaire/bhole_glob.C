@@ -25,6 +25,9 @@ char bhole_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:12:58  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/08/29 15:10:14  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -65,8 +68,8 @@ char bhole_glob_C[] = "$Header$" ;
 
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "nbr_spx.h"

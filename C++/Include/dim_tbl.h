@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2006/09/25 10:01:45  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -79,7 +82,7 @@
  *
  */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "headcpp.h"
 

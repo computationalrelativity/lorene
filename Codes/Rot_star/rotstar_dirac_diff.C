@@ -35,7 +35,7 @@ char rotstar_dirac_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // headers Lorene
 #include "star_rot_dirac_diff.h"

@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2007/04/13 15:28:55  f_limousin
  * Lots of improvements, generalisation to an arbitrary state of
  * rotation, implementation of the spatial metric given by Samaya.
@@ -72,8 +75,8 @@ char bin_hor_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "nbr_spx.h"

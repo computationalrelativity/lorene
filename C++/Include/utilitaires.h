@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.13  2014/07/04 12:09:06  j_novak
  * New argument in zerosec(): a boolean (false by default) for aborting if the number of iteration is greater than the max.
  *
@@ -100,7 +103,7 @@
  */
  
 #include "stdio.h"
-#include <string.h>
+#include <cstring>
 
 class Param ;
 class Tbl ;

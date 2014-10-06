@@ -25,8 +25,8 @@ char ope_sec_order_solh_C[] = "$Header$" ;
  * $Header$
  *
  */
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "proto.h"
 #include "ope_elementary.h"

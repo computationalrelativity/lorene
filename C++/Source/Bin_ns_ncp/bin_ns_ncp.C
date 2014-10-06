@@ -28,6 +28,9 @@ char Bin_ns_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2004/03/25 10:28:58  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -62,7 +65,7 @@ char Bin_ns_ncp_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "bin_ns_ncp.h"

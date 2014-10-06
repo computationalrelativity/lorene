@@ -30,6 +30,9 @@ char map_af_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/12/19 16:21:43  j_novak
  * Shadow hunt
  *
@@ -88,7 +91,7 @@ char map_af_poisson_regu_C[] = "$Header$" ;
  */
 
 // headers C
-#include <math.h>
+#include <cmath>
 
 // Header Lorene
 #include "tenseur.h"

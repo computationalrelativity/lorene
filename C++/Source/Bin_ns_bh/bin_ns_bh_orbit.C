@@ -31,6 +31,9 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2004/06/09 07:26:16  k_taniguchi
  * Minor changes.
  *
@@ -49,7 +52,7 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_ns_bh.h"

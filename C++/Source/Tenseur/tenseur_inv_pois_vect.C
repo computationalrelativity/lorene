@@ -25,6 +25,9 @@ char tenseur_inv_pois_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/08/29 09:41:45  p_grandclement
  * Minor modif
  *
@@ -43,7 +46,7 @@ char tenseur_inv_pois_vect_C[] = "$Header$" ;
  */
 
 //Standard
-#include <stdlib.h>
+#include <cstdlib>
 
 //Lorene
 #include "tenseur.h"

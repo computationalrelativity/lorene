@@ -33,6 +33,9 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.12  2008/12/05 08:44:02  j_novak
  * New flag to control the "verbosity" of maxabs.
  *
@@ -83,9 +86,9 @@ char tensor_calculus_ext_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

@@ -28,6 +28,9 @@ char read_tslice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:09:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2004/06/24 15:42:16  j_novak
  * Display of log(n) and log(psi) instead of N/psi.
  *
@@ -49,9 +52,9 @@ char read_tslice_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // Lorene headers
 #include "time_slice.h"

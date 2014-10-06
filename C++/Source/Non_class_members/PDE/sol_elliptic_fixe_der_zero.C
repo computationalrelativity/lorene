@@ -26,8 +26,8 @@ char sol_elliptic_fixe_der_zeroC[] = "$Header$" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "tbl.h"

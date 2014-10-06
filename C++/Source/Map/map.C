@@ -33,6 +33,9 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -115,7 +118,7 @@ char map_C[] = "$Header$" ;
  */
 
 // headers C
-#include <math.h>
+#include <cmath>
 	
 // headers Lorene
 #include "map.h"

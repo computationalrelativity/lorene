@@ -34,6 +34,9 @@ char tensor_sym_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/01/04 20:51:45  e_gourgoulhon
  * New class to deal with general tensors which are symmetric with
  * respect to two of their indices.
@@ -44,9 +47,9 @@ char tensor_sym_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

@@ -30,6 +30,9 @@ char blackhole_killing_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/07/02 20:45:07  k_taniguchi
  * A bug removed.
  *
@@ -45,7 +48,7 @@ char blackhole_killing_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "blackhole.h"

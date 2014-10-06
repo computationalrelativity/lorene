@@ -30,6 +30,9 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2009/10/23 12:55:16  j_novak
  * New base T_LEG_MI
  *
@@ -64,8 +67,8 @@ char base_val_name_theta_C[] = "$Header$" ;
  */
 
 // C headers
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 // Lorene headers
 #include "type_parite.h"

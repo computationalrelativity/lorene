@@ -31,6 +31,9 @@ char mtbl_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2012/01/17 10:38:20  j_penner
  * added a Heaviside function
  *
@@ -59,8 +62,8 @@ char mtbl_math_C[] = "$Header$" ;
 
 // Headers C
 // ---------
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Headers Lorene
 // --------------

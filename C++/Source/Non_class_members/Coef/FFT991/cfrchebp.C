@@ -86,6 +86,9 @@ char cfrchebp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:18:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/12/21 17:06:01  j_novak
  * Added all files for using fftw3.
  *
@@ -116,8 +119,8 @@ char cfrchebp_C[] = "$Header$" ;
 
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // Prototypes of F77 subroutines
 #include "headcpp.h"

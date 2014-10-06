@@ -2,18 +2,11 @@
  * Code to generate *.o file names from *.C
  *
  */
-#include <stdlib.h>
-#include <stdio.h>
-
-#ifdef OBSOLETE_HEADERS
-
-#include <iostream.h>
-
-#else
+#include <cstdlib>
+#include <cstdio>
 
 #include <iostream>
 using namespace std ;
-#endif 
 
 int main() {
     char c ;

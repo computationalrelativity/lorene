@@ -31,6 +31,9 @@ char eos_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2009/05/25 06:52:27  k_taniguchi
  * Allowed the case of mu_0 != 1 for der_ener_ent_p and der_press_ent_p.
  *
@@ -101,9 +104,9 @@ char eos_poly_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // Headers Lorene
 #include "eos.h"

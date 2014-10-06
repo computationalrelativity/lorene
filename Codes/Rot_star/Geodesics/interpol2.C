@@ -24,6 +24,9 @@ char interpol2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:12:51  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2003/02/07 17:31:52  jp_chabbert
  * First version with rotstar input data
  *
@@ -37,7 +40,7 @@ char interpol2_C[] = "$Header$" ;
 // C++ headers
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "etoile.h"

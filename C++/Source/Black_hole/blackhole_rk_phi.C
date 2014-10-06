@@ -31,6 +31,9 @@ char blackhole_rk_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/07/02 20:43:54  k_taniguchi
  * Typos removed.
  *
@@ -46,7 +49,7 @@ char blackhole_rk_phi_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "blackhole.h"

@@ -29,6 +29,9 @@ char star_bin_extr_curv_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2010/06/15 08:10:29  m_bejger
  * *** empty log message ***
  *
@@ -40,7 +43,7 @@ char star_bin_extr_curv_xcts_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star.h"

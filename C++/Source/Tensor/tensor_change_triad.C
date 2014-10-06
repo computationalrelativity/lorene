@@ -29,6 +29,9 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2005/09/15 15:51:26  j_novak
  * The "rotation" (change of triad) methods take now Scalars as default
  * arguments.
@@ -62,7 +65,7 @@ char tensor_change_triad_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
+#include <cassert>
 
 // Lorene headers
 #include "tensor.h"

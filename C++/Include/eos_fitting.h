@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/05/22 20:50:39  k_taniguchi
  * Introduction of a new class Eos_fit_AkmalPR.
  *
@@ -48,8 +51,8 @@
 #include "headcpp.h"
 
 // Headers C
-#include <stdio.h>
-#include <assert.h>
+#include <cstdio>
+#include <cassert>
 
 // Lorene classes
 #include "eos.h"

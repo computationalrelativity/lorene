@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2008/02/18 13:53:37  j_novak
  * Removal of special indentation instructions.
  *
@@ -67,8 +70,8 @@
  */
 
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 #include "tensor.h"
 
 /**

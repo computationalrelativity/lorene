@@ -29,6 +29,9 @@ char test_map_af_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:12:53  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/06/14 15:29:12  e_gourgoulhon
  * First version
  *
@@ -41,8 +44,8 @@ char test_map_af_primr_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "tensor.h"

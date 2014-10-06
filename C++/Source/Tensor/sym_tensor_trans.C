@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.16  2008/12/03 10:20:00  j_novak
  * Modified output.
  *
@@ -92,7 +95,7 @@ char sym_tensor_trans_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "metric.h"

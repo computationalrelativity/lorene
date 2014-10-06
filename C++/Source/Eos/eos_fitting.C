@@ -30,6 +30,9 @@ char eos_fitting_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/05/23 14:14:00  k_taniguchi
  * Minor modification.
  *
@@ -45,9 +48,9 @@ char eos_fitting_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // Lorene headers
 #include "headcpp.h"

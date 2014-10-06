@@ -32,6 +32,9 @@ char TBL_VAL_MATH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2002/11/12 10:03:54  j_novak
  * The method "Tbl_val::get_gval" has been changed to "get_grid".
  *
@@ -46,8 +49,8 @@ char TBL_VAL_MATH_C[] = "$Header$" ;
 
 // Headers C
 // ---------
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Headers Lorene
 // --------------

@@ -32,6 +32,9 @@ char star_rot_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2010/01/25 18:15:52  e_gourgoulhon
  * First version.
  *
@@ -41,7 +44,7 @@ char star_rot_hydro_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "star_rot.h"

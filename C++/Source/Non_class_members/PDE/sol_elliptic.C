@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:16:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2008/07/10 11:20:33  p_grandclement
  * mistake fixed in solh_helmholtz_minus
  *
@@ -58,8 +61,8 @@ char sol_elliptic_C[] = "$Header$" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "param_elliptic.h"

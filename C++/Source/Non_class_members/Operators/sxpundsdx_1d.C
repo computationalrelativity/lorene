@@ -25,6 +25,9 @@ char sxpundsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2007/12/11 15:42:23  jl_cornou
  * Premiere version des fonctions liees aux polynomes de Jacobi(0,2)
  *
@@ -44,7 +47,7 @@ char sxpundsdx_1d_C[] = "$Header$" ;
  */
  
  // Includes
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "headcpp.h"
 #include "type_parite.h"

@@ -90,6 +90,9 @@ char citlegmi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2009/10/23 12:54:47  j_novak
  * New base T_LEG_MI
  *
@@ -99,7 +102,7 @@ char citlegmi_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
+#include <cassert>
 
 // headers bien de chez nous
 #include "proto.h"

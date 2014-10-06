@@ -31,6 +31,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:13:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2005/06/09 08:05:32  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -86,8 +89,8 @@ char source_hor_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "time_slice.h"

@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2010/01/31 16:58:39  e_gourgoulhon
  * Back to rev. 1.7 (1.8 has been committed by mistake).
  *
@@ -90,7 +93,7 @@ char map_et_adapt_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "cmp.h"

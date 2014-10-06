@@ -23,6 +23,9 @@ char param_elliptic_val_lim_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/08/24 09:14:49  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -38,8 +41,8 @@ char param_elliptic_val_lim_C[] = "$Header$" ;
 
 #include "headcpp.h"
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "base_val.h"
 #include "param_elliptic.h"

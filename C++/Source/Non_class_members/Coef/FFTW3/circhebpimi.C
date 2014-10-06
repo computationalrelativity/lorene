@@ -98,6 +98,9 @@ char circhebpimi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:18:49  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2004/12/27 14:27:28  j_novak
  * Added forgotten "delete [] t1"
  *
@@ -132,8 +135,8 @@ char circhebpimi_C[] = "$Header$" ;
 
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 #include <fftw3.h>
 
 //Lorene prototypes

@@ -34,6 +34,9 @@ char valeur_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2013/06/14 15:54:07  j_novak
  * Inclusion of Legendre bases.
  *
@@ -77,7 +80,7 @@ char valeur_dsdx_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

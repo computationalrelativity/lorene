@@ -25,6 +25,9 @@ char sxpun_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2008/08/27 08:50:10  jl_cornou
  * Added Jacobi(0,2) polynomials
  *
@@ -50,8 +53,8 @@ char sxpun_1d_C[] = "$Header$" ;
  */
 
 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "tbl.h"
 #include "type_parite.h"

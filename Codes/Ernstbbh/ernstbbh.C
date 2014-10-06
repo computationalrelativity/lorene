@@ -39,7 +39,7 @@ char name_of_this_file_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "cmp.h"

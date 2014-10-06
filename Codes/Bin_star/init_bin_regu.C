@@ -30,6 +30,9 @@ char init_bin_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:09:43  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2004/03/25 12:35:36  j_novak
  * now using namespace Unites
  *
@@ -52,8 +55,8 @@ char init_bin_regu_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "binaire.h"

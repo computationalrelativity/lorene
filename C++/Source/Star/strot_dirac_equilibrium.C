@@ -30,6 +30,9 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2009/10/26 10:54:33  j_novak
  * Added the case of a NONSYM base in theta.
  *
@@ -76,8 +79,8 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "star_rot_dirac.h"

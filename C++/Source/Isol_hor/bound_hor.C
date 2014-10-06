@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2014/10/06 15:13:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.34  2008/08/27 11:22:25  j_novak
  * Minor modifications
  *
@@ -146,8 +149,8 @@ char bound_hor_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "time_slice.h"

@@ -25,6 +25,9 @@ char bhole_equations_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:12:58  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2006/04/27 09:12:32  p_grandclement
  * First try at irrotational black holes
  *
@@ -62,8 +65,8 @@ char bhole_equations_bin_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "nbr_spx.h"

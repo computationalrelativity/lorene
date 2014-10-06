@@ -34,6 +34,9 @@ char valeur_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:24  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/08/27 08:52:55  jl_cornou
  * Added Jacobi(0,2) polynomials case
  *
@@ -65,7 +68,7 @@ char valeur_mult_x_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

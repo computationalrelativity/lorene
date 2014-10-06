@@ -25,6 +25,9 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/09/15 15:51:25  j_novak
  * The "rotation" (change of triad) methods take now Scalars as default
  * arguments.
@@ -45,7 +48,7 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "tensor.h"

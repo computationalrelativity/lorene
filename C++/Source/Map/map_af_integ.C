@@ -30,6 +30,9 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2009/10/08 16:20:47  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -63,8 +66,8 @@ char map_af_integ_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 
 // Headers Lorene

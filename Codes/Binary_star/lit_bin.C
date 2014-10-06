@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:41  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/09/14 17:13:28  f_limousin
  * Plot of fields along X, Y and Z_axis
  *
@@ -44,9 +47,9 @@ char lit_bin_C[] = "$Header$" ;
  *
  */
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "unites.h"

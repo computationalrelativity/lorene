@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2007/04/24 20:13:53  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -64,7 +67,7 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene
 #include "tenseur.h"

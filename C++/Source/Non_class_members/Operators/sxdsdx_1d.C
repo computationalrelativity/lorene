@@ -25,6 +25,9 @@ char sxdsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/10/31 09:58:55  p_grandclement
  * *** empty log message ***
  *
@@ -48,7 +51,7 @@ char sxdsdx_1d_C[] = "$Header$" ;
 
 
 // Includes
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "tbl.h"
 #include "type_parite.h"

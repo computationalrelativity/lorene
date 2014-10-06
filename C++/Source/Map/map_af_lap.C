@@ -28,6 +28,9 @@ char map_af_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:12  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2005/11/24 09:25:06  j_novak
  * Added the Scalar version for the Laplacian
  *
@@ -106,8 +109,8 @@ char map_af_lap_C[] = "$Header$" ;
 
 // Fichiers include
 // ----------------
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "cmp.h"
 #include "tensor.h"

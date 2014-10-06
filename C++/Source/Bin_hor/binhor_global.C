@@ -26,6 +26,9 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2007/04/13 15:28:55  f_limousin
  * Lots of improvements, generalisation to an arbitrary state of
  * rotation, implementation of the spatial metric given by Samaya.
@@ -62,8 +65,8 @@ char binhor_glob_C[] = "$Header$" ;
 
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "nbr_spx.h"

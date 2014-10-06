@@ -31,6 +31,9 @@ char eos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/01/14 15:59:42  f_limousin
  * Add methos calcule, nbar_ent, der_bar_ent, der_press_ent and press_ent
  * for Scalar's.
@@ -82,8 +85,8 @@ char eos_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 // Headers Lorene
 #include "eos.h"

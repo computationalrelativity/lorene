@@ -25,6 +25,9 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2008/08/27 08:51:15  jl_cornou
  * Added Jacobi(0,2) polynomials
  *
@@ -65,7 +68,7 @@ char get_operateur_C[] = "$Header$" ;
  */
 
 // Header C : 
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene :
 #include "param.h"

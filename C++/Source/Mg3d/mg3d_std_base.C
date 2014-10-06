@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2013/06/05 15:10:42  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -79,7 +82,7 @@ char mg3d_std_base_C[] = "$Header$" ;
 // headers C++
 
 // headers C
-#include <assert.h>
+#include <cassert>
 
 // headers Lorene
 #include "grilles.h"

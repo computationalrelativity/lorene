@@ -32,6 +32,9 @@ char star_rot_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2010/01/26 16:49:53  e_gourgoulhon
  * Reformated some outputs to the screen.
  *
@@ -50,7 +53,7 @@ char star_rot_equil_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star_rot.h"

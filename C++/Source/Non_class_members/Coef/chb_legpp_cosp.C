@@ -86,6 +86,9 @@ char chb_legpp_cosp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2005/02/18 13:14:11  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -118,8 +121,8 @@ char chb_legpp_cosp_C[] = "$Header$" ;
 
 
 // headers du C
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Prototypage
 #include "headcpp.h"

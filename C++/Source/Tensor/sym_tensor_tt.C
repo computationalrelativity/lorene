@@ -32,6 +32,9 @@ char sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2005/04/01 14:28:32  j_novak
  * Members p_eta and p_mu are now defined in class Sym_tensor.
  *
@@ -54,7 +57,7 @@ char sym_tensor_tt_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "tensor.h"

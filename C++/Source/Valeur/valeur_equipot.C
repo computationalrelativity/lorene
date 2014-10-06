@@ -31,6 +31,9 @@ char valeur_equipot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/12/19 15:05:56  j_novak
  * Added some initializations
  *
@@ -56,8 +59,8 @@ char valeur_equipot_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "valeur.h"

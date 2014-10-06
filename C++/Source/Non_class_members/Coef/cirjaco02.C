@@ -86,6 +86,9 @@ char cirjaco02_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2007/12/21 12:41:46  j_novak
  * Removed the #include<fftw3.h> not needed here. Corrected headers.
  *
@@ -97,8 +100,8 @@ char cirjaco02_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 //Lorene prototypes
 #include "tbl.h"

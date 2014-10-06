@@ -31,6 +31,9 @@ char star_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2010/01/25 22:33:35  e_gourgoulhon
  * Debugging...
  *
@@ -44,8 +47,8 @@ char star_rot_global_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "star_rot.h"

@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2012/01/17 10:20:57  j_penner
  * function added: Heaviside
  *
@@ -122,8 +125,8 @@
 
 
 // Fichiers includes
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 #include "type_parite.h"
 #include "dim_tbl.h"

@@ -40,6 +40,9 @@ char facto_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:18:47  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2009/11/25 08:00:54  j_novak
  * Removed a #pragma directive
  *
@@ -75,8 +78,8 @@ char facto_ini_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Prototypes of F77 subroutines
 #include "headcpp.h"

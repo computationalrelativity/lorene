@@ -29,6 +29,9 @@ char chent_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2003/09/08 15:12:06  e_gourgoulhon
  * Initial version.
  *
@@ -42,7 +45,7 @@ char chent_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdio.h>
+#include <cstdio>
 
 int main(int argc, char** argv){
 

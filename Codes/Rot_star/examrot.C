@@ -24,6 +24,9 @@ char examrot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/03/25 12:35:43  j_novak
  * now using namespace Unites
  *
@@ -49,9 +52,9 @@ char examrot_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // headers Lorene
 #include "etoile.h"

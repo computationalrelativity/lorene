@@ -29,6 +29,9 @@ char test_map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:12:52  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/01/22 16:18:52  e_gourgoulhon
  * void main() --> int main().
  *
@@ -51,8 +54,8 @@ char test_map_af_deriv_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "type_parite.h"

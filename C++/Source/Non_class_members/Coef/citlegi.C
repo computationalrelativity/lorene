@@ -90,6 +90,9 @@ char citlegi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/02/18 13:14:12  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -110,11 +113,11 @@ char citlegi_C[] = "$Header$" ;
  */
 
 
-#include <stdlib.h>
+#include <cstdlib>
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // headers bien de chez nous
 #include "headcpp.h"

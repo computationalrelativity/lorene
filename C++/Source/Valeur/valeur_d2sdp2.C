@@ -34,8 +34,11 @@ char valeur_d2sdp2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  1999/11/30  12:43:12  eric
  * Valeur::base est desormais du type Base_val et non plus Base_val*.
@@ -69,7 +72,7 @@ char valeur_d2sdp2_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

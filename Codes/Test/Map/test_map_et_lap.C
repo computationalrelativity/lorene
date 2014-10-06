@@ -29,6 +29,9 @@ char test_map_et_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:53  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/01/09 11:07:53  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -45,7 +48,7 @@ char test_map_et_lap_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // headers Lorene
 #include "type_parite.h"

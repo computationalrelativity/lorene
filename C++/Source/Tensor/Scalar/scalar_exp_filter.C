@@ -28,6 +28,9 @@ char scalar_exp_filter_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2012/01/17 10:29:27  j_penner
  * added two routines to handle generalized exponential filtering
  *
@@ -43,8 +46,8 @@ char scalar_exp_filter_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "tensor.h"

@@ -30,6 +30,9 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2012/01/02 13:52:57  j_novak
  * New parameter 'verbose' to get less output if needed.
  *
@@ -73,8 +76,8 @@ char app_hor_finder_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "app_hor.h"

@@ -32,6 +32,9 @@ char valeur_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2012/01/17 10:39:27  j_penner
  * added a Heaviside function
  *
@@ -64,8 +67,8 @@ char valeur_math_C[] = "$Header$" ;
 
 // Fichiers include
 // ----------------
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "valeur.h"
 

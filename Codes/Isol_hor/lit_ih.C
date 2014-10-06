@@ -29,6 +29,9 @@ char lit_ih_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2005/09/12 12:34:09  f_limousin
  * Compilation Warning - Change of convention for the angular velocity
  * Add Berlin boundary condition in the case of binary horizons.
@@ -49,8 +52,8 @@ char lit_ih_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

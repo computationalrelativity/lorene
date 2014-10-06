@@ -32,6 +32,9 @@ char TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2008/02/18 13:53:48  j_novak
  * Removal of special indentation instructions.
  *
@@ -59,7 +62,7 @@ char TBL_VAL_C[] = "$Header$" ;
  */
 
 // headers C
-#include <math.h>
+#include <cmath>
 
 // headers Lorene
 #include "headcpp.h"

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:13:25  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2010/07/14 16:47:30  e_gourgoulhon
  * Corrected error in the documentation for K_xx, K_xy, etc...:
  * the components are the covariant ones, not the contravariant ones.
@@ -68,19 +71,11 @@
  */
 
 // Headers C
-#include <stdio.h>
-
-#ifdef OBSOLETE_HEADERS
-
-#include <iostream.h>
-#include <fstream.h>
-
-#else
+#include <cstdio>
 
 #include <iostream>
 #include <fstream>
 using namespace std ;
-#endif
 
 /**
  * Binary black hole configuration on a Cartesian grid.

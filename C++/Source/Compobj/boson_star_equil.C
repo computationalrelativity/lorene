@@ -31,6 +31,9 @@ char boson_star_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2013/04/03 12:10:13  e_gourgoulhon
  * Added member kk to Compobj; suppressed tkij
  *
@@ -49,7 +52,7 @@ char boson_star_equil_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "boson_star.h"

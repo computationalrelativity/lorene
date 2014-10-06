@@ -31,6 +31,9 @@ char et_rot_diff_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/12/19 16:21:42  j_novak
  * Shadow hunt
  *
@@ -49,7 +52,7 @@ char et_rot_diff_global_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_diff.h"

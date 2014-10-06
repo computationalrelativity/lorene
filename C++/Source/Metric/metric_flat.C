@@ -30,6 +30,9 @@ char metric_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2005/01/12 16:03:32  j_novak
  * We initialize the covariant representation of a flat metric, to avoid any
  * possible problem when building a general metric from a flat one.
@@ -56,7 +59,7 @@ char metric_flat_C[] = "$Header$" ;
  */
 
 // C headers
-#include<stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

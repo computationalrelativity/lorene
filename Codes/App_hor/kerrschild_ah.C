@@ -30,6 +30,9 @@ char kerrschild_ah_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2012/01/02 13:52:57  j_novak
  * New parameter 'verbose' to get less output if needed.
  *
@@ -53,7 +56,7 @@ char kerrschild_ah_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "app_hor.h"

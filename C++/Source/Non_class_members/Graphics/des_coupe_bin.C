@@ -25,6 +25,9 @@ char des_coupe_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -53,7 +56,7 @@ char des_coupe_bin_C[] = "$Header$" ;
  */
 
 // Header C
-#include <math.h>
+#include <cmath>
 
 // Header Lorene
 #include "cmp.h"

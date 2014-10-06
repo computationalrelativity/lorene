@@ -31,6 +31,9 @@ char base_val_phi_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2013/04/25 15:46:05  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -59,8 +62,8 @@ char base_val_phi_funct_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 
 // Headers Lorene

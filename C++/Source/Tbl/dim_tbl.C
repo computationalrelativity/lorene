@@ -33,6 +33,9 @@ char dim_tbl[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:18  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2006/09/26 07:21:07  p_grandclement
  * Minor change in the indices
  *
@@ -79,7 +82,7 @@ char dim_tbl[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "dim_tbl.h"

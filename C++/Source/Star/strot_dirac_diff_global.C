@@ -34,7 +34,7 @@ char strot_dirac_diff_global_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "star_rot_dirac_diff.h"

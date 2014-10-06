@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:09:48  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2005/11/14 01:56:58  e_gourgoulhon
  * First version
  *
@@ -38,7 +41,7 @@
 
 using namespace std ;
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "grid.h"
 

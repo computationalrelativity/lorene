@@ -25,6 +25,9 @@ char bhole_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:12:58  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2005/08/31 09:48:00  m_saijo
  * Delete one <math.h>
  *
@@ -101,8 +104,8 @@ char bhole_coal_C[] = "$Header$" ;
  */
 
 //standard
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Lorene
 #include "tenseur.h"

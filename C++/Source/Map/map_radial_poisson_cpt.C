@@ -40,6 +40,9 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2007/10/18 08:19:32  e_gourgoulhon
  * Suppression of the abort for nzet > 2 : the function should be able
  * to treat an arbitrary number of domains inside the star.
@@ -125,8 +128,8 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 // Headers C++
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "tenseur.h"

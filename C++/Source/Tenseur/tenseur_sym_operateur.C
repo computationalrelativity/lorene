@@ -27,6 +27,9 @@ char tenseur_sym_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2003/03/03 19:41:34  f_limousin
  * Suppression of an assert on a metric associated with a tensor.
  *
@@ -66,9 +69,9 @@ char tenseur_sym_operateur_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tenseur.h"

@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2010/10/11 10:38:34  j_novak
  * *** empty log message ***
  *
@@ -80,8 +83,8 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "tensor.h"

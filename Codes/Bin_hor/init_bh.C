@@ -29,6 +29,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2007/04/13 15:30:58  f_limousin
  * Lots of improvements, generalisation to an arbitrary state of
  * rotation, implementation of the spatial metric given by Samaya.
@@ -58,8 +61,8 @@ char init_bh_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

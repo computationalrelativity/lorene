@@ -25,6 +25,9 @@ char vector_divfree_A_tau[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2013/06/05 15:10:43  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -51,8 +54,8 @@ char vector_divfree_A_tau[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "tensor.h"

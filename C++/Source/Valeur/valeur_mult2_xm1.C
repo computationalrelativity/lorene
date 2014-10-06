@@ -35,8 +35,11 @@ char valeur_mult2_xm1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/03/09  16:54:13  eric
  * Traitement du cas etat=ETATZERO
@@ -56,7 +59,7 @@ char valeur_mult2_xm1_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

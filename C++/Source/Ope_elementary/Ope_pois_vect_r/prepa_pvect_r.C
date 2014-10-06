@@ -30,6 +30,9 @@ char prepa_pvect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2004/05/17 15:42:21  j_novak
  * The method 1 of vector Poisson eq. solves directly for F^r.
  * Some bugs were corrected in the operator poisson_vect.
@@ -44,7 +47,7 @@ char prepa_pvect_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "matrice.h"
 #include "type_parite.h"

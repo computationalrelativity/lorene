@@ -26,6 +26,9 @@ char poisson_interne_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:16:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2004/11/23 12:51:42  f_limousin
  * Minor changes.
  *
@@ -39,8 +42,8 @@ char poisson_interne_C[] = "$Header$" ;
 
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "matrice.h"

@@ -34,6 +34,9 @@ char tensor_sym_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/01/08 09:22:40  e_gourgoulhon
  * First version.
  *
@@ -43,9 +46,9 @@ char tensor_sym_arithm_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

@@ -25,6 +25,9 @@ char regularise_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2006/04/27 09:12:32  p_grandclement
  * First try at irrotational black holes
  *
@@ -73,8 +76,8 @@ char regularise_shift_C[] = "$Header$" ;
 
 
 //Standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 //Lorene
 #include "nbr_spx.h"

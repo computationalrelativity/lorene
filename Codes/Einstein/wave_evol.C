@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:09:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2010/10/20 08:00:43  j_novak
  * New flag to control output on screen.
  *
@@ -84,8 +87,8 @@ char wave_evol_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 // Lorene headers
 #include "time_slice.h"

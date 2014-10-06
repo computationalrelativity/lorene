@@ -28,6 +28,9 @@ char meos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2004/04/01 11:09:26  e_gourgoulhon
  * Copy constructor of MEos: explicit call to the default constructor of
  * base class Eos.
@@ -49,7 +52,7 @@ char meos_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "headcpp.h"

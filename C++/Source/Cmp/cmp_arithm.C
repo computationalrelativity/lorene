@@ -32,6 +32,9 @@ char cmp_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/06/20 13:59:59  f_limousin
  * L'assert pour le mapping est realise a partir du mapping lui meme et non a partir du pointeur sur le mapping.
  *
@@ -83,8 +86,8 @@ char cmp_arithm_C[] = "$Header$" ;
  */
 
 // headers C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // headers Lorene
 #include "cmp.h"

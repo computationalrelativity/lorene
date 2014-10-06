@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/11/17 16:32:35  e_gourgoulhon
  * Added test of ETATZERO and ETATUN cases.
  *
@@ -38,9 +41,9 @@
  */
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "headcpp.h"    // standard input/output C++ headers (iostream, fstream)

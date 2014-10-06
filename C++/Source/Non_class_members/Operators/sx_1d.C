@@ -25,6 +25,9 @@ char sx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2006/04/10 15:19:20  j_novak
  * New definition of 1D operators dsdx and sx in the nucleus (bases R_CHEBP and
  * R_CHEBI).
@@ -36,7 +39,7 @@ char sx_1d_C[] = "$Header$" ;
  
  
  // Includes
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "headcpp.h"
 #include "type_parite.h"

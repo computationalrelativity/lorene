@@ -25,6 +25,9 @@ char map_log_elliptic_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2007/01/16 15:08:07  n_vasset
  * New constructor, usn Scalar on mono-domain angular grid for boundary,
  * for function sol_elliptic_boundary()
@@ -52,8 +55,8 @@ char map_log_elliptic_C[] = "$Header $" ;
  */
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "tbl.h"

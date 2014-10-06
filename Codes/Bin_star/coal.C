@@ -30,6 +30,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2008/11/14 13:53:23  e_gourgoulhon
  * Introduced the arrays ent_limit to force the enthalpy values at the
  * boundaries between the domains inside the stars.
@@ -155,9 +158,9 @@ char coal_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 
 // headers Lorene
 #include "binaire.h"

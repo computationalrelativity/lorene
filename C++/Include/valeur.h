@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.18  2013/06/05 15:06:10  j_novak
  * Legendre bases are treated as standard bases, when the multi-grid
  * (Mg3d) is built with BASE_LEG.
@@ -263,7 +266,7 @@
  */
 
 // Fichier includes
-#include <stdio.h>
+#include <cstdio>
 
 #include "mtbl.h"
 #include "mtbl_cf.h"

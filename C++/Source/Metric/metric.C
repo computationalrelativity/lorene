@@ -30,6 +30,9 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:14  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2005/03/02 15:03:46  f_limousin
  * p_radial_vect is added in del_deriv() and set_der_0x0.
  *
@@ -84,7 +87,7 @@ char metric_C[] = "$Header$" ;
  */
 
 // C headers
-#include<stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

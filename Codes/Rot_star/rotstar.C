@@ -29,6 +29,9 @@ char rotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/03/25 12:35:44  j_novak
  * now using namespace Unites
  *
@@ -104,9 +107,9 @@ char rotstar_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "etoile.h"

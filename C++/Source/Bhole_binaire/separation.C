@@ -25,6 +25,9 @@ char separation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/10/03 15:58:44  j_novak
  * Cleaning of some headers
  *
@@ -58,7 +61,7 @@ char separation_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene
 #include "cmp.h"

@@ -25,6 +25,9 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2008/07/09 06:51:58  p_grandclement
  * some corrections to helmholtz minus in the nucleus
  *
@@ -54,9 +57,9 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include "matrice.h"
 #include "type_parite.h"

@@ -31,6 +31,9 @@ char binary_helical_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -52,7 +55,7 @@ char binary_helical_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "cmp.h"

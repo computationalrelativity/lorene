@@ -29,6 +29,9 @@ char poisson_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/12/29 16:32:02  k_taniguchi
  * *** empty log message ***
  *
@@ -38,8 +41,8 @@ char poisson_ylm_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene headers
 #include "matrice.h"

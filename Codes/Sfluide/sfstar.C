@@ -25,7 +25,7 @@
  ***********************************************************************/
 
 // // headers C
-#include <math.h>
+#include <cmath>
 #include <gsl/gsl_integration.h>
 
 #include <sstream>

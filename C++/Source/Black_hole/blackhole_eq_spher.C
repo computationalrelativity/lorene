@@ -30,6 +30,9 @@ char blackhole_eq_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:02  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/07/02 20:42:53  k_taniguchi
  * Modification of the argument and so on.
  *
@@ -48,7 +51,7 @@ char blackhole_eq_spher_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "blackhole.h"

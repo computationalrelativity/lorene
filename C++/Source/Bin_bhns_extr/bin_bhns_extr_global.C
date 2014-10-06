@@ -30,6 +30,9 @@ char bin_bhns_extr_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/02/28 23:07:12  k_taniguchi
  * Suppression of the ADM mass and so on.
  *
@@ -42,7 +45,7 @@ char bin_bhns_extr_global_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_bhns_extr.h"

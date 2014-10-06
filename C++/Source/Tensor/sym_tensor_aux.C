@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.13  2007/11/27 15:49:51  n_vasset
  * new function compute_tilde_C in class sym_tensor
  *
@@ -87,9 +90,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "metric.h"

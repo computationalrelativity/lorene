@@ -36,7 +36,7 @@ char bin_ns_ncp_orbite_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene 
 #include "bin_ns_ncp.h"

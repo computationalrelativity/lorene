@@ -31,6 +31,9 @@ char valeur_mult_sp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:23  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2012/01/17 15:08:32  j_penner
  * using MAX_BASE_2 for the phi coordinate
  *
@@ -52,7 +55,7 @@ char valeur_mult_sp_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

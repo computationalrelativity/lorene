@@ -38,6 +38,9 @@ char trigo_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:18:47  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/12/21 17:06:01  j_novak
  * Added all files for using fftw3.
  *
@@ -73,8 +76,8 @@ char trigo_ini_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Prototypes of F77 subroutines
 #include "headcpp.h"

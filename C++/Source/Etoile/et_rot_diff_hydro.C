@@ -32,8 +32,11 @@ char et_rot_diff_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2001/10/19  08:18:36  eric
  * Initial revision
@@ -45,7 +48,7 @@ char et_rot_diff_hydro_C[] = "$Header$" ;
 
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "et_rot_diff.h"

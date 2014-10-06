@@ -29,6 +29,9 @@ char coal_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2006/05/31 11:30:28  f_limousin
  * Modif. of the size of the different domains
  *
@@ -44,9 +47,9 @@ char coal_seq_C[] = "$Header$" ;
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 
 // headers Lorene
 #include "unites.h"

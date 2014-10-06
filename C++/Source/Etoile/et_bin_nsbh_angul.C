@@ -25,6 +25,9 @@ char et_bin_nsbh_angul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/08/31 09:53:19  m_saijo
  * Delete unnecessary words around headers
  *
@@ -43,7 +46,7 @@ char et_bin_nsbh_angul_C[] = "$Header$" ;
  */
 
 // C Headers
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "et_bin_nsbh.h"

@@ -28,6 +28,9 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2004/06/04 16:14:18  j_novak
  * In smooth_decay, the configuration space was not up-to-date.
  *
@@ -53,8 +56,8 @@ char scalar_raccord_zec_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "matrice.h"

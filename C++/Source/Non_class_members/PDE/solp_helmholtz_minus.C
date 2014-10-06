@@ -25,6 +25,9 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:16:10  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2008/07/10 11:20:33  p_grandclement
  * mistake fixed in solh_helmholtz_minus
  *
@@ -57,9 +60,9 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #include "matrice.h"
 #include "type_parite.h"

@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2014/02/12 16:46:54  o_straub
  * Rmb : cleaner prompt
  *
@@ -65,7 +68,7 @@ char compobj_QI_global_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "compobj.h"

@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/06 15:13:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.17  2006/03/13 10:02:27  j_novak
  * Added things for triaxial perturbations.
  *
@@ -102,7 +105,7 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_bifluid.h"

@@ -35,6 +35,9 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2004/10/11 15:09:01  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -183,9 +186,9 @@ char cmp_C[] = "$Header$" ;
  */
 
 // headers C
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "cmp.h"

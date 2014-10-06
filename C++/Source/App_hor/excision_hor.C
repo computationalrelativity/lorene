@@ -31,8 +31,8 @@ char excision_hor_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "excision_hor.h"

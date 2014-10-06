@@ -28,6 +28,9 @@ char test_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:12:55  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2005/05/18 15:31:25  j_novak
  * *** empty log message ***
  *
@@ -54,7 +57,7 @@ char test_poisson_angu_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

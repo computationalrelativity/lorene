@@ -89,6 +89,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:40  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2009/11/22 17:06:11  j_novak
  * Patched to build on a Macbook Pro (thanks E. Schnetter)
  *
@@ -131,31 +134,31 @@
  */
 
 #ifdef __alpha
-#include <float.h>
+#include <cfloat>
 #define __infinity DBL_INFINITY
 #else
 #ifdef __hppa
-#include <math.h>
+#include <cmath>
 #define __infinity HUGE_VAL
 #else
 #ifdef __linux
-#include <math.h>
+#include <cmath>
 #define __infinity HUGE_VAL
 #else
 #ifdef __aix
-#include <math.h>
+#include <cmath>
 #define __infinity HUGE_VAL
 #else
 #ifdef __ppc__
-#include <math.h>
+#include <cmath>
 #define __infinity INFINITY
 #else
 #ifdef __i386__
-#include <math.h>
+#include <cmath>
 #define __infinity INFINITY
 #else
 #ifdef __x86_64__
-#include <math.h>
+#include <cmath>
 #define __infinity INFINITY
 #else
 extern double __infinity ;

@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:07:36  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2008/09/22 19:08:56  j_novak
  * Minor modifs.
  *
@@ -42,7 +45,7 @@
  */
 
 // C headers:
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "tbl.h"

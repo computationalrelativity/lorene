@@ -31,6 +31,9 @@ char std_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:16:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2013/06/05 14:54:46  j_novak
  * Removed the FINJAC sampling (now BASE_JAC02 in Mg3d).
  *
@@ -67,7 +70,7 @@ char std_base_scal_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene
 #include "headcpp.h"

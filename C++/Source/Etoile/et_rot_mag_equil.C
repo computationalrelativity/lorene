@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/10/06 15:13:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.19  2014/09/03 15:33:42  j_novak
  * Filtering of Maxwell sources is now optional.
  *
@@ -97,7 +100,7 @@ char et_rot_mag_equil_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_mag.h"

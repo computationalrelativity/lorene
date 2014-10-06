@@ -35,6 +35,9 @@ char tenseur_sym_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:19  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2003/06/20 14:54:17  f_limousin
  * Put an assert on "poids" into comments
  *
@@ -73,9 +76,9 @@ char tenseur_sym_arithm_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tenseur.h"

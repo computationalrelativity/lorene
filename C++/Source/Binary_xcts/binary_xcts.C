@@ -28,6 +28,9 @@ char binary_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:12:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2010/12/20 09:56:02  m_bejger
  * Pointer to the linear momentum added
  *
@@ -45,7 +48,7 @@ char binary_xcts_C[] = "$Header$" ;
  */
  
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "binary_xcts.h"

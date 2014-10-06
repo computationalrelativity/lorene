@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2007/04/24 20:13:53  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -54,8 +57,8 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "nbr_spx.h"

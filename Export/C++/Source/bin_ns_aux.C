@@ -31,6 +31,9 @@ char bin_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:25  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2014/02/24 16:08:11  e_gourgoulhon
  * Eulerian velocities set to zero outside the stars
  *
@@ -58,8 +61,8 @@ char bin_ns_aux_C[] = "$Header$" ;
 #include "../Include/bin_ns.h"
 
 // C headers
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 
 // Lorene headers
 #include "tenseur.h"

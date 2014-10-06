@@ -34,6 +34,9 @@ char valeur_scost_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:24  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2009/10/10 18:28:11  j_novak
  * New bases T_COS and T_SIN.
  *
@@ -65,7 +68,7 @@ char valeur_scost_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <assert.h>
+#include <cassert>
 
 // Headers Lorene
 #include "mtbl_cf.h"

@@ -30,6 +30,9 @@ char prepa_ptens_rr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:16:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/12/23 16:30:15  j_novak
  * New files and class for the solution of the rr component of the tensor Poisson
  * equation.
@@ -40,7 +43,7 @@ char prepa_ptens_rr_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "matrice.h"
 #include "type_parite.h"

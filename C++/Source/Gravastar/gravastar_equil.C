@@ -32,7 +32,7 @@ char gravastar_equil_C[] = "$Header$" ;
 
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "gravastar.h"

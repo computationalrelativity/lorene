@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2014/10/06 15:13:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.33  2009/05/18 22:04:27  j_novak
  * Changed pow(psi_in, 6) to psi*...*psi in the call to Time_slice_conf constructor. This is to get a well-defined basis.
  *
@@ -147,8 +150,8 @@ char isol_hor_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "param.h"

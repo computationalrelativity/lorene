@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:16:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2007/12/12 12:30:48  jl_cornou
  * *** empty log message ***
  *
@@ -46,8 +49,8 @@ char dsdx_1d_C[] = "$Header$" ;
  *
  */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "type_parite.h"
 #include "headcpp.h"
 #include "proto.h"

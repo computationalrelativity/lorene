@@ -31,6 +31,9 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:16:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2005/11/17 15:30:11  e_gourgoulhon
  * Added arithmetics with Mtbl.
  *
@@ -65,8 +68,8 @@ char scalar_arithm_C[] = "$Header$" ;
  */
 
 // headers C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // headers Lorene
 #include "tensor.h"

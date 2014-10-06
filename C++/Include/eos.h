@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/06 15:09:39  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.18  2012/10/26 14:09:13  e_gourgoulhon
  * Added new class Eos_Fermi
  *
@@ -157,7 +160,7 @@
 #include "headcpp.h"
 
 // Headers C
-#include <stdio.h>
+#include <cstdio>
 
 // Lorene classes
 class Tbl ;

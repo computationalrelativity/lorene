@@ -28,6 +28,9 @@ char lit_holes_bin_mdiff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:09:41  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2005/08/29 15:10:19  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -40,8 +43,8 @@ char lit_holes_bin_mdiff_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

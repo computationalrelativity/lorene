@@ -31,6 +31,9 @@ char star_bhns_chi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2007/06/22 01:30:27  k_taniguchi
  * *** empty log message ***
  *
@@ -43,7 +46,7 @@ char star_bhns_chi_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "star_bhns.h"

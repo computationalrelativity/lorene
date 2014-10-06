@@ -29,6 +29,9 @@ char read_bin_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:47  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/01/09 11:08:00  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -46,7 +49,7 @@ char read_bin_ns_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Definition of Bin_NS class
 #include "bin_ns.h"

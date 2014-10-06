@@ -30,6 +30,9 @@ char map_log_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2004/06/22 12:20:17  j_novak
  * *** empty log message ***
  *
@@ -41,7 +44,7 @@ char map_log_radius_C[] = "$Header$" ;
  *
  */
 
-#include<math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "map.h"

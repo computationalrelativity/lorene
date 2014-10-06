@@ -29,6 +29,9 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/06 15:16:05  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.9  2012/01/17 10:35:46  j_penner
  * added point plot
  *
@@ -72,8 +75,8 @@ char des_profile_C[] = "$Header$" ;
 #include"headcpp.h"
 
 // C headers:
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include <cpgplot.h>
 
 

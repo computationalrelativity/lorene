@@ -28,6 +28,9 @@ char test_display_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:12:54  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2003/10/19 20:03:49  e_gourgoulhon
  * First version
  *
@@ -40,7 +43,7 @@ char test_display_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

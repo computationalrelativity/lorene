@@ -34,6 +34,9 @@ char scalar_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2012/01/17 10:27:46  j_penner
  * added a Heaviside function
  *
@@ -53,7 +56,7 @@ char scalar_math_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

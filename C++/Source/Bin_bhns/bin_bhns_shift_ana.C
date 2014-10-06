@@ -30,6 +30,9 @@ char bin_bhns_shift_ana_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2007/06/22 01:11:08  k_taniguchi
  * *** empty log message ***
  *
@@ -42,7 +45,7 @@ char bin_bhns_shift_ana_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_bhns.h"

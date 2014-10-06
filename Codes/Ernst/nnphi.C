@@ -28,6 +28,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:44  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2003/02/23 20:54:17  c_klein
  * new output format
  *
@@ -54,7 +57,7 @@ char name_of_this_file_C[] = "$Header$" ;
 
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "cmp.h"

@@ -28,6 +28,9 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.8  2008/09/26 08:44:04  p_grandclement
  * Mixted binaries with non vanishing spin
  *
@@ -53,8 +56,8 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
  */
  
  //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

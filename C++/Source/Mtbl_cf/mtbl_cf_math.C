@@ -29,8 +29,11 @@ char mtbl_cf_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2000/02/25  10:57:40  eric
  * Suppressions des appels a nettoie().
@@ -48,8 +51,8 @@ char mtbl_cf_math_C[] = "$Header$" ;
 
 // Headers C
 // ---------
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // Headers Lorene
 // --------------

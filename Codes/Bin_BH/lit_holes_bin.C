@@ -28,6 +28,9 @@ char lit_holes_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:41  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2005/08/25 12:14:11  p_grandclement
  * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
  *
@@ -55,8 +58,8 @@ char lit_holes_bin_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

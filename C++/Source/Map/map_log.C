@@ -32,6 +32,9 @@ char map_log_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:13  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -41,7 +44,7 @@ char map_log_C[] = "$Header $" ;
  */
 
 // headers C
-#include <math.h>
+#include <cmath>
 
 // headers Lorene
 #include "itbl.h"

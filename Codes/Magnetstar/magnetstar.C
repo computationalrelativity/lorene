@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2012/08/17 15:35:06  p_cerda
  * Small changes to match the paper
  *
@@ -49,9 +52,9 @@
  */
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 // headers Lorene
 #include "et_rot_mag.h"

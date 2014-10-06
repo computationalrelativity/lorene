@@ -28,6 +28,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:09:41  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/11/14 08:14:52  p_grandclement
  * Correction of the codes for binary black holes in circular orbit
  *
@@ -49,9 +52,8 @@ char init_bh_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
-#include <fstream.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "type_parite.h"

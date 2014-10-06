@@ -30,6 +30,9 @@ char vector_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/02/16 15:31:56  m_forot
  * Add the visu_streamline function
  *
@@ -45,8 +48,8 @@ char vector_visu_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 // Lorene headers
 #include "tensor.h"

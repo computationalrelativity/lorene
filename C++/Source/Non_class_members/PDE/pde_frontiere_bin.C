@@ -25,6 +25,9 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:16:08  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2006/05/11 14:16:37  f_limousin
  * Minor modifs.
  *
@@ -59,8 +62,8 @@ char pde_frontiere_bin_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "tensor.h"

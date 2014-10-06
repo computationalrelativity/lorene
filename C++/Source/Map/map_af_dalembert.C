@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/06 15:13:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.16  2008/08/27 08:55:31  jl_cornou
  * Added R_JACO02 case
  *
@@ -102,7 +105,7 @@ char map_af_dalembert_C[] = "$Header$" ;
  *
  */
 //Header C++
-#include <math.h>
+#include <cmath>
 
 // Header Lorene:
 #include "tensor.h"

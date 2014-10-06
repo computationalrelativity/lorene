@@ -30,6 +30,9 @@ char base_val_name_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2012/01/17 14:44:27  j_penner
  * Modified phi variables to only use 16 integers in arrays
  *
@@ -43,8 +46,8 @@ char base_val_name_phi_C[] = "$Header$" ;
  */
 
 // C headers
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 // Lorene headers
 #include "base_val.h"

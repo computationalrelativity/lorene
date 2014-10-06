@@ -80,6 +80,9 @@ char citsini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:18:50  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/12/21 17:06:03  j_novak
  * Added all files for using fftw3.
  *
@@ -109,7 +112,7 @@ char citsini_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <stdlib.h>
+#include <cstdlib>
 #include <fftw3.h>
 
 //Lorene prototypes

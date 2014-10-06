@@ -29,6 +29,9 @@ char scalar_match_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:16  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2012/05/11 14:11:24  j_novak
  * Modifications to deal with the accretion of a scalar field
  *
@@ -47,8 +50,8 @@ char scalar_match_tau_C[] = "$Header$" ;
  */
 
 // C headers
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 // Lorene headers
 #include "tensor.h"

@@ -28,6 +28,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:09:43  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2003/09/16 09:15:33  e_gourgoulhon
  * First version.
  *
@@ -43,7 +46,7 @@ char prepare_seq_C[] = "$Header$" ;
 using namespace std ; 
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 int main() {
 

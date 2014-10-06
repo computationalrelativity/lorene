@@ -33,6 +33,9 @@ char itbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2008/02/18 13:53:40  j_novak
  * Removal of special indentation instructions.
  *
@@ -74,7 +77,7 @@ char itbl_C[] = "$Header$" ;
 
 
 // headers C
-#include <math.h>
+#include <cmath>
 
 // headers Lorene
 #include "itbl.h"

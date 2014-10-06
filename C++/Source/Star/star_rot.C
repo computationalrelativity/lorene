@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.6  2010/02/08 11:45:58  j_novak
  * Better computation of fait_shift()
  *
@@ -55,8 +58,8 @@ char star_rot_C[] = "$Header$" ;
 
 
 // C headers
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 // Lorene headers
 #include "star_rot.h"

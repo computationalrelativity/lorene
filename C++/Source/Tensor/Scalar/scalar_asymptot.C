@@ -33,6 +33,9 @@ char scalar_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/02/21 17:05:14  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -48,7 +51,7 @@ char scalar_asymptot_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

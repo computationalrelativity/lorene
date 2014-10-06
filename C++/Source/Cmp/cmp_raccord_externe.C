@@ -25,6 +25,9 @@ char cmp_raccord_externe_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:04  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2003/10/03 15:58:45  j_novak
  * Cleaning of some headers
  *
@@ -48,8 +51,8 @@ char cmp_raccord_externe_C[] = "$Header$" ;
 
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // LORENE
 #include "matrice.h"

@@ -25,6 +25,9 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/06 15:13:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.14  2004/09/03 13:55:07  j_novak
  * Use of enerps_euler instead of ener_euler in the calculation of mom_angu()
  *
@@ -92,8 +95,8 @@ char et_bfrot_global_C[] = "$Header$" ;
 
 
 // Headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene
 #include "et_rot_bifluid.h"

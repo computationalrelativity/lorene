@@ -29,6 +29,9 @@ char test_sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:12:56  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2005/09/08 07:40:56  j_novak
  * Update of set_auxiliary arguments.
  *
@@ -60,7 +63,7 @@ char test_sym_tensor_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
+#include <cstdlib>
 
 // Lorene headers
 #include "metric.h"

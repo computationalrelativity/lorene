@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:09:42  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2008/11/14 13:54:53  e_gourgoulhon
  * Reading in input files par_grid*.d the values for the enthalpy at the
  * boundaries between the domains inside the stars.
@@ -66,8 +69,8 @@ char init_bin_C[] = "$Header$" ;
 
  
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "binaire.h"

@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:48  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/11/14 14:12:10  e_gourgoulhon
  * Added include <assert.h>
  *
@@ -41,9 +44,9 @@
 
 using namespace std ;
 
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cmath>
+#include <cassert>
 
 #include "ortho_poly.h"
 #include "grid.h"

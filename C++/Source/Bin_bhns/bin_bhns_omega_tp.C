@@ -31,6 +31,9 @@ char star_bhns_omega_tp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2008/05/15 19:00:27  k_taniguchi
  * Change of some parameters.
  *
@@ -46,7 +49,7 @@ char star_bhns_omega_tp_C[] = "$Header$" ;
 //#include <>
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_bhns.h"

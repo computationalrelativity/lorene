@@ -31,6 +31,9 @@ char bin_ns_bh_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:13:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/11/30 11:09:06  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -43,7 +46,7 @@ char bin_ns_bh_anashift_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "bin_ns_bh.h"

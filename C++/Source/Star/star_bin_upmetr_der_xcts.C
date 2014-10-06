@@ -28,6 +28,9 @@ char star_bin_upmetr_der_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:13:17  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2010/12/09 10:44:42  m_bejger
  * Cosmetic changes
  *
@@ -45,7 +48,7 @@ char star_bin_upmetr_der_xcts_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "star.h"

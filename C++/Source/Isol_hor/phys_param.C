@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/06 15:13:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.11  2005/11/02 16:09:44  jl_jaramillo
  * changes in boundary_nn_Dir_lapl
  *
@@ -71,8 +74,8 @@ char phys_param_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // C headers
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "isol_hor.h"

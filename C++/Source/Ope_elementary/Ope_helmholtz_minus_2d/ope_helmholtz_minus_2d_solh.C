@@ -25,8 +25,8 @@ char ope_helmholtz_minus_2d_solh_C[] = "$Header$" ;
  * $Header$
  *
  */
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include <gsl/gsl_sf_bessel.h>
 
 #include "proto.h"

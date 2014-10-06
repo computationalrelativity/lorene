@@ -94,6 +94,9 @@ char chb_legp_cossincp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:16:00  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2013/04/25 15:46:05  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -122,8 +125,8 @@ char chb_legp_cossincp_C[] = "$Header$" ;
 
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 // Prototypage
 #include "headcpp.h"

@@ -23,6 +23,9 @@ char change_var_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2004/05/14 08:51:01  p_grandclement
  * *** empty log message ***
  *
@@ -45,8 +48,8 @@ char change_var_C[] = "$Header$" ;
 
 #include "headcpp.h"
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "proto.h"
 #include "change_var.h"

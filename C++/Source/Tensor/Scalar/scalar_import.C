@@ -31,6 +31,9 @@ char scalar_import_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:15  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -47,7 +50,7 @@ char scalar_import_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <math.h>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

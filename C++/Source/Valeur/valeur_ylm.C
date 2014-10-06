@@ -34,6 +34,9 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/06 15:13:25  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.10  2009/10/23 12:56:29  j_novak
  * New base T_LEG_MI
  *
@@ -116,9 +119,9 @@ char valeur_ylm_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "type_parite.h"

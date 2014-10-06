@@ -32,8 +32,11 @@ char cmp_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:13:03  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.7  2000/09/11  15:55:12  eric
  * Calcul de dsdx, dsdy et dsdz: suppression des methodes Map::deriv_x, etc...
@@ -65,7 +68,7 @@ char cmp_deriv_C[] = "$Header$" ;
  */
  
 // Headers C
-#include <stdlib.h>
+#include <cstdlib>
 
 // Headers Lorene
 #include "cmp.h"

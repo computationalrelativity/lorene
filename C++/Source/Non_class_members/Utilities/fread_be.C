@@ -29,6 +29,9 @@ char fread_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:16:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2009/01/19 15:23:17  j_novak
  * Change of some casts to avoid warnings
  *
@@ -52,8 +55,8 @@ char fread_be_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdio.h>
-#include <assert.h>
+#include <cstdio>
+#include <cassert>
 
 			//-------------------------//
 			//	int version 	   //

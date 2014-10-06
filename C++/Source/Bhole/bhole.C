@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/06 15:12:57  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.13  2007/04/26 13:16:21  f_limousin
  * Correction of an error in the computation of grad_n_tot and grad_psi_tot
  *
@@ -155,8 +158,8 @@ char bhole_C[] = "$Header$" ;
  */
 
 //standard
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Lorene
 #include "tenseur.h"

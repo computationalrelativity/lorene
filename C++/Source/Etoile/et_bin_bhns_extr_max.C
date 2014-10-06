@@ -31,6 +31,9 @@ char et_bin_bhns_extr_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/06 15:13:07  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.1  2004/11/30 20:50:24  k_taniguchi
  * *** empty log message ***
  *
@@ -40,7 +43,7 @@ char et_bin_bhns_extr_max_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "et_bin_bhns_extr.h"

@@ -93,6 +93,9 @@ char cftlegpi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:15:59  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2002/10/16 14:36:52  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -109,7 +112,7 @@ char cftlegpi_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
+#include <cassert>
 
 // headers bien de chez nous
 #include "headcpp.h"

@@ -28,6 +28,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/06 15:09:41  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.2  2005/09/13 19:47:28  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -49,7 +52,7 @@ char prepare_seq_C[] = "$Header$" ;
 using namespace std ; 
 
 // C headers
-#include <math.h>
+#include <cmath>
 #include "unites.h"
 
 

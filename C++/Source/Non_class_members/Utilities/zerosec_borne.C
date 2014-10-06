@@ -33,6 +33,9 @@ char zerosec_borne_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/06 15:16:11  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.5  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -49,9 +52,9 @@ char zerosec_borne_C[] = "$Header$" ;
  */
  
 // Headers C
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cmath>
+#include <cassert>
 
 // Headers Lorene 
 #include "headcpp.h"

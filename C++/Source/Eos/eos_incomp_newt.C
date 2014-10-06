@@ -31,6 +31,9 @@ char Eos_incomp_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:06  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -71,9 +74,9 @@ char Eos_incomp_newt_C[] = "$Header$" ;
 
 
 // Headers C
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // Headers Lorene
 #include "eos.h"

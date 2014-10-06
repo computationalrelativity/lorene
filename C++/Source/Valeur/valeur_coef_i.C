@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/06 15:13:22  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.15  2013/06/06 15:31:33  j_novak
  * Functions to compute Legendre coefficients (not fully tested yet).
  *
@@ -115,7 +118,7 @@ char valeur_coef_i_C[] = "$Header$" ;
  *
  */
 
-#include <math.h>
+#include <cmath>
 
 // Header Lorene
 #include "valeur.h"

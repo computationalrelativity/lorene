@@ -25,6 +25,9 @@ char poisson_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:16:09  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/11/23 12:50:44  f_limousin
  * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
  * equation with a mixed boundary condition (Dirichlet + Neumann).
@@ -57,8 +60,8 @@ char poisson_frontiere_C[] = "$Header$" ;
 
 
 // Header C : 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // Headers Lorene :
 #include "matrice.h"

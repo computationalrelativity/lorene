@@ -30,6 +30,9 @@ char vector_poisson_block_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/06 15:13:21  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.7  2012/10/12 11:43:38  j_novak
  * Removed some headers
  *
@@ -58,7 +61,7 @@ char vector_poisson_block_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"

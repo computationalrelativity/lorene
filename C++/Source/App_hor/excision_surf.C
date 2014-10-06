@@ -35,7 +35,7 @@ char excision_surf_C[] = "$Header$" ;
  */
 
 // C headers
-#include <math.h>
+#include <cmath>
 
 // Lorene headers
 #include "metric.h"
@@ -44,7 +44,7 @@ char excision_surf_C[] = "$Header$" ;
 #include "param.h"
 #include "itbl.h"
 #include "map.h"
-#include <assert.h>
+#include <cassert>
 #include "nbr_spx.h"
 #include "math.h"
 #include "param_elliptic.h"

@@ -33,6 +33,9 @@ char tensor_sym_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:13:20  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2004/02/26 22:50:33  e_gourgoulhon
  * Added methods derive_cov, derive_con and derive_lie.
  *
@@ -48,9 +51,9 @@ char tensor_sym_calculus_C[] = "$Header$" ;
  */
 
 // Headers C
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
 // Headers Lorene
 #include "tensor.h"

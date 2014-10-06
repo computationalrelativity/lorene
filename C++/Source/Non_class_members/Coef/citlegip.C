@@ -91,8 +91,11 @@ char citlegip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/06 15:16:01  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/10/04  14:41:12  eric
  * *** empty log message ***
@@ -103,7 +106,7 @@ char citlegip_C[] = "$Header$" ;
  */
 
 // headers du C
-#include <assert.h>
+#include <cassert>
 
 // headers bien de chez nous
 #include "proto.h"

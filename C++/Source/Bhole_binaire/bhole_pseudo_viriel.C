@@ -25,6 +25,9 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/06 15:12:58  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.3  2005/08/29 15:10:14  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -63,7 +66,7 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
  *
  */
 
-#include<math.h>
+#include <cmath>
 
 // Lorene
 #include "tenseur.h"

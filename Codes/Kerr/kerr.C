@@ -29,6 +29,9 @@ char kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/06 15:09:45  j_novak
+ * Modified #include directives to use c++ syntax.
+ *
  * Revision 1.4  2006/01/24 16:01:33  f_limousin
  * Version ok for lambda = 0 and lambda = 1/3
  *
@@ -47,8 +50,8 @@ char kerr_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 // headers Lorene
 #include "tenseur.h" 
