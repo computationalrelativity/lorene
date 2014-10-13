@@ -26,6 +26,9 @@ char single_regul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char single_regul_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "tensor.h"
 
+namespace Lorene {
 double Single_hor::regularisation (const Vector& shift_auto_temp, 
 				 const Vector& shift_comp_temp, double om) {
     
@@ -224,4 +228,5 @@ double Single_hor::regularise_one () {
     beta = shift ;
 
     return erreur ;
+}
 }

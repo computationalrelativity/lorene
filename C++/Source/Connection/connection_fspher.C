@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.23  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -135,6 +138,7 @@ char connection_fspher_C[] = "$Header$" ;
 
 // Contructor from a spherical flat-metric-orthonormal basis
 
+namespace Lorene {
 Connection_fspher::Connection_fspher(const Map& mpi, const Base_vect_spher& bi) 
   : Connection_flat(mpi, bi) {
 
@@ -673,3 +677,4 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
 
 
 
+}

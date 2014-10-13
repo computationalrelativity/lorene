@@ -31,6 +31,9 @@ char scalar_th_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2006/05/26 09:00:12  j_novak
  * New members for multiplication or division by cos(theta).
  *
@@ -51,6 +54,7 @@ char scalar_th_manip_C[] = "$Header$" ;
 			//-------------------//
 
 
+namespace Lorene {
 void Scalar::mult_cost() {
 
     mp->mult_cost(*this) ;   // Call of the appropriate routine of the mapping 
@@ -115,3 +119,4 @@ void Scalar::div_tant() {
 
 
 
+}

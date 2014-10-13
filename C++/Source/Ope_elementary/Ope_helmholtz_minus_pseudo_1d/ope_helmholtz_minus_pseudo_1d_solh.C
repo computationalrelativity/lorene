@@ -35,6 +35,7 @@ char ope_helmholtz_minus_pseudo_1d_solh_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solh_helmholtz_minus_pseudo_1d_pas_prevu (int, int, 
 					       double, double, double) {
 
@@ -141,4 +142,5 @@ Tbl Ope_helmholtz_minus_pseudo_1d::get_solh () const {
   }
   
   return res ;
+}
 }

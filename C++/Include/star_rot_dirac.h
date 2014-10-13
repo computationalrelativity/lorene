@@ -37,6 +37,7 @@
 #include "star.h"
 
 
+namespace Lorene {
 /**
  * Class for relativistic rotating stars in Dirac gauge and maximal slicing. 
  * (*** Under development ***) \ingroup (star)
@@ -346,4 +347,5 @@ class Star_rot_Dirac : public Star {
               
 };
 
+}
 #endif

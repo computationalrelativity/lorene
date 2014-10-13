@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -122,6 +125,7 @@ char connection_C[] = "$Header$" ;
 
 // Constructor ab initio
 
+namespace Lorene {
 Connection::Connection(const Tensor_sym& delta_i, 
                        const Metric_flat& flat_met_i) 
                       : mp(&(delta_i.get_mp())),
@@ -728,3 +732,4 @@ const Tensor& Connection::ricci() const {
 
 
 
+}

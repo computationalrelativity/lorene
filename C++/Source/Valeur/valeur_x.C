@@ -39,6 +39,7 @@ char valeur_va_x_C[] = "$Header$" ;
 #include "mtbl.h"
 #include "valeur.h"
 
+namespace Lorene {
 void Valeur::va_x() {
 
     // Protection
@@ -50,4 +51,5 @@ void Valeur::va_x() {
        for(int i=0;i<mg->get_nr(l);i++)
 	    set(l,k,j,i) = mg->get_grille3d(l)->x[i];
 
+}
 }

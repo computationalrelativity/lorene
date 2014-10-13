@@ -25,6 +25,9 @@ char map_et_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2004/03/01 09:57:03  j_novak
  * the wave equation is solved with Scalars. It now accepts a grid with a
  * compactified external domain, which the solver ignores and where it copies
@@ -58,6 +61,7 @@ char map_et_dalembert_C[] = "$Header$" ;
 #include "tensor.h"
 #include "param.h"
 
+namespace Lorene {
 Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
 
 //*****************************************************************************
@@ -82,3 +86,4 @@ void Map_et::dalembert(Param& , Scalar& fJp1, const Scalar& fJ, const Scalar& fJ
 }
 
 
+}

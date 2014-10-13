@@ -28,6 +28,9 @@ char binary_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:12:59  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -65,6 +68,7 @@ char binary_xcts_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Binary_xcts::Binary_xcts(Map& mp1, 
 						int nzet1, 
 						const Eos& eos1, 
@@ -435,4 +439,5 @@ double Binary_xcts::separation() const {
     
     return sqrt( dx*dx + dy*dy + dz*dz ) ; 
     
+}
 }

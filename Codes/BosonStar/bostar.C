@@ -30,6 +30,9 @@ char bostar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2012/12/03 15:28:03  c_some
  * First call to Boson_star::equilibrium
  *
@@ -49,6 +52,8 @@ char bostar_C[] = "$Header$" ;
 #include "boson_star.h"
 #include "nbr_spx.h"
 
+
+using namespace Lorene ;
 
 int main() {
 	

@@ -36,6 +36,9 @@ char op_dsdtet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2009/10/08 16:22:19  j_novak
  * Addition of new bases T_COS and T_SIN.
  *
@@ -85,6 +88,7 @@ char op_dsdtet_C[] = "$Header$" ;
 
 // Routine pour les cas non prevus
 //--------------------------------
+namespace Lorene {
 void _dsdtet_pas_prevu(Tbl* , int & b) {
     cout << "Unknown theta basis in Mtbl_cf::dsdt() !" << endl ;
     cout << " basis: " << hex << b << endl ;
@@ -1185,4 +1189,5 @@ void _dsdtet_t_cossin_s(Tbl* tb, int & b)
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
     b = base_r | base_p | T_COSSIN_C ;
+}
 }

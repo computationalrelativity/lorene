@@ -36,6 +36,7 @@ char integrale2d_C[] = "$Header$" ;
 // Lorene headers
 #include "tensor.h"
 
+namespace Lorene {
 double integrale2d(const Scalar& fi) {
 
   const Map* mp = &fi.get_mp() ;
@@ -83,4 +84,5 @@ double integrale2d(const Scalar& fi) {
     
   return lambda ;
 
+}
 }

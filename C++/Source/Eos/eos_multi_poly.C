@@ -31,6 +31,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@ char eos_multi_poly_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 double logp(double, double, double, double, double, double) ;
 double dlpsdlh(double, double, double, double, double, double) ;
 double dlpsdlnb(double, double, double, double, double) ;
@@ -1164,4 +1168,5 @@ double dlpsdlnb(double log10HSmall, double log10HLarge,
 
     return resu ;
 
+}
 }

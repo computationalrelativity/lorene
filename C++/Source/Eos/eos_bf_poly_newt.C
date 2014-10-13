@@ -31,6 +31,9 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -93,6 +96,8 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 #include "eos.h"
 #include "cmp.h"
 #include "utilitaires.h"
+
+namespace Lorene {
 
 //****************************************************************************
 // local prototypes
@@ -732,3 +737,4 @@ Eos* Eos_bf_poly_newt::trans2Eos() const {
 
 }
        
+}

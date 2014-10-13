@@ -30,6 +30,9 @@ char ope_pois_vect_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/05/10 15:28:22  j_novak
  * First version of functions for the solution of the r-component of the
  * vector Poisson equation.
@@ -42,6 +45,7 @@ char ope_pois_vect_r_C[] = "$Header$" ;
 #include"type_parite.h"
 #include "ope_elementary.h"
 
+namespace Lorene {
 Matrice ope_pvect_r_mat(int , int , double , int, int ) ;
 Tbl sh_pvect_r(int, int, double, int) ;
 Matrice cl_pvect_r (const Matrice&, int, double, int, int) ;
@@ -130,3 +134,4 @@ Tbl Ope_pois_vect_r::get_solh() const {
   return sh_pvect_r(nr, l_quant, beta/alpha, base_r) ;
 }
 
+}

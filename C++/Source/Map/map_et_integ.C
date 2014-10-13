@@ -30,6 +30,9 @@ char map_et_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -67,6 +70,7 @@ char map_et_integ_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 
+namespace Lorene {
 Tbl* Map_et::integrale(const Cmp& ci) const {
 
     assert(ci.get_etat() != ETATNONDEF) ; 
@@ -107,4 +111,5 @@ void Map_et::primr(const Scalar& , Scalar& , bool) const {
 
     cout << "Map_et::primr : not ready yet !" << endl ; 
     abort() ; 
+}
 }

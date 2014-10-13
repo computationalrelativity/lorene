@@ -41,6 +41,7 @@ char strot_dirac_diff_faitomeg_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
+namespace Lorene {
 double strot_dirac_diff_fzero(double omeg, const Param& par) ;
 
 
@@ -206,4 +207,5 @@ void Star_rot_Dirac_diff::fait_prim_field() {
     prim_field.std_spectral_base() ;
     
     
+}
 }

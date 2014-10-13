@@ -40,6 +40,7 @@ char bin_ns_ncp_omegaana_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void Bin_ns_ncp::analytical_omega() {
   
   using namespace Unites ;
@@ -93,4 +94,5 @@ void Bin_ns_ncp::analytical_omega() {
     // The derived quantities are obsolete:
     del_deriv() ; 
     
+}
 }

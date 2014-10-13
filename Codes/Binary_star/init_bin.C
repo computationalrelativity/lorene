@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -59,9 +62,11 @@ char init_bin_C[] = "$Header$" ;
 #include "graphique.h"
 #include "nbr_spx.h"
 
+using namespace Lorene ;
+
 //******************************************************************************
 
-int  main(){
+int main(){
     
 
     // Identification of all the subroutines called by the code : 

@@ -34,6 +34,9 @@ char des_coef_valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:21  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -76,6 +79,7 @@ char des_coef_valeur_C[] = "$Header$" ;
 			//	xi coefficients	   //
 			//-------------------------//
 
+namespace Lorene {
 void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero, 
 		 const char* nomy, const char* title, const char* device, 
 	         int newgraph, int nxpage, int nypage) {
@@ -305,3 +309,4 @@ void des_coef_phi(const Valeur& uu, int l, int j, int i, double pzero,
     delete [] cf ; 
     
 } 
+}

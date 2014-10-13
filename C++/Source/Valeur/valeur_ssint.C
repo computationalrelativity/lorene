@@ -34,6 +34,9 @@ char valeur_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:24  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -88,6 +91,7 @@ char valeur_ssint_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Local prototypes
+namespace Lorene {
 void _ssint_pas_prevu (Tbl*, int&) ;
 void _ssint_t_cos (Tbl*, int&) ;
 void _ssint_t_sin (Tbl*, int&) ;
@@ -185,4 +189,5 @@ static int nap = 0 ;
 	assert(t[l] != 0x0) ;
 	_ssint[base_t](t[l], base.b[l]) ;
     }
+}
 }

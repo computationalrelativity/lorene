@@ -31,6 +31,9 @@ char blackhole_r_coord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -57,6 +60,7 @@ char blackhole_r_coord_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local function
+namespace Lorene {
 double gg(double, const double) ;
 
 const Scalar Black_hole::r_coord(bool neumann, bool first) const {
@@ -217,4 +221,5 @@ double gg(double xx, const double cc) {
 
     return resu ;
 
+}
 }

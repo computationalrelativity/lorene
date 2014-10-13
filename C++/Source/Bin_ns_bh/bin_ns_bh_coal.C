@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -75,6 +78,7 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, 
 		      int itemax_mp_et, double ent_c_init, double seuil_masses,
 		      double dist, double m1, double m2, double spin_cible, 
@@ -334,4 +338,5 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil,
     fiche_dist.close() ;
     fiche_spin.close() ;
     fiche_ome_local.close() ;
+}
 }

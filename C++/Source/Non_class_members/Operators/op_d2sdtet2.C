@@ -36,6 +36,9 @@ char op_d2dtet2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:24  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2009/10/09 14:00:54  j_novak
  * New bases T_cos and T_SIN.
  *
@@ -75,6 +78,7 @@ char op_d2dtet2_C[] = "$Header$" ;
 
 // Routine pour les cas non prevus
 //--------------------------------
+namespace Lorene {
 void _d2sdtet2_pas_prevu(Tbl* , int & b) {
     cout << "Unknown theta basis in Mtbl_cf::d2sdt2() !" << endl ;
     cout << " basis: " << hex << b << endl ;
@@ -948,4 +952,5 @@ void _d2sdtet2_t_cossin_s(Tbl* tb, int &)
     
     // base de developpement
     // inchangee
+}
 }

@@ -27,6 +27,9 @@ char higgs_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/01/31 15:36:06  e_gourgoulhon
  * Added drawings
  *
@@ -50,6 +53,8 @@ char higgs_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "utilitaires.h"
 #include "graphique.h"
+
+using namespace Lorene ;
 
 int main() {
 

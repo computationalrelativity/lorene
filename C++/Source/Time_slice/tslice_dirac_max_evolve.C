@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2013/01/24 12:55:18  j_novak
  * Corrected the declaration of variables for boundary conditions.
  *
@@ -108,6 +111,7 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "proto.h"
 
+namespace Lorene {
 const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) ;
 
 void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
@@ -754,4 +758,5 @@ const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) {
     resu.set(5) = uu.val_grid_point(nzm1, np/2, nt-1, nr-1) ; 
     
     return resu ;      
+}
 }

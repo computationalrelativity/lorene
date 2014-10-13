@@ -31,6 +31,9 @@ char eos_fermi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2012/10/26 14:09:33  e_gourgoulhon
  * Added new class Eos_Fermi
  *
@@ -55,6 +58,7 @@ char eos_fermi_C[] = "$Header$" ;
 // Standard constructor with g_s = 2
 // ----------------------------------
 
+namespace Lorene {
 Eos_Fermi::Eos_Fermi(double mass) : 
 	Eos("Degenerate ideal Fermi gas"), 
 	m_0(mass), g_s(2) {
@@ -321,3 +325,4 @@ double Eos_Fermi::der_press_ent_p(double , const Param* ) const {
     
 }
 
+}

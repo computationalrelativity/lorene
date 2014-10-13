@@ -4,6 +4,8 @@
 #include "map.h"
 #include "scalar.h"
 
+using namespace Lorene ;
+
 class Monopole {
 
  protected:

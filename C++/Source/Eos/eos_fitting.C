@@ -30,6 +30,9 @@ char eos_fitting_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -59,6 +62,7 @@ char eos_fitting_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 double fc(double) ;
 double gc(double) ;
 double hc(double) ;
@@ -548,3 +552,4 @@ double gc(double xx) {
      return resu ;
 
  }
+}

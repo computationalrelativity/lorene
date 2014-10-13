@@ -30,6 +30,9 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char tslice_check_einstein_C[] = "$Header$" ;
 #include "time_slice.h"
 #include "unites.h"
 
+namespace Lorene {
 Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,
 					     ostream& ost, bool verb) const {
   using namespace Unites ;
@@ -209,4 +213,5 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
 
   return resu ;
 
+}
 }

@@ -26,6 +26,9 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:29  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -172,6 +175,7 @@ char poisson_C[] = "$Header$" ;
 
 
 
+namespace Lorene {
 Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
 		    bool match)
 {
@@ -738,4 +742,5 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
     }
 
     return resultat;
+}
 }

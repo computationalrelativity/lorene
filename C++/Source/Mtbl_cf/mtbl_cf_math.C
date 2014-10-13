@@ -29,6 +29,9 @@ char mtbl_cf_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -63,6 +66,7 @@ char mtbl_cf_math_C[] = "$Header$" ;
 			    // Absolute value //
 			    //----------------//
 
+namespace Lorene {
 Mtbl_cf abs(const Mtbl_cf& ti)
 {
     // Protection
@@ -248,4 +252,5 @@ Tbl diffrelmax(const Mtbl_cf& mt1, const Mtbl_cf& mt2) {
     
     return resu ; 
     
+}
 }

@@ -22,6 +22,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:12  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2007/12/21 12:41:46  j_novak
  * Removed the #include<fftw3.h> not needed here. Corrected headers.
  *
@@ -34,6 +37,7 @@
  
 #include "tbl.h"
 
+namespace Lorene {
 Tbl jacobipointsgl(int) ;
 
 double* coeffjaco(int n , double* ff) {
@@ -56,4 +60,5 @@ double* coeffjaco(int n , double* ff) {
     }
     aa[n]=som/double(n+3) ;
   return aa ;
+}
 }

@@ -35,6 +35,7 @@ char ope_vorton_solp_C[] = "$Header$" ;
                 //------------------------------------
 		// Cl version Tbl -> Tbl            --
 		//------------------------------------
+namespace Lorene {
 Tbl _cl_vorton_pas_prevu (const Tbl &so, int) {
 
   cout << "Linear combination for vorton not implemented..." << endl ;
@@ -270,4 +271,5 @@ Tbl Ope_vorton::get_solp (const Tbl& so) const {
   dsp_minus = valeurs(3) ;
 
   return res ;
+}
 }

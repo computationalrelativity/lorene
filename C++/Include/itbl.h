@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -91,6 +94,7 @@
 #include "dim_tbl.h"
 
 
+namespace Lorene {
 /**
  * Basic integer array class.
  * 
@@ -386,4 +390,5 @@ double diffrel(const Itbl& a, const Itbl& b) ;
 double diffrelmax(const Itbl& a, const Itbl& b) ; 
 
 /** @}*/
+}
 #endif

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.22  2012/01/17 10:05:39  j_penner
  * added point plot routine: des_points
  *
@@ -194,6 +197,7 @@
  
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace Lorene {
 class Valeur ; 
 class Map ; 
 class Map_et ; 
@@ -2533,4 +2537,5 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
 /** @} */
 
 
+}
 #endif

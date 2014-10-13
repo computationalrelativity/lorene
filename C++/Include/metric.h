@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2004/11/18 12:23:42  jl_jaramillo
  * radial vector normal to a spherical slicing and pointing towards
  * spatial infinity
@@ -79,6 +82,7 @@
 
 #define N_TENSOR_DEPEND 200
 
+namespace Lorene {
 /**
  * Metric for tensor calculation. \ingroup (tensor)
  * 
@@ -339,4 +343,5 @@ class Metric_flat: public Metric {
 
 
 
+}
 #endif

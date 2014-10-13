@@ -37,6 +37,9 @@ char op_sx_C[] = "$Header$" ;
  /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:26  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -76,6 +79,7 @@ char op_sx_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _sx_pas_prevu(Tbl * tb, int& base) {
     cout << "sx pas prevu..." << endl ;
     cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -684,4 +688,5 @@ void _sx_r_chebpi_i(Tbl* tb, int& base)
     int base_t = base & MSQ_T ;
     int base_p = base & MSQ_P ;    
     base = base_p | base_t | R_CHEBPI_P ;
+}
 }

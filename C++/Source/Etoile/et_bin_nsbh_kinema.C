@@ -25,6 +25,9 @@ char et_bin_kinema_nsbhC[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -44,6 +47,7 @@ char et_bin_kinema_nsbhC[] = "$Header$" ;
 #include "et_bin_nsbh.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Et_bin_nsbh::kinematics(double omega, double) {
 
     int nz = mp.get_mg()->get_nzone() ; 
@@ -106,4 +110,5 @@ void Et_bin_nsbh::kinematics(double omega, double) {
     del_deriv() ;                
     
     
+}
 }

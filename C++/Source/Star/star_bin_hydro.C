@@ -31,6 +31,9 @@ char star_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -59,6 +62,7 @@ char star_bin_hydro_C[] = "$Header$" ;
 // Headers Lorene
 #include "star.h"
 
+namespace Lorene {
 void Star_bin::hydro_euler(){
 
   cout << "loggam 1" << norme(loggam) << endl ;
@@ -199,4 +203,5 @@ void Star_bin::hydro_euler(){
     
     del_deriv() ;                
     
+}
 }

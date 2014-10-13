@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -101,6 +104,7 @@ char map_et_adapt_C[] = "$Header$" ;
 #include "param.h"
 #include "proto.h"
 
+namespace Lorene {
 void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
     
     // Parameters of the computation
@@ -568,4 +572,5 @@ void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
     delete [] nalpha ;   
     delete [] nbeta ;  
         
+}
 }

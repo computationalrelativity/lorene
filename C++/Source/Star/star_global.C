@@ -29,6 +29,9 @@ char star_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2013/04/25 15:46:06  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -56,6 +59,7 @@ char star_global_C[] = "$Header$" ;
 			//	Stellar surface	    //
 			//--------------------------//
 
+namespace Lorene {
 const Itbl& Star::l_surf() const {
 
     if (p_l_surf == 0x0) {    // a new computation is required
@@ -336,3 +340,4 @@ double Star::mass_g() const {
 
 } 
 		
+}

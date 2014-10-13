@@ -25,6 +25,9 @@ char division_xpun_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:23  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char division_xpun_C[] = "$Header$" ;
 #include "cmp.h"
 #include "proto.h"
 
+namespace Lorene {
 Cmp division_xpun (const Cmp& source, int num_front) {
     
     assert (source.get_etat() != ETATNONDEF) ;
@@ -83,4 +87,5 @@ Cmp division_xpun (const Cmp& source, int num_front) {
 	delete [] coef ;
 	return resultat ;
     }
+}
 }

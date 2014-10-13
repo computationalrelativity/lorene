@@ -31,6 +31,9 @@ char map_af_integ_surf_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -49,6 +52,7 @@ char map_af_integ_surf_falloff_C[] = "$Header$" ;
 #include "cmp.h"
 #include "proto.h"
 
+namespace Lorene {
 double Map_af::integrale_surface_falloff (const Cmp& ci) const {
     
   // Returns Surface integral/R^2 -> multiply by R^2 to get the right value!!!!!!
@@ -137,3 +141,4 @@ double Map_af::integrale_surface_falloff (const Cmp& ci) const {
     return (result) ;
 }
 
+}

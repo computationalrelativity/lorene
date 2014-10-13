@@ -25,6 +25,9 @@ char tenseur_inv_pois_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:18  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char tenseur_inv_pois_vect_C[] = "$Header$" ;
 #include "tenseur.h"
 
 // Inversion de Poisson vectoriel :
+namespace Lorene {
 Tenseur Tenseur::inverse_poisson_vect (double lambda) const {
     
     assert (valence == 1) ;
@@ -69,4 +73,5 @@ Tenseur Tenseur::inverse_poisson_vect (double lambda) const {
 	inverse.set(i) = (*this)(i).laplacien(4)+lambda*grad_shift(i) ;
     
     return inverse ;
+}
 }

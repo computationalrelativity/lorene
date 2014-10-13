@@ -36,6 +36,9 @@ char map_et_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2005/08/25 12:14:09  p_grandclement
  * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
  *
@@ -93,6 +96,8 @@ char map_et_poisson_C[] = "$Header$" ;
 #include "graphique.h"
 
 //*****************************************************************************
+
+namespace Lorene {
 
 void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
 
@@ -761,3 +766,4 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
 
 
 
+}

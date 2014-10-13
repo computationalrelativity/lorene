@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:30  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:16:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -77,6 +80,7 @@ char sol_elliptic_C[] = "$Header$" ;
 
 
 
+namespace Lorene {
 Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) {
   // Verifications d'usage sur les zones
   int nz = source.get_mg()->get_nzone() ;
@@ -294,3 +298,4 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
   return resultat;
 }
 
+}

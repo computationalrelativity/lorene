@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2012/01/17 10:22:13  j_penner
  * function added: Heaviside
  *
@@ -97,6 +100,7 @@
 #include "tbl.h"
 #include "grilles.h"
 
+namespace Lorene {
 class Coord ;
 
 /**
@@ -455,4 +459,5 @@ Tbl diffrelmax(const Mtbl& a, const Mtbl& b) ;
 /**@} */
 
 
+}
 #endif

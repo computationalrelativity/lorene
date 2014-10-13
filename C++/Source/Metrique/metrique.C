@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.16  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -114,6 +117,7 @@ char metrique_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "tenseur.h"
 
+namespace Lorene {
 //Constructeur standard (ne fait pas grand chose) :
 
 Metrique::Metrique (const Map& mapping, bool plate) : 
@@ -882,4 +886,5 @@ const Tenseur& Metrique::determinant() const{
     if (p_determinant == 0x0)
 	fait_determinant() ;
     return *p_determinant ;
+}
 }

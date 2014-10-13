@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -113,6 +116,8 @@ char map_af_dalembert_C[] = "$Header$" ;
 #include "proto.h"
 
 //**************************************************************************
+
+namespace Lorene {
 
 void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar& fjm1,
 		       const Scalar& source) const {
@@ -480,4 +485,4 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
     }
 }
 
-
+}

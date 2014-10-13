@@ -32,6 +32,9 @@ char eos_compose_C[] = "$Header: " ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/07/01 09:26:21  j_novak
  * Improvement of comments
  *
@@ -63,6 +66,7 @@ char eos_compose_C[] = "$Header: " ;
 
 // Standard constructor
 // --------------------			
+namespace Lorene {
 Eos_CompOSE::Eos_CompOSE(const char* file_name)
 		: Eos_tabul("Tabulated EoS", file_name)
 {}
@@ -307,3 +311,4 @@ ostream& Eos_CompOSE::operator>>(ostream & ost) const {
 }
 
 			
+}

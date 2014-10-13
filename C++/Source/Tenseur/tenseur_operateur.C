@@ -27,6 +27,9 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -112,6 +115,7 @@ char tenseur_operateur_C[] = "$Header$" ;
 #include "metrique.h"
 
 
+namespace Lorene {
 Tenseur operator*(const Tenseur& t1, const Tenseur& t2) {
    
     assert ((t1.etat != ETATNONDEF) && (t2.etat != ETATNONDEF)) ;
@@ -947,3 +951,4 @@ Tenseur sans_trace(const Tenseur& t, const Metrique& metre)
     
 
   
+}

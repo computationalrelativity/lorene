@@ -25,6 +25,9 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:16:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -134,6 +137,7 @@ char solp_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solp_pas_prevu (const Matrice &lap, const Matrice &nondege, double alpha, 
 		    double beta, const Tbl &source, int puis) {
     cout << " Solution particuliere pas prevue ..... : "<< endl ;
@@ -512,4 +516,5 @@ Tbl solp(const Matrice &lap, const Matrice &nondege, double alpha,
     }
     
     return solp[base_r](lap, nondege, alpha, beta, source, puis) ;
+}
 }

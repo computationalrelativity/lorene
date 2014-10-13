@@ -30,6 +30,9 @@ char star_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2013/06/05 15:10:41  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -57,6 +60,7 @@ char star_QI_global_C[] = "$Header$" ;
 			//	Gravitational mass    //
 			//------------------------//
 
+namespace Lorene {
 double Star_QI::mass_g() const {
 
     if (p_mass_g == 0x0) {    // a new computation is required
@@ -576,3 +580,4 @@ double Star_QI::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 	
 }
 
+}

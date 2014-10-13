@@ -37,6 +37,7 @@ char ope_sec_order_cl_C[] = "$Header$" ;
 	       //-- Pas prevu   ----
 	      //-------------------
 
+namespace Lorene {
 Matrice _cl_sec_order_pas_prevu (const Matrice& so) {
   cout << "CL Sec_order not implemented" << endl ;
   abort() ;
@@ -95,3 +96,4 @@ void Ope_sec_order::do_ope_cl() const {
 }
 
 
+}

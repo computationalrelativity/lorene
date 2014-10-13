@@ -25,6 +25,9 @@ char map_poisson_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2003/12/19 16:21:43  j_novak
  * Shadow hunt
  *
@@ -63,6 +66,7 @@ char map_poisson_vect_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "param.h"
 
+namespace Lorene {
 Param* Map_af::donne_para_poisson_vect(Param&, int) const {
     return 0x0 ;
 }
@@ -85,4 +89,5 @@ Param* Map_et::donne_para_poisson_vect(Param& para, int i) const {
 
     result->add_int_mod(para.get_int_mod()) ;
     return result ;
+}
 }

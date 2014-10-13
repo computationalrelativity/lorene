@@ -32,6 +32,9 @@ char etoile_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2008/11/14 13:48:06  e_gourgoulhon
  * Added parameter pent_limit to force the enthalpy values at the
  * boundaries between the domains, in case of more than one domain inside
@@ -80,6 +83,7 @@ char etoile_equil_spher_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Etoile::equilibrium_spher(double ent_c, double precis, const Tbl* pent_limit){
     
     // Fundamental constants and units
@@ -497,4 +501,5 @@ void Etoile::equilibrium_spher(double ent_c, double precis, const Tbl* pent_limi
     des_profile(ent(), 0., r_max, M_PI/2, 0., "H", "Enthalpy") ; 
 */
    
+}
 }

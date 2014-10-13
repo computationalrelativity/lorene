@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2005/02/28 23:02:51  k_taniguchi
  * Addition of some codes for the conformally flat case
  *
@@ -44,6 +47,7 @@
 #include "et_bin_bhns_extr.h"
 #include "etoile.h"
 
+namespace Lorene {
 /**
  * Class for computing a Black hole - Neutron star binary system
  * with an extreme mass ratio.
@@ -264,4 +268,5 @@ class Bin_bhns_extr {
 };
 ostream& operator<<(ostream& , const Bin_bhns_extr& ) ;
 
+}
 #endif

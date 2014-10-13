@@ -26,6 +26,9 @@ char cfrleg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:09  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2013/06/13 14:17:47  j_novak
  * Implementation of Legendre inverse coefficient transform.
  *
@@ -53,6 +56,7 @@ char cfrleg_C[] = "$Header$" ;
 #include "tbl.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void get_legendre_data(int, Tbl*&, Tbl*& ) ;
 
 //*****************************************************************************
@@ -338,4 +342,5 @@ void cfrlegi(const int* deg, const int* dimf, double* ff, const int* dimc,
   
   delete [] cf_tmp ;
 
+}
 }

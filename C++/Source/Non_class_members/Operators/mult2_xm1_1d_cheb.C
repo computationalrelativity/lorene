@@ -26,8 +26,11 @@ char mult2_xm1_1d_cheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:24  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/10/11  14:27:55  phil
  * vire (double(0.5))
@@ -69,7 +72,9 @@ char mult2_xm1_1d_cheb_C[] = "$Header$" ;
  *
  */
  
- #include <assert.h>
+ #include <cassert>
+
+namespace Lorene {
 
 //*****************************************************************************
 
@@ -116,3 +121,4 @@ void mult2_xm1_1d_cheb(int nr, const double* cf,  double* cresu) {
 
 
 
+}

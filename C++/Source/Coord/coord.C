@@ -33,6 +33,9 @@ char coord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@ char coord_C[] = "$Header$" ;
     			//---------------//
 
 // Constructeur par defaut
+namespace Lorene {
 Coord::Coord() : mp(0x0), met_fait(0x0), c(0x0) {}
 
 // Constructeur
@@ -130,4 +134,5 @@ void Coord::del_t() const {
 void Coord::set(const Map* mpi, Mtbl* (*construit)(const Map*) ) {
     mp = mpi ;
     met_fait = construit ;
+}
 }

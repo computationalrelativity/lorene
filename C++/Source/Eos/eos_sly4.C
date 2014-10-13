@@ -32,6 +32,9 @@ char eos_sly4_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -57,6 +60,7 @@ char eos_sly4_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------			
+namespace Lorene {
 Eos_SLy4::Eos_SLy4(const char* path)
 		: Eos_tabul("EOS SLy4 [Douchin & Haensel (2000)]",
 		            "eos_sly4.d", path)
@@ -129,3 +133,4 @@ ostream& Eos_SLy4::operator>>(ostream & ost) const {
 }
 
 			
+}

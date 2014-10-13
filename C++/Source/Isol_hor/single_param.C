@@ -30,6 +30,9 @@ char single_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@ char single_param_C[] = "$Header$" ;
 
 
 
+namespace Lorene {
 const Scalar Single_hor::b_tilde()const {
 
   Scalar tmp = contract( beta, 0, tgam.radial_vect()
@@ -190,4 +194,5 @@ Scalar Single_hor::expansion() const {
 	       0, get_gam().radial_vect(), 0) - trK ; 
 
   return expa ;
+}
 }

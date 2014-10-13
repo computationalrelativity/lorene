@@ -33,8 +33,11 @@ char valeur_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  1999/11/30  12:44:22  eric
  * Valeur::base est desormais du type Base_val et non plus Base_val*.
@@ -65,6 +68,7 @@ char valeur_lapang_C[] = "$Header$" ;
 #include "valeur.h"
 
 
+namespace Lorene {
 const Valeur& Valeur::lapang() const {
     
     // Protection
@@ -102,4 +106,5 @@ const Valeur& Valeur::lapang() const {
     // Termine
     return *p_lapang ;    
     
+}
 }

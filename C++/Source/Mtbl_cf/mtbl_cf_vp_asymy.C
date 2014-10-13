@@ -32,6 +32,9 @@ char mtbl_cf_vp_asymy_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:09  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2012/01/17 15:09:14  j_penner
  * using MAX_BASE_2 for the phi coordinate
  *
@@ -61,6 +64,7 @@ char mtbl_cf_vp_asymy_C[] = "$Header$" ;
 #include "proto.h"
 
     //-------------------------------------------------------------//
+namespace Lorene {
     //	    version for an arbitrary point in (xi,theta',phi')     //
     //-------------------------------------------------------------//
 
@@ -332,3 +336,4 @@ static int premier_appel = 1 ;
 }
  
 
+}

@@ -42,6 +42,7 @@ char sol_elliptic_fixe_der_zeroC[] = "$Header$" ;
 
 
 
+namespace Lorene {
 Mtbl_cf elliptic_solver_fixe_der_zero  (double valeur, 
 					const Param_elliptic& ope_var, 
 					const Mtbl_cf& source) {
@@ -270,3 +271,4 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double valeur,
   return resultat;
 }
 
+}

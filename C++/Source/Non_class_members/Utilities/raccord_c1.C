@@ -25,6 +25,9 @@ char raccord_c1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2010/01/26 16:47:40  e_gourgoulhon
  * Added the Scalar version.
  *
@@ -46,6 +49,7 @@ char raccord_c1_C[] = "$Header$" ;
 #include "cmp.h"
 #include "scalar.h"
 
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) {
     
     const Map_radial* mpi = dynamic_cast<const Map_radial*>( uu.get_mp() ) ; 
@@ -135,4 +139,5 @@ Scalar raccord_c1(const Scalar& uu, int l1) {
     Cmp cuu(uu) ; 
     return Scalar( raccord_c1(cuu, l1) ) ; 
    
+}
 }

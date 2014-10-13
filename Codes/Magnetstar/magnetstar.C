@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:09:45  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -65,17 +68,20 @@
 #include "unites.h"
 #include "metric.h"	    
 
+namespace Lorene{
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
+}
 
+using namespace Lorene ;
 // Definition de f_j et de M_j
 
-Cmp f_j(const Cmp& x, const double a_j){ 
+Cmp f_j(const Cmp& x, double a_j){ 
   Cmp resu(x.get_mp() ) ;
   resu = a_j ;
   return resu ;
 }
-Cmp M_j(const Cmp& x, const double a_j){ 
+Cmp M_j(const Cmp& x, double a_j){ 
   return - a_j*x ;
 }
 

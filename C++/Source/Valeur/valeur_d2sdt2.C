@@ -34,6 +34,9 @@ char valeur_d2sdt2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:23  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -84,6 +87,7 @@ char valeur_d2sdt2_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Prototypage temporaire
+namespace Lorene {
 void _d2sdtet2_pas_prevu(Tbl *, int &) ;
 void _d2sdtet2_t_cos(Tbl *, int &) ;
 void _d2sdtet2_t_sin(Tbl *, int &) ;
@@ -178,4 +182,5 @@ static int nap = 0 ;
 	assert(t[l] != 0x0) ;
 	_d2sdtet2[base_t](t[l], base.b[l]) ;
     }
+}
 }

@@ -28,6 +28,9 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:12  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:16:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -120,6 +123,7 @@ char donne_lm_C[] = "$Header$" ;
 // Developpement en P_COSSIN pour phi et T_LEG en theta
 //-------------------------------------------------------------------
 
+namespace Lorene {
 void donne_lm_nonsymTP (int j, int k, int &m_quant, int &l_quant) {
 
     m_quant = (k%2 == 0) ? k/2 : (k-1)/2;
@@ -341,4 +345,5 @@ void donne_lm (int nz, int zone, int j, int k, Base_val base,
 	  break ;
 	  
     }
+}
 }

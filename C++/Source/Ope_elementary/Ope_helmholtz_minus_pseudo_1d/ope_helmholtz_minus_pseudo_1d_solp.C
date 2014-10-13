@@ -35,6 +35,7 @@ char ope_helmholtz_minus_pseudo_1d_solp_C[] = "$Header$" ;
 //--------------------------------------------------
 
 
+namespace Lorene {
 Tbl _cl_helmholtz_minus_pseudo_1d_pas_prevu (const Tbl & source, int) {
      cout << "Combinaison lineaire pas prevue..." << endl ;
     abort() ;
@@ -220,4 +221,5 @@ Tbl Ope_helmholtz_minus_pseudo_1d::get_solp (const Tbl& so) const {
 
  
   return res ;
+}
 }

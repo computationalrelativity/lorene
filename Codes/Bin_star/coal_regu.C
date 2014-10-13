@@ -30,6 +30,9 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:53:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:09:42  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -101,10 +104,13 @@ char coal_regu_C[] = "$Header$" ;
 #include "graphique.h"
 #include "unites.h"	    
 
+namespace Lorene {
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
-
+}
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 
@@ -1061,7 +1067,7 @@ int main(){
 
     if (graph == 1) {
 
-	des_explorer(star, "latbin") ; 
+      //	des_explorer(star, "latbin") ; 
 
 //##	double xdes_min = - star(1).ray_eq_pi() + star(1).get_mp().get_ori_x() ; 
 //	xdes_min *= 1.5 ; 

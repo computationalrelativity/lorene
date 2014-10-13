@@ -36,6 +36,9 @@ char op_d2sdphi2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:24  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2006/03/10 12:45:38  j_novak
  * Use of C++-style cast.
  *
@@ -69,6 +72,7 @@ char op_d2sdphi2_C[] = "$Header$" ;
 
 // Routine pour les cas non prevus
 //--------------------------------
+namespace Lorene {
 void _d2sdphi2_pas_prevu(Tbl* , int & b) {
     cout << "Unknown phi basis in Mtbl_cf::d2sdp2() !" << endl ;
     cout << " basis: " << hex << b << endl ;
@@ -152,3 +156,4 @@ void _d2sdphi2_p_cossin(Tbl* tb, int & )
     // inchangee
 }
 
+}

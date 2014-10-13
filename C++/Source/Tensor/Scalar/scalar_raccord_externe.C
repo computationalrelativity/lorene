@@ -28,6 +28,9 @@ char scalar_raccord_externe_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -53,6 +56,7 @@ char scalar_raccord_externe_C[] = "$Header$" ;
 #include "tensor.h"
 #include "proto.h"
 
+namespace Lorene {
 int cnp (int n, int p) ;
 
 // Fait le raccord dans la zec ...
@@ -222,4 +226,5 @@ void Scalar::raccord_externe(int power, int nbre, int lmax) {
     delete [] dege ;
     delete [] ti ;
     delete [] coloc ;
+}
 }

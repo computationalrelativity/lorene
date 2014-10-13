@@ -25,6 +25,9 @@ char itbl_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char itbl_math_C[] = "$Header$" ;
 			    // Absolute value //
 			    //----------------//
 
+namespace Lorene {
 Itbl abs(const Itbl& ti)
 {
     // Protection
@@ -221,4 +225,5 @@ double diffrelmax(const Itbl& t1, const Itbl& t2) {
     
     return resu ; 
     
+}
 }

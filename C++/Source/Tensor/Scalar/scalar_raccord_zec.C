@@ -28,6 +28,9 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -67,6 +70,7 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Fait le raccord C1 dans la zec ...
+namespace Lorene {
 // Suppose (pour le moment, le meme nbre de points sur les angles ...)
 // et que la zone precedente est une coquille
 
@@ -415,4 +419,5 @@ void Scalar::smooth_decay(int kk, int nn) {
     }
     
 
+}
 }

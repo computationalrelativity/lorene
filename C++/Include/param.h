@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2006/06/15 08:15:36  j_novak
  * Removed members linked to Qtenseur objects.
  * Added members for Matrice objects.
@@ -99,6 +102,7 @@
  *
  */
 
+namespace Lorene {
 class Tbl ; 
 class Itbl ;
 class Matrice ; 
@@ -786,4 +790,5 @@ class Param {
 	
  };
 
+}
 #endif

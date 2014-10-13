@@ -30,6 +30,9 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -89,6 +92,7 @@ char map_af_radius_C[] = "$Header$" ;
 			//------------------------------// 
 
  
+namespace Lorene {
 double Map_af::val_r(int l, double xi, double, double) const {
 
     assert( l>=0 ) ; 
@@ -216,3 +220,4 @@ void Map_af::val_lx_jk(double rr, int, int, const Param& par,
 } 
 
 
+}

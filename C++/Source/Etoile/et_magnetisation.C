@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/05/28 07:46:06  j_novak
  * Minor modifications.
  *
@@ -77,6 +80,7 @@ char et_magnetisation_C[] = "$Header $" ;
 // --------------------
 
 
+namespace Lorene {
 Et_magnetisation::Et_magnetisation(Map& mp_i, int nzet_i, bool relat, 
 				   const Eos& eos_i, bool magnetisation, 
 				   bool B_eos)
@@ -1206,3 +1210,4 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
 
 
 
+}

@@ -66,6 +66,9 @@ char cfpcossini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:15  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:44  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -97,6 +100,7 @@ char cfpcossini_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "proto.h"
 
+namespace Lorene {
 //*****************************************************************************
 
 void cfpcossini(const int* deg, const int* dim, double* cf) {
@@ -184,4 +188,5 @@ void cfpcossini(const int* deg, const int* dim, double* cf) {
     // Menage
     delete [] cf2 ;    
  
+}
 }

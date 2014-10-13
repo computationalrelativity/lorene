@@ -28,6 +28,9 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2010/12/09 10:46:50  m_bejger
  * Re-definition of psi4, N, log(N)
  *
@@ -60,6 +63,7 @@ char star_bin_upmetr_xcts_C[] = "$Header$" ;
 //	 Version without relaxation     //
 //----------------------------------//
 
+namespace Lorene {
 void Star_bin_xcts::update_metric(const Star_bin_xcts& comp) {
 
     // Computation of quantities coming from the companion
@@ -241,3 +245,4 @@ void Star_bin_xcts::update_metric(const Star_bin_xcts& comp,
 
 }
 
+}

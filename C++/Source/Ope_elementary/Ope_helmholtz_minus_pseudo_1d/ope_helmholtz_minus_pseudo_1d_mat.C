@@ -35,6 +35,7 @@ char ope_helmholtz_minus_pseudo_1d_mat_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _helmholtz_minus_pseudo_1d_mat_pas_prevu(int, int, double, double, 
 						 double, int) {
     cout << "Operateur pas prevu..." << endl ;
@@ -138,4 +139,5 @@ void Ope_helmholtz_minus_pseudo_1d::do_ope_mat() const {
   }
   ope_mat = new Matrice(helmholtz_minus_pseudo_1d_mat[base_r](nr, l_quant, masse, 
 						       alpha, beta, dzpuis)) ;
+}
 }

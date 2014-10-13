@@ -31,6 +31,9 @@ char etoile_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2004/03/25 10:29:07  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -124,6 +127,7 @@ char etoile_rot_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Etoile_rot::Etoile_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
 		       : Etoile(mpi, nzet_i, relat, eos_i), 
 			 bbb(mpi), 
@@ -775,4 +779,5 @@ void Etoile_rot::fait_nphi() {
     nphi = tnphi ; 
     (nphi.set()).div_rsint() ; 
     
+}
 }

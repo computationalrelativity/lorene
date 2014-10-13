@@ -32,6 +32,9 @@ char star_rot_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -50,6 +53,7 @@ char star_rot_hydro_C[] = "$Header$" ;
 #include "star_rot.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Star_rot::hydro_euler(){
 
     int nz = mp.get_mg()->get_nzone() ; 
@@ -126,4 +130,5 @@ void Star_rot::hydro_euler(){
     
     del_deriv() ;                
     
+}
 }

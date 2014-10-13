@@ -27,6 +27,9 @@ char scalar_raccord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -50,6 +53,7 @@ char scalar_raccord_C[] = "$Header$" ;
 #include "proto.h"
 #include "matrice.h"
 
+namespace Lorene {
 Matrice matrice_raccord_pair (int cont, double alpha_kernel) ;
 Matrice matrice_raccord_impair (int cont, double alpha_kernel) ;
 Tbl sec_membre_raccord (Tbl coef, int cont, double alpha_shell) ;
@@ -137,4 +141,5 @@ void Scalar::raccord (int aux) {
 		}
 	    }
     va.ylm_i() ;
+}
 }

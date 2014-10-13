@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:52:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:12:58  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char bhole_with_ns_C[] = "$Header$" ;
 #include "scalar.h"
 
 //Resolution pour le lapse pour 1 seul trou
+namespace Lorene {
 void Bhole::solve_lapse_with_ns (double relax, int bound_nn, double lim_nn) {
     
     assert ((relax>0) && (relax<=1)) ;
@@ -380,3 +384,4 @@ void Bhole::update_metric (const Et_bin_nsbh& comp) {
 }
 
   
+}

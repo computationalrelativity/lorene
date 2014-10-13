@@ -26,6 +26,9 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -76,6 +79,7 @@ char binhor_glob_C[] = "$Header$" ;
 #include "utilitaires.h"
 //#include "graphique.h"
 
+namespace Lorene {
 double Bin_hor::adm_mass() const {
  
    Vector dpsi_un (hole1.psi_auto.derive_con(hole1.ff)) ;
@@ -342,3 +346,4 @@ double Bin_hor::proper_distance(const int nr) const {
 
 }
 */
+}

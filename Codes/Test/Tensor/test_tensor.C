@@ -9,6 +9,8 @@
 #include "cmp.h" 
 #include "utilitaires.h"
 
+using namespace Lorene ;
+
 int main() {
 
     int nz = 2 ;

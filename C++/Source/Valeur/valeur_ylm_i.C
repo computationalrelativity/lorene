@@ -34,6 +34,9 @@ char valeur_ylm_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:53:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:13:25  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -122,6 +125,7 @@ char valeur_ylm_i_C[] = "$Header$" ;
 #include "valeur.h"
 #include "proto.h"
 
+namespace Lorene {
 void ylm_i_pasprevu(const int*, const double*, double*) ;
 
 void Valeur::ylm_i() {
@@ -270,3 +274,4 @@ void ylm_i_pasprevu(const int*, const double*, double*) {
 }
 
 
+}

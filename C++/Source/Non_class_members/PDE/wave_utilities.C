@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2008/12/05 13:09:10  j_novak
  * Minor change in tilde_laplacian.
  *
@@ -68,6 +71,7 @@ char wave_utilities_C[] = "$Header$" ;
 #include"tensor.h"
 #include"evolution.h"
 
+namespace Lorene {
 void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl) {
     
     if (B_in.get_etat() == ETATZERO) {
@@ -323,3 +327,4 @@ void Dirichlet_BC_Amu(const Evolution_std<Vector>& vb_evol,
 
 
 
+}

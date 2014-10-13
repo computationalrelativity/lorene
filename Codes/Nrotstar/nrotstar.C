@@ -29,6 +29,9 @@ char nrotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2013/12/15 17:48:15  e_gourgoulhon
  * Added output file for GYOTO
  *
@@ -74,10 +77,13 @@ char nrotstar_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "unites.h"	    
 
+namespace Lorene{
 // Local prototype (for drawings only)
 Scalar raccord_c1(const Scalar& uu, int l1) ; 
-
+}
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

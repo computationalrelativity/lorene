@@ -33,6 +33,7 @@
 #include "metric.h"
 #include "spheroid.h"
 
+namespace Lorene {
 /**
  * Surface where boundary conditions for quantities in the bulk will be calculated
  * It relies on geometrical properties of the associated Spheroid\ingroup (star)
@@ -205,4 +206,5 @@ class Excision_hor {
 ostream& operator<<(ostream& , const Spheroid& ) ;
 
 
+}
 #endif

@@ -30,6 +30,9 @@ char ope_pvect_r_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -69,6 +72,7 @@ char ope_pvect_r_mat_C[] = "$Header$" ;
  *  La fonction renvoie la matrice.	
  */
  
+namespace Lorene {
 Matrice _ope_pvect_r_mat_pas_prevu(int, int, double, int) ;
 Matrice _ope_pvect_r_mat_r_chebp(int, int, double, int) ;
 Matrice _ope_pvect_r_mat_r_chebi(int, int, double, int) ;
@@ -519,3 +523,4 @@ Matrice ope_pvect_r_mat(int n, int l, double echelle, int puis, int base_r)
   return res ;
 }
 
+}

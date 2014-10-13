@@ -45,6 +45,7 @@ char bin_ns_ncp_orbite_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 double  fonc_bin_ncp_axe(double , const Param& ) ;
 double  fonc_bin_ncp_orbit(double , const Param& ) ;
 
@@ -536,3 +537,4 @@ double fonc_bin_ncp_orbit(double om, const Param& parf) {
 
 
 
+}

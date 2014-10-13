@@ -51,6 +51,8 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 //******************************************************************************
 
+using namespace Lorene ;
+
 int main(){
 
   // Identification of all the subroutines called by the code : 

@@ -30,6 +30,9 @@ char sh_pvect_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char sh_pvect_r_C[] = "$Header$" ;
  * 
  */
 
+namespace Lorene {
 Tbl _sh_pvect_r_pas_prevu (int, int, double) ;
 Tbl _sh_pvect_r_cheb (int, int, double) ;
 Tbl _sh_pvect_r_chebp (int, int, double) ;
@@ -428,4 +432,5 @@ Tbl sh_pvect_r(int n, int l, double echelle, int base_r) {
     
     Tbl res(sh_pvect_r[base_r](n, l, echelle)) ;
     return res ;
+}
 }

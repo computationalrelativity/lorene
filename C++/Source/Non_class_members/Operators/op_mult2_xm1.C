@@ -25,8 +25,11 @@ char op_mult2_xm1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/11/15  16:38:39  eric
  * Tbl::dim est desormais un Dim_tbl et non plus un Dim_tbl*.
@@ -70,6 +73,7 @@ char op_mult2_xm1_C[] = "$Header$" ;
 		// Routine qui ne fait rien	   ---
 		//------------------------------------
 
+namespace Lorene {
 void _mult2_xm1_identite(Tbl* , int& ) {
     return ; 
 }
@@ -118,3 +122,4 @@ void _mult2_xm1_cheb(Tbl *tb, int& )
     // inchangee
 }
 
+}

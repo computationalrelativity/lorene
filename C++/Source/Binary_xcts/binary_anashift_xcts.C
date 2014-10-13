@@ -28,6 +28,9 @@ char binary_anashift_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2010/06/15 07:58:32  m_bejger
  * Minor corrections
  *
@@ -46,6 +49,7 @@ char binary_anashift_xcts_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "unites.h"
 
+namespace Lorene {
 void Binary_xcts::analytical_shift(){
     
   using namespace Unites ;
@@ -142,4 +146,5 @@ void Binary_xcts::analytical_shift(){
     
     }
 
+}
 }

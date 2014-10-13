@@ -31,6 +31,9 @@ char strot_dirac_solveshift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2005/02/17 17:31:12  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -47,6 +50,7 @@ char strot_dirac_solveshift_C[] = "$Header$" ;
 #include "star_rot_dirac.h"
 #include "unites.h"
 
+namespace Lorene {
 void Star_rot_Dirac::solve_shift(Vector& beta_new) const {
 
     using namespace Unites ;
@@ -82,4 +86,5 @@ void Star_rot_Dirac::solve_shift(Vector& beta_new) const {
 
 
 
+}
 }

@@ -32,6 +32,9 @@ char base_vect_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -103,6 +106,7 @@ char base_vect_cart_C[] = "$Header$" ;
 
 // Standard constructor without name
 // ---------------------------------
+namespace Lorene {
 Base_vect_cart::Base_vect_cart(double rot_phi_i) 
 			      : rot_phi(rot_phi_i) {
     
@@ -440,3 +444,4 @@ void Base_vect_cart::change_basis(Tenseur& ti) const {
     ti.set_triad(*this) ; 
 
 } 
+}

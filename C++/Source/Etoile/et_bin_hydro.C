@@ -31,6 +31,9 @@ char et_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2005/08/29 15:10:16  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -99,6 +102,7 @@ char et_bin_hydro_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 
+namespace Lorene {
 void Etoile_bin::hydro_euler(){
 
     int nz = mp.get_mg()->get_nzone() ; 
@@ -314,4 +318,5 @@ void Etoile_bin::hydro_euler(){
     del_deriv() ;                
     
     
+}
 }

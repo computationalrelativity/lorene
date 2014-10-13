@@ -25,6 +25,9 @@ char bhole_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:12:58  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -80,6 +83,7 @@ char bhole_kij_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
+namespace Lorene {
 //calcul de kij total. (la regularisation ayant ete faite)
 void Bhole_binaire::fait_tkij () {
     
@@ -462,4 +466,5 @@ void Bhole_binaire::fait_decouple () {
     
    hole1.decouple = decouple_un ;
    hole2.decouple = decouple_deux ;
+}
 }

@@ -28,6 +28,9 @@ char Bin_ns_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char Bin_ns_ncp_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Bin_ns_ncp::Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		 Map& mp2, int nzet2, const Eos& eos2, int irrot2, int relat,
 		 int conf_flat, const Metrique& flat1, const Metrique& flat2,
@@ -518,4 +522,5 @@ double Bin_ns_ncp::separation() const {
     
     return sqrt( dx*dx + dy*dy + dz*dz ) ; 
     
+}
 }

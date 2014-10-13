@@ -30,6 +30,9 @@ char compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/05/16 11:55:18  o_straub
  * fixed: GYOTO output from compobj & compobj_QI
  *
@@ -75,6 +78,7 @@ char compobj_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Compobj::Compobj(Map& map_i) :
 		mp(map_i) , 
 		nn(map_i) , 
@@ -321,3 +325,4 @@ double Compobj::adm_mass() const {
 } 
 	
 
+}

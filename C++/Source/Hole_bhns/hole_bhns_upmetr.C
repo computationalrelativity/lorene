@@ -31,6 +31,9 @@ char hole_bhns_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:00  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 19:08:15  k_taniguchi
  * Change of some parameters.
  *
@@ -54,6 +57,7 @@ char hole_bhns_upmetr_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 				   const Hole_bhns& hole_prev,
 				   double relax) {
@@ -438,4 +442,5 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 
     del_deriv() ;
 
+}
 }

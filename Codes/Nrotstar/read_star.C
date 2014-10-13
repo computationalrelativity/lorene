@@ -29,6 +29,9 @@ char read_star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2010/03/22 12:44:55  f_vincent
  * Added read_star.C for reading output files computed by nrotstar.C
  *
@@ -49,6 +52,8 @@ char read_star_C[] = "$Header$" ;
 #include "graphique.h"
 #include "nbr_spx.h"
 #include "unites.h"	    
+
+using namespace Lorene ;
 
 int main(){
   FILE* res=fopen("resu.d","r");

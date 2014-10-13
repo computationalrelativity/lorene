@@ -49,6 +49,7 @@ char star_rot_dirac_diff_C[] = "$Header$" ;
 
 // Standard constructor
 //-------------------------
+namespace Lorene {
 Star_rot_Dirac_diff::Star_rot_Dirac_diff(Map& mpi, int nzet_i, const Eos& eos_i,
 			 double (*frot_i)(double, const Tbl&), 
 			 double (*primfrot_i)(double, const Tbl&), 
@@ -262,4 +263,5 @@ double Star_rot_Dirac_diff::get_omega_c() const {
     
     return omega_field.val_grid_point(0, 0, 0, 0) ; 
     
+}
 }

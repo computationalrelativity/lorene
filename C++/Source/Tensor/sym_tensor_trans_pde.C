@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -92,6 +95,7 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 #include "proto.h"
 #include "param.h"
 
+namespace Lorene {
 Sym_tensor_trans Sym_tensor_trans::poisson(const Scalar* h_guess) const {
 
     // All this has a meaning only for spherical components...
@@ -275,3 +279,4 @@ Sym_tensor_trans Sym_tensor_trans::poisson(const Scalar* h_guess) const {
 }
 
 
+}

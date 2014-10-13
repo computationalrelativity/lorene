@@ -51,8 +51,11 @@ char sxm1_1d_cheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:27  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  1999/04/26  14:59:56  phil
  * *** empty log message ***
@@ -62,6 +65,7 @@ char sxm1_1d_cheb_C[] = "$Header$" ;
  *
  */
 
+namespace Lorene {
 
 
 //*****************************************************************************
@@ -138,3 +142,4 @@ void sxm1_1d_cheb(int nr, double* cf) {
 
 
 
+}

@@ -31,6 +31,9 @@ char bin_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:54:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2006/09/12 08:04:06  j_novak
  * Removal of the include path Export/C++/Include, updating of the relevant
  * source files in Export/C++/Source.
@@ -45,6 +48,7 @@ char bin_ns_C[] = "$Header$" ;
 
 #include "../Include/bin_ns.h"
 
+namespace Lorene {
 void write_lines(ostream& fich, int dpl, const double* pdata, int np) ;
 
 
@@ -392,3 +396,4 @@ void Bin_NS::save_form(ofstream& fich) const {
 
 }
 
+}

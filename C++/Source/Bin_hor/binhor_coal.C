@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -89,6 +92,7 @@ char binhor_coal_C[] = "$Header$" ;
 #include "graphique.h"
 
 
+namespace Lorene {
 void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
 			     double lim_nn, int bound_psi) {
     
@@ -293,4 +297,5 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
   }
 
   return viriel() ;
+}
 }

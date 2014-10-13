@@ -14,6 +14,7 @@
 
 
 
+namespace Lorene {
 //gives a new value for expansion rescaled with lapse (and its time derivative) obtained by parabolic evolution.
 //All manipulated quantities are 2-dimensional.
 void Excision_surf::set_expa_parab(double c_theta_lap, double c_theta_fin, Scalar& expa_fin){
@@ -171,3 +172,4 @@ void Excision_surf::set_expa_hyperb(double alpha0, double beta0, double gamma0) 
 
 }
 
+}

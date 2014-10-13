@@ -29,6 +29,9 @@ char rotdiff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:09:45  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -77,13 +80,16 @@ char rotdiff_C[] = "$Header$" ;
 #include "unites.h"	    
 
 // Function defining the rotation profile
-double frotlin(double omega, const Tbl& par) ; 
-double primfrotlin(double omega, const Tbl& par) ; 
+double frotlin(double omega, const Lorene::Tbl& par) ; 
+double primfrotlin(double omega, const Lorene::Tbl& par) ; 
 
+namespace Lorene {
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
-
+}
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

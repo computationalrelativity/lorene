@@ -38,6 +38,7 @@ char des_coupe_vtk_scalar_C[] = "$ $" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void des_coupe_vtk_x(const Scalar& uu, double x0, double y_min, double y_max, 
 		 double z_min, double z_max, const char* title, int ny, int nz) {
 		
@@ -531,3 +532,4 @@ void des_vtk_xyz(const Scalar& uu, int nzdes, const char* title,
 }
 
 //******************************************************************************
+}

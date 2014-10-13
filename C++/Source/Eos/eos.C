@@ -31,6 +31,9 @@ char eos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -101,6 +104,7 @@ char eos_C[] = "$Header$" ;
 
 // Standard constructor without name
 // ---------------------------------
+namespace Lorene {
 Eos::Eos(){
         
     set_name("") ; 
@@ -463,4 +467,5 @@ Scalar Eos::der_press_ent(const Scalar& ent, int nzet, int l_min, const Param* p
 
     return resu ;
 
+}
 }

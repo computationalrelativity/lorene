@@ -25,6 +25,7 @@
 			//    Class Isol_hole        //
 			//---------------------------//
 
+namespace Lorene {
 /** Class to compute quasistationary single black hole spacetimes in vacuum.
  *  It takes as arguments:
  * - A Mapping \c mp
@@ -268,4 +269,5 @@ class Isol_hole {
 
 };
 
+}
 #endif

@@ -30,6 +30,9 @@ char connection_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -70,6 +73,7 @@ char connection_flat_C[] = "$Header$" ;
 
 // Constructor for derived classes
 
+namespace Lorene {
 Connection_flat::Connection_flat(const Map& mpi, const Base_vect& bi) 
 	: Connection(mpi, bi) {
 
@@ -133,3 +137,4 @@ const Tensor& Connection_flat::ricci() const {
 
 
 
+}

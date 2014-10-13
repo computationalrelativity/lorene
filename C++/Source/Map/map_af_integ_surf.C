@@ -25,6 +25,9 @@ char map_af_integ_surf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -83,6 +86,7 @@ char map_af_integ_surf_C[] = "$Header$" ;
                      // Cmp version
                     //===============  
 
+namespace Lorene {
 double Map_af::integrale_surface (const Cmp& ci, double rayon) const {
     
     assert (ci.get_etat() != ETATNONDEF) ;
@@ -455,4 +459,5 @@ double Map_af::integrale_surface_infini (const Scalar& ci) const {
     }
     
     return result ;
+}
 }

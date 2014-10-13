@@ -26,6 +26,9 @@ char binhor_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -50,6 +53,7 @@ char binhor_viriel_C[] = "$Header$" ;
 #include "tensor.h"
 #include "isol_hor.h"
 
+namespace Lorene {
 double Single_hor::viriel_seul () const{
     
     int nz1 = mp.get_mg()->get_nzone() ;
@@ -85,3 +89,4 @@ double Bin_hor::viriel () const{
     return res ;
 }
 
+}

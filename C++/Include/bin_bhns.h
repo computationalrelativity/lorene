@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 18:50:06  k_taniguchi
  * Addition of new global quantities.
  *
@@ -40,13 +43,15 @@
  *
  */
 
-// External classes which appear in the declaration of class Bin_bhns:
-class Hole_bhns ;
-class Star_bhns ;
-
 // Lorene headers
 #include "hole_bhns.h"
 #include "star_bhns.h"
+
+namespace Lorene {
+
+// External classes which appear in the declaration of class Bin_bhns:
+class Hole_bhns ;
+class Star_bhns ;
 
 
 /**
@@ -367,4 +372,5 @@ class Bin_bhns {
 };
 ostream& operator<<(ostream& , const Bin_bhns& ) ;
 
+}
 #endif

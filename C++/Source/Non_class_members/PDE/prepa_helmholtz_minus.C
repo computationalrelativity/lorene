@@ -25,6 +25,9 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:30  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:16:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _prepa_helmholtz_minus_nondege_pas_prevu(const Matrice &so) {
   
     cout << "Unknown case for prepa_helmholtz_minus_nondege" << endl ;
@@ -188,3 +192,4 @@ Matrice prepa_helmholtz_minus_nondege(const Matrice &ope, int base_r) {
   return res ;
 }
 
+}

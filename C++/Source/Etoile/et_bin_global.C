@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2004/12/30 17:24:42  f_limousin
  * Remove #include "et_bin_ncp.h"
  *
@@ -93,6 +96,7 @@ char et_bin_global_C[] = "$Header$" ;
 			//	Baryon mass	    //
 			//--------------------------//
 
+namespace Lorene {
 double Etoile_bin::mass_b() const {
 
     if (p_mass_b == 0x0) {    // a new computation is required
@@ -185,3 +189,4 @@ double Etoile_bin::xa_barycenter() const {
 
 
 
+}

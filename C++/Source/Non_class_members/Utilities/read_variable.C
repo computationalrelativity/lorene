@@ -30,6 +30,7 @@ char read_variable_C[] = "$Header$";
 #include "headcpp.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 
 /*----------------------------------------------------------------------
  * load_file: does just that plus takes care of memory allocation
@@ -38,8 +39,7 @@ char read_variable_C[] = "$Header$";
  *
  * returns NULL on error
  *----------------------------------------------------------------------*/
-char *
-load_file (const char *fname)
+char *load_file (const char *fname)
 {
   FILE *fp;
   char *data;
@@ -308,3 +308,4 @@ MyMalloc (long bytes)
 
 } // void* MyMalloc
 
+}

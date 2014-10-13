@@ -40,6 +40,7 @@ char CTS_gen[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
+namespace Lorene {
 void Isol_hor::init_data_CTS_gen(int, double, int, int,
 				int solve_lapse, int solve_psi, int solve_shift, 
 				double precis, double relax_nn ,
@@ -761,3 +762,4 @@ void Isol_hor::init_data_CTS_gen(int, double, int, int,
 }
 
 
+}

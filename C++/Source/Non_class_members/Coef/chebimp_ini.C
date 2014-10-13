@@ -47,6 +47,9 @@ char chebimp_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:11  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -86,6 +89,7 @@ char chebimp_ini_C[] = "$Header$" ;
 // Variable externe de loch
 //int loch_chebimp_ini = 0 ;
 
+namespace Lorene {
 //*****************************************************************************
 
 double* chebimp_ini(const int n )
@@ -131,4 +135,5 @@ int indice ;
     // Valeurs de retour
     return table_x[indice] ;
 
+}
 }

@@ -30,6 +30,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:54:04  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2003/10/19 20:01:10  e_gourgoulhon
  * Template file
  *
@@ -52,3 +55,9 @@ char name_of_this_file_C[] = "$Header$" ;
 // Lorene headers
 #include ""
 
+namespace Lorene { // All Lorene stuff is part of a single namespace
+
+  // put your function and class definitions here...
+
+
+}

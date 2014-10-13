@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -104,6 +107,7 @@ char sym_tensor__aux_C[] = "$Header$" ;
 			//--------------//
 			
 			
+namespace Lorene {
 const Scalar& Sym_tensor::eta(Param* par) const {
 
   if (p_eta == 0x0) {   // a new computation is necessary
@@ -703,4 +707,5 @@ const Scalar& Sym_tensor::compute_tilde_C(bool output_ylm, Param* par) const {
 
   return *p_tilde_c ; 
 
+}
 }

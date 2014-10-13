@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2013/12/12 16:07:30  j_novak
  * interpol_herm_2d outputs df/dx, used to get the magnetization.
  *
@@ -73,6 +76,7 @@ char interpol_herm_C[] = "$Header$" ;
 // Headers Lorene
 #include "tbl.h"
 
+namespace Lorene {
 void huntm(const Tbl& xx, double& x, int& i_low) {
 
   assert (xx.get_etat() == ETATQCQ) ;
@@ -344,4 +348,5 @@ void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab,
 
   return ;
 
+}
 }

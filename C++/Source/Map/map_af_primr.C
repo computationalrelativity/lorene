@@ -30,6 +30,9 @@ char map_af_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -59,6 +62,7 @@ char map_af_primr_C[] = "$Header$" ;
 #include "map.h"
 #include "tensor.h"
 
+namespace Lorene {
 void _primr_pas_prevu(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_cheb(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebp(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
@@ -193,4 +197,5 @@ void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
 	      vprim.set(l, k, j, i) -= val_rmax(k,j) ;
 	 
     
+}
 }

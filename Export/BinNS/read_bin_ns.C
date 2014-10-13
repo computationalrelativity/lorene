@@ -29,6 +29,9 @@ char read_bin_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:54:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:09:47  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -53,6 +56,8 @@ char read_bin_ns_C[] = "$Header$" ;
 
 // Definition of Bin_NS class
 #include "bin_ns.h"
+
+using namespace Lorene ;
 
 int main() {
 

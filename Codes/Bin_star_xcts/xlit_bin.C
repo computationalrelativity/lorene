@@ -29,6 +29,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:09:43  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,10 +76,13 @@ char lit_bin_C[] = "$Header$" ;
 #include "tenseur.h" 
 #include "nbr_spx.h"
 
+namespace Lorene {
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
-
+}
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(int argc, char** argv){
 

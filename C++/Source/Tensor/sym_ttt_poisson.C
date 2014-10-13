@@ -30,6 +30,9 @@ char sym_ttt_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2004/12/28 10:37:24  j_novak
  * Better way of enforcing zero divergence.
  *
@@ -55,6 +58,7 @@ char sym_ttt_poisson_C[] = "$Header$" ;
 #include "param_elliptic.h"
 
 
+namespace Lorene {
 Sym_tensor_tt Sym_tensor_tt::poisson(int dzfin) const {
 
     // All this has a meaning only for spherical components...
@@ -219,4 +223,5 @@ Sym_tensor_tt Sym_tensor_tt::poisson(int dzfin) const {
     *rcmp[position(idx)] = - resu(1,1) - resu(3,3) ; 
     
      return resu ;   
+}
 }

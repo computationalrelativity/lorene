@@ -30,6 +30,9 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -68,6 +71,7 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 // Headers Lorene
 #include "star.h"
 
+namespace Lorene {
 void Star_bin::extrinsic_curvature(double om){
     
   // Construction of Omega d/dphi
@@ -138,4 +142,5 @@ void Star_bin::extrinsic_curvature(double om){
   // -----------------------------------
   
   del_deriv() ;
+}
 }

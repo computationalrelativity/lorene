@@ -33,6 +33,9 @@ char tenseur_sym_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -89,6 +92,7 @@ char tenseur_sym_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
+namespace Lorene {
 Tenseur_sym::Tenseur_sym(const Map& map, int val, const Itbl& tipe, 
 			 const Base_vect& triad_i, const Metrique* met, 
 			 double weight) 
@@ -448,4 +452,5 @@ void Tenseur_sym::fait_derive_con (const Metrique& metre, int ind) const {
 	p_derive_con[ind] = new Tenseur_sym
 		(contract(metre.con(), 1, gradient(), 0)) ;
     }
+}
 }

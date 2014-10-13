@@ -25,6 +25,9 @@ char separation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:12:59  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -67,6 +70,7 @@ char separation_C[] = "$Header$" ;
 #include "cmp.h"
 #include "proto.h"
 
+namespace Lorene {
 void separation (const Cmp& c1, const Cmp& c2, Cmp& res1, Cmp& res2, int decrois, 
     int puiss, int lmax, double precision, const double relax, const int itemax, const int flag) {
     
@@ -201,4 +205,5 @@ void separation (const Cmp& c1, const Cmp& c2, Cmp& res1, Cmp& res2, int decrois
 	    indic = -1 ;
 	}
     }
+}
 }

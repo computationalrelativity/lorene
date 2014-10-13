@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2007/05/06 10:48:08  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -78,6 +81,7 @@
 
 #include "matrice.h"
 
+namespace Lorene {
 /**
  * Basic class for elementary elliptic operators.
  *
@@ -1047,5 +1051,6 @@ class Ope_vorton : public Ope_elementary {
   virtual void dec_l_quant() ;
 } ;
 
-# endif
+}
+#endif
 

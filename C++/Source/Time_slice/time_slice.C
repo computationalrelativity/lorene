@@ -30,6 +30,9 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -103,6 +106,7 @@ char time_slice_C[] = "$Header$" ;
 			    //--------------//
 
 
+namespace Lorene {
 // Standard constructor (Hamiltonian-like)
 // ---------------------------------------
 Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
@@ -565,3 +569,4 @@ void Time_slice::sauve(FILE* fich, bool partial_save) const {
                 
                 
 
+}

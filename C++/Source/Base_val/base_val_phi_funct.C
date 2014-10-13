@@ -31,6 +31,9 @@ char base_val_phi_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char base_val_phi_funct_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Local prototypes
+namespace Lorene {
 void phi_funct_pas_prevu(int, double*) ;
 void phi_funct_cossin(int, double*) ;
 void phi_funct_cossin_p(int, double*) ;
@@ -246,3 +250,4 @@ void phi_funct_cossin_i(int np, double* ff) {
     
 }
 
+}

@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -71,6 +74,7 @@ char scalar_visu_C[] = "$Header$" ;
                     //          visu_section : special cases   //
                     //-----------------------------------------//
                     
+namespace Lorene {
 void Scalar::visu_section(const char section_type, double aa, double umin, 
         double umax, double vmin, double vmax, const char* title0, 
         const char* filename0, bool start_dx, int nu, int nv) const {
@@ -574,3 +578,4 @@ void Scalar::visu_section_anim(const char section_type, double aa, double umin,
     delete [] filename ;        
         
 }           
+}

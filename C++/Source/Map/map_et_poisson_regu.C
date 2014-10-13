@@ -33,8 +33,11 @@ char map_et_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  2000/09/27  14:07:14  keisuke
  * Traitement des bases spectrales de d_logn_auto_div.
@@ -76,6 +79,8 @@ char map_et_poisson_regu_C[] = "$Header$" ;
 #include "param.h"
 
 //*****************************************************************************
+
+namespace Lorene {
 
 void Map_et::poisson_regular(const Cmp& source, int k_div, int nzet,
 			     double unsgam1, Param& par, Cmp& uu,
@@ -352,4 +357,5 @@ void Map_et::poisson_regular(const Cmp& source, int k_div, int nzet,
 //==========================================================================
 
 
+}
 }

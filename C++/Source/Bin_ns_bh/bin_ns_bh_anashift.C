@@ -31,6 +31,9 @@ char bin_ns_bh_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char bin_ns_bh_anashift_C[] = "$Header$" ;
 #include "bin_ns_bh.h"
 #include "unites.h"
 
+namespace Lorene {
 void Bin_ns_bh::analytical_shift() {
 
     // NS-BH binary systems should be relativistic
@@ -124,4 +128,5 @@ void Bin_ns_bh::analytical_shift() {
     // Sets the standard spectral bases for a scalar field
     star.set_khi_shift().set_std_base() ;
 
+}
 }

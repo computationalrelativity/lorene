@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -109,6 +112,7 @@ char map_af_fait_C[] = "$Header$" ;
 		    // Coord. radiale //
 		    //----------------//
 
+namespace Lorene {
 Mtbl* map_af_fait_r(const Map* cvi) {
 
     // recup du changement de variable
@@ -866,3 +870,4 @@ Mtbl* map_af_fait_sr2d2rdt2(const Map* cvi) {
     return mti ; 
 } 
 
+}

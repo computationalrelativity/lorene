@@ -31,6 +31,9 @@ char arrete_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -54,6 +57,7 @@ char arrete_C[] = "$Header$" ;
 // headers du C++
 #include"headcpp.h"
 
+namespace Lorene {
 void arrete(int a) {
     char c ;
     
@@ -65,4 +69,5 @@ void arrete(int a) {
 
     }
     
+}
 }

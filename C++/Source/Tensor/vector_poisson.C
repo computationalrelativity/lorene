@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2014/10/13 08:53:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.23  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -123,6 +126,7 @@ char vector_poisson_C[] = "$Header$" ;
 #include "param_elliptic.h"
 #include "proto.h"
 
+namespace Lorene {
 Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method) 
   const {
  
@@ -639,3 +643,4 @@ Vector Vector::poisson(const double lambda, Param& par, int method) const {
 
 
 
+}

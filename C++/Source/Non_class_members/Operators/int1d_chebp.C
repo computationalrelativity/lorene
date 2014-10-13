@@ -51,8 +51,11 @@ char int1d_chebp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:23  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  1999/02/22  15:37:46  hyc
  * *** empty log message ***
@@ -62,6 +65,7 @@ char int1d_chebp_C[] = "$Header$" ;
  *
  */
 
+namespace Lorene {
 
 //*****************************************************************************
 
@@ -77,4 +81,5 @@ double int1d_chebp(int nr, const double* cf){
     
     return -som ; 
     
+}
 }

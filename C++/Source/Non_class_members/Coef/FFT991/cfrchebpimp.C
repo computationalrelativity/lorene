@@ -97,6 +97,9 @@ char cfrchebpimp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:15  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:44  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -137,11 +140,13 @@ char cfrchebpimp_C[] = "$Header$" ;
 #include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
 
+namespace Lorene {
 //*****************************************************************************
 
 void cfrchebpimp(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -619,4 +624,6 @@ int i, j, k ;
     // Menage
     free (t1) ;
     free (g) ;
+}
+}
 }

@@ -31,6 +31,9 @@ char binary_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -64,6 +67,7 @@ char binary_anashift_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "unites.h"
 
+namespace Lorene {
 void Binary::analytical_shift(){
     
   using namespace Unites ;
@@ -160,4 +164,5 @@ void Binary::analytical_shift(){
 
     }
 
+}
 }

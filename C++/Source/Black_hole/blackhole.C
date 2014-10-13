@@ -30,6 +30,9 @@ char blackhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -64,6 +67,7 @@ char blackhole_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Black_hole::Black_hole(Map& mp_i, bool kerrschild_i, double massbh)
       : mp(mp_i),
 	kerrschild(kerrschild_i),
@@ -328,4 +332,5 @@ ostream& Black_hole::operator>>(ostream& ost) const {
 
     return ost ;
 
+}
 }

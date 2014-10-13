@@ -31,6 +31,9 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:52:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2004/03/25 10:28:59  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -102,6 +105,7 @@ char binaire_bin_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Binaire::Binaire(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		 Map& mp2, int nzet2, const Eos& eos2, int irrot2,
 		 int relat) 
@@ -458,4 +462,5 @@ double Binaire::separation() const {
     
     return sqrt( dx*dx + dy*dy + dz*dz ) ; 
     
+}
 }

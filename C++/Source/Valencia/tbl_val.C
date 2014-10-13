@@ -32,6 +32,9 @@ char TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -76,6 +79,7 @@ char TBL_VAL_C[] = "$Header$" ;
 
 
 // Constructeur a partir d'une grille de Valence
+namespace Lorene {
 Tbl_val::Tbl_val(const Grille_val* g) : etat(ETATNONDEF), 
   dim(g->get_dim_tbl()), gval(g), t(0x0), tzri(0x0), txti(0x0), typi(0x0) {}
 
@@ -513,3 +517,4 @@ void Tbl_val::affiche_seuil(ostream& ost, int precis,  double seuil) const {
 
 
 
+}

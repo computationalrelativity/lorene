@@ -64,6 +64,9 @@ char mat_legmp_cos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:14  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -84,6 +87,7 @@ char mat_legmp_cos_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "proto.h"
 
+namespace Lorene {
 //******************************************************************************
 
 double* mat_legmp_cos(int np, int nt) {
@@ -189,3 +193,4 @@ double* mat_legmp_cos(int np, int nt) {
 }
 
 
+}

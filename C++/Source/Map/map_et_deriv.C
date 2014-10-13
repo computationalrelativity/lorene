@@ -29,6 +29,9 @@ char map_et_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2012/01/17 10:33:33  j_penner
  * added a derivative with respect to the computational coordinate xi
  *
@@ -88,6 +91,7 @@ char map_et_deriv_C[] = "$Header$" ;
 			//-----------------------//
 			
 			
+namespace Lorene {
 void Map_et::dsdxi(const Cmp& ci, Cmp& resu) const {
 
     assert (ci.get_etat() != ETATNONDEF) ; 
@@ -709,3 +713,4 @@ void Map_et::stdsdp(const Scalar& ci, Scalar& resu) const {
 
 
 
+}

@@ -25,6 +25,9 @@ char sol_elliptic_boundary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:30  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,7 @@ char sol_elliptic_boundary_C[] = "$Header$" ;
 
 
 
+namespace Lorene {
 Mtbl_cf elliptic_solver_boundary  (const Param_elliptic& ope_var, const Mtbl_cf& source, 
 				   const Mtbl_cf& bound, double fact_dir, double fact_neu )  {
    // Verifications d'usage sur les zones
@@ -317,3 +321,4 @@ Mtbl_cf elliptic_solver_boundary  (const Param_elliptic& ope_var, const Mtbl_cf&
   return resultat;
 }
 
+}

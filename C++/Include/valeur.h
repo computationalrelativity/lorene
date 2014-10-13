@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.19  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -271,6 +274,7 @@
 #include "mtbl.h"
 #include "mtbl_cf.h"
 
+namespace Lorene {
 class Coord ;
 class Itbl ; 
 
@@ -949,4 +953,5 @@ Tbl diffrelmax(const Valeur& a, const Valeur& b) ;
 
 /** @} */
 	
+}
 #endif

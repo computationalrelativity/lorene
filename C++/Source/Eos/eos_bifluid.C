@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/04/25 10:43:51  j_novak
  * The member 'name' is of type string now. Correction of a few const-related issues.
  *
@@ -129,6 +132,7 @@ char eos_bifluid_C[] = "$Header$" ;
 
 // Standard constructor without name
 // ---------------------------------
+namespace Lorene {
 Eos_bifluid::Eos_bifluid() :
   name("EoS bi-fluid"), m_1(1), m_2(1)
 { }
@@ -734,4 +738,5 @@ Cmp Eos_bifluid::get_Kpp(const Cmp& nbar1, const Cmp& nbar2, const Cmp&
     
     return resu ; 
     
+}
 }

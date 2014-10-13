@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -77,6 +80,7 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 #include "proto.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Tslice_dirac_max::set_AB_hh(const Scalar& A_in, const Scalar& B_in) {
 
     A_hh_evol.update(A_in, jtime, the_time[jtime]) ; 
@@ -430,3 +434,4 @@ void Tslice_dirac_max::initialize_sources_copy() const {
     } 
 }
 
+}

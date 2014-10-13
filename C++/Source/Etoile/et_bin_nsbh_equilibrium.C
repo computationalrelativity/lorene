@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -90,6 +93,7 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mermax,
 				   int mermax_poisson, double relax_poisson,
 				   int mermax_potvit, double relax_potvit,
@@ -492,4 +496,5 @@ void Et_bin_nsbh::equilibrium_nsbh (double, int, int, double,
 				  
 		cout << "Not implemented !" << endl ;
 		abort() ;
+}
 }

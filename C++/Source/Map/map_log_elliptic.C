@@ -25,6 +25,9 @@ char map_log_elliptic_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -68,6 +71,7 @@ char map_log_elliptic_C[] = "$Header $" ;
 	   //		General elliptic solver
 	  //----------------------------------------------
 
+namespace Lorene {
 void Map_log::sol_elliptic(Param_elliptic& ope_var, const Scalar& source, 
 			  Scalar& pot) const {
     
@@ -320,3 +324,4 @@ void Map_log::sol_elliptic_no_zec (Param_elliptic& ope_var, const Scalar& source
 }
 
    
+}

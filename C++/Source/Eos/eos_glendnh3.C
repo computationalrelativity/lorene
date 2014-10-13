@@ -15,6 +15,7 @@
 
 // Standard constructor
 // --------------------			
+namespace Lorene {
 Eos_GlendNH3::Eos_GlendNH3(const char* path)
 		: Eos_tabul("EOS GlendNH3",
 		            "eos_glendnh3.d", path)
@@ -89,4 +90,5 @@ ostream& Eos_GlendNH3::operator>>(ostream & ost) const {
 
     return ost ;
 
+}
 }

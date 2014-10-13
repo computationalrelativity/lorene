@@ -34,6 +34,9 @@ char scalar_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -65,6 +68,7 @@ char scalar_math_C[] = "$Header$" ;
 			    // Sine  //
 			    //-------//
 
+namespace Lorene {
 Scalar sin(const Scalar& ci)
 {
     // Protection
@@ -755,3 +759,4 @@ Tbl diffrelmax(const Scalar& c1, const Scalar& c2) {
     
 }
 
+}

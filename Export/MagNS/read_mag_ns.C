@@ -29,6 +29,9 @@ char read_mag_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:54:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/05/13 10:06:45  j_novak
  * Update to take unto account the change in Lorene magnetic units.
  *
@@ -46,6 +49,8 @@ char read_mag_ns_C[] = "$Header$" ;
 
 // Definition of Mag_NS class
 #include "mag_ns.h"
+
+using namespace Lorene ;
 
 int main() {
 

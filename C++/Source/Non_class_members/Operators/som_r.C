@@ -41,6 +41,9 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:27  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:16:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -103,6 +106,8 @@ char som_r_C[] = "$Header$" ;
 
 #include "headcpp.h"
 #include "proto.h"
+
+namespace Lorene {
 			//-------------------
 			//- Cas Non-Prevu ---
 			//-------------------
@@ -822,4 +827,5 @@ double* po = trtp ;	    // pointeur courant sur la sortie
     // Menage
     delete [] jaco ;
 
+}
 }

@@ -31,6 +31,9 @@ char blackhole_rk_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -60,6 +63,7 @@ char blackhole_rk_phi_C[] = "$Header$" ;
           //      Forth-order Runge-Kutta on the equator      //
           //--------------------------------------------------//
 
+namespace Lorene {
 Tbl Black_hole::runge_kutta_phi_bh(const Tbl& xi_i, const double& phi_i,
 				   const int& nrk_phi) const {
 
@@ -189,4 +193,5 @@ Tbl Black_hole::runge_kutta_phi_bh(const Tbl& xi_i, const double& phi_i,
 
     return xi_f ;
 
+}
 }

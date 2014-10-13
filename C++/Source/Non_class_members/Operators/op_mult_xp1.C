@@ -25,6 +25,9 @@ char op_mult_xp1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:26  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -72,6 +75,7 @@ char op_mult_xp1_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _mult_xp1_pas_prevu(Tbl * tb, int& base) {
     cout << "mult_xp1 pas prevu..." << endl ;
     cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -148,4 +152,5 @@ void _mult_xp1_r_jaco02(Tbl* tb, int& )
     // base de developpement
     // inchangee
 
+}
 }

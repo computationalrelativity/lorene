@@ -43,6 +43,7 @@ char strot_dirac_diff_equil_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h" 
 
+namespace Lorene {
 void Star_rot_Dirac_diff::equilibrium(double ent_c, double omega_c0, 
 	         double fact_omega, int , const Tbl& ent_limit,
 		 const Itbl& icontrol, const Tbl& control,
@@ -496,4 +497,5 @@ void Star_rot_Dirac_diff::equilibrium(double ent_c, double omega_c0,
   fichevol.close() ; 
 
 
+}
 }

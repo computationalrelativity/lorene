@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -170,6 +173,7 @@ char bhole_C[] = "$Header$" ;
 #include "graphique.h"
 
 // Constructeur standard
+namespace Lorene {
 Bhole::Bhole (Map_af& mpi) : mp(mpi),
 			rayon ((mp.get_alpha())[0]), 
 			omega(0), omega_local(0), rot_state(COROT), boost (new double[3]), regul(0), 
@@ -578,3 +582,4 @@ double Bhole::local_momentum() const {
     return moment ;
 }
 		    
+}

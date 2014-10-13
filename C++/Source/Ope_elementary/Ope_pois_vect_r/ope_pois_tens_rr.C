@@ -30,6 +30,9 @@ char ope_pois_tens_rr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/12/23 16:30:15  j_novak
  * New files and class for the solution of the rr component of the tensor Poisson
  * equation.
@@ -43,6 +46,7 @@ char ope_pois_tens_rr_C[] = "$Header$" ;
 #include"type_parite.h"
 #include "ope_elementary.h"
 
+namespace Lorene {
 Matrice ope_ptens_rr_mat(int , int , double , int, int ) ;
 Tbl sh_ptens_rr(int, int, double, int) ;
 Matrice cl_ptens_rr (const Matrice&, int, double, int, int) ;
@@ -133,3 +137,4 @@ Tbl Ope_pois_tens_rr::get_solh() const {
   return sh_ptens_rr(nr, l_quant, beta/alpha, base_r) ;
 }
 
+}

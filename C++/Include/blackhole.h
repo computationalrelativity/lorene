@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2008/07/02 20:41:40  k_taniguchi
  * Addition of the routines to compute angular momentum
  *  and modification of the argument of equilibrium_spher.
@@ -55,6 +58,7 @@
                     //     Base class Black_hole     //
                     //-------------------------------//
 
+namespace Lorene {
 /**
  * Base class for black holes.
  * \ingroup(star)
@@ -415,4 +419,5 @@ class Black_hole {
 };
 ostream& operator<<(ostream& , const Black_hole& ) ;
 
+}
 #endif

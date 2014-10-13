@@ -27,6 +27,9 @@ char asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:09:42  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -62,6 +65,8 @@ char asymptot_C[] = "$Header$" ;
 #include "nbr_spx.h"
 
 #include "unites.h"
+
+namespace Lorene {
 
 void asymptot(const Cmp& nn, const char* coment, bool graphics, ostream& fich) {
 
@@ -166,3 +171,4 @@ void asymptot(const Cmp& nn, const char* coment, bool graphics, ostream& fich) {
 
 
 
+}

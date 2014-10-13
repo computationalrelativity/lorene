@@ -10,6 +10,18 @@
  */
 
 /**
+ * \brief Main namespace containing all \b LORENE classes and functions.
+ *
+ * The namespace \c Lorene gathers all function and classes defined in the 
+ * LORENE library. To use it, simply put a 
+ \code{.cpp} 
+ using namespace Lorene ;
+ \endcode
+ * after the include lines in your code.
+ */
+namespace Lorene {}
+
+/**
  * \defgroup util Utilities.
  *
  * The classes \c Tbl and \c Itbl implement the 1-D, 2-D and 3-D

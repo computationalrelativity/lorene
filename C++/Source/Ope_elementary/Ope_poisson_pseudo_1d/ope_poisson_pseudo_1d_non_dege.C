@@ -36,6 +36,7 @@ char ope_poisson_pseudo_1d_non_dege_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _poisson_pseudo_1d_non_dege_pas_prevu(const Matrice &lap, int) {
     cout << "Construction non degeneree pas prevue..." << endl ;
     abort() ;
@@ -167,4 +168,5 @@ void Ope_poisson_pseudo_1d::do_non_dege() const {
       _poisson_pseudo_1d_non_dege_r_chebi ;
   }
   non_dege = new Matrice(poisson_pseudo_1d_non_dege[base_r](*ope_cl, l_quant)) ;
+}
 }

@@ -28,6 +28,9 @@ char tenseur_compare_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/05/27 07:17:19  p_grandclement
  * Correction of some shadowed variables
  *
@@ -50,6 +53,7 @@ char tenseur_compare_C[] = "$Header$" ;
 #include "tenseur.h"
 
 
+namespace Lorene {
 void Tenseur::compare(const Tenseur& tens, const char* name) {
   assert ( valence == tens.get_valence() ) ;
 
@@ -123,4 +127,5 @@ void Tenseur::compare(FILE* fich, const char* name_i) {
   compare(tens, name_i) ;
 
 
+}
 }

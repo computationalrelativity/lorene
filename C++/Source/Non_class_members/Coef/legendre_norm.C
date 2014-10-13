@@ -58,6 +58,9 @@ char legendre_norm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:13  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -93,6 +96,7 @@ char legendre_norm_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "proto.h"
 
+namespace Lorene {
 //******************************************************************************
 
 double* legendre_norm(int m, int nt) {
@@ -174,3 +178,4 @@ int l, j ;
 
 
 
+}

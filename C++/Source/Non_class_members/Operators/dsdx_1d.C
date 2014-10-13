@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:23  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -69,6 +72,7 @@ char dsdx_1d_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//----------------------------------
 
+namespace Lorene {
 void _dsdx_1d_pas_prevu(int nr, double* tb, double *xo) {
     cout << "dsdx pas prevu..." << endl ;
     cout << "Nombre de points : " << nr << endl ;
@@ -194,4 +198,5 @@ void dsdx_1d(int nr, double** tb, int base_r)
     
     delete [] (*tb) ;
     (*tb) = result ;
+}
 }

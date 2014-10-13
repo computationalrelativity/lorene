@@ -29,6 +29,9 @@ char des_domaine_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:22  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:05  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -77,6 +80,7 @@ char des_domaine_C[] = "$Header$" ;
 #include "unites.h"
 
 // Local prototypes
+namespace Lorene {
 double fonc_des_domaine_x(double, const Param&) ; 
 double fonc_des_domaine_y(double, const Param&) ; 
 double fonc_des_domaine_z(double, const Param&) ; 
@@ -502,3 +506,4 @@ double fonc_des_domaine_z(double vrho, const Param& par) {
     
 }
 
+}

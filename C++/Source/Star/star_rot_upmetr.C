@@ -32,6 +32,9 @@ char star_rot_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2010/01/25 18:15:52  e_gourgoulhon
  * First version.
  *
@@ -44,6 +47,7 @@ char star_rot_upmetr_C[] = "$Header$" ;
 #include "star_rot.h"
 
 
+namespace Lorene {
 void Star_rot::update_metric() {
  
     // Lapse function N
@@ -222,3 +226,4 @@ void Star_rot::extrinsic_curvature(){
     
 }
 
+}

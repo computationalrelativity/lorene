@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2012/12/03 15:26:14  c_some
  * Added data member m2
  *
@@ -52,6 +55,7 @@
 			//    class Boson_star      //
 			//--------------------------//
 
+namespace Lorene {
 /**
  * Class for stationary axisymmetric boson stars (***under development***). 
  * \ingroup(compactobjects)
@@ -260,4 +264,5 @@ class Boson_star : public Star_QI {
 };
 
 
+}
 #endif

@@ -40,6 +40,7 @@ char bin_ns_ncp_anashift_C[] = "$Header$" ;
 #include "bin_ns_ncp.h"
 #include "unites.h"
 
+namespace Lorene {
 void Bin_ns_ncp::analytical_shift(){
 
   using namespace Unites ;
@@ -123,4 +124,5 @@ void Bin_ns_ncp::analytical_shift(){
     
     }
     
+}
 }

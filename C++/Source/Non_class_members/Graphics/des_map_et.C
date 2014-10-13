@@ -33,6 +33,9 @@ char des_map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:22  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:05  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -68,6 +71,7 @@ char des_map_et_C[] = "$Header$" ;
 #include "map.h"
 #include "graphique.h"
 
+namespace Lorene {
 void des_map_et(const Map_et& mp, int lz) {
     
     double pzero = 1.e-14 ; 
@@ -183,4 +187,5 @@ void des_map_et(const Map_et& mp, int lz) {
     
     }   
     
+}
 }

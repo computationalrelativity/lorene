@@ -25,6 +25,9 @@ char xdsdx_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -66,6 +69,7 @@ char xdsdx_mat_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _xdsdx_mat_pas_prevu(int n, int) {
     cout << "xdsdx_mat pas prevu..." << endl ;
     cout << "n : " << n << endl ;
@@ -224,3 +228,4 @@ Matrice xdsdx_mat(int n, int l, int base_r)
     return res ;
 }
 
+}

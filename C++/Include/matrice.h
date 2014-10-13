@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -132,6 +135,7 @@
 #include "tbl.h"
 #include "itbl.h"
 
+namespace Lorene {
 /**
  * Matrix handling.
  * The matrix can be stored in the usual way in \c std,  in a band-way by
@@ -382,4 +386,5 @@ Matrice operator/ (const Matrice&,  double ) ; ///< \c Matrice / \c double
 
 /**@} */
 
+}
 #endif	

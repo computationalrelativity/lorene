@@ -30,6 +30,9 @@ char des_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:23  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:05  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -63,6 +66,7 @@ char des_vect_C[] = "$Header$" ;
 // PGPLOT headers:
 #include <cpgplot.h>
 
+namespace Lorene {
 //******************************************************************************
 
 void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax, 
@@ -164,4 +168,5 @@ void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax,
     }
     
     
+}
 }

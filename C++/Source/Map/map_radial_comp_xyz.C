@@ -32,6 +32,9 @@ char map_radial_comp_xyz_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@ char map_radial_comp_xyz_C[] = "$Header$" ;
 		    //------------------------------------//
 		    //		X  component		  //
 		    //------------------------------------//
+namespace Lorene {
 void Map_radial::comp_x_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 				       const Cmp& v_phi, Cmp& v_x) const {
     Scalar resu(v_x) ;
@@ -220,3 +224,4 @@ void Map_radial::comp_z_from_spherical(const Scalar& v_r, const Scalar& v_theta,
 }
 		    
 		    
+}

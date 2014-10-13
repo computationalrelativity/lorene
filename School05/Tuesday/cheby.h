@@ -3,6 +3,8 @@
 
 #include "tbl.h"
 
+using namespace Lorene ;
+
 // Returns T_n(x)
 double cheby (int n, double x) ;
 

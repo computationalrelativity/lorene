@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -71,6 +74,7 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 #include "unites.h"
 #include "metrique.h"
 
+namespace Lorene {
 double Bin_ns_bh::adm_systeme() const {
     Cmp der_un (hole.psi_auto().dsdr()) ;
     
@@ -575,3 +579,4 @@ double Bin_ns_bh::smarr() const {
     
     return m_test ;
     }
+}

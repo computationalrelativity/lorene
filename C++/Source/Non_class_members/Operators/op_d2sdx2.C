@@ -37,6 +37,9 @@ char op_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:24  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2013/06/14 15:54:06  j_novak
  * Inclusion of Legendre bases.
  *
@@ -83,6 +86,7 @@ char op_d2sdx2_C[] = "$Header$" ;
 // Fichier includes
 #include "tbl.h"
 
+namespace Lorene {
 void _d2sdx2_1d_r_jaco02(int, double*, double*) ;
 
 // Prototypage
@@ -1348,3 +1352,4 @@ void _d2sdx2_r_jaco02(Tbl *tb, int & )
 }
 
 
+}

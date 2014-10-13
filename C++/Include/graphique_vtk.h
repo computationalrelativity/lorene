@@ -9,6 +9,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace Lorene {
 class Scalar ;
 class Map ; 
 
@@ -192,4 +193,5 @@ void des_vtk_xyz(const Scalar& uu, double x_min, double x_max,
 
 /** @} */
 
+}
 #endif

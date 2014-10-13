@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2003/10/17 13:04:18  f_limousin
  * Add new functions get_cov() and get_con().
  *
@@ -103,6 +106,7 @@
 
 #define N_DEPEND 200
 
+namespace Lorene {
 /**
  * Metric handling.
  * 
@@ -364,4 +368,5 @@ Tenseur_sym fait_inverse (const Tenseur_sym& t) ;
 
     //@}
 
+}
 #endif

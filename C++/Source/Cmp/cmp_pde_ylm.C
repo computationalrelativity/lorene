@@ -31,6 +31,9 @@ char cmp_pde_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/12/29 16:27:48  k_taniguchi
  * *** empty log message ***
  *
@@ -51,6 +54,7 @@ char cmp_pde_ylm_C[] = "$Header$" ;
 // Version without parameters
 // --------------------------
 
+namespace Lorene {
 Cmp Cmp::poisson_ylm(int nylm, double* intvec) const {
     
     Param bidon ;
@@ -68,4 +72,5 @@ void Cmp::poisson_ylm(Param& par, Cmp& uu, int nylm, double* intvec) const {
     
     mp->poisson_ylm(*this, par, uu, nylm, intvec) ;     
     
+}
 }

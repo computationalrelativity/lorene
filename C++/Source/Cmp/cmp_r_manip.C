@@ -31,6 +31,9 @@ char cmp_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2012/08/12 17:35:36  p_cerda
  * Magnetstar: adding new member to class Cmp
  *
@@ -71,6 +74,7 @@ char cmp_r_manip_C[] = "$Header$" ;
 			//	    div_r	     //
 			//---------------------------//
 
+namespace Lorene {
 void Cmp::div_r() {
 
   Scalar resu(*this) ;
@@ -194,3 +198,4 @@ void Cmp::inc2_dzpuis() {
 }
 
 
+}

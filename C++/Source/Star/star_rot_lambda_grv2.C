@@ -32,6 +32,9 @@ char star_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char star_rot_lambda_grv2_C[] = "$Header$" ;
 #include "star_rot.h"
 #include "proto_f77.h"
 
+namespace Lorene {
 double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 
 	const Map_radial* mprad = dynamic_cast<const Map_radial*>( &sou_m.get_mp() ) ;
@@ -317,4 +321,5 @@ double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 	
     return lambda ;
 	
+}
 }

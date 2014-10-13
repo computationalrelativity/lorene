@@ -33,6 +33,9 @@ char tensor_sym_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:20  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@ char tensor_sym_calculus_C[] = "$Header$" ;
 // Tensorial product
 //------------------
 
+namespace Lorene {
 Tensor_sym operator*(const Tensor_sym& t1, const Tensor& t2) {
    
     assert (t1.mp == t2.mp) ;
@@ -239,3 +243,4 @@ Tensor_sym Tensor_sym::derive_lie(const Vector& vv) const {
 
 
  
+}

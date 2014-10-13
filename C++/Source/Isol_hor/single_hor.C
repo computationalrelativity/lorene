@@ -31,6 +31,9 @@ char single_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -63,6 +66,7 @@ char single_hor_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Single_hor::Single_hor(Map_af& mpi) : 
   mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
   omega(0),regul(0),
@@ -586,3 +590,4 @@ void Single_hor::init_bhole_seul () {
 
 
 
+}

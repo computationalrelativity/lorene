@@ -25,6 +25,9 @@ char comb_lin_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:28  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -60,6 +63,7 @@ char comb_lin_cpt_C[] = "$Header$" ;
 
 
 // Version Matrice --> Matrice
+namespace Lorene {
 Matrice _cl_cpt_pas_prevu (const Matrice &source, int) {
     cout << "Combinaison lineaire pas prevu..." << endl ;
     cout << "Source : " << source << endl ;
@@ -234,3 +238,4 @@ Tbl combinaison_cpt (const Tbl &source, int base_r) {
     return res ;
 }
 
+}

@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.23  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -135,6 +138,7 @@ char sym_tensor_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
+namespace Lorene {
 Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe, 
                        const Base_vect& triad_i) 
             : Tensor_sym(map, 2, tipe, triad_i, 0, 1) {
@@ -487,4 +491,5 @@ void Sym_tensor::exponential_filter_ylm(int lzmin, int lzmax, int p,
 	t_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
 	set_auxiliary(srr_tmp, eta_tmp, mu_tmp, w_tmp, x_tmp, t_tmp) ;
     }
+}
 }

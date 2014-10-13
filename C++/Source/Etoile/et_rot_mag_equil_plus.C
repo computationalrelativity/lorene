@@ -32,6 +32,9 @@ char et_rot_mag_equil_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char et_rot_mag_equil_plus_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Et_rot_mag::equilibrium_mag_plus(
      const Itbl& icontrol, const Tbl& control, Tbl& diff, 
      const int initial_j, 
@@ -277,4 +281,5 @@ void Et_rot_mag::equilibrium_mag_plus(
     fichevol.close() ; 
     fichmulti.close();
 
+}
 }

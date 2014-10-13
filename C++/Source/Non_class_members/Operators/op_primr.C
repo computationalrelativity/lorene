@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:26  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@ char op_primr_C[] = "$Header$" ;
 
 // Unexpected case
 //----------------
+namespace Lorene {
 void _primr_pas_prevu(const Tbl&, int bin, const Tbl&, Tbl&, int&, Tbl& ) {
 
     cout << "Unexpected basis in primr : basis = " << hex << bin << endl ; 
@@ -994,3 +998,4 @@ void _primr_r_jaco02(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
 
 
  
+}

@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:53:09  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2013/06/13 14:18:18  j_novak
  * Inclusion of new bases R_LEG, R_LEGP and R_LEGI.
  *
@@ -105,6 +108,7 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 #include "proto.h"
 
     //-------------------------------------------------------------//
+namespace Lorene {
     //	    version for an arbitrary point in (xi,theta',phi')     //
     //-------------------------------------------------------------//
 
@@ -464,3 +468,4 @@ double Mtbl_cf::val_in_bound_jk(int l, int j0, int k0) const {
     return resu ;
 }
 
+}

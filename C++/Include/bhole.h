@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2007/05/15 12:44:18  p_grandclement
  * Scalar version of reevaluate
  *
@@ -226,13 +229,15 @@
  *
  */
 
+#include "tenseur.h"
+
+namespace Lorene {
+
 class Tenseur ;
 class Tenseur_sym ;
 class Map_af ;
 class Bhole_binaire ;
 class Et_bin_nsbh ;
-
-#include "tenseur.h"
 
 #define COROT 0
 #define IRROT 1
@@ -956,4 +961,5 @@ class Bhole_binaire {
 	void init_phi() ;
 } ;
 
+}
 #endif

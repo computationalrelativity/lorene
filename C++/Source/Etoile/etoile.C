@@ -32,6 +32,9 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2012/08/12 17:48:35  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -136,6 +139,7 @@ char etoile_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Etoile::Etoile(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
 		 : mp(mpi), 
 		   nzet(nzet_i), 
@@ -685,4 +689,5 @@ void Etoile::hydro_euler() {
     
     abort() ;        
     
+}
 }

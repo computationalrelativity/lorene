@@ -31,6 +31,9 @@ char tenseur_pde_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/12/22 18:25:59  k_taniguchi
  * Cahnge an argument of poisson_vect_falloff.
  *
@@ -54,6 +57,7 @@ char tenseur_pde_falloff_C[] = "$Header$" ;
 
 // Version avec parametres
 // -----------------------
+namespace Lorene {
 void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift,
 				   Tenseur& vecteur, Tenseur& scalaire,
 				   int* k_falloff) const {
@@ -144,3 +148,4 @@ Tenseur Tenseur::poisson_vect_falloff(double lambda, Tenseur& vecteur,
     return resu ;
 }
 
+}

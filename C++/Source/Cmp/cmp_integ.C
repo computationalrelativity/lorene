@@ -29,8 +29,11 @@ char cmp_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:52:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  1999/12/09  10:50:21  eric
  * Initial revision
@@ -48,6 +51,7 @@ char cmp_integ_C[] = "$Header$" ;
 		    //	   Integral over all space	 //
 		    //-----------------------------------//
 
+namespace Lorene {
 double Cmp::integrale() const {
     
     const Tbl& integ = integrale_domains() ; 
@@ -82,3 +86,4 @@ const Tbl& Cmp::integrale_domains() const {
 
 }
 
+}

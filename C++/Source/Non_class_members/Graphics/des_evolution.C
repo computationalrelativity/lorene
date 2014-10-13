@@ -30,6 +30,9 @@ char des_evolution_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:22  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -57,6 +60,7 @@ char des_evolution_C[] = "$Header$" ;
 // Plot on  the whole time range
 //------------------------------
 
+namespace Lorene {
 void des_evol(const Evolution<double>& uu, const char* nomy, 
     const char* title, int ngraph, const char* device,
     bool closeit, bool show_time, const char* nomx) {
@@ -114,3 +118,4 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
     
 }
 
+}

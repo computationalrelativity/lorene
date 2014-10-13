@@ -32,6 +32,9 @@ char eos_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/09/22 16:13:10  j_novak
  * Minor modif.
  *
@@ -82,6 +85,7 @@ char eos_mag_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, double, double, double&, double&, double&) ;
 
 
@@ -544,4 +548,5 @@ double Eos_mag::der_press_nbar_p(double ent, const Param*) const {
 
   return ent ;
           
+}
 }

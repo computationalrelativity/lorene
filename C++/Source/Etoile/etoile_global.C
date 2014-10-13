@@ -29,6 +29,9 @@ char etoile_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2012/08/12 17:48:36  p_cerda
  * Magnetstar: New classes for magnetstar. Allowing for non-equatorial symmetry in Etoile et al. Adding B_phi in Et_rot_mag.
  *
@@ -68,6 +71,7 @@ char etoile_global_C[] = "$Header$" ;
 			//	Stellar surface	    //
 			//--------------------------//
 
+namespace Lorene {
 const Itbl& Etoile::l_surf() const {
 
     if (p_l_surf == 0x0) {    // a new computation is required
@@ -566,3 +570,4 @@ double Etoile::mass_g() const {
 
 } 
 		
+}

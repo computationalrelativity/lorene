@@ -80,6 +80,9 @@ char citsini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:17  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:47  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -120,10 +123,12 @@ char citsini_C[] = "$Header$" ;
 #include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
+namespace Lorene {
 //*****************************************************************************
 
 void citsini(const int* deg, const int* dimc, double* cf, const int* dimf,
@@ -307,4 +312,6 @@ int i, j, k ;
     free (t1) ;
     free (g) ;
     
+}
+}
 }

@@ -25,6 +25,9 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:30  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -78,6 +81,7 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 #include "metric.h"
 
     // USING OOhara
+namespace Lorene {
 void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shift, 
 	    const Valeur& lim_x, const Valeur& lim_y, const Valeur& lim_z, 
 	    int num_front, double precision, int itermax) {
@@ -836,4 +840,5 @@ void poisson_vect_binaire ( double lambda,
 	    indic = -1 ;
 	conte ++ ;
 	}
+}
 }

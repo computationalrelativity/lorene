@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2010/02/08 10:56:30  j_novak
  * Added a few things missing for the reading from resulting file.
  *
@@ -53,6 +56,7 @@
 // Headers Lorene
 #include "star.h"
 
+namespace Lorene {
 class Eos ;
 
 			//--------------------------//
@@ -649,4 +653,5 @@ class Star_rot : public Star {
 
 };
 
+}
 #endif

@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2014/07/01 09:26:20  j_novak
  * Improvement of comments
  *
@@ -115,6 +118,7 @@
 #include <cstdio>
 
 // Lorene classes
+namespace Lorene {
 class Tbl ;
 
 		
@@ -1022,5 +1026,6 @@ XXX  <-- Number of lines
 
 
 
+}
 #endif
 

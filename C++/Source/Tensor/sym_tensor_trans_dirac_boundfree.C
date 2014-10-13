@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@
 //
 //----------------------------------------------------------------------------------
 
+namespace Lorene {
 void Sym_tensor_trans::sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new, Scalar bound_mu, const Param* par_bc) {
   
   const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
@@ -2092,4 +2096,5 @@ void Sym_tensor_trans::sol_Dirac_l01_bound(const Scalar& hh, Scalar& hrr, Scalar
 	
       } // End of nullite_plm  
     } //End of loop on theta
+}
 }

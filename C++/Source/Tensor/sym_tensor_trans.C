@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -107,6 +110,7 @@ char sym_tensor_trans_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
+namespace Lorene {
 Sym_tensor_trans::Sym_tensor_trans(const Map& map, const Base_vect& triad_i,
 		const Metric& met) 
 	: Sym_tensor(map, CON, triad_i),
@@ -371,3 +375,4 @@ void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_tt& hijtt,
 
 
 
+}

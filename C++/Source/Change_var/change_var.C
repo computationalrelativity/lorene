@@ -23,6 +23,9 @@ char change_var_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char change_var_C[] = "$Header$" ;
 #include "change_var.h"
 
 // Les fonctions elementaires dont on a besoin
+namespace Lorene {
 double one (double) {
   return 1 ;
 }
@@ -285,3 +289,4 @@ double Change_var::val_der_G (double air) {
   return (*der_G)(air) ;
 }
 
+}

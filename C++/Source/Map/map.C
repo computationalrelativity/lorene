@@ -33,6 +33,9 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -132,6 +135,7 @@ char map_C[] = "$Header$" ;
 
 // Constructor from a grid
 // -----------------------
+namespace Lorene {
 Map::Map(const Mg3d& mgi) : mg(&mgi), 
 			    ori_x(0), ori_y(0), ori_z(0), rot_phi(0), 
 			    bvect_spher(ori_x, ori_y, ori_z, rot_phi, 
@@ -344,3 +348,4 @@ const Metric_flat& Map::flat_met_cart() const {
 
 
 
+}

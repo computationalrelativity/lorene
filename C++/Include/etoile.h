@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.31  2011/10/06 14:55:36  j_novak
  * equation_of_state() is now virtual to be able to call to the magnetized
  * Eos_mag.
@@ -361,6 +364,7 @@
 
 // Headers Lorene
 #include "tenseur.h"
+namespace Lorene {
 class Eos ;
 class Bhole ;
 
@@ -2052,4 +2056,5 @@ class Etoile_rot : public Etoile {
 
 
 
+}
 #endif

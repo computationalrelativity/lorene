@@ -70,6 +70,9 @@ char cfpcossin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:18  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:47  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -108,6 +111,7 @@ char cfpcossin_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 fftw_plan prepare_fft(int, Tbl*&) ;
 //*****************************************************************************
 
@@ -174,4 +178,5 @@ void cfpcossin(const int* deg, const int* dim, double* cf)
    }	// fin de la boucle sur theta
 
 
+}
 }

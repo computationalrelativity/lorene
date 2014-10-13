@@ -30,6 +30,9 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 //
 //----------------------------------------------------------------------------------
 
+namespace Lorene {
 void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
 				   const Param* par_bc) const {
 
@@ -1880,3 +1884,4 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
 	} //End of loop on theta
 }
 
+}

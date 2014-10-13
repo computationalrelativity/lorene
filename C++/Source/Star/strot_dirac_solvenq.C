@@ -31,6 +31,9 @@ char strot_dirac_solvenq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:18  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char strot_dirac_solvenq_C[] = "$Header$" ;
 #include "star_rot_dirac.h"
 #include "unites.h"
 
+namespace Lorene {
 void Star_rot_Dirac::solve_logn_f(Scalar& ln_f_new) const {
 
     using namespace Unites ;
@@ -133,4 +137,5 @@ void Star_rot_Dirac::solve_qqq(Scalar& q_new) const {
 
     if (q_new.get_etat() == ETATUN) q_new.std_spectral_base() ; 
 
+}
 }

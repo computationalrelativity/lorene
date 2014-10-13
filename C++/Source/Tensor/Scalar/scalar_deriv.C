@@ -109,6 +109,7 @@ char scalar_deriv_C[] = "$Header$" ;
 			//         d/dr        //
 			//---------------------//
 
+namespace Lorene {
 const Scalar& Scalar::dsdr() const {
 
     // Protection
@@ -551,4 +552,5 @@ const Scalar& Scalar::dsdrho() const {
 
     return *p_dsdrho ;
 
+}
 }

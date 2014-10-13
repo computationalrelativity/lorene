@@ -34,6 +34,9 @@ char valeur_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:24  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -79,6 +82,7 @@ char valeur_sx_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Local prototypes
+namespace Lorene {
 void _sx_pas_prevu(Tbl *, int &) ;
 void _sx_r_chebp(Tbl *, int &) ;
 void _sx_r_chebi(Tbl *, int &) ;
@@ -171,4 +175,5 @@ static int nap = 0 ;
 	assert(t[l] != 0x0) ;
 	_sx[base_r](t[l], base.b[l]) ;
     }
+}
 }

@@ -29,6 +29,9 @@ char test_vpoisson_l_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:54:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2005/04/06 14:38:41  j_novak
  * Added method 6: block inversion with spherical components
  *
@@ -58,6 +61,8 @@ char test_vpoisson_l_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "utilitaires.h"
 #include "graphique.h"
+
+using namespace Lorene ;
 
 int main() {
 

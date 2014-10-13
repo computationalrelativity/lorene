@@ -14,6 +14,7 @@
 //Computes the rhs of hyperbolic equation for conformal metric assuming statioarity; WARNING; up to now, we are only able to handle void spacetimes.
 
 
+namespace Lorene {
 void Isol_hole::secmembre_kerr(Sym_tensor& source_hh){ 
 
   // Getting: hij; hatA; lapse; conf_fact; shift;
@@ -320,3 +321,4 @@ void Isol_hole::secmembre_kerr(Sym_tensor& source_hh){
 
 
 
+}

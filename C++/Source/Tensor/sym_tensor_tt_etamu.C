@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -109,6 +112,7 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 			//     khi      //
 			//--------------//
 
+namespace Lorene {
 const Scalar& Sym_tensor_tt::khi() const {
 
   if (p_khi == 0x0) {   // a new computation is necessary
@@ -494,3 +498,4 @@ void Sym_tensor_tt::set_A_tildeB(const Scalar& a_in, const Scalar& tb_in,
 
 
 
+}

@@ -35,6 +35,7 @@ char ope_sec_order_non_dege_C[] = "$Header$" ;
 	       //-- Pas prevu   ----
 	      //-------------------
 
+namespace Lorene {
 Matrice _sec_order_non_dege_pas_prevu (const Matrice& so) {
   cout << "Sec_order non dege : not implemented" << endl ;
   abort() ;
@@ -84,4 +85,5 @@ void Ope_sec_order::do_non_dege() const {
     sec_order_non_dege[R_CHEB >> TRA_R] = _sec_order_non_dege_r_cheb ;
   }
   non_dege = new Matrice(sec_order_non_dege[base_r](*ope_cl)) ;
+}
 }

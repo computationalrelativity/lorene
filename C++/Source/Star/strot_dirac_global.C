@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:18  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char strot_dirac_global_C[] = "$Header$" ;
         //-------------------------------------------------------//
 
 
+namespace Lorene {
 double Star_rot_Dirac::mass_b() const {
 
   if (p_mass_b == 0x0) {    // a new computation is required
@@ -425,4 +429,5 @@ double Star_rot_Dirac::ellipt() const {
 
   return sqrt(1. - (rp_circ()*rp_circ())/(r_circ()*r_circ())) ;
 
+}
 }

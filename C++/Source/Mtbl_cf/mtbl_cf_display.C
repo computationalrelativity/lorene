@@ -30,6 +30,9 @@ char mtbl_cf_display_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -49,6 +52,7 @@ char mtbl_cf_display_C[] = "$Header$" ;
 // Lorene headers
 #include "mtbl_cf.h"
 
+namespace Lorene {
 void Mtbl_cf::display(double thres, int precis, ostream& ost) const {
 
 	ost << "Spectral expansion (Mtbl_cf, threshold for display = " 
@@ -149,3 +153,4 @@ void Mtbl_cf::display(double thres, int precis, ostream& ost) const {
 
 
 
+}

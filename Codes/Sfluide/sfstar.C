@@ -40,8 +40,12 @@
 
 #include "unites.h"
 
+namespace Lorene{
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
+}
+
+using namespace Lorene ;
 
 void compare_analytic (Et_rot_bifluid& star, int adapt, const char *resdir); 
 string get_file_base (bool relat, double xp, double sig);

@@ -89,6 +89,9 @@ char chb_cossincp_legp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:10  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:16:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -126,6 +129,7 @@ char chb_cossincp_legp_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "proto.h"
 
+namespace Lorene {
 //******************************************************************************
 
 void chb_cossincp_legp(const int* deg , const double* cfi, double* cfo) {
@@ -358,4 +362,5 @@ int ip, k2, l, jmin, j, i, m ;
     // Menage
     delete [] som ;
     
+}
 }

@@ -30,6 +30,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:23  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2011/03/27 16:36:41  e_gourgoulhon
  * New function save_profile.
  *
@@ -46,6 +49,7 @@ char name_of_this_file_C[] = "$Header$" ;
 // Lorene headers
 #include "scalar.h"
 
+namespace Lorene {
 void save_profile(const Scalar& uu, double r_min, double r_max, 
 		     double theta, double phi, const char* filename) {
   
@@ -66,3 +70,4 @@ void save_profile(const Scalar& uu, double r_min, double r_max,
     
 } 
 
+}

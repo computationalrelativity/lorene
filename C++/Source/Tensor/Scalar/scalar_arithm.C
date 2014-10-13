@@ -31,6 +31,9 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:16:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -79,6 +82,7 @@ char scalar_arithm_C[] = "$Header$" ;
 			// OPERATEURS UNAIRES //
 			//********************//
 
+namespace Lorene {
 Scalar operator+(const Scalar & ci) {
     return ci ;
 }
@@ -972,4 +976,5 @@ void Scalar::operator*=(const Scalar & ci) {
     // Menage (a ne faire qu'a la fin seulement)
     del_deriv() ;
 
+}
 }

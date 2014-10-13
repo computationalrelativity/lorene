@@ -32,6 +32,9 @@ char map_log_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -60,6 +63,7 @@ char map_log_C[] = "$Header $" ;
 
 // Constructor from a grid
 // -----------------------
+namespace Lorene {
 Map_log::Map_log (const Mg3d& mgrille, const Tbl& bornes, const Itbl& typevar) : 
   Map_radial(mgrille), alpha (mgrille.get_nzone()), beta (mgrille.get_nzone()), 
   type_var(typevar)
@@ -286,4 +290,5 @@ void Map_log::set_coord(){
     
     // ... Coord's introduced by the base Map_log itself
     dxdlnr.set(this, map_log_fait_dxdlnr) ;
+}
 }

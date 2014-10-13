@@ -81,6 +81,9 @@ char cipcossini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:19  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:49  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -113,6 +116,7 @@ char cipcossini_C[] = "$Header$" ;
 // Headers Lorene
 #include "proto.h"
 
+namespace Lorene {
 //*****************************************************************************
 
 void cipcossini(const int* deg, const int* dimc, const int* dimf, 
@@ -185,4 +189,5 @@ void cipcossini(const int* deg, const int* dimc, const int* dimf,
     delete [] ff2 ;     
     
     
+}
 }

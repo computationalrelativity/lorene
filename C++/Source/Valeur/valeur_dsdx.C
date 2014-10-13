@@ -34,6 +34,9 @@ char valeur_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:23  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char valeur_dsdx_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Prototypage temporaire
+namespace Lorene {
 void _dsdx_pas_prevu(Tbl *, int &) ;
 void _dsdx_r_cheb(Tbl *, int &) ;
 void _dsdx_r_chebu(Tbl *, int &) ;
@@ -184,4 +188,5 @@ static int nap = 0 ;
 	assert(t[l] != 0x0) ;
 	_dsdx[base_r](t[l], base.b[l]) ;
     }
+}
 }

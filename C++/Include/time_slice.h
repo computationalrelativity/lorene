@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.31  2012/02/06 12:59:07  j_novak
  * Correction of some errors.
  *
@@ -161,6 +164,7 @@
                     //      class Time_slice     //
                     //---------------------------//
 
+namespace Lorene {
 /**
  * Spacelike time slice of a 3+1 spacetime.
  * \ingroup (evol)
@@ -1339,4 +1343,5 @@ class Tslice_dirac_max : public Time_slice_conf {
     virtual void sauve(FILE* fich, bool partial_save) const ; 
   
 };
+}
 #endif

@@ -32,6 +32,9 @@ char binaire_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2004/03/25 10:28:59  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -81,6 +84,7 @@ char binaire_global_C[] = "$Header$" ;
 		    //		ADM mass	       //
 		    //---------------------------------//
 
+namespace Lorene {
 double Binaire::mass_adm() const {
   using namespace Unites ;
     
@@ -541,3 +545,4 @@ double Binaire::virial_fus() const {
     
 }
 
+}

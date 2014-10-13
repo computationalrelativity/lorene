@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.16  2014/09/03 15:33:42  j_novak
  * Filtering of Maxwell sources is now optional.
  *
@@ -99,6 +102,7 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 #include "graphique.h"
 #include "tensor.h"
 
+namespace Lorene {
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
@@ -591,3 +595,4 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 
 
 
+}

@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -94,6 +97,7 @@ char mg3d_std_base_C[] = "$Header$" ;
 		    //-----------------------------//
 		    
 
+namespace Lorene {
 Base_val Mg3d::std_base_scal() const {
           
     Base_val base(nzone) ;  
@@ -1394,3 +1398,4 @@ Base_val** Mg3d::pseudo_base_vect_spher() const {
   return bases ;
 }
 
+}

@@ -31,6 +31,9 @@ char star_bhns_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 19:20:29  k_taniguchi
  * Change of some parameters.
  *
@@ -58,6 +61,7 @@ char star_bhns_vel_pot_C[] = "$Header$" ;
 #include "unites.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 double Star_bhns::velo_pot_bhns(const double& mass_bh, const double& sepa,
@@ -229,4 +233,5 @@ double Star_bhns::velo_pot_bhns(const double& mass_bh, const double& sepa,
 
     return erreur ;
 
+}
 }

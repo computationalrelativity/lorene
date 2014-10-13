@@ -23,6 +23,9 @@ char param_elliptic_val_lim_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -48,6 +51,7 @@ char param_elliptic_val_lim_C[] = "$Header$" ;
 #include "param_elliptic.h"
 #include "proto.h"
 
+namespace Lorene {
 double Param_elliptic::F_plus (int zone, int k, int j) const {
 
   if (done_F(zone, k, j) == 0)
@@ -189,4 +193,5 @@ void Param_elliptic::compute_val_G (int zone) const {
   val_dG_plus.set(zone) = output(2) ;
   val_dG_minus.set(zone) = output(3) ;
   done_G.set(zone) = 1 ;
+}
 }

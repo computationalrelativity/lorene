@@ -25,6 +25,9 @@ char sxpundsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:27  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char sxpundsdx_1d_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "type_parite.h"
 
+namespace Lorene {
 void dsdx_1d(int, double**, int) ;
 void sxpun_1d(int, double**, int) ;
 
@@ -110,4 +114,5 @@ void sxpundsdx_1d(int nr, double** tb, int base_r)
     
     delete [] (*tb) ;
     (*tb) = result ;
+}
 }

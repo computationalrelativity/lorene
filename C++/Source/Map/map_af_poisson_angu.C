@@ -30,6 +30,9 @@ char map_af_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2005/04/04 21:31:31  e_gourgoulhon
  *  Added argument lambda to method poisson_angu
  *  to deal with the generalized angular Poisson equation:
@@ -51,6 +54,7 @@ char map_af_poisson_angu_C[] = "$Header$" ;
 #include "tensor.h"
 #include "param.h"
 
+namespace Lorene {
 void Map_af::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
              double lambda) const {
 
@@ -94,3 +98,4 @@ void Map_af::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
     uu.set_dzpuis( source.get_dzpuis() ) ;  // dzpuis unchanged
 }
 
+}

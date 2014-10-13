@@ -88,6 +88,9 @@ char cftlegpp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:10  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:15:59  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -121,6 +124,7 @@ char cftlegpp_C[] = "$Header$" ;
 // headers bien de chez nous
 #include "headcpp.h"
 #include "proto.h"
+namespace Lorene {
 //*****************************************************************************
 
 void cftlegpp(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -151,4 +155,5 @@ void cftlegpp(const int* deg, const int* dimf, double* ff, const int* dimc,
 
     // Menage
     delete [] cf_cs ;
+}
 }

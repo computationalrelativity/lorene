@@ -30,6 +30,9 @@ char valeur_stdsdp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:24  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -53,6 +56,7 @@ char valeur_stdsdp_C[] = "$Header$" ;
 // Headers Lorene
 #include "valeur.h"
 
+namespace Lorene {
 const Valeur& Valeur::stdsdp() const {
 
     // Protection
@@ -71,4 +75,5 @@ const Valeur& Valeur::stdsdp() const {
     
     // Termine
     return *p_stdsdp ;
+}
 }

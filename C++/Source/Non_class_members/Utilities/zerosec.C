@@ -31,6 +31,9 @@ char zerosec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/07/04 12:09:06  j_novak
  * New argument in zerosec(): a boolean (false by default) for aborting if the number of iteration is greater than the max.
  *
@@ -80,6 +83,8 @@ char zerosec_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "param.h"
 //****************************************************************************
+
+namespace Lorene {
 
 double zerosec(double (*f)(double, const Param&), const Param& parf, 
 	       double x1, double x2, double precis, int nitermax, int& niter, 
@@ -151,3 +156,4 @@ double zerosec(double (*f)(double, const Param&), const Param& parf,
 
 
 
+}

@@ -31,6 +31,9 @@ char star_bhns_chi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -54,6 +57,7 @@ char star_bhns_chi_C[] = "$Header$" ;
 #include "tbl.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 double Star_bhns::chi_rp(double radius, double phi) {
 
     const Scalar& dent = ent.dsdr() ;
@@ -218,4 +222,5 @@ double Star_bhns::phi_local_min(double phi_ini) {
 
     return ppp ;
 
+}
 }

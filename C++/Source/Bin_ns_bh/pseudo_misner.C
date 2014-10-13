@@ -23,6 +23,9 @@ char pseudo_misner_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char pseudo_misner_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Bin_ns_bh::pseudo_misner (int& ite, int itemax, double relax, 
 			       double precis, int bound_nn, double lim_nn) {
 			    
@@ -138,4 +142,5 @@ void Bin_ns_bh::pseudo_misner (int& ite, int itemax, double relax,
     }
     
   ite = itere ;
+}
 }

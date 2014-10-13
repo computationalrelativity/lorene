@@ -33,6 +33,9 @@ char et_bin_bhns_extr_velpot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2005/02/28 23:17:18  k_taniguchi
  * Modification to include the case of the conformally flat background metric
  *
@@ -58,6 +61,7 @@ char et_bin_bhns_extr_velpot_C[] = "$Header$" ;
 #include "unites.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 double Et_bin_bhns_extr::velocity_pot_extr(const double& mass,
@@ -502,4 +506,5 @@ double Et_bin_bhns_extr::velocity_pot_extr(const double& mass,
 
     }
 
+}
 }

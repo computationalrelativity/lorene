@@ -28,6 +28,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:09:43  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -47,6 +50,7 @@ using namespace std ;
 
 // C headers
 #include <cmath>
+#include <cstdlib>
 
 int main() {
 

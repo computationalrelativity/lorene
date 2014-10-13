@@ -33,6 +33,9 @@ char et_rot_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -70,6 +73,7 @@ char et_rot_isco_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 double fonct_etoile_rot_isco(double, const Param&) ;
 
 
@@ -345,3 +349,4 @@ double fonct_etoile_rot_isco(double xi, const Param& par){
 
 }
 
+}

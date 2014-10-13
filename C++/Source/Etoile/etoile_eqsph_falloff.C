@@ -33,6 +33,9 @@ char etoile_eqsph_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/11/30 20:52:24  k_taniguchi
  * *** empty log message ***
  *
@@ -50,6 +53,7 @@ char etoile_eqsph_falloff_C[] = "$Header$" ;
 #include "param.h"
 #include "unites.h"	    
 
+namespace Lorene {
 void Etoile::equil_spher_falloff(double ent_c, double precis) {
     
     // Fundamental constants and units
@@ -323,4 +327,5 @@ void Etoile::equil_spher_falloff(double ent_c, double precis) {
     cout << "     grav. term : " << vir_grav << endl ; 
     cout << "     relative error : " << grv3 << endl ; 
     
+}
 }

@@ -20,6 +20,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:30  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:16:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -69,6 +72,7 @@ char sol_elliptic_sin_zec_C[] = "$Header$" ;
 	   //		Version Mtbl_cf
 	  //----------------------------------------------
 
+namespace Lorene {
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var, 
 				  const Mtbl_cf& source, double* amplis, double* phases) {
 
@@ -276,3 +280,4 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 }
 
 
+}

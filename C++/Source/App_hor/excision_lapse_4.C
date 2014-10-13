@@ -10,6 +10,7 @@
 #include "tensor.h"
 #include "unites.h"
 #include "excision_surf.h"
+namespace Lorene {
 //Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb) { 
 const Scalar& Excision_surf::get_BC_lapse_4 (Scalar& old_nn, Vector& beta_point, Sym_tensor& strain_tens) const{ 
 
@@ -154,3 +155,4 @@ return *p_get_BC_lapse_4 ;
 }
 
 
+}

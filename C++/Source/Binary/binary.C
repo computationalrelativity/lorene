@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:52:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:12:59  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -89,6 +92,7 @@ char Binary_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Binary::Binary(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 	       Map& mp2, int nzet2, const Eos& eos2, int irrot2, 
 	       int conf_flat) 
@@ -605,4 +609,5 @@ double Binary::separation() const {
     
     return sqrt( dx*dx + dy*dy + dz*dz ) ; 
     
+}
 }

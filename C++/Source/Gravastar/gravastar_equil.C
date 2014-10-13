@@ -43,6 +43,7 @@ char gravastar_equil_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Gravastar::equilibrium(double omega0, double fact_omega, 
 			    int nzadapt, const Tbl& ent_limit, 
 			    const Itbl& icontrol, const Tbl& control, 
@@ -958,4 +959,5 @@ void Gravastar::equilibrium(double omega0, double fact_omega,
     fichfreq.close() ; 
     fichevol.close() ; 
     
+}
 }

@@ -31,6 +31,9 @@ char mtbl_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@ char mtbl_math_C[] = "$Header$" ;
 			    // Sinus //
 			    //-------//
 
+namespace Lorene {
 Mtbl sin(const Mtbl& ti)
 {
     // Protection
@@ -694,3 +698,4 @@ Tbl diffrelmax(const Mtbl& mt1, const Mtbl& mt2) {
 }
 
 
+}

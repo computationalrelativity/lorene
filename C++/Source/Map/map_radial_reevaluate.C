@@ -25,6 +25,9 @@ char map_radial_reevaluate_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -51,6 +54,7 @@ char map_radial_reevaluate_C[] = "$Header$" ;
 #include "param.h"
 #include "scalar.h"
 
+namespace Lorene {
 void Map_radial::reevaluate(const Map* mp_prev0, int nzet, Cmp& uu) const { 
     
     const Map_radial* mp_prev = dynamic_cast<const Map_radial*>(mp_prev0) ; 
@@ -279,4 +283,5 @@ void Map_radial::reevaluate(const Map* mp_prev0, int nzet, Scalar& uu) const {
     
     
     
+}
 }

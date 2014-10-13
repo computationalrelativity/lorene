@@ -31,6 +31,7 @@ char ope_sec_order_r2_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
+namespace Lorene {
 Ope_sec_order_r2::Ope_sec_order_r2 (int nbr, int base, double alf, 
 				    double bet, double a, double b, double c) : 
   Ope_elementary(nbr, base, alf, bet), a_param(a), b_param(b), c_param(c) {
@@ -50,4 +51,5 @@ void Ope_sec_order_r2::inc_l_quant() {
 
   cout << "inc_l_quant not implemented for Helmholtz operator." << endl ;
   abort() ;
+}
 }

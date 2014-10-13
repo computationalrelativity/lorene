@@ -32,6 +32,9 @@ char et_bin_bhns_extr_eq_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char et_bin_bhns_extr_eq_ylm_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Et_bin_bhns_extr::equil_bhns_extr_ylm_ks(double ent_c,
 					      const double& mass,
 					      const double& sepa,
@@ -1698,3 +1702,4 @@ void Et_bin_bhns_extr::equil_bhns_extr_ylm_cf(double ent_c,
 
 }
 
+}

@@ -8,6 +8,8 @@
 
 double next_xi(double, double, double, double, double, int) ;
 
+using namespace Lorene ;
+
 int main() {
 
     // Construction of a multi-grid (Mg3d)

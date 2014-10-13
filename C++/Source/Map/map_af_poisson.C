@@ -31,6 +31,9 @@ char map_af_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2005/08/25 12:14:09  p_grandclement
  * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
  *
@@ -89,6 +92,7 @@ char map_af_poisson_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 
+namespace Lorene {
 Mtbl_cf sol_poisson(const Map_af&, const Mtbl_cf&, int, bool match = true) ;
 Mtbl_cf sol_poisson_tau(const Map_af&, const Mtbl_cf&, int) ;
 //*****************************************************************************
@@ -212,3 +216,4 @@ void Map_af::poisson_tau(const Cmp& source, Param& , Cmp& pot) const {
     pot.set_dzpuis(0) ;
 }
 
+}

@@ -30,6 +30,9 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -102,6 +105,7 @@ char connection_fcart_C[] = "$Header$" ;
 
 // Contructor from a Cartesian flat-metric-orthonormal basis
 
+namespace Lorene {
 Connection_fcart::Connection_fcart(const Map& mpi, const Base_vect_cart& bi) 
   : Connection_flat(mpi, bi) {
 
@@ -328,3 +332,4 @@ Tensor* Connection_fcart::p_divergence(const Tensor& uu) const {
 
 }
 
+}

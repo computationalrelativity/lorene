@@ -32,6 +32,9 @@ char et_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2005/08/29 15:10:16  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -74,6 +77,7 @@ char et_bin_kinema_C[] = "$Header$" ;
 #include "etoile.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Etoile_bin::kinematics(double omega, double x_axe) {
 
     int nz = mp.get_mg()->get_nzone() ; 
@@ -137,4 +141,5 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
     del_deriv() ;                
     
     
+}
 }

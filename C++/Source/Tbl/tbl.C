@@ -33,6 +33,9 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:18  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -137,6 +140,7 @@ char tbl_C[] = "$Header$" ;
 
 
 // Constructeur 1D
+namespace Lorene {
 Tbl::Tbl(int n1) : etat(ETATNONDEF), dim(n1), t(0x0) {}
 
 // Constructeur 2D
@@ -550,3 +554,4 @@ void Tbl::affiche_seuil(ostream& ost, int precis,  double seuil) const {
 
 
 
+}

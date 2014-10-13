@@ -30,6 +30,9 @@ char binary_omegaana_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2004/03/25 10:29:01  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -49,6 +52,7 @@ char binary_omegaana_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void Binary::analytical_omega() {
   
   using namespace Unites ;
@@ -95,4 +99,5 @@ void Binary::analytical_omega() {
     // The derived quantities are obsolete:
     del_deriv() ; 
     
+}
 }

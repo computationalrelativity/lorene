@@ -36,6 +36,9 @@ char cheb_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:11  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -76,6 +79,7 @@ char cheb_ini_C[] = "$Header$" ;
 
 //---------------------------------------------------------------------------------
 
+namespace Lorene {
 double* cheb_ini(const int n )
 {
 
@@ -119,4 +123,5 @@ int indice ;
     // Valeurs de retour
     return table_sin[indice] ;
 	
+}
 }

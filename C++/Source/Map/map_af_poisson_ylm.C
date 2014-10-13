@@ -31,6 +31,9 @@ char map_af_poisson_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2005/02/18 13:14:08  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -47,6 +50,7 @@ char map_af_poisson_ylm_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 
+namespace Lorene {
 Mtbl_cf sol_poisson_ylm(const Map_af&, const Mtbl_cf&, const int, const double*) ;
 //*****************************************************************************
 
@@ -91,3 +95,4 @@ void Map_af::poisson_ylm(const Cmp& source, Param& , Cmp& pot, int nylm, double*
 
 }
 
+}

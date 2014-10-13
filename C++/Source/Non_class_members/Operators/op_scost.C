@@ -25,6 +25,9 @@ char op_scost_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:26  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2009/10/10 18:28:11  j_novak
  * New bases T_COS and T_SIN.
  *
@@ -79,6 +82,7 @@ char op_scost_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _scost_pas_prevu(Tbl * tb, int& base) {
     cout << "scost pas prevu..." << endl ;
     cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -1863,4 +1867,5 @@ void _scost_t_cossin_s(Tbl* tb, int & b) {
 	    b = base_r | base_p | T_COSSIN_S ;
 	    break;
     }
+}
 }

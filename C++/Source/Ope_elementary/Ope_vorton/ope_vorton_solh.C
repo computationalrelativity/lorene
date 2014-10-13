@@ -34,6 +34,7 @@ char ope_vorton_solh_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solh_vorton_pas_prevu (int, int, double, double, Tbl&) {
 
     cout << " Solution homogene pas prevue ..... : "<< endl ;
@@ -171,4 +172,5 @@ Tbl Ope_vorton::get_solh () const {
   }
 
   return res ;
+}
 }

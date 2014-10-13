@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2005/10/05 15:14:47  j_novak
  * Added a Param* as parameter of Etoile_rot::equilibrium
  *
@@ -54,14 +57,15 @@
  *
  */
 
+// Headers Lorene
+#include "etoile.h"
+
+namespace Lorene {
 /**
  * Class for differentially rotating stars. \ingroup (star)
  * 
  *
  */
-
-// Headers Lorene
-#include "etoile.h"
 
 class Et_rot_diff : public Etoile_rot {
 
@@ -340,4 +344,5 @@ class Et_rot_diff : public Etoile_rot {
 	
  };
 
+}
 #endif

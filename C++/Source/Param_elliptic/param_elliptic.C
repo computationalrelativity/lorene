@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -111,6 +114,7 @@ char param_elliptic_C[] = "$Header$" ;
 #include "proto.h"
 
 
+namespace Lorene {
 const Map_radial& Param_elliptic::get_mp() const {
 
   switch (type_map) {
@@ -783,4 +787,5 @@ void Param_elliptic::set_variable_G (const Scalar& so) {
   
   var_G = so ;
   done_G.annule_hard() ;
+}
 }

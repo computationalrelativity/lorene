@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.51  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.50  2013/06/13 14:18:18  j_novak
  * Inclusion of new bases R_LEG, R_LEGP and R_LEGI.
  *
@@ -300,6 +303,7 @@
  *
  */
 
+namespace Lorene {
 class Param ;
 class Tbl ;
 class Mtbl ;
@@ -855,4 +859,5 @@ void coupe_l_tous( Sym_tensor& hij,Sym_tensor& aa, Scalar& nn,Scalar& ppsi, Vect
 void tensor_coupe_l( Sym_tensor& ten, int ntt, int cutoff);
 
 
+}
 #endif

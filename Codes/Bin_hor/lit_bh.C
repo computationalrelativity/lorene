@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:09:42  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -64,10 +67,6 @@ char lit_bh_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "proto.h"
 #include "param.h"
-#include "coord.h"
-#include "scalar.h"
-#include "cmp.h"
-#include "tensor.h"
 #include "tenseur.h"
 #include "metric.h"
 #include "isol_hor.h"
@@ -75,6 +74,8 @@ char lit_bh_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+
+using namespace Lorene ;
 
 int main(int argc, char** argv) {
 

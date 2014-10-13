@@ -31,6 +31,9 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2007/06/21 20:01:32  k_taniguchi
  * Modification of the method to convert Scalar to Cmp.
  *
@@ -57,6 +60,7 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
 #include "cmp.h"
 
 
+namespace Lorene {
 Scalar Scalar::poisson_dirichlet(const Valeur& limite, int num_front) const {
     
     //    Cmp csource(*this) ; 
@@ -122,3 +126,4 @@ Scalar Scalar::poisson_frontiere_double (const Valeur& lim_func,
 
 
 
+}

@@ -30,6 +30,9 @@ char bin_bhns_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@ char bin_bhns_global_C[] = "$Header$" ;
                //          ADM mass          //
                //----------------------------//
 
+namespace Lorene {
 double Bin_bhns::mass_adm_bhns_surf() const {
 
     // Fundamental constants and units
@@ -2343,4 +2347,5 @@ double Bin_bhns::ya_barycenter() const {
 
     return *p_ya_barycenter ;
 
+}
 }

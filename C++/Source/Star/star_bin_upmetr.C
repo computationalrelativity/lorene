@@ -31,6 +31,9 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -86,6 +89,7 @@ char star_binupmetr_C[] = "$Header$" ;
 //	 Version without relaxation //
 //----------------------------------//
 
+namespace Lorene {
 void Star_bin::update_metric(const Star_bin& comp, double om) {
 
     // Computation of quantities coming from the companion
@@ -472,3 +476,4 @@ void Star_bin::update_metric(const Star_bin& comp,
 
 }
 
+}

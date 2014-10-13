@@ -30,6 +30,9 @@ char vector_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char vector_visu_C[] = "$Header$" ;
 #include "tensor.h"
 
                     
+namespace Lorene {
 void Vector::visu_arrows(double xmin, double xmax, double ymin, double ymax,
     double zmin, double zmax, const char* title0, const char* filename0, 
     bool start_dx, int nx, int ny, int nz) const {
@@ -497,3 +501,4 @@ void Vector::visu_streamline(double xmin, double xmax, double ymin, double ymax,
 
 }   
 
+}

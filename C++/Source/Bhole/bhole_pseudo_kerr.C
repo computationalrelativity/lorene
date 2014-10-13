@@ -25,6 +25,9 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:12:58  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -90,6 +93,7 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 #include "proto.h"
 
 //Resolution pour le lapse pour 1 seul trou
+namespace Lorene {
 void Bhole::solve_lapse_seul (double relax) {
     
     assert ((relax>0) && (relax<=1)) ;
@@ -442,3 +446,4 @@ double Bhole::moment_seul_hor() const {
 	}
 }
 
+}

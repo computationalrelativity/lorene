@@ -32,6 +32,9 @@ char star_rot_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -64,6 +67,7 @@ char star_rot_equil_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega, 
 			     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol,
 			     const Tbl& control, double mbar_wanted, 
@@ -885,4 +889,5 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
     fichfreq.close() ; 
     fichevol.close() ; 
     
+}
 }

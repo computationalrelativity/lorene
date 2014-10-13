@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 18:55:04  k_taniguchi
  * Change of some parameters and introduction of some
  * computational routines.
@@ -41,12 +44,14 @@
  *
  */
 
-// External classes which appear in the declaration of class Hole_bhns:
-class Star_bhns ; 
-
 // Headers Lorene
 #include "blackhole.h"
 #include "metric.h"
+
+namespace Lorene {
+
+// External classes which appear in the declaration of class Hole_bhns:
+class Star_bhns ; 
 
                     //-------------------------//
                     //     Class Hole_bhns     //
@@ -674,4 +679,5 @@ class Hole_bhns : public Black_hole {
 
 };
 
+}
 #endif

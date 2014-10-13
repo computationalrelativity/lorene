@@ -29,6 +29,9 @@ char write_lines_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:54:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2006/09/12 08:04:07  j_novak
  * Removal of the include path Export/C++/Include, updating of the relevant
  * source files in Export/C++/Source.
@@ -47,6 +50,7 @@ char write_lines_C[] = "$Header$" ;
 
 #include "headcpp.h"
 
+namespace Lorene {
 void write_lines(ostream& fich, int dpl, const double* pdata, int np) {
 
         int nlines = np / dpl ;   // number of filled lines
@@ -67,3 +71,4 @@ void write_lines(ostream& fich, int dpl, const double* pdata, int np) {
 
 }
 
+}

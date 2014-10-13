@@ -33,6 +33,9 @@ char cirleg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:11  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2013/06/13 14:17:47  j_novak
  * Implementation of Legendre inverse coefficient transform.
  *
@@ -54,6 +57,7 @@ char cirleg_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 
+namespace Lorene {
 //*****************************************************************************
 
 void cirleg(const int* deg, const int* dimc, double* cf, const int* dimf,
@@ -341,3 +345,4 @@ void cirlegi(const int* deg, const int* dimc, double* cf,
 
 }
 
+}

@@ -30,6 +30,9 @@ char cmp_import_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -66,6 +69,7 @@ char cmp_import_C[] = "$Header$" ;
 			//  Importation in all domains   //
 			//-------------------------------//
 
+namespace Lorene {
 void Cmp::import(const Cmp& ci) {
     
     int nz = mp->get_mg()->get_nzone() ; 
@@ -703,4 +707,5 @@ void Cmp::import_align(int nzet, const Cmp& cm_d) {
     
     set_dzpuis(0) ; 
 
+}
 }

@@ -25,6 +25,9 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:28  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -106,6 +109,7 @@ char dalembert_C[] = "$Header$" ;
 
 
 
+namespace Lorene {
 Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source) 
 {
     
@@ -508,4 +512,5 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   
   return resultat ;
 
+}
 }

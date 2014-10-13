@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2014/10/13 08:53:00  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.35  2014/10/06 15:13:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -167,6 +170,7 @@ char bound_hor_C[] = "$Header$" ;
 //-------------------------------------
 // ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
+namespace Lorene {
 const Valeur Isol_hor::boundary_psi_Dir_evol() const{
 
     Scalar tmp = - 6 * contract(beta(), 0, psi().derive_cov(ff), 0) ;
@@ -1638,4 +1642,5 @@ const Valeur Isol_hor:: boundary_vv_z_bin(double om, int jj)const {
     lim_z.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
 
     return  lim_z ;
+}
 }

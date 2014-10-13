@@ -30,6 +30,9 @@ char star_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2012/12/03 15:27:30  c_some
  * Small changes
  *
@@ -61,6 +64,7 @@ char star_QI_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Star_QI::Star_QI(Map& mpi) :
 			 Compobj_QI(mpi) ,
 			 logn(mpi), 
@@ -451,3 +455,4 @@ void Star_QI::update_metric() {
 
 
 
+}

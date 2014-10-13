@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.29  2014/10/06 15:13:20  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -149,6 +152,7 @@ char vector_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
+namespace Lorene {
 Vector::Vector(const Map& map, int tipe, const Base_vect& triad_i) 
 		: Tensor(map, 1, tipe, triad_i) {
 		
@@ -875,4 +879,5 @@ void Vector::exponential_filter_ylm(int lzmin, int lzmax, int p,
 	mu_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
 	set_vr_eta_mu(vr_tmp, eta_tmp, mu_tmp) ;
     }
+}
 }

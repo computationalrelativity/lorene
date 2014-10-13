@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -90,6 +93,7 @@ char bin_hor_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Bin_hor::Bin_hor (Map_af& mp1, Map_af& mp2) :
 	hole1(mp1), hole2(mp2), omega(0){
 
@@ -310,3 +314,4 @@ void Bin_hor::write_global(ostream& ost, double lim_nn, int bound_nn,
 
 }
       
+}

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2010/12/20 09:58:31  m_bejger
  * Pointer to the linear momentum added
  *
@@ -46,6 +49,7 @@
 // Lorene headers
 #include "star.h"
 
+namespace Lorene {
 /**
  * Binary systems in eXtended Conformal Thin Sandwich formulation. 
  * *** UNDER DEVELOPMENT *** \ingroup (star)
@@ -314,4 +318,5 @@ class Binary_xcts {
 
 ostream& operator<<(ostream& , const Binary_xcts& ) ;	
 
+}
 #endif

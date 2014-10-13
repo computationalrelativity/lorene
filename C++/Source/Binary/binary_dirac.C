@@ -31,6 +31,9 @@ char binary_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2006/04/11 14:25:15  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -52,6 +55,7 @@ char binary_dirac_C[] = "$Header$" ;
 #include "param.h"
 
 
+namespace Lorene {
 void Binary::dirac_gauge() {
 
     int nz = star1.mp.get_mg()->get_nzone() ;
@@ -474,4 +478,5 @@ void Binary::dirac_gauge() {
      star2.hij = hij_dirac2 ;
 
      //arrete() ;
+}
 }

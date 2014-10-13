@@ -46,6 +46,7 @@
 #include "isol_hole.h"
 
 
+namespace Lorene {
 void Isol_hole::compute_stat_metric(double precis, double relax, int mer_max, int mer_max2, bool isvoid){
     
     // Fundamental constants and units
@@ -791,3 +792,4 @@ void Isol_hole::compute_stat_metric(double precis, double relax, int mer_max, in
 
 
 
+}

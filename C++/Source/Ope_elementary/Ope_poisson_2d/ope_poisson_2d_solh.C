@@ -35,6 +35,7 @@ char ope_poisson_2d_solh_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solh_poisson_2d_pas_prevu (int, int, double, double, Tbl&) {
 
     cout << " Solution homogene pas prevue ..... : "<< endl ;
@@ -405,4 +406,5 @@ Tbl Ope_poisson_2d::get_solh () const {
   ds_two_plus  = val_lim(1,3) ;
 
   return res ;
+}
 }

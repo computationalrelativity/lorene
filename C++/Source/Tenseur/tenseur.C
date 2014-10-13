@@ -34,6 +34,9 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:53:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:13:18  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -185,6 +188,7 @@ char tenseur_C[] = "$Header$" ;
 			//--------------//
 // Consistency check for tensor densities
 //---------------------------------------
+namespace Lorene {
 bool Tenseur::verif() const {
   return ( (poids == 0.) || (metric != 0x0) ) ;
 }
@@ -1577,4 +1581,5 @@ const Tenseur& Tenseur::carre_scal (const Metrique& metre) const {
     if (p_carre_scal[j] == 0x0)
 	fait_carre_scal (metre, j) ;
     return *p_carre_scal[j] ;
+}
 }

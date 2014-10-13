@@ -44,6 +44,7 @@ char strot_dirac_diff_global_C[] = "$Header$" ;
                      //        T/W          //
                      //---------------------//
 
+namespace Lorene {
 double Star_rot_Dirac_diff::tsw() const {
 
   if (p_tsw == 0x0) {    // a new computation is required
@@ -79,4 +80,5 @@ double Star_rot_Dirac_diff::tsw() const {
 
     cout << "T/W :             " << p_tsw << '\n' ;
 
+}
 }

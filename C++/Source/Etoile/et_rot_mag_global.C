@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2014/05/13 10:06:13  j_novak
  * Change of magnetic units, to make the Lorene unit system coherent. Magnetic field is now expressed in Lorene units. Improvement on the comments on units.
  *
@@ -106,6 +109,7 @@ char et_rot_mag_global_C[] = "$Header$" ;
 
 // Definition des fonctions membres differentes ou nouvelles
 
+namespace Lorene {
 void Et_rot_mag::MHD_comput() {
   // Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
 
@@ -559,4 +563,5 @@ double Et_rot_mag::mom_quad() const {
     
     return *p_mom_quad ; 
 
+}
 }

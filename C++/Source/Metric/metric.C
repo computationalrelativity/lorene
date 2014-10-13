@@ -30,6 +30,9 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -97,6 +100,7 @@ char metric_C[] = "$Header$" ;
                     //  Constructors   //
                     //-----------------//
 
+namespace Lorene {
 Metric::Metric(const Sym_tensor& symti) : mp(&symti.get_mp()),
 					  p_met_cov(0x0), 
                                           p_met_con(0x0) {
@@ -478,3 +482,4 @@ ostream& Metric::operator>>(ostream& ost) const {
   return ost ;
 }
 
+}

@@ -25,6 +25,9 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:13:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -106,6 +109,7 @@ char et_bfrot_global_C[] = "$Header$" ;
 //	Baryon mass	    //
 //--------------------------//
 
+namespace Lorene {
 double Et_rot_bifluid::mass_b1() const {
 
   if (p_mass_b1 == 0x0) {    // a new computation is required
@@ -693,3 +697,4 @@ double Et_rot_bifluid::ray_pole2() const {
 
 
 
+}

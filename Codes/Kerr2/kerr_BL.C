@@ -27,6 +27,9 @@ char kerr_BL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2013/02/28 15:36:59  o_straub
  * Output file: added spin output
  *
@@ -67,6 +70,8 @@ char kerr_BL_C[] = "$Header$" ;
 // local: 
 double beta3(double, double, double) ; 
 
+
+using namespace Lorene ;
 
 int main() {
 

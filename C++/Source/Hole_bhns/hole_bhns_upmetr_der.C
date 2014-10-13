@@ -31,6 +31,9 @@ char hole_bhns_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:00  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 19:09:02  k_taniguchi
  * Change of some parameters.
  *
@@ -53,6 +56,7 @@ char hole_bhns_upmetr_der_C[] = "$Header$" ;
 #include "star_bhns.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Hole_bhns::update_met_der_comp_bhns(const Star_bhns& star) {
 
     // Computation of d_lapconf_comp
@@ -136,4 +140,5 @@ void Hole_bhns::update_met_der_comp_bhns(const Star_bhns& star) {
 
     del_deriv() ;
 
+}
 }

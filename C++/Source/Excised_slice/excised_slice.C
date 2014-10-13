@@ -41,8 +41,8 @@
 #include "param.h"
 #include "unites.h"
 #include "proto.h"
-#include "map.h"
-#include "scalar.h"
+
+namespace Lorene {
 
     // Fundamental constants and units
     // -------------------------------
@@ -347,3 +347,4 @@ double Excised_slice::virial_residue() {
 
 
 
+}

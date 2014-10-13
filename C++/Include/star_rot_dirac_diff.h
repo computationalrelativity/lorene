@@ -34,16 +34,17 @@
  *
  */
 
+// Headers Lorene
+#include "star_rot_dirac.h"
+
+namespace Lorene {
+
 /**
  * Class for relativistic differentially rotating stars in Dirac gauge and 
  * maximal slicing.  (*** Under development ***) \ingroup (star)
  * 
  *
  */
-
-// Headers Lorene
-#include "star_rot_dirac.h"
-
 
 class Star_rot_Dirac_diff : public Star_rot_Dirac {
 
@@ -327,4 +328,5 @@ class Star_rot_Dirac_diff : public Star_rot_Dirac {
 	
  };
 
+}
 #endif

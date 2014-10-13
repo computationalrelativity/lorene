@@ -25,6 +25,9 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,7 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 		    //------------------------------------//
 		    //		r  component		  //
 		    //------------------------------------//
+namespace Lorene {
 void Map_radial::comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 				       const Cmp& v_z, Cmp& v_r) const {
     Scalar resu = v_r ;
@@ -211,3 +215,4 @@ void Map_radial::comp_p_from_cartesian(const Scalar& v_x, const Scalar& v_y,
 }
 		    
 		    
+}

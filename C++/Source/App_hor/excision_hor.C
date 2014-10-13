@@ -42,6 +42,7 @@ char excision_hor_C[] = "$Header$" ;
 //--------------// 
  
 
+namespace Lorene {
 Excision_hor::Excision_hor(const Scalar& h_in, const Metric& gij, const Sym_tensor& Kij2, const Scalar& ppsi, const Scalar& nn, const Vector& beta, const Sym_tensor& Tij2, double timestep, int int_nos):
   sph(h_in, gij, Kij2),
   conf_fact(ppsi),
@@ -534,3 +535,4 @@ const Vector& Excision_hor::get_BC_shift( double c_V_lap ) const{
    return ; 
 
  }
+}

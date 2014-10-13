@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:12:51  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -81,6 +84,7 @@
 #include <cassert>
 
 
+namespace Lorene {
 
                     //-------------------------//
                     //      Constructors       //
@@ -247,3 +251,4 @@ void Evolution_full<TyT>::update(const TyT& new_value, int j,
 
 
 
+}

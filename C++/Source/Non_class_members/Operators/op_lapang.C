@@ -39,6 +39,9 @@ char op_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -92,6 +95,7 @@ char op_lapang_C[] = "$Header$" ;
 		// Routine pour les cas non prevus ----
 		//------------------------------------
 
+namespace Lorene {
 void _lapang_pas_prevu(Mtbl_cf* mt, int l) {
     cout << "Unknwon theta basis in the operator Mtbl_cf::lapang() !" << endl ;
     cout << " basis : " << hex << (mt->base).b[l] << endl ; 
@@ -640,4 +644,5 @@ void _lapang_t_leg_mi(Mtbl_cf* mt, int l)
     }	// Fin de boucle sur phi	
 	    
     // base de developpement inchangee 
+}
 }

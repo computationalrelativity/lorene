@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 18:55:55  k_taniguchi
  * Change of some parameters.
  *
@@ -40,11 +43,13 @@
  *
  */
 
-// External classes which appear in the declaration of class Star_bhns:
-class Hole_bhns ; 
-
 // Lorene headers
 #include "star.h"
+
+namespace Lorene {
+
+// External classes which appear in the declaration of class Star_bhns:
+class Hole_bhns ; 
 
 /**
  * Class for stars in black hole-neutron star binaries.
@@ -622,4 +627,5 @@ class Star_bhns : public Star {
 
 };
 
+}
 #endif

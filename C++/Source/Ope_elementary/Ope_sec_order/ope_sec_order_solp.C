@@ -35,6 +35,7 @@ char ope_sec_order_solp_C[] = "$Header$" ;
                 //------------------------------------
 		// Cl version Tbl -> Tbl            --
 		//------------------------------------
+namespace Lorene {
 Tbl _cl_sec_order_pas_prevu (const Tbl &so) {
 
   cout << "Linear combination for Sec_order not implemented..." << endl ;
@@ -168,4 +169,5 @@ Tbl Ope_sec_order::get_solp (const Tbl& so) const {
   dsp_minus = valeurs(3) / exp(beta-alpha) ;
   
   return res ;
+}
 }

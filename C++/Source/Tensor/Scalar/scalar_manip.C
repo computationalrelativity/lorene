@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2014/10/06 15:16:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -104,6 +107,7 @@ char scalar_manip_C[] = "$Header$" ;
  * Annule tous les l entre l_min et l_max (compris)
  */
 
+namespace Lorene {
 void Scalar::annule_l (int l_min, int l_max, bool ylm_output) {
 
     assert (etat != ETATNONDEF) ;
@@ -483,4 +487,5 @@ Scalar Scalar::scalar_out_bound(int l_zone, bool output_ylm) {
 	resu.set_spectral_va().c = 0x0 ;
     }
     return resu ;
+}
 }

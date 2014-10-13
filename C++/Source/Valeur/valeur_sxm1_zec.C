@@ -37,6 +37,9 @@ char valeur_sxm1_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:24  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -68,6 +71,7 @@ char valeur_sxm1_zec_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Local prototypes
+namespace Lorene {
 void _sxm1_identite(Tbl*, int&) ;
 void _sxm1_cheb(Tbl *, int&) ;
 
@@ -135,4 +139,5 @@ static int nap = 0 ;
 	_sxm1[base_r](t[l], base.b[l]) ;
     }
     
+}
 }

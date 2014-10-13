@@ -31,6 +31,9 @@ char map_et_poisson_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/11/30 20:53:59  k_taniguchi
  * *** empty log message ***
  *
@@ -45,6 +48,8 @@ char map_et_poisson_falloff_C[] = "$Header$" ;
 #include "param.h"
 
 //*****************************************************************************
+
+namespace Lorene {
 
 void Map_et::poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const {
 
@@ -259,4 +264,5 @@ void Map_et::poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_fallo
 
    
 
+}
 }

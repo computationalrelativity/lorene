@@ -32,8 +32,11 @@ char cmp_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:52:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2000/09/07  15:29:14  keisuke
  * Add a new argument Cmp& uu.
@@ -78,6 +81,8 @@ char cmp_poisson_regu_C[] = "$Header$" ;
 #include "map.h"
 #include "param.h"
 
+namespace Lorene {
+
 //******************************************************************
 
 void Cmp::poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
@@ -88,6 +93,9 @@ void Cmp::poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
     mp->poisson_regular(*this, k_div, nzet, unsgam1, par,
 			uu, uu_regu, uu_div, duu_div,
 			source_regu, source_div) ;
+
+
+}
 
 
 }

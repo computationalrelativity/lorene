@@ -31,6 +31,9 @@ char eos_incomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -92,6 +95,7 @@ char eos_incomp_C[] = "$Header$" ;
 
 // Standard constructor with ent0 = 1
 // ---------------------------------
+namespace Lorene {
 Eos_incomp::Eos_incomp(double rho_c) : 
 	Eos("EOS for relativistic incompressible matter"), 
 	rho0(rho_c), ent0( double(-1.e-6) ) {}
@@ -318,3 +322,4 @@ double Eos_incomp::der_press_ent_p(double ent, const Param* ) const {
 
 
 
+}

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.49  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.48  2010/10/11 10:23:03  j_novak
  * Removed methods Sym_tensor_trans::solve_hrr() and Sym_tensor_trans::set_WX_det_one(), as they are no longer relevant.
  *
@@ -198,6 +201,7 @@
  *
  */
 
+namespace Lorene {
 class Sym_tensor_trans ;
 class Sym_tensor_tt ;
 
@@ -1113,4 +1117,5 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 
 
 
+}
 #endif

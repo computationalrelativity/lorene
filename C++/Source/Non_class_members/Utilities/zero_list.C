@@ -34,6 +34,9 @@ char zero_list_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2003/09/08 20:22:02  e_gourgoulhon
  * First version
  *
@@ -48,6 +51,8 @@ char zero_list_C[] = "$Header$" ;
 #include "tbl.h"
 
 //****************************************************************************
+
+namespace Lorene {
 
 void zero_list( double (*f)(double, const Param&), const Param& par,
 		double xmin, double xmax, int nsub, 
@@ -96,3 +101,4 @@ void zero_list( double (*f)(double, const Param&), const Param& par,
     delete [] borne_sup ; 
     
 }  
+}

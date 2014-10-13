@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:54:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:25  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char bin_bh_aux_C[] = "$Header$" ;
 #include "bhole.h"
 
 // Local prototype:
+namespace Lorene {
 double lagrange_parabol(double x, const double* xp, const double* yp) ;
 
 		    //----------------------------------------//
@@ -903,3 +907,4 @@ double lagrange_parabol(double x, const double* xp, const double* yp) {
 }
 
 
+}

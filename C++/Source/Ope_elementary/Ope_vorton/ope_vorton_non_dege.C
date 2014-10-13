@@ -35,6 +35,7 @@ char ope_vorton_non_dege_C[] = "$Header$" ;
 	       //-- Pas prevu   ----
 	      //-------------------
 
+namespace Lorene {
 Matrice _vorton_non_dege_pas_prevu (const Matrice& so, int, int) {
   cout << "vorton non dege : not implemented" << endl ;
   abort() ;
@@ -126,4 +127,5 @@ void Ope_vorton::do_non_dege() const {
     vorton_non_dege[R_CHEBU >> TRA_R] = _vorton_non_dege_r_chebu ;
   }
   non_dege = new Matrice(vorton_non_dege[base_r](*ope_cl, l_quant, dzpuis)) ;
+}
 }

@@ -29,6 +29,9 @@ char vector_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:20  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -68,6 +71,7 @@ char vector_change_triad_C[] = "$Header$" ;
 // Lorene headers
 #include "tensor.h"
 
+namespace Lorene {
 void Vector::change_triad(const Base_vect& new_triad) {
 
   assert(triad != 0x0) ; 
@@ -218,4 +222,5 @@ void Vector::change_triad(const Base_vect& new_triad) {
 
   triad = &new_triad ;
 
+}
 }

@@ -32,6 +32,9 @@ char ARITHM_TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2003/10/02 07:00:19  e_gourgoulhon
  * Changed the = signs in some assert's to ==
  *
@@ -60,6 +63,7 @@ char ARITHM_TBL_VAL_C[] = "$Header$" ;
 
 // + Tbl_val
 // -----
+namespace Lorene {
 Tbl_val operator+(const Tbl_val& t1)
 {
   // Protection
@@ -915,3 +919,4 @@ void Tbl_val::operator/=(double x) {
   // Termine
 }
 
+}

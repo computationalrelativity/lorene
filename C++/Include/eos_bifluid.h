@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2014/04/25 10:43:50  j_novak
  * The member 'name' is of type string now. Correction of a few const-related issues.
  *
@@ -122,6 +125,7 @@
 
 // Lorene classes
 #include "param.h"
+namespace Lorene {
 class Tbl ;
 class Param ;
 class Cmp ;
@@ -1366,4 +1370,5 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 
 		
 
+}
 #endif

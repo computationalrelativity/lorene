@@ -31,6 +31,8 @@ char kerr_C[] = "$Header$" ;
 #include "excised_slice.h"
 #include "unites.h"
 
+using namespace Lorene ;
+
 int main(){ 
  
   using namespace Unites ; 

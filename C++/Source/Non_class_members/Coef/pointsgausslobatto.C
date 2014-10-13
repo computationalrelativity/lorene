@@ -2,6 +2,7 @@
 #include "tbl.h"
 #include <cassert>
 
+namespace Lorene {
 double* jacobi(int , double) ;
 
 double* pointsgausslobatto(int n) {
@@ -73,4 +74,5 @@ double* pointsgausslobatto(int n) {
   pointsgl[n] = 1 ;
 	
   return pointsgl ;
+}
 }

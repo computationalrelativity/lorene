@@ -30,6 +30,9 @@ char altBH_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/01/17 07:33:13  o_straub
  * adjustment to read in files with 4 lines in the header
  *
@@ -62,6 +65,7 @@ char altBH_QI_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 AltBH_QI::AltBH_QI(Map& mpi, const char* file_name, double a_spin_i) :
 			 Compobj_QI(mpi) , 
 			 a_spin(a_spin_i),
@@ -296,4 +300,5 @@ void AltBH_QI::extrinsic_curvature() {
     
     del_deriv() ; 
 
+}
 }

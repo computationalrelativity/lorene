@@ -88,8 +88,8 @@ char cfrjaco02_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 double* coeffjaco(int , double* ) ;
-
 
 //*****************************************************************************
 
@@ -173,4 +173,5 @@ int i, j, k ;
 	} 	// fin de la boucle sur theta 
    }	// fin de la boucle sur phi
 
+}
 }

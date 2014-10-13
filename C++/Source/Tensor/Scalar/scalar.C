@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2014/10/13 08:53:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.38  2014/10/06 15:16:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -194,6 +197,7 @@ char scalar_C[] = "$Header$" ;
 			//---------------//
 
 
+namespace Lorene {
 Scalar::Scalar(const Map& mpi) : Tensor(mpi), etat(ETATNONDEF), dzpuis(0), 
 				 va(mpi.get_mg()) {
 
@@ -992,4 +996,5 @@ void Scalar::change_triad(const Base_vect& ) {
   cout << "WARNING: Scalar::change_triad : "<< endl ;
   cout << "This method does nothing ... " << endl ;
 
+}
 }

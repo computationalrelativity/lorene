@@ -32,6 +32,9 @@ char binaire_ana_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/03/25 10:28:59  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -62,6 +65,7 @@ char binaire_ana_shift_C[] = "$Header$" ;
 #include "binaire.h"
 #include "unites.h"
 
+namespace Lorene {
 void Binaire::analytical_shift(){
     
     // Does nothing for a Newtonian star
@@ -146,4 +150,5 @@ void Binaire::analytical_shift(){
     
     }
     
+}
 }

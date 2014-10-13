@@ -30,6 +30,9 @@ char init_bin_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:09:43  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -67,6 +70,8 @@ char init_bin_regu_C[] = "$Header$" ;
 #include "unites.h"	    
 
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
     

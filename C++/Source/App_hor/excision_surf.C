@@ -60,6 +60,7 @@ char excision_surf_C[] = "$Header$" ;
 //--------------// 
  
 
+namespace Lorene {
 Excision_surf::Excision_surf(const Scalar& h_in, const Metric& gij, const Sym_tensor& Kij2, const Scalar& ppsi, const Scalar& nn, const Vector& beta, double timestep, int int_nos = 1):
   sph(h_in, gij, Kij2),
   conf_fact(ppsi),
@@ -1853,3 +1854,4 @@ const Scalar& Excision_surf::get_BC_Npsi_5(double Kappa) const{
    return ; 
 
  }
+}

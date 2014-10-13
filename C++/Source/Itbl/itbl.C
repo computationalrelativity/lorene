@@ -33,6 +33,9 @@ char itbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -90,6 +93,7 @@ char itbl_C[] = "$Header$" ;
 
 
 // Constructeur 1D
+namespace Lorene {
 Itbl::Itbl(int n1) : etat(ETATQCQ), dim(n1) {
 
     if (n1 == 0) {
@@ -353,4 +357,5 @@ ostream& operator<<(ostream& o, const Itbl& t) {
 	}
     }
     return o ;
+}
 }

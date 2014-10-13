@@ -30,6 +30,9 @@ char star_bhns_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char star_bhns_hydro_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Star_bhns::hydro_euler_bhns(bool kerrschild, const double& mass_bh,
 				 const double& sepa) {
 
@@ -363,4 +367,5 @@ void Star_bhns::hydro_euler_bhns(bool kerrschild, const double& mass_bh,
 
     del_deriv() ;
 
+}
 }

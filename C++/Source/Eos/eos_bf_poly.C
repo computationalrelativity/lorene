@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.21  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -133,6 +136,8 @@ char eos_bf_poly_C[] = "$Header$" ;
 #include "eos.h"
 #include "cmp.h"
 #include "utilitaires.h"
+
+namespace Lorene {
 
 //****************************************************************************
 // local prototypes
@@ -981,7 +986,7 @@ Eos* Eos_bf_poly::trans2Eos() const {
 // New "pow"
 //-----------
 
- double puis(double x, double p) {
+  double puis(double x, double p) {
   assert(p>=0.) ;
   if (p==0.) return (x>=0 ? 1 : -1) ;
   //if (p==0.) return 1 ;
@@ -1029,6 +1034,8 @@ double enthal(const double x, const Param& parent) {
   double cc4 = parent.get_double_mod(6) ;
 
   return (cc1*puis(x,alp1) + cc2*puis(x,alp2) + cc3*puis(x,alp3) - cc4) ;
+
+}
 
 }
 

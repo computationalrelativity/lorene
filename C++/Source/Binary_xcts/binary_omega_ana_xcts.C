@@ -28,6 +28,9 @@ char binary_omega_ana_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2010/05/04 07:35:54  m_bejger
  * Initial version
  *
@@ -43,6 +46,7 @@ char binary_omega_ana_xcts_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void Binary_xcts::analytical_omega() {
   
   using namespace Unites ;
@@ -89,4 +93,5 @@ void Binary_xcts::analytical_omega() {
     // The derived quantities are obsolete:
     del_deriv() ; 
     
+}
 }

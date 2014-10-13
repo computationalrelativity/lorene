@@ -32,6 +32,9 @@ char base_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -96,6 +99,7 @@ char base_vect_spher_C[] = "$Header$" ;
 
 // Standard constructor without name
 // ---------------------------------
+namespace Lorene {
 Base_vect_spher::Base_vect_spher(double xa0, double ya0, double za0,
 				 double rot_phi_i) 
 				: ori_x(xa0), 
@@ -372,4 +376,5 @@ void Base_vect_spher::change_basis(Tenseur& ti) const {
     }	// end of the spherical basis case
 
     ti.set_triad(*this) ; 
+}
 }

@@ -27,6 +27,9 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:12:56  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -95,6 +98,7 @@ char base_val_mult_C[] = "$Header$" ;
  * 
  */
 
+namespace Lorene {
 Base_val operator* (const Base_val& b1, const Base_val& b2) {
     
     assert (b1.nzone == b2.nzone) ;
@@ -740,4 +744,5 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 	res.set_base_nondef() ;
 	
     return res ;    
+}
 }

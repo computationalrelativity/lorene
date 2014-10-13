@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:53:22  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:16:05  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -83,6 +86,7 @@ char des_prof_scalar_C[] = "$Header$" ;
 #include "graphique.h"
 
 #include <vector>
+namespace Lorene {
 //******************************************************************************
 // VERSION SCALAR SANS UNITES 
 
@@ -511,4 +515,5 @@ void des_points(const Scalar& uu, double scale,
     
     delete [] xbound ; 
     
+}
 }

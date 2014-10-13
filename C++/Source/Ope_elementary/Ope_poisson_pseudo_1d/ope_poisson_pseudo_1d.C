@@ -23,6 +23,9 @@ char ope_poisson_pseudo_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/08/24 09:14:48  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -40,6 +43,7 @@ char ope_poisson_pseudo_1d_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
+namespace Lorene {
 Ope_poisson_pseudo_1d::Ope_poisson_pseudo_1d (int nbr, int baser,
 					      double alf, double bet, int lq): 
   Ope_elementary(nbr, baser, alf, bet), l_quant (lq) {
@@ -64,4 +68,5 @@ void Ope_poisson_pseudo_1d::dec_l_quant() {
 
   cout << "dec_l_quant not implemented for this operator." << endl ;
   abort() ;
+}
 }

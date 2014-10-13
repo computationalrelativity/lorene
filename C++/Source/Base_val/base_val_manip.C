@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:12:56  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -81,6 +84,7 @@ char base_val_manip_C[] = "$Header$" ;
 #include "type_parite.h"
 #include "base_val.h"
 
+namespace Lorene {
 void Base_val::dsdx() {
     
     switch(get_base_r(0)) {
@@ -391,4 +395,5 @@ void Base_val::ylm() {
 	    break ;
     }  
     return ;
+}
 }

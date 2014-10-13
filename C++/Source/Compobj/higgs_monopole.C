@@ -30,6 +30,9 @@ char HiggsMonopole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/01/31 15:35:27  e_gourgoulhon
  * Reading file in constructor
  *
@@ -55,6 +58,7 @@ char HiggsMonopole_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 HiggsMonopole::HiggsMonopole(Map& mpi, const char* file_name) :
 			 Compobj(mpi) , 
 			 hh(mpi) ,
@@ -191,3 +195,4 @@ ostream& HiggsMonopole::operator>>(ostream& ost) const {
 
 
 
+}

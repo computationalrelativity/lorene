@@ -32,6 +32,9 @@ char map_radial_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2004/01/29 08:50:03  p_grandclement
  * Modification of Map::operator==(const Map&) and addition of the surface
  * integrales using Scalar.
@@ -82,6 +85,7 @@ char map_radial_C[] = "$Header$" ;
 
 // Constructor from a grid
 // -----------------------
+namespace Lorene {
 Map_radial::Map_radial(const Mg3d& mgi) : Map(mgi)
 {
         // The Coord's are constructed by the default Coord constructor
@@ -141,4 +145,5 @@ void Map_radial::reset_coord() {
     sstd2rdpdx.del_t() ; 
     sr2d2rdt2.del_t() ; 
      
+}
 }

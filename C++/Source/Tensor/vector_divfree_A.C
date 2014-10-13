@@ -30,6 +30,9 @@ char sol_Dirac_A_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:20  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -70,6 +73,7 @@ char sol_Dirac_A_C[] = "$Header$" ;
 //
 //----------------------------------------------------------------------------------
 
+namespace Lorene {
 void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& tilde_eta,
 				   const Param* par_bc) const {
 
@@ -606,3 +610,4 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 
 
 } 
+}

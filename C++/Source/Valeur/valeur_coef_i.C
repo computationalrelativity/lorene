@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.16  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -124,6 +127,7 @@ char valeur_coef_i_C[] = "$Header$" ;
 #include "valeur.h"
 #include "proto.h"
 
+namespace Lorene {
 void c_est_pas_fait(char * ) ;
 
 void ipasprevu_r(const int*, const int*, double*, const int*, double*) ;
@@ -368,3 +372,4 @@ void ibase_non_def_p(const int*, const int*, const int*, double*, double*) {
     abort() ; 
 }
 
+}

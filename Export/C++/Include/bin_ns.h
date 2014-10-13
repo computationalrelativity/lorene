@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:54:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:25  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -64,6 +67,7 @@
 
 using namespace std ;
 
+namespace Lorene {
 /**
  * Binary neutron star configuration on a Cartesian grid.
  *
@@ -372,4 +376,5 @@ class Bin_NS {
 
 };
 
+}
 #endif

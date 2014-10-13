@@ -32,6 +32,9 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2005/02/18 13:14:09  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -66,13 +69,15 @@ char metconf_C[] = "$Header$" ;
  */
 
 // Headers C
- #include <stdlib.h>
- #include <assert.h>
- #include <math.h>
+ #include <cstdlib>
+ #include <cassert>
+ #include <cmath>
 
 // Headers Lorene
  #include "metconf.h"
  #include "utilitaires.h"
+
+namespace Lorene {
 
 //Constructeur standard (ne fait pas grand chose) :
 Metconf::Metconf (const Map& mapping, const Metrique& metric, const Metrique& 
@@ -435,3 +440,4 @@ const Tenseur& Metconf::Hi() const{
     return *p_Hi ;
 }
 
+  }

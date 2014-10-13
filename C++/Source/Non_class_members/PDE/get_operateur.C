@@ -25,6 +25,9 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:28  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -99,6 +102,7 @@ char get_operateur_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _get_operateur_dal_pas_prevu(const Param& , const int&, int& , Matrice& )
 {
     cout << "get_operateur_dal pas prevu..." << endl ;
@@ -565,4 +569,5 @@ void get_operateur_dal(const Param& par, const int& lzone,
   }
   
   get_operateur_dal[base_r](par, lzone, type_dal, operateur) ;
+}
 }

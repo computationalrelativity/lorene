@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2008/12/05 08:45:12  j_novak
  * Modified dzpuis treatment.
  *
@@ -81,6 +84,7 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 #include "metric.h"
 #include "param.h"
 
+namespace Lorene {
 void Sym_tensor::set_longit_trans(const Vector& v_pot, 
 				  const Sym_tensor_trans& ht ) {
 
@@ -203,3 +207,4 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par,
 }
 
 
+}

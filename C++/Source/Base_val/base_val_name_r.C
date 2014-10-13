@@ -30,6 +30,9 @@ char base_val_name_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -60,6 +63,7 @@ char base_val_name_r_C[] = "$Header$" ;
 #include "base_val.h"
 
 // Local prototypes
+namespace Lorene {
 void basename_r_unknown(int, int, int, char*) ; 
 void basename_r_cheb(int, int, int, char*) ; 
 void basename_r_chebp(int, int, int, char*) ; 
@@ -295,3 +299,4 @@ void basename_r_jaco02(int, int, int i, char* name) {
 
 
 
+}

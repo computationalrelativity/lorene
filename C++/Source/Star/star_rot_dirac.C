@@ -30,6 +30,9 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -86,6 +89,7 @@ char star_rot_dirac_C[] = "$Header$" ;
 
 // Standard constructor
 //-------------------------
+namespace Lorene {
 Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i, int filter)
                    : Star(mpi, nzet_i, eos_i),
 		     spectral_filter(filter),
@@ -369,4 +373,5 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
 
      return ost ;
 
+}
 }

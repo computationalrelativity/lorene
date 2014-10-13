@@ -35,6 +35,9 @@ char op_mult_sp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2007/12/14 10:19:33  jl_cornou
  * *** empty log message ***
  *
@@ -77,6 +80,7 @@ char op_mult_sp_C[] = "$Header$" ;
 		//    Routine for unknown cases
 		//-----------------------------------
 
+namespace Lorene {
 void _mult_sp_pas_prevu(Tbl* , int& base) {
     cout << "mult_sp() is not not implemented for the basis " << base << " !"
        << endl ;
@@ -615,3 +619,4 @@ void _mult_sp_p_cossin_i(Tbl* tb, int& base) {
     return ; 
 }
 
+}

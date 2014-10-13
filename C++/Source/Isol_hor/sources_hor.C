@@ -31,6 +31,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -101,6 +104,7 @@ char source_hor_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 const Scalar Isol_hor::source_psi() const{
 
     using namespace Unites ;
@@ -275,3 +279,4 @@ const Vector Isol_hor::source_beta() const {
      
         
 
+}

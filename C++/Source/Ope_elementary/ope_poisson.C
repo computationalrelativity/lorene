@@ -23,6 +23,9 @@ char ope_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/06/14 15:07:11  j_novak
  * New methods for the construction of the elliptic operator appearing in
  * the vector Poisson equation (acting on eta).
@@ -39,6 +42,7 @@ char ope_poisson_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
+namespace Lorene {
 Ope_poisson::Ope_poisson (int nbr, int baser, double alf, double bet, int lq, int dz): 
   Ope_elementary(nbr, baser, alf, bet), l_quant (lq), 
   dzpuis (dz) {
@@ -167,4 +171,5 @@ void Ope_poisson::dec_l_quant() {
     non_dege = 0x0 ;
   } 
   l_quant -- ;
+}
 }

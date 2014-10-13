@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2004/03/25 10:29:04  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -108,6 +111,7 @@ char et_rot_bifluid_C[] = "$Header$" ;
 			    //--------------//
 // Standard constructor
 // --------------------
+namespace Lorene {
 Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, const Eos_bifluid& eos_i):
   Etoile_rot(mpi, nzet_i, relat, *eos_i.trans2Eos()), 
   eos(eos_i),
@@ -705,3 +709,4 @@ void Et_rot_bifluid::hydro_euler(){
     del_deriv() ;                
 
 } // hydro_euler()
+}

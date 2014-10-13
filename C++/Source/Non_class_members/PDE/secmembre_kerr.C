@@ -10,6 +10,7 @@
 #include "tensor.h"
 
 
+namespace Lorene {
 Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb) { 
 
   const int nz = (*(hij.get_mp().get_mg())).get_nzone(); 
@@ -306,3 +307,4 @@ Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Sc
 
 
 
+}

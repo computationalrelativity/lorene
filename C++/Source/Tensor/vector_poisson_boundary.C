@@ -33,6 +33,9 @@ char vector_poisson_boundary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,7 @@ char vector_poisson_boundary_C[] = "$Header$" ;
 #include "proto.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Vector::poisson_boundary(double lam, const Mtbl_cf& bound_vr, 
 			    const Mtbl_cf& bound_eta, const Mtbl_cf& bound_mu, 
 			      int num_front, double fact_dir, double fact_neu, 
@@ -786,4 +790,5 @@ Vector Vector::poisson_robin(double lam, const Valeur& bound_vr,
 
   return resu ;
 
+}
 }

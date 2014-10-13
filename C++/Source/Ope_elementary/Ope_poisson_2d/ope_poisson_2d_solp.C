@@ -35,6 +35,7 @@ char ope_poisson_2d_solp_C[] = "$Header$" ;
 //--------------------------------------------------
 
 
+namespace Lorene {
 Tbl _cl_poisson_2d_pas_prevu (const Tbl &source, int puis) {
      cout << "Combinaison lineaire pas prevue..." << endl ;
     cout << "source : " << &source << endl ;
@@ -568,4 +569,5 @@ Tbl Ope_poisson_2d::get_solp (const Tbl& so) const {
   dsp_minus = valeurs(3) ;
   
   return res ;
+}
 }

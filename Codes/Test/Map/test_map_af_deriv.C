@@ -29,6 +29,9 @@ char test_map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:54:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:12:52  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -66,6 +69,8 @@ char test_map_af_deriv_C[] = "$Header$" ;
 #include "nbr_spx.h"
 
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
     

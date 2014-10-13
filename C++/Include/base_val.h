@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/10/13 08:52:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.22  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -187,6 +190,7 @@
 
 
 #include "type_parite.h"
+namespace Lorene {
 class Tbl ;
 class Mg3d ;
 
@@ -599,4 +603,5 @@ Base_val operator*(const Base_val&, const Base_val&) ;
 
 /** @}*/
 
+}
 #endif

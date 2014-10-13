@@ -30,6 +30,9 @@ char et_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2005/08/29 15:21:37  p_grandclement
  * Suppression of Etoile_bion::fait_taij_auto, that was not used (I think)
  *
@@ -57,6 +60,7 @@ char et_bin_extr_curv_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 
+namespace Lorene {
 void Etoile_bin::extrinsic_curvature(){
     
     // Components of shift_auto with respect to the Cartesian triad
@@ -114,3 +118,4 @@ void Etoile_bin::extrinsic_curvature(){
     
 }
 
+}

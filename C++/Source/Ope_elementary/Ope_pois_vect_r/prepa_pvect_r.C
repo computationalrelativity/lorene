@@ -30,6 +30,9 @@ char prepa_pvect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -67,6 +70,7 @@ char prepa_pvect_C[] = "$Header$" ;
   Sortie : renvoie un operateur non degenere ....
  */
  
+namespace Lorene {
 Matrice _nondeg_pvect_r_pas_prevu(const Matrice &, int , double, int) ;
 Matrice _nondeg_pvect_r_cheb (const Matrice&, int, double, int) ;
 Matrice _nondeg_pvect_r_chebp (const Matrice&, int, double, int) ;
@@ -390,3 +394,4 @@ Matrice nondeg_pvect_r(const Matrice &lap, int l, double echelle, int puis, int 
     return res ;
 }
 
+}

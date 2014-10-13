@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/13 08:52:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.16  2014/10/06 15:12:56  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -143,6 +146,7 @@ char base_val_C[] = "$Header$" ;
 			//---------------//
 
 // Constructeur
+namespace Lorene {
 Base_val::Base_val(int n) : nzone(n) {
     b = new int[nzone] ;
     for (int i=0 ; i<nzone ; i++) {    // Boucle sur les zones
@@ -331,4 +335,5 @@ void Base_val::set_base_nondef() {
 bool Base_val::operator== (const Base_val& c2) const {
 
     return (*b == *c2.b) ;
+}
 }

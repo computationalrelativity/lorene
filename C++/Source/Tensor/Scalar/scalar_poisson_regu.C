@@ -34,6 +34,9 @@ char scalar_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2003/10/11 14:46:00  e_gourgoulhon
  * Line 65-67: changed the name of local variable "triad" to "triad0"
  * in order not to shadow the class member triad.
@@ -53,6 +56,8 @@ char scalar_poisson_regu_C[] = "$Header$" ;
 #include "param.h"
 
 //******************************************************************
+
+namespace Lorene {
 
 void Scalar::poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
 			  Scalar& uu, Scalar& uu_regu, Scalar& uu_div,
@@ -93,4 +98,5 @@ void Scalar::poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
 	source_regu = csource_regu ; 
 	source_div = csource_div ; 
 
+}
 }

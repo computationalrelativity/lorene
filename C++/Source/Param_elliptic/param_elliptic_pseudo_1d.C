@@ -23,6 +23,9 @@ char param_elliptic_pseudo_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char param_elliptic_pseudo_1d_C[] = "$Header$" ;
 #include "scalar.h"
 
 
+namespace Lorene {
 void Param_elliptic::set_poisson_pseudo_1d(Scalar& source) {
 
   if (type_map != MAP_AFF) {
@@ -129,3 +133,4 @@ void Param_elliptic::set_helmholtz_minus_pseudo_1d(int zone, double masse, Scala
   }
 }
 
+}

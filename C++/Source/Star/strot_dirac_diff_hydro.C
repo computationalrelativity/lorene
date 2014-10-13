@@ -40,6 +40,7 @@ char strot_dirac_diff_hydro_C[] = "$Header$" ;
 // Lorene headers
 #include"star_rot_dirac_diff.h"
 
+namespace Lorene {
 void Star_rot_Dirac_diff::hydro_euler(){
 
   // u_euler (fluid 3-velocity w.r.t. the Eulerian frame)
@@ -109,4 +110,5 @@ void Star_rot_Dirac_diff::hydro_euler(){
   del_deriv() ;
 
 
+}
 }

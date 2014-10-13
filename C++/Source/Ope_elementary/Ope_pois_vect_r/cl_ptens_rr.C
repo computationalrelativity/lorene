@@ -30,6 +30,9 @@ char cl_ptens_rr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -62,6 +65,7 @@ char cl_ptens_rr_C[] = "$Header$" ;
  * 
  */
 
+namespace Lorene {
 Matrice _cl_ptens_rr_pas_prevu (const Matrice&, int, double, int) ;
 Matrice _cl_ptens_rr_cheb (const Matrice&, int, double, int) ;
 Matrice _cl_ptens_rr_chebi (const Matrice&, int, double, int) ;
@@ -368,3 +372,4 @@ Matrice cl_ptens_rr(const Matrice &source, int l, double echelle,
   return res ;
 }
 
+}

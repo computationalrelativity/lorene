@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -88,6 +91,7 @@ char et_bin_nsbh_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 			 bool irrot, const Base_vect& ref_triad_i)
     : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, ref_triad_i),
@@ -441,4 +445,5 @@ ostream& Et_bin_nsbh::operator>>(ostream& ost) const {
 	<< d_confpsi_auto(2)(0, 0, 0, 0) * km << endl ;
 
     return ost ;
+}
 }

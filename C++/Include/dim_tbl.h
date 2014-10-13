@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -86,6 +89,7 @@
 
 #include "headcpp.h"
 
+namespace Lorene {
 /**
  * Storage of array dimensions.
  * This class is designed for internal purposes related to the class
@@ -174,4 +178,5 @@ class Dim_tbl {
 };
 ostream& operator<<(ostream& , const Dim_tbl &) ;  
 
+}
 #endif

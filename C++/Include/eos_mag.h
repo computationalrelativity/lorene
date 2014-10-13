@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2013/12/13 16:36:51  j_novak
  * Addition and computation of magnetisation terms in the Einstein equations.
  *
@@ -53,6 +56,7 @@
 #include <cstdio>
 
 // Lorene classes
+namespace Lorene {
 class Tbl ;
 class Cmp ;
 
@@ -276,5 +280,6 @@ class Eos_mag : public Eos {
 };
 
 
+}
 #endif
 

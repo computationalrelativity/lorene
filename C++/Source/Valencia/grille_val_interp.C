@@ -32,6 +32,9 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2010/02/04 16:44:35  j_novak
  * Reformulation of the parabolic interpolation, to have better accuracy
  *
@@ -90,6 +93,7 @@ char grille_val_interp_C[] = "$Header$" ;
                         //------------------
 
 //Compatibilite entre une grille valencienne cartesienne et une meudonaise
+namespace Lorene {
 bool Gval_cart::compatible(const Map* mp, const int lmax, const int lmin) 
   const {
 
@@ -744,3 +748,4 @@ Tbl Gval_cart::interpol3(const Tbl& fdep, const Tbl& rarr,
 }
 
 
+}

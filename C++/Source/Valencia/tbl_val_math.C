@@ -32,6 +32,9 @@ char TBL_VAL_MATH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -60,6 +63,7 @@ char TBL_VAL_MATH_C[] = "$Header$" ;
 // Sinus //
 //-------//
 
+namespace Lorene {
 Tbl_val sin(const Tbl_val& ti)
 {
   // Protection
@@ -641,4 +645,5 @@ double diffrelmax(const Tbl_val& t1, const Tbl_val& t2) {
     
   return resu ; 
     
+}
 }

@@ -82,6 +82,9 @@ char cipcossin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:19  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:49  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -122,6 +125,7 @@ char cipcossin_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 fftw_plan back_fft(int, Tbl*&) ;
 //*****************************************************************************
 
@@ -204,4 +208,5 @@ void cipcossin(const int* deg, const int* dimc, const int* dimf,
       } 	// fin de la boucle sur r 
     }	// fin de la boucle sur theta
     
+}
 }

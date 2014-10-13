@@ -86,6 +86,9 @@ char circhebpip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:20  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:49  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -109,9 +112,11 @@ char circhebpip_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 fftw_plan back_fft(int, Tbl*&) ;
 double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
+
 //*****************************************************************************
 
 void circhebpip(const int* deg, const int* dimc, double* cf, 
@@ -272,6 +277,7 @@ int i, j, k ;
 
 	} 	// fin de la boucle sur theta 
 	
+
 	/*********** Cas l impair **********/
 	
 	for (k=1; k<n2c; k+=2) {
@@ -363,3 +369,5 @@ int i, j, k ;
     delete [] t1 ;
     
 }
+}
+

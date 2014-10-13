@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -88,6 +91,7 @@ char phys_param_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 
+namespace Lorene {
 const Vector Isol_hor::radial_vect_hor() const {
 
   Vector get_radial_vect (ff.get_mp(), CON, *(ff.get_triad()) ) ;
@@ -263,4 +267,5 @@ Scalar Isol_hor::expansion() const {
 	       0, gam().radial_vect(), 0) - trk() ; 
 
   return expa ;
+}
 }

@@ -31,6 +31,9 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2007/04/24 20:14:45  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -64,6 +67,7 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
         //---------------------------------------//
 
 
+namespace Lorene {
 void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
 
     // Computation of Grad(N) ---> stored in d_n_comp
@@ -123,4 +127,5 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
     // The derived quantities are obsolete
     // -----------------------------------
     del_deriv() ;
+}
 }

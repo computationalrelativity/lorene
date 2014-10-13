@@ -32,6 +32,9 @@ char bhole_binaire_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:12:58  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -204,6 +207,7 @@ char bhole_binaire_C[] = "$Header$" ;
 #include "graphique.h"
 
 // Constucteur standard
+namespace Lorene {
 Bhole_binaire::Bhole_binaire (Map_af& mp1, Map_af& mp2) :
 	hole1(mp1), hole2(mp2), pos_axe(mp1.get_ori_x()), omega(0){
 
@@ -255,3 +259,4 @@ void Bhole_binaire::set_pos_axe (double new_pos) {
 	hole2.mp.set_ori(pos_axe-distance_tot, 0, 0) ;
 }
 
+}

@@ -4,6 +4,8 @@
 #include "utilitaires.h"
 #include "graphique.h"
 
+using namespace Lorene ;
+
 int main() {
 
     cout << "All is to be done !" << endl ;

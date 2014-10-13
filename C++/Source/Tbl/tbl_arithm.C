@@ -31,6 +31,9 @@ char tbl_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2011/06/16 10:48:28  j_novak
  * Minor modif.
  *
@@ -70,6 +73,7 @@ char tbl_arithm_C[] = "$Header$" ;
 
 // + Tbl
 // -----
+namespace Lorene {
 Tbl operator+(const Tbl& t1)
 {
     // Protection
@@ -722,3 +726,4 @@ void Tbl::operator/=(double x) {
     // Termine
 }
 
+}

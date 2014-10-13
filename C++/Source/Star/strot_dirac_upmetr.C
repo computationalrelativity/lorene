@@ -30,6 +30,9 @@ char strot_dirac_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2005/03/25 13:47:26  j_novak
  * Added the update of log(Q).
  *
@@ -52,6 +55,7 @@ char strot_dirac_upmetr_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h" 
 
+namespace Lorene {
 void Star_rot_Dirac::update_metric(){
 
   // Lapse function 
@@ -124,3 +128,4 @@ void Star_rot_Dirac::update_metric(){
 
 
 
+}

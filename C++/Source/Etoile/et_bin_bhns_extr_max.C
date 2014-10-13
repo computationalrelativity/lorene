@@ -31,6 +31,9 @@ char et_bin_bhns_extr_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -49,6 +52,7 @@ char et_bin_bhns_extr_max_C[] = "$Header$" ;
 #include "et_bin_bhns_extr.h"
 //#include "utilitaires.h"
 
+namespace Lorene {
 void Et_bin_bhns_extr::ent_max_search(double& xx, double& yy) const {
 
     //------------------------------------------------------------------//
@@ -179,4 +183,5 @@ void Et_bin_bhns_extr::ent_max_search(double& xx, double& yy) const {
     xx = xxp ;
     yy = yyp ;
 
+}
 }

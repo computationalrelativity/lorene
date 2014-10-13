@@ -31,8 +31,11 @@ char mtbl_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  2000/09/27  14:21:12  eric
  * Multiplication par un double : on met le resultat a ETATZERO si
@@ -85,6 +88,7 @@ char mtbl_arithm_C[] = "$Header$" ;
 
 // + Mtbl
 // ------
+namespace Lorene {
 Mtbl operator+(const Mtbl& t1)	    // + Mtbl
 {
     // Protection
@@ -571,4 +575,5 @@ void Mtbl::operator*=(const Mtbl & mi) {
 	*(t[i]) *= *(mi.t[i]) ;
     }
 
+}
 }

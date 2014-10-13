@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2004/11/25 09:53:55  m_bejger
  * Corrected error in fait_d_psi() in the case where nzet > 1.
  *
@@ -192,6 +195,7 @@ char etoile_bin_C[] = "$Header$" ;
 #include "unites.h"	    
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 			    //--------------//
@@ -888,4 +892,5 @@ void Etoile_bin::relaxation(const Etoile_bin& star_jm1, double relax_ent,
     
     equation_of_state() ; 
 
+}
 }

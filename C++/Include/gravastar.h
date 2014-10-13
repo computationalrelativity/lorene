@@ -33,6 +33,7 @@
 // Headers Lorene
 #include "star_rot.h"
 
+namespace Lorene {
 class Eos ;
 
 			//--------------------------//
@@ -194,4 +195,5 @@ class Gravastar : public Star_rot {
 	
 };
 
+}
 #endif

@@ -31,6 +31,9 @@ char tenseur_pde_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/12/29 16:32:33  k_taniguchi
  * *** empty log message ***
  *
@@ -51,6 +54,7 @@ char tenseur_pde_ylm_C[] = "$Header$" ;
 
 // Version avec parametres
 // -----------------------
+namespace Lorene {
 void Tenseur::poisson_vect_ylm(double lambda, Param& para, Tenseur& shift,
 			       Tenseur& vecteur, Tenseur& scalaire, int nylm,
 			       double* intvec) const {
@@ -152,3 +156,4 @@ Tenseur Tenseur::poisson_vect_ylm(double lambda, Tenseur& vecteur,
     return resu ;
 }
 
+}

@@ -25,6 +25,9 @@ char val_solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -55,6 +58,7 @@ char val_solh_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _val_solh_pas_prevu (int, double, double) {
 
     cout << " Solution homogene pas prevue ..... : "<< endl ;
@@ -180,4 +184,5 @@ Tbl val_solh(int l, double alpha, double beta, int base_r) {
     
     Tbl res(val_solh[base_r](l, alpha, beta)) ;
     return res ;
+}
 }

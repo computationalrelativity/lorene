@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:52:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2014/10/06 15:12:56  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char spheroid_C[] = "$Header$" ;
 //  Constructors //
 //--------------// 
  
+namespace Lorene {
 Spheroid::Spheroid(const Map_af& map, double radius):
   h_surf(map), 
   jac2d(map, 2, COV, map.get_bvect_spher()),
@@ -1372,3 +1376,4 @@ Tensor Spheroid::derive_cov2d(const Tensor& uu) const {
 
 
 
+}

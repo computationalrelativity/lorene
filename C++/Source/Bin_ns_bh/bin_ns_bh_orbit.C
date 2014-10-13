@@ -31,6 +31,9 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 double  fonc_bin_ns_bh_orbit(double , const Param& ) ;
 
 //*************************************************************************
@@ -302,4 +306,5 @@ double fonc_bin_ns_bh_orbit(double om, const Param& parf) {
 
     return dnulg + dphi_cent ;
 
+}
 }

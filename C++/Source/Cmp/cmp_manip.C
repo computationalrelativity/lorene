@@ -25,6 +25,9 @@ char cmp_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:13:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -67,6 +70,7 @@ char cmp_manip_C[] = "$Header$" ;
  * Annule les n derniers coefficients en r dans la derniere zone
  */
  
+namespace Lorene {
 void Cmp::filtre (int n) {
     
     assert (etat != ETATNONDEF) ;
@@ -261,4 +265,5 @@ void Cmp::fixe_decroissance (int puis) {
 	    courant.mult_r_zec() ;
 	}
     }
+}
 }

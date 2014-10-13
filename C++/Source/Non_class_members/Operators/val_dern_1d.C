@@ -25,6 +25,9 @@ char val_dern_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:27  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/02/17 09:21:39  j_novak
  * New functions for calculating values of the derivatives of a function
  * using its Chebyshev coefficients.
@@ -49,6 +52,7 @@ char val_dern_1d_C[] = "$Header$" ;
  */
 
 
+namespace Lorene {
 double val1_dern_1d(int n, const Tbl& tb, int base_r)
 {
 
@@ -125,4 +129,5 @@ double valm1_dern_1d(int n, const Tbl& tb, int base_r)
   }
 
   return resu ;
+}
 }

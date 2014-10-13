@@ -40,6 +40,9 @@ char som_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:26  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,8 @@ char som_phi_C[] = "$Header$" ;
 #include <cmath>
 
 #include "headcpp.h"
+
+namespace Lorene {
 
 void som_phi_pas_prevu
     (double*, const int, const double, double*) {
@@ -120,4 +125,5 @@ void som_phi_cossin_i
 	*xo += ti[k+1] * sin(m * phi) ;
     }
 
+}
 }

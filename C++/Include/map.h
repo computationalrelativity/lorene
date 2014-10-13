@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.59  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.58  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -619,6 +622,7 @@
 #include "tbl.h"
 #include "itbl.h"
 
+namespace Lorene {
 class Scalar ;
 class Cmp ;
 class Param ; 
@@ -3873,4 +3877,5 @@ Mtbl* map_log_fait_sr2d2rdt2(const Map* ) ;
 
 Mtbl* map_log_fait_dxdlnr (const Map*) ;
 
+}
 #endif

@@ -34,6 +34,9 @@ char valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -193,6 +196,7 @@ char valeur_C[] = "$Header$" ;
 			// Constructeurs //
 			//---------------//
 
+namespace Lorene {
 Valeur::Valeur(const Mg3d& mgi) : mg(&mgi), base(mgi.get_nzone()) {
     
     // C'est nouveau
@@ -946,4 +950,5 @@ void Valeur::filtre_tp(int nn, int nz1, int nz2) {
 	}
     }
 
+}
 }

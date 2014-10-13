@@ -25,6 +25,9 @@ char val_solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -63,6 +66,7 @@ char val_solp_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _val_solp_pas_prevu (const Tbl&, double) {
 
     cout << " Base_r unknown in val_solp."<< endl ;
@@ -239,4 +243,5 @@ Tbl val_solp (const Tbl& sp, double alpha, int base_r) {
     
     Tbl res(val_solp[base_r](sp, alpha)) ;
     return res ;
+}
 }

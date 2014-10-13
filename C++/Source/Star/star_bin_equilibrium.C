@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.28  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -136,6 +139,7 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			   int mermax_poisson, double relax_poisson, 
 			   double relax_potvit, double thres_adapt,
@@ -1393,3 +1397,4 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
     
     
+}

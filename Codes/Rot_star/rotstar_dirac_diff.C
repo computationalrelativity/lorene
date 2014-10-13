@@ -47,16 +47,19 @@ char rotstar_dirac_C[] = "$Header$" ;
 #include "cmp.h"
 
 // Function defining the rotation profile
-double frotlin(double omega, const Tbl& par) ; 
-double primfrotlin(double omega, const Tbl& par) ; 
+double frotlin(double omega, const Lorene::Tbl& par) ; 
+double primfrotlin(double omega, const Lorene::Tbl& par) ; 
 
+namespace Lorene {
 // Local prototype (for drawings only)
 //Scalar raccord_c1(const Scalar& uu, int l1) ; 
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
-
+}
 
 
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

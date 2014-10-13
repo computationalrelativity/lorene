@@ -25,6 +25,9 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:29  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 
 // Version avec une fonction de theta, phi.
 
+namespace Lorene {
 void dirichlet_binaire (const Cmp& source_un, const Cmp& source_deux, 
 			const Valeur& boundary_un, const Valeur& boundary_deux, 
 				Cmp& sol_un, Cmp& sol_deux, int num_front, 
@@ -672,4 +676,5 @@ cost_mtbl_un(num_front+1, k, j, 0)*grad_sol_deux(3).val_point(air, theta, phi);
 	if (erreur < precision)
 	    indic = -1 ;
     }					
+}
 }

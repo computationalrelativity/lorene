@@ -30,6 +30,9 @@ char star_bhns_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 19:15:20  k_taniguchi
  * Change of a parameter.
  *
@@ -56,6 +59,7 @@ char star_bhns_global_C[] = "$Header$" ;
                     //          Baryon mass          //
                     //-------------------------------//
 
+namespace Lorene {
 double Star_bhns::mass_b() const {
 
     using namespace Unites ;
@@ -157,4 +161,5 @@ double Star_bhns::mass_g_bhns() const {
 
     return *p_mass_g_bhns ;
 
+}
 }

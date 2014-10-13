@@ -30,6 +30,9 @@ char diff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -54,6 +57,7 @@ char diff_C[] = "$Header$" ;
 #include "diff.h"
 
 
+namespace Lorene {
 Diff::Diff(int base_r, int nr) : base(base_r >> TRA_R), npoints(nr) {
 
     assert (base < MAX_BASE) ;
@@ -114,4 +118,5 @@ ostream& operator<<(ostream& ost, const Diff& ope) {
     ost << endl ;
 
     return ost ;
+}
 }

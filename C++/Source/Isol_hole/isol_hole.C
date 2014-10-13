@@ -25,10 +25,6 @@
  *
  */
 
-
-// Headers C
-#include "math.h"
-
 // Headers Lorene
 #include "isol_hole.h"
 #include "spheroid.h"
@@ -38,8 +34,8 @@
 #include "param.h"
 #include "unites.h"
 #include "proto.h"
-#include "map.h"
-#include "scalar.h"
+
+namespace Lorene {
 
     // Fundamental constants and units
     // -------------------------------
@@ -352,3 +348,4 @@ double Isol_hole::virial_residue() {
 
 
 
+}

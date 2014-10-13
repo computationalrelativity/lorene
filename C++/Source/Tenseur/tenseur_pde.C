@@ -26,6 +26,9 @@ char tenseur_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2006/06/01 12:47:54  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -111,6 +114,7 @@ char tenseur_pde_C[] = "$Header$" ;
 
 // Version avec parametres
 // -----------------------
+namespace Lorene {
 void Tenseur::poisson_vect(double lambda, Param& para, Tenseur& shift
 			    , Tenseur& vecteur, Tenseur& scalaire) const {
     assert (lambda != -1) ;
@@ -478,3 +482,4 @@ Tenseur Tenseur::poisson_vect_oohara_tau(double lambda, Tenseur& scalaire) const
     return resu ;
 }
 
+}

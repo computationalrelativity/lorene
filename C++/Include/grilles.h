@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.22  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -166,6 +169,7 @@
 
 #include "type_parite.h"
 
+namespace Lorene {
 class Base_val ; 
 
 		    	//-------------//
@@ -614,4 +618,5 @@ int leg_base_scal_odd_1z(int type_r, int type_t, int type_p) ;
 int jac02_base_scal_1z(int type_r, int type_t, int type_p) ; 
 int jac02_base_scal_odd_1z(int type_r, int type_t, int type_p) ; 
 
+}
 #endif 

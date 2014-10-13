@@ -23,6 +23,9 @@ char ope_helmholtz_minus_pseudo_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/08/24 09:14:46  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -38,6 +41,8 @@ char ope_helmholtz_minus_pseudo_1d_C[] = "$Header$" ;
 
 #include "proto.h"
 #include "ope_elementary.h"
+
+namespace Lorene {
 
 // Standard constructor :
 Ope_helmholtz_minus_pseudo_1d::Ope_helmholtz_minus_pseudo_1d 
@@ -71,4 +76,5 @@ void Ope_helmholtz_minus_pseudo_1d::dec_l_quant() {
 
   cout << "dec_l_quant not implemented for this operator." << endl ;
   abort() ;
+}
 }

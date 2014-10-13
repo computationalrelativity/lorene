@@ -30,6 +30,9 @@ char kerrschild_ah_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -64,6 +67,8 @@ char kerrschild_ah_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
+
+using namespace Lorene ;
 
 int main() {
 

@@ -29,6 +29,9 @@ char test_eos_fermi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:54:00  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2012/10/26 14:10:04  e_gourgoulhon
  * Simple code to test the class Eos
  *
@@ -48,6 +51,8 @@ char test_eos_fermi_C[] = "$Header$" ;
 
 
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

@@ -31,6 +31,9 @@ char cmp_pde_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/11/30 20:47:38  k_taniguchi
  * *** empty log message ***
  *
@@ -51,6 +54,7 @@ char cmp_pde_falloff_C[] = "$Header$" ;
 // Version without parameters
 // --------------------------
 
+namespace Lorene {
 Cmp Cmp::poisson_falloff(int k_falloff) const {
     
     Param bidon ;
@@ -68,4 +72,5 @@ void Cmp::poisson_falloff(Param& par, Cmp& uu, int k_falloff) const {
     
     mp->poisson_falloff(*this, par, uu, k_falloff) ;     
     
+}
 }

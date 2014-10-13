@@ -32,6 +32,9 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 #include "etoile.h"
 #include "proto_f77.h"
 
+namespace Lorene {
 double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 
 	const Map_radial* mprad = dynamic_cast<const Map_radial*>( sou_m.get_mp() ) ;
@@ -333,4 +337,5 @@ double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 	
     return lambda ;
 	
+}
 }

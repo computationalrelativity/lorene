@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/03/27 16:59:41  j_novak
  * Added methods next_position(int) and previous_position(int). Changed (corrected + simplified) the interpolation method.
  *
@@ -103,6 +106,7 @@
                         //---------------------------//
 
 
+namespace Lorene {
 /** Time evolution (*** under development ***). \ingroup (evol)
  * 
  * The template class \c Evolution has been devised to store and
@@ -431,6 +435,7 @@ template<typename TyT> class Evolution_std : public Evolution<TyT> {
 
 };
 
+}
 
 #include "Template/evolution.C"
 #include "Template/evolution_full.C"

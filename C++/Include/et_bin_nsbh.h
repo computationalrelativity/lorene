@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2006/09/25 10:01:45  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -65,6 +68,7 @@
 #include "etoile.h"
 #include "bhole.h"
 
+namespace Lorene {
 /**
  * Class for a star in a NS-BH binary system
  * 
@@ -401,4 +405,5 @@ class Et_bin_nsbh : public Etoile_bin {
 
 };
 
+}
 #endif

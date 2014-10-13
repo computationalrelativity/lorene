@@ -27,6 +27,9 @@ char kerrQI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2013/07/25 19:45:50  o_straub
  * calculation of the marginally bound radius
  *
@@ -58,6 +61,8 @@ char kerrQI_C[] = "$Header$" ;
 #include "proto.h"
 #include "graphique.h"
 
+
+using namespace Lorene ;
 
 int main() {
 

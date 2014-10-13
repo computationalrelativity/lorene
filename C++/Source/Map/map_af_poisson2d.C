@@ -32,6 +32,9 @@ char map_af_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2012/09/04 14:53:28  j_novak
  * Replacement of the FORTRAN version of huntm by a C one.
  *
@@ -72,6 +75,8 @@ char map_af_poisson2d_C[] = "$Header$" ;
 #include "proto_f77.h"
 
 //*****************************************************************************
+
+namespace Lorene {
 
 void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad, 
 		       Param& par, Cmp& uu) const {
@@ -371,3 +376,4 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 }
 
 
+}

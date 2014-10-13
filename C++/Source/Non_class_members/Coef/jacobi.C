@@ -1,3 +1,5 @@
+namespace Lorene {
+
 double* jacobi(int n, double x) {
 
   int i ;
@@ -18,4 +20,5 @@ double* jacobi(int n, double x) {
     }
   }
   return J ;
+}
 }

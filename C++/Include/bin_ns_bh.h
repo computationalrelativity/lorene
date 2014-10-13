@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2007/04/26 14:14:59  f_limousin
  * The function fait_tkij now have default values for bound_nn and lim_nn
  *
@@ -102,6 +105,7 @@
 #include "et_bin_nsbh.h"
 #include "bhole.h"
 
+namespace Lorene {
 /**
  * Neutron star - black hole binary system.
  *
@@ -327,4 +331,5 @@ class Bin_ns_bh {
 };
 ostream& operator<<(ostream& , const Bin_ns_bh& ) ;
 
+}
 #endif

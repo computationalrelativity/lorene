@@ -37,6 +37,9 @@ char op_sxpun_C[] = "$Header$" ;
  /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:26  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -92,6 +95,7 @@ char op_sxpun_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _sxpun_pas_prevu(Tbl * tb, int& base) {
     cout << "sxpun pas prevu..." << endl ;
     cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -175,3 +179,4 @@ void _sxpun_r_jaco02(Tbl* tb, int&)
     // inchangée
 }
 
+}

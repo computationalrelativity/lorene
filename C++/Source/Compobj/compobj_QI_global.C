@@ -32,6 +32,9 @@ char compobj_QI_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -75,6 +78,7 @@ char compobj_QI_global_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 double funct_compobj_QI_isco(double, const Param&) ; 
 double funct_compobj_QI_rmb(double, const Param&) ;
 
@@ -558,3 +562,4 @@ double funct_compobj_QI_rmb(double zeros, const Param& par){
 
 
 
+}

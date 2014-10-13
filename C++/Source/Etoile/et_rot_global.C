@@ -31,6 +31,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char et_rot_global_C[] = "$Header$" ;
 			//	Stellar surface	    //
 			//--------------------------//
 
+namespace Lorene {
 const Itbl& Etoile_rot::l_surf() const {
 
     if (p_l_surf == 0x0) {    // a new computation is required
@@ -577,3 +581,4 @@ double Etoile_rot::mom_quad() const {
 
 
 
+}

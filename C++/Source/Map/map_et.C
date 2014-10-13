@@ -29,6 +29,9 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -142,6 +145,7 @@ char map_et_C[] = "$Header$" ;
 // -----------------------
 // Constructor from a grid
 // -----------------------
+namespace Lorene {
 Map_et::Map_et(const Mg3d& mgrille, const double* bornes) 
 	      : Map_radial(mgrille),
 	        aasx( mgrille.get_nr(0) ), 
@@ -1045,3 +1049,4 @@ const Map_af& Map_et::mp_angu(int) const {
     return *p_mp_angu ;
 }
 
+}

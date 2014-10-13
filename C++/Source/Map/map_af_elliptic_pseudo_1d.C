@@ -30,6 +30,9 @@ char map_af_elliptic_pseudo_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/08/24 09:14:42  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -50,6 +53,8 @@ char map_af_elliptic_pseudo_1d_C[] = "$Header$" ;
 #include "param_elliptic.h"
 
 //*****************************************************************************
+
+namespace Lorene {
 
 void Map_af::sol_elliptic_pseudo_1d (Param_elliptic& ope_var, 
 			     const Scalar& source, Scalar& pot) const {
@@ -97,3 +102,4 @@ void Map_af::sol_elliptic_pseudo_1d (Param_elliptic& ope_var,
 }
 
 
+}

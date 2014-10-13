@@ -30,6 +30,9 @@ char map_af_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -100,6 +103,8 @@ char map_af_poisson_regu_C[] = "$Header$" ;
 #include "proto.h"
 
 //******************************************************************
+
+namespace Lorene {
 
 void Map_af::poisson_regular(const Cmp& source, int k_div, int nzet,
 			     double unsgam1, Param& par, Cmp& uu,
@@ -758,4 +763,5 @@ void Map_af::poisson_regular(const Cmp& source, int k_div, int nzet,
     delete [] tmp4 ;
 
 
+}
 }

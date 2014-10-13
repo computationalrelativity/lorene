@@ -36,6 +36,9 @@ char op_dsdphi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2013/04/25 15:46:06  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -92,6 +95,7 @@ char op_dsdphi_C[] = "$Header$" ;
 
 // Routine pour les cas non prevus
 //--------------------------------
+namespace Lorene {
 void _dsdphi_pas_prevu(Tbl* , int & b) {
     cout << "Unknown phi basis in Mtbl_cf::dsdp() !" << endl ;
     cout << " basis: " << hex << b << endl ;
@@ -413,4 +417,5 @@ void _dsdphi_p_cossin_i(Tbl* tb, int & )
     
     // base de developpement
     // inchangee
+}
 }

@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -83,6 +86,7 @@ char gval_from_spectral_C[] = "$Header$" ;
                  // Sommation depuis une grille spectrale
                  //--------------------------------------
 
+namespace Lorene {
 void Grille_val::somme_spectrale1(const Scalar& meudon, double* resu, int taille_in) const {
 
   int taille = dim.dim[0]+2*nfantome ;
@@ -771,4 +775,5 @@ void Gval_spher::initialize_spectral_phi(const Map& mp, const Base_val& base,
     } //Loop on mpm
   } //Loop on kpv
 
+}
 }

@@ -30,6 +30,9 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -56,6 +59,7 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "et_bin_bhns_extr.h"
 
+namespace Lorene {
 void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) const {
   
   //  IMPORTANT NOTE:
@@ -326,4 +330,5 @@ void Et_bin_bhns_extr::get_integrals(int nylm, double* intvec, Cmp** ylmvec,
     mm=mnew;
     ncount=nnew;
   }
+}
 }

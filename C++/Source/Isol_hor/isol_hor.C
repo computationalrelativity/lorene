@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.34  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -169,6 +172,7 @@ char isol_hor_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
+namespace Lorene {
 Isol_hor::Isol_hor(Map_af& mpi, int depth_in) : 
     Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher()),
     mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
@@ -1352,3 +1356,4 @@ void Isol_hor::adapt_hor(double c_min, double c_max) {
 
 }
 
+}

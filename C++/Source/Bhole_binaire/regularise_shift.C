@@ -25,6 +25,9 @@ char regularise_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:12:59  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -83,6 +86,7 @@ char regularise_shift_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "tenseur.h"
 
+namespace Lorene {
 double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega, double omega_local) {
     
     Tenseur shift_old (shift_auto) ;
@@ -177,4 +181,5 @@ double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega, doub
 	    }
     }
     return erreur ;
+}
 }

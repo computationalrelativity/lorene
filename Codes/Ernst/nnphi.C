@@ -28,6 +28,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:09:44  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -70,6 +73,8 @@ const double shift = 0.1;	// used to shift the cos-term
 
 
 //=============================================================
+
+using namespace Lorene ;
 
 int main() {
 

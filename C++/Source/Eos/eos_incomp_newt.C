@@ -31,6 +31,9 @@ char Eos_incomp_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -88,6 +91,7 @@ char Eos_incomp_newt_C[] = "$Header$" ;
 
 // Standard constructor with ent0 = 1
 // ---------------------------------
+namespace Lorene {
 Eos_incomp_newt::Eos_incomp_newt(double rho_c) : Eos_incomp(rho_c) {
 
     set_name("Newtonian EOS for incompressible matter") ;
@@ -294,4 +298,5 @@ double Eos_incomp_newt::der_press_ent_p(double ent, const Param* ) const {
     else{
 	return 0 ;
     }
+}
 }

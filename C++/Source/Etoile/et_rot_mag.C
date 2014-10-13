@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.23  2014/05/13 15:36:54  j_novak
  * *** empty log message ***
  *
@@ -124,6 +127,7 @@ char et_rot_mag_C[] = "$Header$" ;
 // --------------------
 
 
+namespace Lorene {
 Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 		       const int cond)
   : Etoile_rot(mp_i, nzet_i, relat, eos_i),
@@ -407,3 +411,4 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
 
 
 
+}

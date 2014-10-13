@@ -29,6 +29,9 @@ char map_log_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2012/01/17 10:33:43  j_penner
  * added a derivative with respect to the computational coordinate xi
  *
@@ -47,6 +50,7 @@ char map_log_deriv_C[] = "$Header$" ;
                     //---------------------------------------------------
                    // d/d\xi
                   //---------------------------------------------------
+namespace Lorene {
 void Map_log::dsdxi(const Scalar& uu, Scalar& resu) const {
 
   assert (uu.get_etat() != ETATNONDEF) ; 
@@ -204,4 +208,5 @@ void Map_log::dsdradial (const Scalar& uu, Scalar& resu) const {
     }
     resu.set_spectral_base( uuva.dsdx().get_base() ) ; // same basis as d/dxi
   }   
+}
 }

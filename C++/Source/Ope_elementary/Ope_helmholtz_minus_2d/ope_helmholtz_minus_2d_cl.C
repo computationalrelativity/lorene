@@ -32,6 +32,7 @@ char ope_helmholtz_minus_2d_cl_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Version Matrice --> Matrice
+namespace Lorene {
 Matrice _cl_helmholtz_minus_2d_pas_prevu (const Matrice & source, int) {
     cout << "Combinaison lineaire pas prevu..." << endl ;
     abort() ;
@@ -148,3 +149,4 @@ void Ope_helmholtz_minus_2d::do_ope_cl() const {
 }
 
 
+}

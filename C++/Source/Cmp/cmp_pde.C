@@ -31,6 +31,9 @@ char cmp_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2005/08/30 08:35:12  p_grandclement
  * Addition of the Tau version of the vectorial Poisson equation for the Tensors
  *
@@ -87,6 +90,7 @@ char cmp_pde_C[] = "$Header$" ;
 // Version without parameters
 // --------------------------
 
+namespace Lorene {
 Cmp Cmp::poisson() const {
     
     Param bidon ;
@@ -132,3 +136,4 @@ void Cmp::poisson_tau(Param& par, Cmp& uu) const {
     
 }
 
+}

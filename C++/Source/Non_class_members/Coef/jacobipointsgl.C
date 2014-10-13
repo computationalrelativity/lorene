@@ -1,5 +1,6 @@
 #include "tbl.h"
 
+namespace Lorene {
 double* jacobi(int , double) ;
 double* pointsgausslobatto(int) ;
 
@@ -21,4 +22,5 @@ Tbl jacobipointsgl(int n) {
  }
  delete [] pointsgl ;
  return jj ;
+}
 }

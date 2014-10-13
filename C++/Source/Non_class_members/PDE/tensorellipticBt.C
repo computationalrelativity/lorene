@@ -8,6 +8,7 @@
 #include "diff.h"
 
 
+namespace Lorene {
 // Inversion of the weakly degenerate eliptic operator associatd with spectral quantity tilde(B), with main characteristics
 //fit and fit2 (Suitable for tensorial resolution of BH spacetime)
 //See also function tilde(laplacian)
@@ -500,4 +501,5 @@
 	
 	resu = phi;
 
+}
 }

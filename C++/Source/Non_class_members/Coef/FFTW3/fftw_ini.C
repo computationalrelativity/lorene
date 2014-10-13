@@ -1,6 +1,8 @@
 #include <fftw3.h>
 #include "tbl.h"
 
+namespace Lorene {
+
 namespace {
   const int nmax = 50 ; //Maximal number of FFT sizes 
   int nworked = 0 ;
@@ -34,3 +36,4 @@ fftw_plan prepare_fft(int n, Tbl*& pg) {
   return plan_fft[index] ;
 }
 
+}

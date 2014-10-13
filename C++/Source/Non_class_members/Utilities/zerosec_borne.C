@@ -33,6 +33,9 @@ char zerosec_borne_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:16:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -60,6 +63,7 @@ char zerosec_borne_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "param.h"
 //****************************************************************************
+namespace Lorene {
 
 double zerosec_b(double (*f)(double, const Param&), const Param& parf, 
     double x1, double x2, double precis, int nitermax, int& niter) {
@@ -128,3 +132,4 @@ double zerosec_b(double (*f)(double, const Param&), const Param& parf,
 
 
 
+}

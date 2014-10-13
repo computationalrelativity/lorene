@@ -30,6 +30,9 @@ char zero_premier_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -52,6 +55,8 @@ char zero_premier_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "param.h"
 //****************************************************************************
+
+namespace Lorene {
 
 bool zero_premier(double (*f)(double, const Param&), const Param& par,
 		  double a, double b, int n, double& a0, double& b0) {
@@ -79,4 +84,5 @@ bool zero_premier(double (*f)(double, const Param&), const Param& par,
     
     return trouve ; 
 
+}
 }

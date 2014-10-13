@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:54:04  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2004/03/29 14:31:39  j_novak
  * set_der_0x0 is no longer virtual cvs update
  *
@@ -44,6 +47,8 @@
  * $Header$
  *
  */
+
+namespace Lorene { // All Lorene stuff is part of a single namespace
 
 // External classes which appear in the declaration of class XXX:
 class YYY ; 
@@ -107,5 +112,7 @@ class XXX {
 
 
 };
+
+} // End of namespace declaration
 
 #endif

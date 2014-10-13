@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2004/06/22 08:49:56  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -75,6 +78,7 @@ double moins_sur(double) ;
 double moins_log(double) ;
 double plus_sur(double) ;
 
+namespace Lorene {
 /**
  * This class defines a variable change to be used when solving 
  * elliptic equations. In {\em one particular domain}, 
@@ -145,4 +149,5 @@ class Change_var {
   double val_der_G (double x) ; /// Returns the value of \f$G'\f$ at {\tt x}.
 } ;
 
+}
 #endif

@@ -32,6 +32,9 @@ char Grille_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2013/07/15 13:14:41  j_novak
  * Correcting copy constructor and operator =
  *
@@ -68,6 +71,7 @@ char Grille_val_C[] = "$Header$" ;
 			//---------------//
 
 // Fonction auxilliaire
+namespace Lorene {
 Tbl* Grille_val::fait_grille1D(const double rmin, const double rmax, const
 			       int n) 
 {
@@ -768,4 +772,5 @@ ostream& Gval_spher::operator>>(ostream& o) const {
   }
   
   return o ;
+}
 }

@@ -30,6 +30,9 @@ char kerr_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2013/04/04 08:53:47  e_gourgoulhon
  * Minor improvements
  *
@@ -58,6 +61,7 @@ char kerr_QI_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Kerr_QI::Kerr_QI(Map& mpi, double mass, double a_over_m) :
 			 Compobj_QI(mpi)
 {
@@ -214,3 +218,4 @@ ostream& Kerr_QI::operator>>(ostream& ost) const {
 			    //	Computational methods  //
 			    //-------------------------//
 			    
+}

@@ -31,8 +31,11 @@ char coord_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2000/02/25  10:24:40  eric
  * Remplacement de la variable globale nom_C (!) par arithm_coord_C
@@ -48,6 +51,8 @@ char coord_arithm_C[] = "$Header$" ;
 // Headers Lorene
 #include "coord.h"
 #include "mtbl.h"
+
+namespace Lorene {
 
 /************************************************************************/
 /*			operations sur Coord -> Mtbl			*/
@@ -160,3 +165,4 @@ Mtbl operator*(const Coord& c2, const Mtbl& m1) {
 }
 
 
+}

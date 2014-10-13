@@ -30,6 +30,9 @@ char map_et_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2005/11/24 09:25:07  j_novak
  * Added the Scalar version for the Laplacian
  *
@@ -68,6 +71,7 @@ char map_et_lap_C[] = "$Header$" ;
 
 
 // Laplacian: Scalar version
+namespace Lorene {
 void Map_et::laplacien(const Scalar& uu, int zec_mult_r, Scalar& resu) const {
  
     assert (uu.get_etat() != ETATNONDEF) ; 
@@ -284,3 +288,4 @@ void Map_et::lapang(const Scalar& , Scalar& ) const {
 }
 
 
+}

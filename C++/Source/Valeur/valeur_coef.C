@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2013/06/07 14:44:34  j_novak
  * Coefficient computation for even Legendre basis.
  *
@@ -131,6 +134,7 @@ char valeur_coef_C[] = "$Header$" ;
 #include "proto.h"
 
 // Prototypage local
+namespace Lorene {
 void pasprevu_r(const int*, const int*, double*, const int*, double*) ;
 void pasprevu_t(const int*, const int*, double*, const int*, double*) ;
 void pasprevu_p(const int* ,const int* ,  double* ) ;
@@ -375,3 +379,4 @@ void base_non_def_p(const int*, const int*, double*) {
     abort() ;
 }
 
+}

@@ -29,6 +29,9 @@ char fread_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -62,6 +65,7 @@ char fread_be_C[] = "$Header$" ;
 			//	int version 	   //
 			//-------------------------//
 			
+namespace Lorene {
 int fread_be(int* aa, int size, int nb, FILE* fich) {
 
 	assert(size == 4) ;
@@ -154,3 +158,4 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 		
 }
 
+}

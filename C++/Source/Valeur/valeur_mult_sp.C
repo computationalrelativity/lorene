@@ -31,6 +31,9 @@ char valeur_mult_sp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:23  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -62,6 +65,7 @@ char valeur_mult_sp_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Local prototypes
+namespace Lorene {
 void _mult_sp_pas_prevu(Tbl*, int&) ;
 void _mult_sp_p_cossin(Tbl*, int&) ;
 void _mult_sp_p_cossin_p(Tbl*, int&) ;
@@ -142,4 +146,5 @@ static int nap = 0 ;
 	assert(t[l] != 0x0) ;
 	_mult_sp[base_p](t[l], base.b[l]) ;
     }
+}
 }

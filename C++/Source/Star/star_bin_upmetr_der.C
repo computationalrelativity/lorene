@@ -32,6 +32,9 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.16  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -94,6 +97,7 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
+namespace Lorene {
 void Star_bin::update_metric_der_comp(const Star_bin& comp, double om) {
   
   // Derivatives of metric coefficients
@@ -282,3 +286,4 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp, double om) {
   
 }      
 
+}

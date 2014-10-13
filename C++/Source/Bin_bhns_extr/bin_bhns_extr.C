@@ -30,6 +30,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -78,6 +81,7 @@ char bin_bhns_extr_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Bin_bhns_extr::Bin_bhns_extr(Map& mp, int nzet, const Eos& eos, bool irrot,
 			     bool relat, bool kerrs, bool multi)
     : ref_triad(0., "Absolute frame Cartesian basis"),
@@ -365,4 +369,5 @@ void Bin_bhns_extr::display_poly(ostream& ost) const {
 
     }
 
+}
 }

@@ -33,6 +33,9 @@ char admissible_fft_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:18  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/12/21 17:06:02  j_novak
  * Added all files for using fftw3.
  *
@@ -47,6 +50,8 @@ char admissible_fft_C[] = "$Header$" ;
  *
  */
  
+namespace Lorene {
+
 bool admissible_fft(int n) {
      
     if (n < 4) {
@@ -63,3 +68,4 @@ bool admissible_fft(int n) {
      
     return true ;
  }
+}

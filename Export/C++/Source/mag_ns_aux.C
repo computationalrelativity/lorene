@@ -31,6 +31,9 @@ char mag_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:54:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/05/13 10:06:45  j_novak
  * Update to take unto account the change in Lorene magnetic units.
  *
@@ -60,6 +63,7 @@ char mag_ns_aux_C[] = "$Header$" ;
 		    //	    Constructor from LORENE data      //
 		    //----------------------------------------//
 
+namespace Lorene {
 Mag_NS::Mag_NS(int nbpoints, const double* xi, const double* yi,
 	       const double* zi, const char* filename)
 	       : np(nbpoints) {
@@ -324,3 +328,4 @@ Mag_NS::Mag_NS(int nbpoints, const double* xi, const double* yi,
      delete p_eos ;
 }
 
+}

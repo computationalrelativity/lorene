@@ -23,6 +23,9 @@ char param_elliptic_2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char param_elliptic_2d_C[] = "$Header$" ;
 #include "scalar.h"
 
 
+namespace Lorene {
 void Param_elliptic::set_poisson_2d(const Scalar& source, bool indic) {
 
   int dzpuis = source.get_dzpuis() ;
@@ -134,3 +138,4 @@ void Param_elliptic::set_helmholtz_minus_2d(int zone, double masse, const Scalar
   }
 }
 
+}

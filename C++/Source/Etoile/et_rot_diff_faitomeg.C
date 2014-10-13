@@ -33,6 +33,9 @@ char et_rot_diff_faitomeg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2003/05/14 20:07:00  e_gourgoulhon
  * Suppressed the outputs (cout)
  *
@@ -59,6 +62,7 @@ char et_rot_diff_faitomeg_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
+namespace Lorene {
 double et_rot_diff_fzero(double omeg, const Param& par) ;
 
 
@@ -225,4 +229,5 @@ void Et_rot_diff::fait_prim_field() {
     prim_field.set_std_base() ;
     
     
+}
 }

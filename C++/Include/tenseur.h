@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2010/02/02 13:34:12  e_gourgoulhon
  * Marked DEPRECATED (in the documentation).
  *
@@ -266,6 +269,7 @@
 #include "itbl.h"
 #include "base_vect.h"
 
+namespace Lorene {
 class Metrique ;
 class Tenseur_sym ;
 
@@ -1458,4 +1462,5 @@ Tenseur_sym operator/(const Tenseur_sym&, int ) ;     ///< Tenseur_sym / int
 
 
 
+}
 #endif

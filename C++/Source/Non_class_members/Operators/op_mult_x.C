@@ -25,6 +25,9 @@ char op_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2008/08/27 11:22:25  j_novak
  * Minor modifications
  *
@@ -71,6 +74,7 @@ char op_mult_x_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _mult_x_pas_prevu(Tbl * tb, int& base) {
     cout << "mult_x pas prevu..." << endl ;
     cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -650,3 +654,4 @@ void _mult_x_r_jaco02(Tbl* tb, int&)
 
 }
 
+}

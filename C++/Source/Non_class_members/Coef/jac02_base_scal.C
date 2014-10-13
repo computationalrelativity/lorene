@@ -32,6 +32,9 @@ char jac02_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:12  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2013/06/05 15:10:43  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -54,6 +57,7 @@ char jac02_base_scal_C[] = "$Header$" ;
 		    //------------------------------//
 
 // Cree la base standart pour une zone
+namespace Lorene {
 int jac02_base_scal_1z(int type_r, int type_t, int type_p) {
     
   // Base d'echantillonnage en (r,theta,phi) a determiner :
@@ -178,4 +182,5 @@ int jac02_base_scal_1z(int type_r, int type_t, int type_p) {
   
   // On range le resultat
   return base_l ;
+}
 }

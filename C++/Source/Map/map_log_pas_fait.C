@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -81,6 +84,7 @@ char map_log_pas_fait_C[] = "$Header $" ;
 #include "grilles.h"
 #include "map.h"
 
+namespace Lorene {
 void pas_fait() {
   cout << "Function not implemented for Map_log..." << endl ;
   abort() ;
@@ -205,4 +209,5 @@ void Map_log::poisson_falloff(const Cmp&, Param&, Cmp&, int) const {
 
 void Map_log::poisson_ylm(const Cmp&, Param&, Cmp&, int, double*) const {
   pas_fait() ;
+}
 }

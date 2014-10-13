@@ -33,6 +33,9 @@ char mtbl_cf_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2009/10/23 12:56:19  j_novak
  * New base T_LEG_MI
  *
@@ -73,6 +76,7 @@ char mtbl_cf_lapang_C[] = "$Header$" ;
 
 
 // Prototypage des fonctions utilisees:
+namespace Lorene {
 void _lapang_pas_prevu(Mtbl_cf *, int) ;
 void _lapang_t_leg_p(Mtbl_cf *, int) ;
 void _lapang_t_leg_i(Mtbl_cf *, int) ;
@@ -117,4 +121,5 @@ static int nap = 0 ;
 	_lapang[base_t](this, l) ;
     }
     
+}
 }

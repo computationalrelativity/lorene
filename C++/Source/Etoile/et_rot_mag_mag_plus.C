@@ -32,6 +32,9 @@ char et_rot_mag_mag_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -98,6 +101,8 @@ char et_rot_mag_mag_plus_C[] = "$Header$" ;
 #include "proto_f77.h"
 #include "graphique.h"
 #include "unites.h"
+
+namespace Lorene {
 
 // Algo du papier de 1995
 
@@ -534,3 +539,4 @@ void Et_rot_mag::magnet_comput_plus(const int adapt_flag,
 
 
 
+}

@@ -29,6 +29,9 @@ char test_jacobi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:09:46  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -48,17 +51,6 @@ char test_jacobi_C[] = "$Header$" ;
  */
 
 
-// version of 06.12.1999
-// version of 13.12.1999
-// version of 14.12.1999
-// version of 15.12.1999
-// version of 16.12.1999
-// version of 17.12.1999
-// version of 20.12.1999
-// version of 21.12.1999
-// version of 23.12.1999
-// version of 24.12.1999
-
 // headers C
 #include <cstdlib>
 #include <cmath>
@@ -70,13 +62,14 @@ char test_jacobi_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
+namespace Lorene {
 // Local prototypes:
 Cmp eos_local(const Cmp& ent, int nzet, double n_index) ;
 double funct_zero_ent(double r, const Param& par) ;
-
+}
 //**********************************************************************
 
-void main(){
+int main(){
 
     // Identification of all the subroutines called by the code : 
 

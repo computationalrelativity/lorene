@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -151,6 +154,7 @@ char mg3d_C[] = "$Header$" ;
 //=============================================================================
 
 
+namespace Lorene {
 Mg3d::Mg3d(int nz, int nbr[], int typr[], int nbt[], int typt, int nbp[], 
 	   int typp, int* base_r)
     : nzone(nz), type_t(typt), type_p(typp)
@@ -661,4 +665,5 @@ bool Mg3d::operator==(const Mg3d& mgi) const {
 
   return resu ;
 
+}
 }

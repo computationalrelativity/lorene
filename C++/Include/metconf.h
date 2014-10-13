@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2003/03/03 19:09:44  f_limousin
  * Add a constructor from a tensor and a metric.
  *
@@ -60,6 +63,7 @@
 // Headers Lorene 
 #include "metrique.h"
 
+namespace Lorene {
 /**
  * Pseudo-metric handling.
  * 
@@ -229,4 +233,5 @@ class Metconf: public Metrique {
 
 };
 
+}
 #endif

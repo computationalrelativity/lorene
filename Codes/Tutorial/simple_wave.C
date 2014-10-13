@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:54:04  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2005/03/25 20:39:27  e_gourgoulhon
  * Call to the new function des_coupe_z for Scalar's.
  *
@@ -96,6 +99,8 @@ char simple_wave_C[] = "$Header$" ;
 #include "evolution.h"
 #include "utilitaires.h"
 
+
+using namespace Lorene ;
 
 int main() {
 

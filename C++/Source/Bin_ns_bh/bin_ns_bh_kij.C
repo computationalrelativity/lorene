@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -81,6 +84,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 #include "graphique.h"
+
+namespace Lorene {
+
 /**
  * Computes (LB)^{ij} auto.
  * To be used only when computing the total extrinsic curvature tensor
@@ -571,4 +577,5 @@ void Bin_ns_bh::fait_tkij (int bound_nn, double lim_nn) {
     star.akcar_comp.set_std_base() ;
     star.akcar_comp = star.a_car % star.akcar_comp ;
   }
+}
 }

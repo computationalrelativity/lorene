@@ -28,6 +28,9 @@ char binary_global_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2010/12/21 11:15:46  m_bejger
  * Linear momentum properly defined
  *
@@ -75,6 +78,7 @@ char binary_global_xcts_C[] = "$Header$" ;
 		    //		ADM mass                   //
 		    //---------------------------------//
 
+namespace Lorene {
 double Binary_xcts::mass_adm() const {
     
   using namespace Unites ;
@@ -350,4 +354,5 @@ double Binary_xcts::virial_vol() const {
     
     return *p_virial_vol ; 
     
+}
 }

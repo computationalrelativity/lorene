@@ -33,6 +33,9 @@ char eos_balbn1h1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -59,6 +62,7 @@ char eos_balbn1h1_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------			
+namespace Lorene {
 Eos_BalbN1H1::Eos_BalbN1H1(const char* path)
 		: Eos_tabul(
 		"EOS BalbN1H1 [Balberg  (2000)]",
@@ -129,3 +133,4 @@ ostream& Eos_BalbN1H1::operator>>(ostream & ost) const {
 }
 
 			
+}

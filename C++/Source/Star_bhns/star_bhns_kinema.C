@@ -30,6 +30,9 @@ char star_bhns_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -54,6 +57,7 @@ char star_bhns_kinema_C[] = "$Header$" ;
 #include "star_bhns.h"
 #include "unites.h"
 
+namespace Lorene {
 void Star_bhns::kinema_bhns(bool kerrschild, const double& mass_bh,
 			    const double& sepa, double omega,
 			    double x_rot, double y_rot) {
@@ -175,4 +179,5 @@ void Star_bhns::kinema_bhns(bool kerrschild, const double& mass_bh,
 
     del_deriv() ;
 
+}
 }

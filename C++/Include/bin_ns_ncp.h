@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2004/01/14 15:48:03  f_limousin
  * Initial revision
  *
@@ -58,6 +61,7 @@
 #include "et_bin_ncp.h"
 #include "binaire.h"
 
+namespace Lorene {
 /**
  * Extended description of the class for Doc++ documentation
  * 
@@ -369,4 +373,5 @@ class Bin_ns_ncp {
 };
 ostream& operator<<(ostream& , const Bin_ns_ncp& ) ;	
 
+}
 #endif

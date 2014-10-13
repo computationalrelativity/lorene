@@ -30,6 +30,9 @@ char itbl_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:36:38  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -54,6 +57,7 @@ char itbl_arithm_C[] = "$Header$" ;
 
 // + Itbl
 // -----
+namespace Lorene {
 Itbl operator+(const Itbl& t1)
 {
     // Protection
@@ -501,4 +505,5 @@ void Itbl::operator*=(int x) {
     }
     
     // Termine
+}
 }

@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:53:43  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -110,6 +113,7 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 #include "metric.h"
 #include "param.h"
 
+namespace Lorene {
 void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
 					  double precis, int it_max ) {
 
@@ -328,4 +332,5 @@ void Sym_tensor_trans::set_AtB_trace(const Scalar& a_in, const Scalar& tb_in,
 
     return ;
 
+}
 }

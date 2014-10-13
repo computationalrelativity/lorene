@@ -31,6 +31,9 @@ char des_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:21  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -66,6 +69,7 @@ char des_coef_C[] = "$Header$" ;
 // PGPLOT headers:
 #include <cpgplot.h>
 
+namespace Lorene {
 //******************************************************************************
  
 void des_coef(const double* cf, int n, double pzero,
@@ -159,3 +163,4 @@ void des_coef(const double* cf, int n, double pzero,
 }
 
 
+}

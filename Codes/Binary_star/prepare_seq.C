@@ -28,6 +28,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:09:41  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -46,18 +49,16 @@ char prepare_seq_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include <iostream>
-#include <fstream>
-using namespace std ; 
-
 // C headers
 #include <cmath>
+#include <cstdlib>
 #include "unites.h"
-
+#include "headcpp.h"
 
 #define maxval(a,b) a < b ? b : a
 #define minval(a,b) a > b ? b : a
+
+using namespace Lorene ;
 
 int main() {
 

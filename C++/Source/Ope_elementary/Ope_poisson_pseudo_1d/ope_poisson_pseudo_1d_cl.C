@@ -32,6 +32,7 @@ char ope_poisson_pseudo_1d_cl_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Version Matrice --> Matrice
+namespace Lorene {
 Matrice _cl_poisson_pseudo_1d_pas_prevu (const Matrice & so) {
     cout << "Combinaison lineaire pas prevu..." << endl ;
     abort() ;
@@ -153,3 +154,4 @@ void Ope_poisson_pseudo_1d::do_ope_cl() const {
 }
 
 
+}

@@ -36,6 +36,7 @@ char ope_helmholtz_minus_2d_non_dege_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _helmholtz_minus_2d_non_dege_pas_prevu(const Matrice &lap, int) {
     cout << "Construction non degeneree pas prevue..." << endl ;
     abort() ;
@@ -124,4 +125,5 @@ void Ope_helmholtz_minus_2d::do_non_dege() const {
     helmholtz_minus_2d_non_dege[R_CHEBU >> TRA_R] = _helmholtz_minus_2d_non_dege_r_chebu ;
   }
   non_dege = new Matrice(helmholtz_minus_2d_non_dege[base_r](*ope_cl, dzpuis)) ;
+}
 }

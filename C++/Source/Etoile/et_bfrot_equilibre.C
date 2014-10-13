@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2014/10/06 15:13:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -114,6 +117,8 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 
 #include "graphique.h"
 #include "utilitaires.h"
+
+namespace Lorene {
 
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
@@ -953,3 +958,4 @@ void Et_rot_bifluid::equilibrium_bi
 
 }
 
+}

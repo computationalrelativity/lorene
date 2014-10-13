@@ -30,6 +30,9 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:18  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -88,6 +91,7 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h" 
 
+namespace Lorene {
 void Star_rot_Dirac::equilibrium(double ent_c, double omega0, 
 	         double fact_omega, int , const Tbl& ent_limit,
 		 const Itbl& icontrol, const Tbl& control,
@@ -567,4 +571,5 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   fichevol.close() ; 
 
 
+}
 }

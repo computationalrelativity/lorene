@@ -30,6 +30,9 @@ char map_et_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2013/06/05 15:10:42  j_novak
  * Suppression of FINJAC sampling in r. This Jacobi(0,2) base is now
  * available by setting colloc_r to BASE_JAC02 in the Mg3d constructor.
@@ -76,6 +79,7 @@ char map_et_radius_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local prototypes
+namespace Lorene {
 double fonc_invr_map_et_noyau(double, const Param&) ; 
 double fonc_invr_map_et_coq(double, const Param&) ; 
 double fonc_invr_map_et_zec(double, const Param&) ; 
@@ -654,3 +658,4 @@ double fonc_invr_map_et_zec(double x, const Param& par) {
  
 }
 
+}

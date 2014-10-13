@@ -34,6 +34,9 @@ char valeur_dsdp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:23  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -83,6 +86,7 @@ char valeur_dsdp_C[] = "$Header$" ;
 #include "valeur.h"
 
 // Prototypage 
+namespace Lorene {
 void _dsdphi_pas_prevu(Tbl *, int &) ;
 void _dsdphi_p_cossin(Tbl *, int &) ;
 void _dsdphi_p_cossin_p(Tbl *, int &) ;
@@ -161,4 +165,5 @@ static int nap = 0 ;
 	assert(t[l] != 0x0) ;
 	_dsdphi[base_p](t[l], base.b[l]) ;
     }
+}
 }

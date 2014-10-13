@@ -27,6 +27,7 @@ char name_of_this_file_C[] = "$Header$" ;
 
 #include "cmp.h"
 
+namespace Lorene {
 Cmp prolonge_c1(const Cmp& uu, const int nzet) {
 
   const Map_radial* mpi = dynamic_cast<const Map_radial*>( uu.get_mp() ) ; 
@@ -113,4 +114,5 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) {
   resu += resu2 ;
   resu.std_base_scal() ;
   return resu ;
+}
 }

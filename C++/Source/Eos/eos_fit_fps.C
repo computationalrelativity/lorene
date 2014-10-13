@@ -30,6 +30,9 @@ char eos_fit_fps_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/10/24 19:14:53  k_taniguchi
  * Correction of the file name which is called in the constructor from file.
  *
@@ -52,6 +55,7 @@ char eos_fit_fps_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Eos_fit_FPS::Eos_fit_FPS(const char* path)
     : Eos_fitting("EOS fitted to FPS", "eos_fit_fps.d", path)
 {}
@@ -114,4 +118,5 @@ ostream& Eos_fit_FPS::operator>>(ostream& ost) const {
 
     return ost ;
 
+}
 }

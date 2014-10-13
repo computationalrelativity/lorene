@@ -37,6 +37,7 @@ char ope_vorton_mat_C[] = "$Header$" ;
                      // Routine pour les cas non prevus -- 
                      //-----------------------------------
 
+namespace Lorene {
 Matrice _vorton_mat_pas_prevu(int, double, double, int, int) {
   cout << "Vorton : base not implemented..." << endl ;
   abort() ;
@@ -109,4 +110,5 @@ void Ope_vorton::do_ope_mat() const {
     vorton_mat[R_CHEBU >> TRA_R] = _vorton_mat_r_chebu ;
   }
   ope_mat = new Matrice(vorton_mat[base_r](nr, alpha, beta, l_quant, dzpuis)) ;
+}
 }

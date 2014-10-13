@@ -33,6 +33,9 @@ char eos_strange_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -91,6 +94,7 @@ char eos_strange_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Eos_strange::Eos_strange(double n0_b60_i, double b60_i, double ent0_i, 
 		    double eps_fit_i, double rho0_b60_i) :
 	     Eos("Strange matter EOS from Zdunik (2000)"), 
@@ -404,3 +408,4 @@ double Eos_strange::der_press_ent_p(double ent, const Param* ) const {
     }
 }
 
+}

@@ -27,6 +27,9 @@ char altBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/04/11 17:22:07  o_straub
  * Risco and Rms output for GYOTO
  *
@@ -64,6 +67,8 @@ using namespace std ;
 #include "proto.h"
 #include "graphique.h"
 
+
+using namespace Lorene ;
 
 int main() {
 

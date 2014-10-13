@@ -33,6 +33,9 @@ char cmp_test_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -51,6 +54,7 @@ char cmp_test_poisson_C[] = "$Header$" ;
 // Headers Lorene
 #include "cmp.h"
 
+namespace Lorene {
 Tbl Cmp::test_poisson(const Cmp& uu, ostream& ostr, bool detail) const {
     
     assert( uu.get_mp() == mp ) ; 
@@ -145,3 +149,4 @@ Tbl Cmp::test_poisson(const Cmp& uu, ostream& ostr, bool detail) const {
 
 }
 
+}

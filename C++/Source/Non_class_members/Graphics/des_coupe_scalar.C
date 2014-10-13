@@ -25,6 +25,9 @@ char des_coupe_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:21  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -51,6 +54,7 @@ char des_coupe_scalar_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void des_coupe_x(const Scalar& uu, double x0, int nzdes, const char* title, 
 		 const Scalar* defsurf, double zoom, bool draw_bound, 
 		 int ncour, int ny, int nz) {
@@ -402,3 +406,4 @@ void des_coupe_z(const Scalar& uu, double z0, double x_min, double x_max,
 
 } 
 
+}

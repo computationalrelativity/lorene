@@ -29,6 +29,9 @@ char test_poisson_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:54:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2006/06/05 09:48:33  j_novak
  * Using version 6 of the vector Poisson solver
  *
@@ -45,6 +48,8 @@ char test_poisson_vect_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
+
+using namespace Lorene ;
 
 int main() {
 

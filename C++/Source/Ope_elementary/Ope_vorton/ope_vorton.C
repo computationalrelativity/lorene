@@ -31,6 +31,7 @@ char ope_vorton_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
+namespace Lorene {
 Ope_vorton::Ope_vorton (int nbr, int base, double alf, 
 				    double bet, int lq, int dz) : 
   Ope_elementary(nbr, base, alf, bet), l_quant(lq), dzpuis(dz) {
@@ -54,4 +55,5 @@ void Ope_vorton::dec_l_quant() {
 
   cout << "dec_l_quant not implemented for this operator." << endl ;
   abort() ;
+}
 }

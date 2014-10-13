@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2012/01/02 13:52:57  j_novak
  * New parameter 'verbose' to get less output if needed.
  *
@@ -58,6 +61,7 @@
 // Headers Lorene
 #include "metric.h" 
 
+namespace Lorene {
 /**
  * Class for apparent horizon (under heavy development)
  * 
@@ -119,4 +123,5 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd_in, Valeur& h, Scalar
 	       bool print = false, double precis = 1.e-8, double precis_exp = 1.e-6,  
 	       int it_max = 200, int it_relax = 200, double relax_fac = 1.) ;
 		
+}
 #endif

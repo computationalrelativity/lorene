@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:54:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2010/01/31 16:37:29  e_gourgoulhon
  * The number of points is no longer asked to the user but set to 16.
  *
@@ -51,6 +54,8 @@
 #include "valeur.h"
 #include "map.h"
 #include "graphique.h"
+
+using namespace Lorene ;
 
 int main(){
 

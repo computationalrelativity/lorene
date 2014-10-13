@@ -31,6 +31,9 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2013/06/07 14:44:33  j_novak
  * Coefficient computation for even Legendre basis.
  *
@@ -115,6 +118,7 @@ char grille3d_C[] = "$Header$" ;
 
 // Constructeur
 //-------------
+namespace Lorene {
 Grille3d::Grille3d(int nrs, int nts, int nps, int typer, int typet,
 		   int typep, int baser) 
   : nr(nrs), nt(nts), np(nps), type_r(typer), type_t(typet),
@@ -225,3 +229,4 @@ void Grille3d::compute_radial_grid() {
 }
 
 
+}

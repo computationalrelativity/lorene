@@ -32,6 +32,9 @@ char et_rot_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:58  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2004/10/11 15:09:02  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -62,6 +65,7 @@ char et_rot_upmetr_C[] = "$Header$" ;
 #include "etoile.h"
 
 
+namespace Lorene {
 void Etoile_rot::update_metric() {
  
     // Lapse function N
@@ -109,4 +113,5 @@ void Etoile_rot::update_metric() {
 
     del_deriv() ;  
 
+}
 }

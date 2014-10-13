@@ -30,6 +30,9 @@ char hole_bhns_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:00  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -62,6 +65,7 @@ char hole_bhns_global_C[] = "$Header$" ;
                     //          Irreducible mass of BH         //
                     //-----------------------------------------//
 
+namespace Lorene {
 double Hole_bhns::mass_irr_bhns() const {
 
     // Fundamental constants and units
@@ -244,4 +248,5 @@ double Hole_bhns::spin_am_bhns(const Tbl& xi_i, const double& phi_i,
 
     return *p_spin_am_bhns ;
 
+}
 }

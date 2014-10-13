@@ -30,6 +30,9 @@ char bin_bhns_rotaxis_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -51,6 +54,7 @@ char bin_bhns_rotaxis_C[] = "$Header$" ;
 #include "bin_bhns.h"
 #include "unites.h"
 
+namespace Lorene {
 void Bin_bhns::rotation_axis_x(double rot_exp_x) {
 
     using namespace Unites ;
@@ -149,4 +153,5 @@ void Bin_bhns::rotation_axis_y(double thres_rot, double rot_exp_y,
 
     set_y_rot() = 0. ;
 
+}
 }

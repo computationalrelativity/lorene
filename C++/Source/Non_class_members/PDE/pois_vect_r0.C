@@ -28,6 +28,9 @@ char pois_vect_r0_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:29  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2007/01/23 17:08:46  j_novak
  * New function pois_vect_r0.C to solve the l=0 part of the vector Poisson
  * equation, which involves only the r-component.
@@ -52,6 +55,7 @@ char pois_vect_r0_C[] = "$Header$" ;
  * and returns the soluton f. 
  * The input Scalar must have dzpuis = 4.
  */
+namespace Lorene {
 Scalar pois_vect_r0(const Scalar& source) {
 
     const Map& map0 = source.get_mp() ;
@@ -309,4 +313,5 @@ Scalar pois_vect_r0(const Scalar& source) {
     resu.set_spectral_va().ylm_i() ;
     
     return resu ; 
+}
 }

@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:12:59  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 
 #include "graphique.h"
 
+namespace Lorene {
 double  fonc_binary_xcts_axe(double , const Param& ) ;
 double  fonc_binary_xcts_orbit(double , const Param& ) ;
 
@@ -455,3 +459,4 @@ double fonc_binary_xcts_orbit(double om, const Param& parf) {
 }
 
 
+}

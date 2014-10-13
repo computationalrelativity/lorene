@@ -32,6 +32,9 @@ char et_bin_bhns_extr_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2005/02/28 23:14:16  k_taniguchi
  * Modification to include the case of the conformally flat background metric
  *
@@ -49,6 +52,7 @@ char et_bin_bhns_extr_hydro_C[] = "$Header$" ;
 #include "coord.h"
 #include "unites.h"
 
+namespace Lorene {
 void Et_bin_bhns_extr::hydro_euler_extr(const double& mass,
 					const double& sepa) {
 
@@ -442,4 +446,5 @@ void Et_bin_bhns_extr::hydro_euler_extr(const double& mass,
 
     }
 
+}
 }

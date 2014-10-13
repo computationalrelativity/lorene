@@ -44,6 +44,7 @@ char bin_ns_ncp_global_C[] = "$Header$" ;
 		    //		ADM mass	       //
 		    //---------------------------------//
 
+namespace Lorene {
 double Bin_ns_ncp::mass_adm() const {
 
   using namespace Unites ;
@@ -386,3 +387,4 @@ using namespace Unites ;
 }
 
 */
+}

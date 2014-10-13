@@ -51,6 +51,9 @@ char int1d_chebi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:23  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2005/11/02 15:08:18  j_novak
  * Minor change to prevent warning message.
  *
@@ -65,6 +68,7 @@ char int1d_chebi_C[] = "$Header$" ;
  *
  */
 
+namespace Lorene {
 
 //*****************************************************************************
 
@@ -82,4 +86,5 @@ double int1d_chebi(int nr, const double* cf){
 
     return som ; 
     
+}
 }

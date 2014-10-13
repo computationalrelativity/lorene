@@ -25,6 +25,9 @@ char lap_cpt_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:29  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -70,6 +73,7 @@ char lap_cpt_mat_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _lap_cpt_mat_pas_prevu(int n, int l) {
     cout << "laplacien * (1-r^2/R_0^2) pas prevu..." << endl ;
     cout << "n : " << n << endl ;
@@ -318,3 +322,4 @@ Matrice lap_cpt_mat(int n, int l, int base_r)
     return res ;
 }
 
+}

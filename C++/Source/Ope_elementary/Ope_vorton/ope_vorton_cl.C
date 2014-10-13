@@ -37,6 +37,7 @@ char ope_vorton_cl_C[] = "$Header$" ;
 	       //-- Pas prevu   ----
 	      //-------------------
 
+namespace Lorene {
 Matrice _cl_vorton_pas_prevu (const Matrice& so, int) {
   cout << "CL vorton not implemented" << endl ;
   abort() ;
@@ -143,3 +144,4 @@ void Ope_vorton::do_ope_cl() const {
 }
 
 
+}

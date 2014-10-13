@@ -30,6 +30,9 @@ char sh_ptens_rr_C[] = "$Heade$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -71,6 +74,7 @@ char sh_ptens_rr_C[] = "$Heade$" ;
  * 
  */
 
+namespace Lorene {
 Tbl _sh_ptens_rr_pas_prevu (int, int, double) ;
 Tbl _sh_ptens_rr_cheb (int, int, double) ;
 Tbl _sh_ptens_rr_chebp (int, int, double) ;
@@ -399,4 +403,5 @@ Tbl sh_ptens_rr(int n, int l, double echelle, int base_r) {
     
     Tbl res(sh_ptens_rr[base_r](n, l, echelle)) ;
     return res ;
+}
 }

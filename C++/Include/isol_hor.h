@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.54  2014/10/13 08:52:35  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.53  2007/08/22 16:10:37  f_limousin
  * Correction of many errors in binhor_hh.C
  *
@@ -219,6 +222,13 @@
  *
  */
 
+#include "time_slice.h"
+#include "proto.h"
+#include "headcpp.h"
+#include "cmp.h"
+#include "evolution.h"
+
+namespace Lorene {
 class Sym_tensor_trans ; 
 class Sym_tensor ; 
 class Vector ; 
@@ -230,14 +240,6 @@ class Map ;
 class Tbl ;
 class Time_slice ;
 class Time_slice_conf ;
-//class Tslice_dirac_max ;
-
-#include "time_slice.h"
-#include "proto.h"
-#include "headcpp.h"
-#include "cmp.h"
-#include "evolution.h"
-
                     
 //----------------------------//
 //       class Isol_Hor       //
@@ -1609,5 +1611,6 @@ class Bin_hor {
 } ;
 
 
+}
 #endif
 

@@ -31,6 +31,9 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char eos_bf_file_C[] = "$Header$" ;
 		//--------------------------------------//
 
 
+namespace Lorene {
 int Eos_bf_poly::identify() const	{ return 1; }
 
 int Eos_bf_poly_newt::identify() const	{ return 2; }
@@ -166,3 +170,4 @@ Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) {
 
 
 
+}

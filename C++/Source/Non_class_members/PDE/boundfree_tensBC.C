@@ -11,6 +11,7 @@
 #include "diff.h"
 #include "proto.h"
 
+namespace Lorene {
 // Resolution of tensorial equation (N^2/Psi^4)Delta(hij) - LbLbhij = Sij, using degenerate elliptic solver.
 // Here assumption is made that no boundary condition has to be enforced, mainly Beta^i*s_i = N/psi^2
 
@@ -385,3 +386,4 @@ Sym_tensor boundfree_tensBC ( Sym_tensor source, Vector Beta, Scalar Psi, Scalar
 
 
     
+}

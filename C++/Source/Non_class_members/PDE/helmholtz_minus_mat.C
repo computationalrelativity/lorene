@@ -25,6 +25,9 @@ char helmholtz_minus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:28  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -66,6 +69,7 @@ char helmholtz_minus_mat_C[] = "$$" ;
                      // Routine pour les cas non prevus -- 
                      //-----------------------------------
 
+namespace Lorene {
 Matrice _helmholtz_minus_mat_pas_prevu(int, int, double, double, double) {
   cout << "Helmholtz minus : base not implemented..." << endl ;
   abort() ;
@@ -354,3 +358,4 @@ Matrice helmholtz_minus_mat(int n, int lq,
   return res ;
 }
 
+}

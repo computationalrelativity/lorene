@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.61  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.60  2013/06/05 15:43:49  j_novak
  * Suppression of leg_spectral_base()
  *
@@ -257,6 +260,7 @@
 #include "base_vect.h"
 #include "map.h"
 
+namespace Lorene {
 class Scalar ;
 class Vector ; 
 class Tensor_sym ;
@@ -1579,7 +1583,7 @@ Tensor_sym operator/(const Tensor_sym&, int) ;
 
 /** @} */
 
-
+}
 #include "scalar.h"
 
 #include "vector.h"

@@ -26,6 +26,9 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -81,6 +84,7 @@ char binhor_kij_C[] = "$Header$" ;
 #include "utilitaires.h"
 //#include "graphique.h"
 
+namespace Lorene {
 void Bin_hor::extrinsic_curvature () {
     
 
@@ -623,4 +627,5 @@ void Bin_hor::decouple () {
     hole1.decouple = decouple_un ;
     hole2.decouple = decouple_deux ;
     
+}
 }

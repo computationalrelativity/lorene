@@ -30,6 +30,9 @@ char et_bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,7 @@ char et_bin_bhns_extr_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Et_bin_bhns_extr::Et_bin_bhns_extr(Map& mpi, int nzet_i, bool relat,
 				   const Eos& eos_i, bool irrot,
 				   const Base_vect& ref_triad_i,
@@ -128,4 +132,5 @@ void Et_bin_bhns_extr::sauve(FILE* fich) const {
 
     fwrite(&multipole, sizeof(bool), 1, fich) ;
 
+}
 }

@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2006/04/11 14:24:44  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -100,6 +103,7 @@ char star_bin_C[] = "$Header$" ;
 #include "unites.h"	    
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 			    //--------------//
@@ -740,4 +744,5 @@ void Star_bin::test_K_Hi() const {
     
 
     
+}
 }

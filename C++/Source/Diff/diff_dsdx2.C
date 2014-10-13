@@ -30,6 +30,9 @@ char diff_dsdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -48,6 +51,8 @@ char diff_dsdx2_C[] = "$Header$" ;
 // Lorene headers
 #include "diff.h"
 #include "proto.h"
+
+namespace Lorene {
 
 namespace {
     int nap = 0 ;
@@ -126,4 +131,5 @@ ostream& Diff_dsdx2::operator>>(ostream& ost) const {
     ost << " d2 / dx2 " << endl ;
     return ost ;
 
+}
 }

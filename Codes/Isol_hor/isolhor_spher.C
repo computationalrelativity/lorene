@@ -50,6 +50,8 @@ char isolhor_C[] = "$Header$" ;
 #include "isol_hor.h"
 
 
+using namespace Lorene ;
+
 int main() {
 
     //======================================================================

@@ -34,6 +34,9 @@ char et_equil_spher_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -106,6 +109,8 @@ char et_equil_spher_regu_C[] = "$Header$" ;
 #include "unites.h"
 
 //********************************************************************
+
+namespace Lorene {
 
 void Etoile::equil_spher_regular(double ent_c, double precis){
 
@@ -416,5 +421,7 @@ void Etoile::equil_spher_regular(double ent_c, double precis){
     cout << "     grav. term : " << vir_grav << endl ;
     cout << "     relative error : " << grv3 << endl ;
 
+
+}
 
 }

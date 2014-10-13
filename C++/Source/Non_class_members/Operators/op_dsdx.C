@@ -37,6 +37,9 @@ char op_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2013/06/14 15:54:06  j_novak
  * Inclusion of Legendre bases.
  *
@@ -88,6 +91,7 @@ char op_dsdx_C[] = "$Header$" ;
 
 // Routine pour les cas non prevus
 //--------------------------------
+namespace Lorene {
 void _dsdx_pas_prevu(Tbl* , int & b) {
     cout << "dsdx pas prevu..." << endl ;
     cout << " base: " << b << endl ;
@@ -1080,4 +1084,5 @@ void _dsdx_r_jaco02(Tbl *tb, int & )
     
     // base de developpement
     // inchangee
+}
 }

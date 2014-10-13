@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:12  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -93,6 +96,7 @@ char map_af_elliptic_C[] = "$Header$" ;
 	   //		General elliptic solver
 	  //----------------------------------------------
 
+namespace Lorene {
 void Map_af::sol_elliptic(Param_elliptic& ope_var, const Scalar& source, 
 			  Scalar& pot) const {
     
@@ -531,3 +535,4 @@ void Map_af::sol_elliptic_fixe_der_zero (double valeur,
   pot.set_dzpuis(0) ; 
 }
 
+}

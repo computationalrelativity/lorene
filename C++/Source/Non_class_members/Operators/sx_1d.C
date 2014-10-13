@@ -25,6 +25,9 @@ char sx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:27  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:07  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -65,6 +68,7 @@ char sx_1d_C[] = "$Header$" ;
 		// Bases not implemented -----
 		//----------------------------
 
+namespace Lorene {
 void _sx_1d_pas_prevu(int , double* , double *) {
     cout << "sx_1d : base not implemented..." << endl ;
     abort() ;
@@ -155,3 +159,4 @@ void sx_1d(int nr,  double **tb, int base_r)
     (*tb) = result ;
 }
 
+}

@@ -25,6 +25,9 @@ char et_bin_nsbh_angul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char et_bin_nsbh_angul_C[] = "$Header$" ;
 #include "et_bin_nsbh.h"
 #include "graphique.h"
 
+namespace Lorene {
 double Et_bin_nsbh::compute_angul() const {
 
   // On récupère les trucs qui vont servir :
@@ -119,4 +123,5 @@ double Et_bin_nsbh::compute_angul() const {
        return 0 ;
    else 
       return res ;
+}
 }

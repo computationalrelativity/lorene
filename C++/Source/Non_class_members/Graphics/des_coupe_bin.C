@@ -25,6 +25,9 @@ char des_coupe_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:21  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -65,6 +68,7 @@ char des_coupe_bin_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 //******************************************************************************
 
 void des_coupe_bin_x(const Cmp& uu1, const Cmp& uu2, double x0, double y_min, 
@@ -383,3 +387,4 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
 
     }
 } 
+}

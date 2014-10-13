@@ -28,6 +28,9 @@ char simple_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:54:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2007/12/20 09:11:10  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -70,6 +73,8 @@ char simple_poisson_C[] = "$Header$" ;
 #include "metric.h"
 #include "graphique.h"
 #include "utilitaires.h"
+
+using namespace Lorene ;
 
 int main() {
 

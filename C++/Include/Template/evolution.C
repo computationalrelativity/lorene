@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:52:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/03/27 16:59:41  j_novak
  * Added methods next_position(int) and previous_position(int). Changed (corrected + simplified) the interpolation method.
  *
@@ -108,6 +111,7 @@
 #include <cassert>
 #include <cmath>
 
+namespace Lorene {
 class Tbl ;
 
 void write_formatted(const double&, ostream& ) ; 
@@ -625,3 +629,4 @@ void Evolution<TyT>::save(const char* filename) const {
 
 
 
+}

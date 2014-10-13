@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -111,6 +114,7 @@ char time_slice_conf_C[] = "$Header$" ;
 // Constructor from conformal decomposition
 // ----------------------------------------
 
+namespace Lorene {
 Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
             const Metric_flat& ff_in, const Scalar& psi_in, 
             const Sym_tensor& hh_in, const Sym_tensor& hata_in, 
@@ -1018,4 +1022,5 @@ void Time_slice_conf::sauve(FILE* fich, bool partial_save) const {
         abort() ; 
     }
     
+}
 }

@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:53:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2014/10/06 15:13:11  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -184,6 +187,7 @@ char map_af_C[] = "$Header$" ;
 
 // Constructor from a grid
 // -----------------------
+namespace Lorene {
 Map_af::Map_af(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille)
 {
     // Les coordonnees et les derivees du changement de variable
@@ -673,3 +677,4 @@ void Map_af::adapt(const Cmp&, const Param&, int) {
 
 
 
+}

@@ -33,6 +33,9 @@ char poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:29  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -79,6 +82,7 @@ char poisson_angu_C[] = "$Header$" ;
 		// Routine pour les cas non prevus ----
 		//------------------------------------
 
+namespace Lorene {
 void _poisangu_pas_prevu(Mtbl_cf* mt, int l, double) {
     cout << "Unknwon theta basis in the operator Mtbl_cf::poisson_angu() !" << endl ;
     cout << " basis : " << hex << (mt->base).b[l] << endl ; 
@@ -793,3 +797,4 @@ void _poisangu_t_leg_mi(Mtbl_cf* mt, int l, double lambda)
     // base de developpement inchangee 
 }
 
+}

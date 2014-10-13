@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/05/16 11:55:19  o_straub
  * fixed: GYOTO output from compobj & compobj_QI
  *
@@ -95,6 +98,7 @@
 			//    base class Compobj     //
 			//---------------------------//
 
+namespace Lorene {
 /**
  * Base class for stationary compact objects (***under development***). 
  * \ingroup(compactobjects)
@@ -1091,4 +1095,5 @@ class HiggsMonopole : public Compobj {
 
 
 
+}
 #endif

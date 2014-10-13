@@ -33,6 +33,9 @@ char eos_akmalpr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:51  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -59,6 +62,7 @@ char eos_akmalpr_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------			
+namespace Lorene {
 Eos_AkmalPR::Eos_AkmalPR(const char* path)
 		: Eos_tabul(
 		"EOS AkmalPR [Akmal, Pandharipande & Ravenhall (1998)]",
@@ -132,3 +136,4 @@ ostream& Eos_AkmalPR::operator>>(ostream & ost) const {
 }
 
 			
+}

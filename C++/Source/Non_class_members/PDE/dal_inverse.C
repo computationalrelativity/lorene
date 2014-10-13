@@ -25,6 +25,9 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:28  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -85,6 +88,7 @@ char dal_inverse_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _dal_inverse_pas_prevu (const Matrice&, const Tbl&, const bool) {
     cout << " Inversion du dalembertien pas prevue ..... : "<< endl ;
     abort() ;
@@ -1008,4 +1012,5 @@ Tbl dal_inverse(const int& base_r, const int& type_dal, const
 }
     
     return dal_inverse[type_dal][base_r](operateur,  source, part) ;
+}
 }

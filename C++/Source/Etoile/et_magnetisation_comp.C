@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.10  2014/07/04 12:08:02  j_novak
  * Added some filtering.
  *
@@ -75,6 +78,8 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 #include "param.h"
 #include "proto_f77.h"
 #include "unites.h"
+
+namespace Lorene {
 
   using namespace Unites_mag ;
 
@@ -527,3 +532,4 @@ void Et_magnetisation::MHD_comput() {
 
 
 
+}

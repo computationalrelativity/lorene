@@ -33,6 +33,9 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -117,6 +120,7 @@ char mtbl_cf_C[] = "$Header$" ;
 // Constructeur
 // ------------
 
+namespace Lorene {
 Mtbl_cf::Mtbl_cf(const Mg3d& g, const Base_val& ba) : mg(&g), 
 						      etat(ETATNONDEF),
 						      base(ba),  
@@ -433,3 +437,4 @@ void Mtbl_cf::operator/=(double ) {
 }
 
 
+}

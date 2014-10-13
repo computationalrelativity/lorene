@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2004/03/22 13:12:40  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -87,6 +90,7 @@
 // Lorene headers
 #include "tensor.h"
 
+namespace Lorene {
 class Metric ; 
 class Metric_flat ; 
 
@@ -624,4 +628,5 @@ class Connection_fcart : public Connection_flat {
 
 
 
+}
 #endif

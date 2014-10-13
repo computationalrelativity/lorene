@@ -30,6 +30,9 @@ char test_compobj_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:54:00  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2012/11/22 16:05:42  c_some
  * Added test for class Boson_star
  *
@@ -55,6 +58,8 @@ char test_compobj_C[] = "$Header$" ;
 #include "boson_star.h"
 #include "nbr_spx.h"
 
+
+using namespace Lorene ;
 
 int main() {
 	

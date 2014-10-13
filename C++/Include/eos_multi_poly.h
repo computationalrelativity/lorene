@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@
 // Lorene classes
 #include "eos.h"
 #include "param.h"
+namespace Lorene {
 class Tbl ;
 class Cmp ;
 class Param ;
@@ -339,4 +343,5 @@ class Eos_multi_poly : public Eos {
     	virtual double der_press_nbar_p(double ent, const Param* par=0x0) const ;
 };
 
+}
 #endif

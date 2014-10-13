@@ -54,6 +54,8 @@ char name_of_this_file_C[] = "$Header$" ;
 
 //=============================================================
 
+using namespace Lorene ;
+
 int main() {
 
   // Read grid parameters from a file

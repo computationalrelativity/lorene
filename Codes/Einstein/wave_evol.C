@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:53:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:09:44  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -96,6 +99,8 @@ char wave_evol_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "utilitaires.h"
 #include "graphique.h"
+
+using namespace Lorene ;
 
 int main() {
 

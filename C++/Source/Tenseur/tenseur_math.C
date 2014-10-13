@@ -36,6 +36,9 @@ char tenseur_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2002/08/08 15:10:45  j_novak
  * The flag "plat" has been added to the class Metrique to show flat metrics.
  *
@@ -63,6 +66,7 @@ char tenseur_math_C[] = "$Header$" ;
 			    // Exponential  //
 			    //--------------//
 
+namespace Lorene {
 Tenseur exp (const Tenseur& t) {
     
     assert (t.get_etat() != ETATNONDEF) ;
@@ -179,3 +183,4 @@ Tenseur pow (const Tenseur& t, int n) {
     return res ;
 }
 
+}

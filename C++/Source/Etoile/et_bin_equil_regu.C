@@ -34,6 +34,9 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -133,6 +136,8 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 #include "eos.h"
 #include "utilitaires.h"
 #include "unites.h"	    
+
+namespace Lorene {
 
 //********************************************************************
 
@@ -725,5 +730,7 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
     // 			End of iteration
     //=========================================================================
 
+
+}
 
 }

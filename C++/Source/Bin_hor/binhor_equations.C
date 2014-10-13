@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -117,6 +120,7 @@ char binhor_equations_C[] = "$Header$" ;
 // Resolution for the lapse
 // ------------------------
 
+namespace Lorene {
 void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 			   double lim_nn) {
     
@@ -765,4 +769,5 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta,
 	hole2.regul = 0. ;
     }
     
+}
 }

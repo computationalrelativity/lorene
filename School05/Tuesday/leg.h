@@ -3,6 +3,8 @@
 
 #include "tbl.h"
 
+using namespace Lorene ;
+
 // Legendre n at position x
 double leg (int n, double x) ;
 

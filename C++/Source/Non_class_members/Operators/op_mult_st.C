@@ -25,6 +25,9 @@ char op_mult_st_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:25  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2013/04/25 15:46:06  j_novak
  * Added special treatment in the case np = 1, for type_p = NONSYM.
  *
@@ -82,6 +85,7 @@ char op_mult_st_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 void _mult_st_pas_prevu(Tbl * tb, int& base) {
   cout << "mult_st pas prevu..." << endl ;
   cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -1962,4 +1966,5 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
     b = base_r | base_p | T_COSSIN_C ;
     break;
   }
+}
 }

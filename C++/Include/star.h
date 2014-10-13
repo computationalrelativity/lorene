@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.31  2010/12/09 10:36:42  m_bejger
  * Decouple method removed from declaration in Star_bin_xcts
  *
@@ -134,6 +137,7 @@
 #include "tensor.h"
 #include "metric.h"
 
+namespace Lorene {
 class Eos ;
 
 			//---------------------------//
@@ -1576,4 +1580,5 @@ class Star_bin_xcts : public Star {
 
 }; 
 
+}
 #endif

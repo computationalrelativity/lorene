@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 #include "tbl_val.h"
 
 
+namespace Lorene {
 Scalar Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin, 
 			     int type_inter) const {
 
@@ -373,3 +377,4 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
 
 
 
+}

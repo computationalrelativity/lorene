@@ -67,6 +67,9 @@ char mat_legi_cossinci_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:13  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -100,6 +103,7 @@ char mat_legi_cossinci_C[] = "$Header$" ;
 // Variable de loch
 int loch_mat_legi_cossinci = 0 ;
 
+namespace Lorene {
 //******************************************************************************
 
 double* mat_legi_cossinci(int np, int nt) {
@@ -234,3 +238,4 @@ int i, indice,  j,  j2,  m,  l ;
 }
 
 
+}

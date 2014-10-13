@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2009/06/18 18:42:13  k_taniguchi
  * Defined a slightly modified code to determine
  * the orbital angular velocity.
@@ -92,6 +95,7 @@
 
 #include "etoile.h"
 
+namespace Lorene {
 /**
  * Binary systems.
  * 
@@ -412,4 +416,5 @@ class Binaire {
 };
 ostream& operator<<(ostream& , const Binaire& ) ;	
 
+}
 #endif

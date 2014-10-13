@@ -31,6 +31,9 @@ char eos_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char eos_poly_newt_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
+namespace Lorene {
 Eos_poly_newt::Eos_poly_newt(double gamma, double kappa) : 
 	       Eos_poly(gamma, kappa) {
 
@@ -300,3 +304,4 @@ double Eos_poly_newt::der_press_ent_p(double, const Param* ) const {
 
 }
 
+}

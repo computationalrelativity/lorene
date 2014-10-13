@@ -19,6 +19,7 @@
 //    Class Excised_slice    //
 //---------------------------//
 
+namespace Lorene {
 /** Class to compute single black hole spacetime excised slices.
  *  It takes as arguments:
  * - A Mapping \c mp
@@ -279,4 +280,5 @@ class Excised_slice {
 
 };
 
+}
 #endif

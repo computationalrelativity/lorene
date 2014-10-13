@@ -35,6 +35,9 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -201,6 +204,7 @@ char cmp_C[] = "$Header$" ;
 			//---------------//
 
 
+namespace Lorene {
 Cmp::Cmp(const Map& mpi) : mp(&mpi), etat(ETATNONDEF), dzpuis(0), 
 			   va(mpi.get_mg()) {
 
@@ -793,3 +797,4 @@ Tbl Cmp::multipole_spectrum() {
   return resu ;
 }
 
+}

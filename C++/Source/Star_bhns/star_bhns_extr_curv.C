@@ -30,6 +30,9 @@ char star_bhns_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -53,6 +56,7 @@ char star_bhns_extr_curv_C[] = "$Header$" ;
 // Lorene headers
 #include "star_bhns.h"
 
+namespace Lorene {
 void Star_bhns::extr_curv_bhns() {
 
     // Computation of \tilde{A}_{NS}^{ij}
@@ -117,4 +121,5 @@ void Star_bhns::extr_curv_bhns() {
 
     taij_quad_auto.std_spectral_base() ;
 
+}
 }

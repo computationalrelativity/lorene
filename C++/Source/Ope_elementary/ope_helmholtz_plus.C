@@ -23,6 +23,9 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
+namespace Lorene {
 Ope_helmholtz_plus::Ope_helmholtz_plus (int nbr, int base, int lquant, double alf, 
 					  double bet, double mas): 
   Ope_elementary(nbr, base, alf, bet), lq(lquant), masse (mas) {
@@ -157,4 +161,5 @@ void Ope_helmholtz_plus::inc_l_quant() {
 
   cout << "inc_l_quant not implemented for Helmholtz operator." << endl ;
   abort() ;
+}
 }

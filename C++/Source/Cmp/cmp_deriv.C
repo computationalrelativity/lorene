@@ -32,6 +32,9 @@ char cmp_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -77,6 +80,7 @@ char cmp_deriv_C[] = "$Header$" ;
 			//	d/dr	       //
 			//---------------------//
 
+namespace Lorene {
 const Cmp& Cmp::dsdr() const {
 
     // Protection
@@ -259,3 +263,4 @@ const Cmp& Cmp::laplacien(int zec_mult_r) const {
    
     
     
+}

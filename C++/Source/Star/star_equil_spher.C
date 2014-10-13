@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2010/10/18 20:16:10  m_bejger
  * Commented-out the reevaluation of the mapping for the case of many domains inside the star
  *
@@ -88,6 +91,7 @@ char star_equil_spher_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "unites.h"	    
 
+namespace Lorene {
 void Star::equilibrium_spher(double ent_c, 
 							 double precis, 
 							 const Tbl* pent_limit){
@@ -480,4 +484,5 @@ void Star::equilibrium_spher(double ent_c,
     //logn = logn - logn_quad ;
 
  
+}
 }

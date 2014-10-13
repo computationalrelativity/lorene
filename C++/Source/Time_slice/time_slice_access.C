@@ -30,6 +30,9 @@ char time_slice_access_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char time_slice_access_C[] = "$Header$" ;
 // Lorene headers
 #include "time_slice.h"
 
+namespace Lorene {
 const Scalar& Time_slice::nn() const {
 
     assert( n_evol.is_known(jtime) ) ; 
@@ -194,3 +198,4 @@ const Scalar& Time_slice::trk() const {
 
 
 
+}

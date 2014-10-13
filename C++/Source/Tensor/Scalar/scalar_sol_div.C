@@ -30,6 +30,9 @@ char scalar_sol_div_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -57,6 +60,7 @@ char scalar_sol_div_C[] = "$Header$" ;
 #include "proto.h"
 
 // Local prototypes 
+namespace Lorene {
 void _sx_r_chebp(Tbl* , int& ) ;
 void _sx_r_chebi(Tbl* , int& ) ;
 
@@ -324,3 +328,4 @@ Scalar Scalar::sol_divergence(int n_factor) const {
     return result ;
 }
 
+}

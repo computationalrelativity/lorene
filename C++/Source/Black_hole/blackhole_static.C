@@ -31,6 +31,9 @@ char blackhole_static_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2008/05/15 19:31:17  k_taniguchi
  * Change of some parameters.
  *
@@ -53,6 +56,7 @@ char blackhole_static_C[] = "$Header$" ;
 #include "unites.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Black_hole::static_bh(bool neumann, bool first) {
 
     // Fundamental constants and units
@@ -188,4 +192,5 @@ void Black_hole::static_bh(bool neumann, bool first) {
 
     }
 
+}
 }

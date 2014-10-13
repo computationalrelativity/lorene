@@ -30,6 +30,9 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/05/09 14:44:25  j_novak
  * Tests are now done for the opening of parameter files.
  *
@@ -79,12 +82,16 @@ char rotstar_dirac_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "unites.h"
 
+namespace Lorene {
+
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
-
+}
 
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

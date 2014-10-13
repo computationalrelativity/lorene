@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -76,6 +79,7 @@ char star_rot_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Star_rot::Star_rot(Map& mpi, int nzet_i, bool relat, const Eos& eos_i)
 		       : Star(mpi, nzet_i, eos_i),
 			 relativistic(relat),
@@ -753,3 +757,4 @@ void Star_rot::fait_nphi() {
     
 }
 
+}

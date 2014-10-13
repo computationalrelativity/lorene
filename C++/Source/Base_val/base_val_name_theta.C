@@ -30,6 +30,9 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -75,6 +78,7 @@ char base_val_name_theta_C[] = "$Header$" ;
 #include "base_val.h"
 
 // Local prototypes
+namespace Lorene {
 void basename_t_unknown(int, int, char*) ; 
 void basename_t_cos(int, int, char*) ; 
 void basename_t_sin(int, int, char*) ; 
@@ -758,3 +762,4 @@ void basename_t_leg_ii(int k, int j, char* name) {
 	
 	
 	
+}

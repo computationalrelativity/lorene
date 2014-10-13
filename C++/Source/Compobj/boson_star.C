@@ -29,6 +29,9 @@ char boson_star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2012/12/03 15:27:30  c_some
  * Small changes
  *
@@ -57,6 +60,7 @@ char boson_star_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Boson_star::Boson_star(Map& mpi, double m, int k) :
 			 Star_QI(mpi) ,
 			 rphi(mpi), 
@@ -228,3 +232,4 @@ void Boson_star::update_ener_mom() {
 }
 
 
+}

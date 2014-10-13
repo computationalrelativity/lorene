@@ -46,11 +46,14 @@ char gravastar_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "unites.h"	    
 
+namespace Lorene {
 // Local prototype (for drawings only)
 Scalar raccord_c1(const Scalar& uu, int l1) ; 
 /* ***Comment: SERT A QUOI?? */
-
+}
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

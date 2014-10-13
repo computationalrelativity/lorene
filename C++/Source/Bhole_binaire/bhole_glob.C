@@ -25,6 +25,9 @@ char bhole_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:12:58  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -79,6 +82,7 @@ char bhole_glob_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
+namespace Lorene {
 double Bhole_binaire::adm_systeme() const {
     Cmp der_un (hole1.psi_auto().dsdr()) ;
     Cmp der_deux (hole2.psi_auto().dsdr()) ;
@@ -393,4 +397,5 @@ Tbl Bhole_binaire::linear_momentum_systeme_inf() const {
 		res.set(comp) = mapping.integrale_surface_infini (integrant)/8/M_PI ;
 	}
 	return res ;
+}
 }

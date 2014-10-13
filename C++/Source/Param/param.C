@@ -33,6 +33,9 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -108,6 +111,7 @@ char param_C[] = "$Header$" ;
 			//	Constructor	  //
 			//------------------------//
 
+namespace Lorene {
 Param::Param() : n_int(0), 
                  n_int_mod(0),
 		 n_double(0), 
@@ -1736,4 +1740,5 @@ const Star& Param::get_star(int index) const {
     return *(p_star[index]) ; 
 
 
+}
 }

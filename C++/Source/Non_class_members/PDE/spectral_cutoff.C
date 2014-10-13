@@ -19,6 +19,7 @@
 // Spectral cutoff used in tensor elliptic solvers, and solving for stationary black hole spacetimes
 
 
+namespace Lorene {
 void coupe_l_tous( Sym_tensor& hij,Sym_tensor& aa, Scalar& nn,Scalar& ppsi,Vector& bb, int ntt, int cutoff){
 
   nn.annule_l(2*(ntt-1) - cutoff, 2*(ntt-1));
@@ -71,3 +72,4 @@ void tensor_coupe_l( Sym_tensor& ten, int ntt, int cutoff){
   return;
 }
   
+}

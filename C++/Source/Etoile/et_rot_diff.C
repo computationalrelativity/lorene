@@ -32,6 +32,9 @@ char et_rot_diff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2004/03/25 10:29:05  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -75,6 +78,7 @@ char et_rot_diff_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Et_rot_diff::Et_rot_diff(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i, 
 			 double (*frot_i)(double, const Tbl&), 
 			 double (*primfrot_i)(double, const Tbl&), 
@@ -328,3 +332,4 @@ double Et_rot_diff::get_omega_c() const {
 
 
 		
+}

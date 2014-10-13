@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:13:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -100,6 +103,7 @@ char bin_ns_bh_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Bin_ns_bh::Bin_ns_bh(Map& mp_ns, int nzet, const Eos& eos, bool irrot_ns,
 	        Map_af& mp_bh)
 		: ref_triad(0., "Absolute frame Cartesian basis"),
@@ -496,4 +500,5 @@ ostream& Bin_ns_bh::operator>>(ostream& ost) const {
     ost << "Absolute abscidia of the throat center : " << (hole.get_mp()).get_ori_x() / km
         << " km" << endl ;
     return ost ;
+}
 }

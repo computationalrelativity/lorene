@@ -30,6 +30,9 @@ char eos_fit_akmalpr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:52  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2005/05/22 20:53:55  k_taniguchi
  * Initial revision
  *
@@ -50,6 +53,7 @@ char eos_fit_akmalpr_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Eos_fit_AkmalPR::Eos_fit_AkmalPR(const char* path)
     : Eos_fitting("EOS fitted to AkmalPR", "eos_fit_akmalpr.d", path)
 {}
@@ -112,4 +116,5 @@ ostream& Eos_fit_AkmalPR::operator>>(ostream& ost) const {
 
     return ost ;
 
+}
 }

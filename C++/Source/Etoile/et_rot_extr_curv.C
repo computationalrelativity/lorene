@@ -30,8 +30,11 @@ char et_rot_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/11/18  17:14:35  eric
  * Traitement du cas np=1 (axisymetrie).
@@ -50,6 +53,7 @@ char et_rot_extr_curv_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 
+namespace Lorene {
 void Etoile_rot::extrinsic_curvature(){
     
 
@@ -184,3 +188,4 @@ void Etoile_rot::extrinsic_curvature(){
     
 }
 
+}

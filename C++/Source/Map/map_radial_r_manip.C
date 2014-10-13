@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.11  2005/05/25 16:11:04  j_novak
  * Better handling of the case with no compactified domain.
  *
@@ -137,6 +140,7 @@ char map_radial_r_manip_C[] = "$Header$" ;
 			//	    mult_r	     //
 			//---------------------------//
 
+namespace Lorene {
 void Map_radial::mult_r(Scalar& uu) const {
     
     // Verifications d'usage :
@@ -840,3 +844,4 @@ void Map_radial::inc2_dzpuis(Scalar& ci) const {
 
 }
 
+}

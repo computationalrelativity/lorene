@@ -32,6 +32,9 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:17  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -68,6 +71,7 @@ char star_bin_kinema_C[] = "$Header$" ;
 // Headers Lorene
 #include "star.h"
 
+namespace Lorene {
 void Star_bin::kinematics(double omega, double x_axe) {
 
     int nz = mp.get_mg()->get_nzone() ; 
@@ -128,4 +132,5 @@ void Star_bin::kinematics(double omega, double x_axe) {
       
       del_deriv() ;                
       
+}
 }

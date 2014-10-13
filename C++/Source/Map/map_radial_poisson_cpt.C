@@ -40,6 +40,9 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:06  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -139,6 +142,7 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local prototypes
+namespace Lorene {
 Mtbl_cf sol_poisson_compact(const Mtbl_cf&, double, double, bool) ;
 Mtbl_cf sol_poisson_compact(const Map_af&, const Mtbl_cf&, const Tbl&, 
 	const Tbl&, bool) ;  
@@ -739,3 +743,4 @@ void Map_radial::poisson_compact(int nzet, const Cmp& source, const Cmp& aa,
 
 
 
+}

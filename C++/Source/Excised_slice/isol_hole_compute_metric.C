@@ -34,6 +34,7 @@
 #include "unites.h"	    
 
 
+namespace Lorene {
 void Excised_slice::compute_stat_metric(double precis,  double Omega, bool NorKappa, 
 					Scalar boundNoK, bool isCF,double relax, int mer_max, 
 					int mer_max2, bool isvoid) {
@@ -685,4 +686,5 @@ void Excised_slice::compute_stat_metric(double precis,  double Omega, bool NorKa
   cout << "================================================================" << endl;
    }
    return; 
+}
 }

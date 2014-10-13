@@ -29,6 +29,9 @@ char star_bin_vel_pot_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2010/12/09 10:47:31  m_bejger
  * Small changes, definition of lnPsi2N
  *
@@ -61,6 +64,7 @@ char star_bin_vel_pot_xcts_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 double Star_bin_xcts::velocity_potential(int mermax,
@@ -239,4 +243,5 @@ double Star_bin_xcts::velocity_potential(int mermax,
         d_psi.set(i) = raccord_c1(d_psi(i), nzet) ;
 
     return erreur ;
+}
 }

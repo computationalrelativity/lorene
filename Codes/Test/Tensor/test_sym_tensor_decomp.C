@@ -29,6 +29,9 @@ char test_sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:54:03  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2005/09/08 07:40:56  j_novak
  * Update of set_auxiliary arguments.
  *
@@ -44,6 +47,8 @@ char test_sym_tensor_decomp_C[] = "$Header$" ;
 #include "metric.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
+
+using namespace Lorene ;
 
 int main() {
 

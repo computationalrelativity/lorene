@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2007/05/06 10:48:08  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -116,6 +119,7 @@
 #define MAP_AFF 0 
 #define MAP_LOG 1 
 
+namespace Lorene {
 /**
  * This class contains the parameters needed to call the general
  * elliptic solver.
@@ -394,4 +398,5 @@ class Param_elliptic {
   friend void Map_log::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
 } ;
 
+}
 #endif

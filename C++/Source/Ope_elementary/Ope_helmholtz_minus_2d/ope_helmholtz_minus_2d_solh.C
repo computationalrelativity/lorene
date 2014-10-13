@@ -35,6 +35,7 @@ char ope_helmholtz_minus_2d_solh_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solh_helmholtz_minus_2d_pas_prevu (int, int, double, double, double) {
 
     cout << " Solution homogene pas prevue ..... : "<< endl ;
@@ -175,4 +176,5 @@ Tbl Ope_helmholtz_minus_2d::get_solh () const {
   }
   
   return res ;
+}
 }

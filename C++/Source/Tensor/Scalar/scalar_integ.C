@@ -31,6 +31,9 @@ char scalar_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2004/07/26 16:02:23  j_novak
  * Added a flag to specify whether the primitive should be zero either at r=0
  * or at r going to infinity.
@@ -54,6 +57,7 @@ char scalar_integ_C[] = "$Header$" ;
 		    //	   Integral over all space	 //
 		    //-----------------------------------//
 
+namespace Lorene {
 double Scalar::integrale() const {
     
     const Tbl& integ = integrale_domains() ; 
@@ -106,3 +110,4 @@ Scalar Scalar::primr(bool null_infty) const {
 
 
 
+}

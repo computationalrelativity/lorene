@@ -26,6 +26,9 @@ char leg_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:13  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2013/06/06 15:31:33  j_novak
  * Functions to compute Legendre coefficients (not fully tested yet).
  *
@@ -47,6 +50,8 @@ char leg_ini_C[] = "$Header$" ;
 //Lorene prototypes
 #include "tbl.h"
 #include "utilitaires.h"
+
+namespace Lorene {
 
 namespace {
   const int nmax = 50 ; //Maximal number of Legendre transforms sizes 
@@ -89,6 +94,7 @@ void poly_leg (int n, double& poly, double& pder, double& polym1, double& pderm1
 		}
 	}
 }
+
 /************************************************************************/
 void legendre_collocation_points(int nr, double* colloc) {
 
@@ -229,4 +235,6 @@ void get_legendre_data(int np, Tbl*& p_Pni, Tbl*& p_wn) {
   p_wn = tab_wn[index] ;
 
   return ;
+}
+
 }

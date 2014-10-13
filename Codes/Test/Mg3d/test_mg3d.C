@@ -28,6 +28,9 @@ char test_mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:54:02  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:12:54  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,8 @@ char test_mg3d_C[] = "$Header$" ;
 #include "grilles.h"
 #include "type_parite.h"
 
+
+using namespace Lorene ;
 
 int main() {
 

@@ -35,6 +35,9 @@ char tenseur_sym_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:19  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char tenseur_sym_arithm_C[] = "$Header$" ;
 			// OPERATEURS UNAIRES //
 			//********************//
 
+namespace Lorene {
 Tenseur_sym operator+(const Tenseur_sym & t) {
 
     return t ; 
@@ -288,3 +292,4 @@ Tenseur_sym operator/ (const Tenseur_sym& t, int m) {
 }
 
 
+}

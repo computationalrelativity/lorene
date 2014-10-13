@@ -31,6 +31,9 @@ char eos_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:13:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -119,6 +122,7 @@ char eos_poly_C[] = "$Header$" ;
 
 // Standard constructor with m_0 = 1 and mu_0 = 1
 // -----------------------------------------------
+namespace Lorene {
 Eos_poly::Eos_poly(double gam0, double kappa) : 
 	Eos("Relativistic polytropic EOS"), 
 	gam(gam0), kap(kappa), m_0(double(1)), mu_0(double(1)) {
@@ -479,3 +483,4 @@ double Eos_poly::der_press_ent_p(double ent, const Param* ) const {
     }
 }
 
+}

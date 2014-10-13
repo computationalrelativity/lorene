@@ -30,6 +30,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2014/10/13 08:53:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.15  2014/10/06 15:09:42  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -169,10 +172,13 @@ char coal_C[] = "$Header$" ;
 #include "graphique.h"
 #include "unites.h"	    
 
+namespace Lorene {
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
-
+}
 //******************************************************************************
+
+using namespace Lorene ;
 
 int main(){
 

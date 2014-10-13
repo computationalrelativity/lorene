@@ -8,6 +8,7 @@
 // WARNING; up to now, we are only able to handle void spacetimes.
 
 
+namespace Lorene {
 void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){ 
 
   // Getting: hij; hatA; lapse; conf_fact; shift;
@@ -314,3 +315,4 @@ void Excised_slice::secmembre_kerr(Sym_tensor& source_hh){
 
 
 
+}

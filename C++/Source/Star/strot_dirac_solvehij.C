@@ -30,6 +30,9 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2010/10/11 10:21:31  j_novak
  * Less output
  *
@@ -71,6 +74,7 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 #include "star_rot_dirac.h"
 #include "unites.h"
 
+namespace Lorene {
 void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
 
     using namespace Unites ;
@@ -275,4 +279,5 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
       hij_new.set(2,3).set_etat_zero() ;
   }
       
+}
 }

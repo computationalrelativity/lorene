@@ -25,6 +25,9 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:31  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:16:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -73,6 +76,7 @@ char solh_helmholtz_minusC[] = "$Header $" ;
                 //------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solh_helmholtz_minus_pas_prevu (int, int, double, double, double) {
 
   cout << "Homogeneous solution not implemented in hemlholtz_minus : "<< endl ;
@@ -252,4 +256,5 @@ Tbl solh_helmholtz_minus (int n, int lq, double alpha, double beta,
     
   Tbl res(solh_helmholtz_minus[base_r](n, lq, alpha, beta, masse)) ;
   return res ;
+}
 }

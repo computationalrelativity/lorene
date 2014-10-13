@@ -32,6 +32,9 @@ char vector_divfree_aux[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:45  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -69,6 +72,7 @@ char vector_divfree_aux[] = "$Header$" ;
 			//  update_etavr  //
 			//----------------//
 
+namespace Lorene {
 void Vector_divfree::update_etavr() {
 
 	assert(p_A != 0x0) ;
@@ -143,3 +147,4 @@ void Vector_divfree::set_A_mu(const Scalar& A_i, const  Scalar& mu_i, const Para
 	return ;
 } 
 
+}

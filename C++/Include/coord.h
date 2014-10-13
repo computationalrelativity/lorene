@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -76,6 +79,7 @@
 #include <cstdio>
 #include "mtbl.h"
 
+namespace Lorene {
 class Map ;
 
 /**
@@ -177,4 +181,5 @@ Mtbl operator-(const Mtbl& a, const Coord& b) ;	///< \c Mtbl  - \c Coord
 Mtbl operator*(const Mtbl& a, const Coord& b) ;	///< \c Mtbl  * \c Coord 
 /** @} */
 
+}
 #endif

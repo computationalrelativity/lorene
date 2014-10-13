@@ -32,6 +32,9 @@ char et_rot_diff_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:57  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -54,6 +57,7 @@ char et_rot_diff_hydro_C[] = "$Header$" ;
 #include "et_rot_diff.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Et_rot_diff::hydro_euler(){
 
     int nz = mp.get_mg()->get_nzone() ; 
@@ -183,4 +187,5 @@ void Et_rot_diff::hydro_euler(){
     del_deriv() ;                
     
 
+}
 }

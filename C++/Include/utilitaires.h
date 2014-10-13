@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -105,6 +108,7 @@
 #include "stdio.h"
 #include <cstring>
 
+namespace Lorene {
 class Param ;
 class Tbl ;
 
@@ -364,4 +368,5 @@ void c_est_pas_fait(const char * ) ;
     
 /** @} */
     
+}
 #endif

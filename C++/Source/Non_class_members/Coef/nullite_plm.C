@@ -26,6 +26,9 @@ char nullite_plm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:14  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:16:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -99,6 +102,7 @@ char nullite_plm_C[] = "$Header$" ;
 	// Developpement en P_COSSIN pour phi et T_LEG en theta
        //---------------------------------------------------------
 
+namespace Lorene {
 int nullite_plm_t_leg (int j, int nt, int k, int np) {
 
     int m = (k%2 == 0) ? k/2 : (k-1)/2 ;
@@ -321,4 +325,5 @@ int nullite_plm (int j, int nt, int k, int np, Base_val base) {
     }
 	
     return result ;
+}
 }

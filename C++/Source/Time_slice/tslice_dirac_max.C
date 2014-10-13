@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.25  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -142,6 +145,7 @@ char tslice_dirac_max_C[] = "$Header$" ;
 // Constructor from conformal decomposition
 // ----------------------------------------
 
+namespace Lorene {
 Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_in,
             const Metric_flat& ff_in, const Scalar& psi_in, 
             const Sym_tensor_trans& hh_in, const Sym_tensor& hata_in, 
@@ -630,3 +634,4 @@ void Tslice_dirac_max::sauve(FILE* fich, bool partial_save) const {
                 
                 
 
+}

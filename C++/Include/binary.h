@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2006/04/11 14:26:12  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -60,6 +63,7 @@
 // Lorene headers
 #include "star.h"
 
+namespace Lorene {
 /**
  * Binary systems. *** UNDER DEVELOPMENT *** \ingroup (star)
  * 
@@ -339,4 +343,5 @@ class Binary {
 };
 ostream& operator<<(ostream& , const Binary& ) ;	
 
+}
 #endif

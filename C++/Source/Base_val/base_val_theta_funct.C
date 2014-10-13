@@ -33,6 +33,9 @@ char base_val_theta_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -84,6 +87,7 @@ char base_val_theta_funct_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Local prototypes
+namespace Lorene {
 void theta_funct_pas_prevu(int, double*) ;
 void theta_funct_cos(int, double*) ;
 void theta_funct_sin(int, double*) ;
@@ -529,3 +533,4 @@ void theta_funct_cossin_s(int nt, double* ff) {
            
 }
 
+}

@@ -86,6 +86,9 @@ char circheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:19  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:49  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -130,6 +133,7 @@ char circheb_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 fftw_plan back_fft(int, Tbl*&) ;
 double* cheb_ini(const int) ;
 //*****************************************************************************
@@ -282,4 +286,5 @@ int i, j, k ;
 
 	} 	// fin de la boucle sur theta 
    }	// fin de la boucle sur phi
+}
 }

@@ -31,6 +31,9 @@ char cmp_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:03  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -64,6 +67,7 @@ char cmp_asymptot_C[] = "$Header$" ;
 // Headers Lorene
 #include "cmp.h"
 
+namespace Lorene {
 Valeur** Cmp::asymptot(int n0, const int flag) const {
     
     assert(n0 >= 0) ; 
@@ -163,4 +167,5 @@ Valeur** Cmp::asymptot(int n0, const int flag) const {
 	
     return vu ; 
     
+}
 }

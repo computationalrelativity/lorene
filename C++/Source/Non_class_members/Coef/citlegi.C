@@ -90,6 +90,9 @@ char citlegi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:11  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:01  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -122,6 +125,7 @@ char citlegi_C[] = "$Header$" ;
 // headers bien de chez nous
 #include "headcpp.h"
 #include "proto.h"
+namespace Lorene {
 //*****************************************************************************
 
 void citlegi(const int* deg, const int* dimc, double* cf, const int* dimf,
@@ -153,4 +157,5 @@ void citlegi(const int* deg, const int* dimc, double* cf, const int* dimf,
     // Menage
     delete [] cf_cs ;
     
+}
 }

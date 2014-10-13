@@ -28,6 +28,9 @@ char star_bin_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2010/12/09 10:45:26  m_bejger
  * Added psi4 in the constructor, removed fait_decouple
  *
@@ -66,6 +69,7 @@ char star_bin_xcts_C[] = "$Header$" ;
 #include "unites.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 			    //--------------//
@@ -710,4 +714,5 @@ void Star_bin_xcts::relaxation(const Star_bin_xcts& star_jm1,
 
     equation_of_state() ;
 
+}
 }

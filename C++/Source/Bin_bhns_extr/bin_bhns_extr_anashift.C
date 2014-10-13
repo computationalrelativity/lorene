@@ -30,6 +30,9 @@ char bin_bhns_extr_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -48,6 +51,7 @@ char bin_bhns_extr_anashift_C[] = "$Header$" ;
 #include "bin_bhns_extr.h"
 #include "unites.h"
 
+namespace Lorene {
 void Bin_bhns_extr::analytical_shift() {
 
   using namespace Unites ;
@@ -129,4 +133,5 @@ void Bin_bhns_extr::analytical_shift() {
     // Sets the standard spectral bases for a scalar field
     star.set_khi_shift().set_std_base() ;
 
+}
 }

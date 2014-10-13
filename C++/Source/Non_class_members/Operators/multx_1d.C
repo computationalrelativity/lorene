@@ -25,6 +25,9 @@ char multx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:24  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:06  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -74,6 +77,7 @@ char multx_1d_C[] = "$Header$" ;
 		// Routine pour les cas non prevus -----
 		//--------------------------------------
 
+namespace Lorene {
 void _multx_1d_pas_prevu(int nr, double* tb, double *result) {
     cout << "multx pas prevu..." << endl ;
     cout << "Valeurs : " << tb << "  " << result << endl ;
@@ -128,3 +132,4 @@ void multx_1d(int nr,  double **tb, int base_r)
     (*tb) = result ;
 }
 
+}

@@ -35,6 +35,7 @@ char ope_poisson_2d_mat_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
+namespace Lorene {
 Matrice _poisson_2d_mat_pas_prevu(int, int, double, double, int) {
     cout << "laplacien pas prevu..." << endl ;
     abort() ;
@@ -631,4 +632,5 @@ void Ope_poisson_2d::do_ope_mat() const {
     poisson_2d_mat[R_CHEBU >> TRA_R] = _poisson_2d_mat_r_chebu ;
   }
   ope_mat = new Matrice(poisson_2d_mat[base_r](nr, l_quant, alpha, beta, dzpuis)) ;
+}
 }

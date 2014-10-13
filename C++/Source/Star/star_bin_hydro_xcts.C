@@ -28,6 +28,9 @@ char star_bin_hydro_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2010/12/09 10:43:53  m_bejger
  * Small changes, annule --> annule_domain
  *
@@ -42,6 +45,7 @@ char star_bin_hydro_xcts_C[] = "$Header$" ;
 #include "star.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Star_bin_xcts::hydro_euler() {
 
     int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
@@ -175,4 +179,5 @@ void Star_bin_xcts::hydro_euler() {
     
     del_deriv() ;                
 
+}
 }

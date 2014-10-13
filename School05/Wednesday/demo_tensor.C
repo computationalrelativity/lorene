@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:54:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:09:48  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -56,6 +59,8 @@
 #include "nbr_spx.h"    // defines infinity as an ordinary number: __infinity
 #include "graphique.h"  // for graphical outputs
 #include "utilitaires.h"    // utilities 
+
+using namespace Lorene ;
 
 int main() {
 

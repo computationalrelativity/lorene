@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/06/30 14:34:57  j_novak
  * Update of the values of some constants (G, M_sol and MeV).
  *
@@ -63,6 +66,7 @@
                   //  Standard LORENE units   //
                   //--------------------------//     
 
+namespace Lorene {
 /** \namespace Unites
  *  \brief Standard units of space, time and mass.
  *
@@ -122,3 +126,4 @@ namespace Unites_mag {
   const double mu0 = mu_si / mu0_unit ;
 }
   
+}

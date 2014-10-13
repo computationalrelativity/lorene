@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/13 08:52:54  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.13  2014/06/30 16:13:18  j_novak
  * New methods for reading directly from CompOSE files.
  *
@@ -109,6 +112,7 @@ char eos_tabul_C[] = "$Header$" ;
 #include "unites.h"
 
 
+namespace Lorene {
 void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
 		   double&, double& ) ;
 
@@ -596,4 +600,5 @@ double Eos_tabul::der_press_nbar_p(double ent, const Param*) const {
     }
 
           
+}
 }

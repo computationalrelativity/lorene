@@ -47,6 +47,7 @@ char star_bhns_C[] = "$Header$" ;
                     //     Constructor     //
                     //---------------------//
 
+namespace Lorene {
 Gravastar::Gravastar(Map& mpi, int nzet_i, const Eos& eos_i, const double rho_core_i) 
   : Star_rot(mpi,nzet_i,true,eos_i), rho_core(rho_core_i)
 {} 
@@ -370,4 +371,5 @@ if (omega != __infinity) {
   
   return ost ;
   
+}
 }

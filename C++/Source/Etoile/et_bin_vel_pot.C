@@ -33,6 +33,9 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.14  2007/10/18 14:26:43  e_gourgoulhon
  * Changed the call to Eos::der_nbar_ent in order to allow for MEos type
  * of equation of state.
@@ -133,6 +136,7 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
@@ -561,4 +565,5 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
  
 
   }
+}
 }

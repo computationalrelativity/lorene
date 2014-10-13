@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.18  2014/10/06 15:13:14  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -149,6 +152,7 @@ char matrice_C[] = "$Header$" ;
 
 //Destructeur logique
 
+namespace Lorene {
 void Matrice::del_t() {
     if (std != 0x0) delete std ;
     std = 0x0 ; 
@@ -691,4 +695,5 @@ Matrice operator/ (const Matrice& a, double x) {
     assert(a.std != 0x0) ;
     Matrice res(*a.std/x);
     return res ;
+}
 }

@@ -33,6 +33,9 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2014/10/06 15:13:20  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -87,6 +90,7 @@ char tensor_calculus_C[] = "$Header$" ;
 				//------------------//
 
 
+namespace Lorene {
 Tensor Tensor::trace(int ind_1, int ind_2) const {
     
     // Les verifications :
@@ -224,7 +228,7 @@ Tensor Tensor::up(int place, const Metric& met) const {
     assert ((place >=0) && (place < valence)) ;
     
     
-	Tensor auxi = ::contract(met.con(), 1, *this, place) ;
+	Tensor auxi = Lorene::contract(met.con(), 1, *this, place) ;
     
     // On doit remettre les indices a la bonne place ...
     
@@ -263,7 +267,7 @@ Tensor Tensor::down(int place, const Metric& met) const {
     assert (valence != 0) ;	    // Aucun interet pour un scalaire...
     assert ((place >=0) && (place < valence)) ;
     
-	Tensor auxi = ::contract(met.cov(), 1, *this, place) ;
+	Tensor auxi = Lorene::contract(met.cov(), 1, *this, place) ;
     
     // On doit remettre les indices a la bonne place ...
     
@@ -494,3 +498,4 @@ Tensor Tensor::derive_lie(const Vector& vv) const {
 
 
  
+}

@@ -25,6 +25,9 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:52:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2005/02/18 13:14:08  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -79,6 +82,7 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 #include "param.h" 
 #include "cmp.h"
 
+namespace Lorene {
 Mtbl_cf sol_poisson_frontiere(const Map_af&, const Mtbl_cf&, const Mtbl_cf&,
 			      int, int, int, double = 0.,
 			      double = 0.) ;
@@ -517,3 +521,4 @@ void Map_af::poisson_interne(const Cmp& source, const Valeur& limite,
     pot.set_dzpuis(0) ; 
 }
 
+}

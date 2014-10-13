@@ -25,6 +25,9 @@ char map_et_fait_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:04  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2014/10/06 15:13:13  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -75,6 +78,7 @@ char map_et_fait_der_C[] = "$Header$" ;
  ************************************************************************
  */
 
+namespace Lorene {
 Mtbl* map_et_fait_dxdr(const Map* cvi) {
 
     // recup du changement de variable
@@ -1458,3 +1462,4 @@ Mtbl* map_et_fait_sr2d2rdt2(const Map* cvi) {
     return mti ;
 } 
 
+}

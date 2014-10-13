@@ -30,6 +30,9 @@ char compobj_QI_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2014/10/13 08:52:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.8  2014/05/16 11:55:18  o_straub
  * fixed: GYOTO output from compobj & compobj_QI
  *
@@ -79,6 +82,7 @@ char compobj_QI_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Compobj_QI::Compobj_QI(Map& map_i) :
 		Compobj(map_i) ,
 		a_car(map_i) ,
@@ -370,4 +374,5 @@ void Compobj_QI::extrinsic_curvature() {
     
 	del_deriv() ; 
 
+}
 }

@@ -29,6 +29,9 @@ char poisson_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:29  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:16:09  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -75,6 +78,7 @@ char poisson_falloff_C[] = "$Header$" ;
 
 
 
+namespace Lorene {
 Mtbl_cf sol_poisson_falloff(const Map_af& mapping, const Mtbl_cf& source, const int k_falloff)
 {
     
@@ -538,4 +542,5 @@ Mtbl_cf sol_poisson_falloff(const Map_af& mapping, const Mtbl_cf& source, const 
     delete [] indic ;
     
     return resultat;
+}
 }

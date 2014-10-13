@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.41  2008/12/03 10:18:56  j_novak
  * Method 6 is now the default for calls to vector Poisson solver.
  *
@@ -170,6 +173,7 @@
  *
  */
 
+namespace Lorene {
 class Vector_divfree ;
 
 			//-------------------------//
@@ -926,4 +930,5 @@ class Vector_divfree: public Vector {
 
 
 
+}
 #endif

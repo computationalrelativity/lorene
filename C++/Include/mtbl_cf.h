@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.9  2006/06/06 14:56:59  j_novak
  * Summation functions for angular coefficients at xi=+/-1.
  *
@@ -159,6 +162,7 @@
 #include "base_val.h"
 #include "grilles.h"
 
+namespace Lorene {
 class Mg3d ;
 
 /**
@@ -666,4 +670,5 @@ Tbl diffrelmax(const Mtbl_cf& a, const Mtbl_cf& b) ;
 
 /**@} */
 
+}
 #endif

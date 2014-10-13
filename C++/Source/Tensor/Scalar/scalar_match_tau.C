@@ -29,6 +29,9 @@ char scalar_match_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2014/10/06 15:16:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -59,6 +62,7 @@ char scalar_match_tau_C[] = "$Header$" ;
 #include "proto.h"
 #include "param.h"
 
+namespace Lorene {
 void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 
     const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
@@ -575,3 +579,4 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
     } //End of loop on k
 }
 
+}

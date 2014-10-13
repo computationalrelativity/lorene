@@ -34,6 +34,7 @@ char ope_sec_order_r2_solh_C[] = "$Header$" ;
 	        //------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
+namespace Lorene {
 Tbl _solh_sec_order_r2_pas_prevu (int, double, double,double,double,double,Tbl&) {
 
   cout << "Homogeneous solution not implemented in Sec_order_r2 : "<< endl ;
@@ -230,4 +231,5 @@ Tbl Ope_sec_order_r2::get_solh () const {
   ds_two_plus  = val_lim(1,3) ;
 
   return res ;
+}
 }

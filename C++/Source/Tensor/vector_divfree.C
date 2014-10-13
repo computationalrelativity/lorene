@@ -32,6 +32,9 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:44  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:13:21  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char vector_divfree_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
+namespace Lorene {
 Vector_divfree::Vector_divfree(const Map& map, const Base_vect& triad_i,
 		const Metric& met) 
 		: Vector(map, CON, triad_i),
@@ -216,3 +220,4 @@ const Scalar& Vector_divfree::eta() const {
 }
 
 
+}

@@ -28,6 +28,9 @@ char map_radial_th_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:07  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2006/05/26 09:00:11  j_novak
  * New members for multiplication or division by cos(theta).
  *
@@ -54,6 +57,7 @@ char map_radial_th_manip_C[] = "$Header$" ;
 			//          mult_cost        //
 			//---------------------------//
 
+namespace Lorene {
 void Map_radial::mult_cost(Scalar& ci) const {
     
     assert(ci.get_etat() != ETATNONDEF) ;
@@ -172,3 +176,4 @@ void Map_radial::div_tant(Scalar& ci) const {
 	ci.set_etat_qcq() ; 
 }
 
+}

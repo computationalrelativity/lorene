@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2006/04/10 15:20:51  j_novak
  * Operators dsdx and sx can now be used in the nucleus.
  *
@@ -47,6 +50,7 @@
 #include "type_parite.h"
 #include "matrice.h"
 
+namespace Lorene {
 /**
  * Base (abstract) class for 1D spectral differential operators in one domain.
  * \ingroup (ellip)
@@ -718,4 +722,5 @@ class Diff_x4dsdx2 : public Diff {
 };
 
 
+}
 #endif

@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2014/10/13 08:53:01  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.29  2014/10/06 15:13:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -146,6 +149,7 @@ char init_data_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
+namespace Lorene {
 void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi, 
 			 int bound_beta, int solve_lapse, int solve_psi,
 			 int solve_shift, double precis, 
@@ -1607,3 +1611,4 @@ void Isol_hor::init_data_alt(int, double, int,
 
 
 
+}

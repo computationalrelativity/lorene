@@ -33,6 +33,9 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/13 08:53:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.6  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -67,6 +70,7 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 double Star_bin::velocity_potential(int mermax, double precis, double relax) {
@@ -253,4 +257,5 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     
     return erreur ; 
 
+}
 }

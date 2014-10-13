@@ -31,6 +31,9 @@ char map_et_poisson_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/12/30 15:56:42  k_taniguchi
  * *** empty log message ***
  *
@@ -45,6 +48,8 @@ char map_et_poisson_ylm_C[] = "$Header$" ;
 #include "param.h"
 
 //*****************************************************************************
+
+namespace Lorene {
 
 void Map_et::poisson_ylm(const Cmp& source, Param& par, Cmp& uu, int nylm, double* intvec) const {
 
@@ -266,3 +271,4 @@ void Map_et::poisson_ylm(const Cmp& source, Param& par, Cmp& uu, int nylm, doubl
 }
 
 
+}

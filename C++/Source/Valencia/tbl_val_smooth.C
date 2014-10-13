@@ -29,6 +29,9 @@ char tbl_val_smooth_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:49  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2004/12/30 16:14:01  j_novak
  * Changed the name of a shadowed variable.
  *
@@ -47,6 +50,7 @@ char tbl_val_smooth_C[] = "$Header$" ;
 #include "tbl_val.h"
 
 //Local prototypes
+namespace Lorene {
 void radial_smoothing(double* , const double* , int , double) ;
 //****************************************************************************
 
@@ -148,4 +152,5 @@ void radial_smoothing(double* tab, const double* rr, int n, double rho) {
     }    
   }
   return ;
+}
 }

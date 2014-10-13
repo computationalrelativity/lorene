@@ -36,6 +36,7 @@ char ope_sec_order_mat_C[] = "$Header$" ;
                      // Routine pour les cas non prevus -- 
                      //-----------------------------------
 
+namespace Lorene {
 Matrice _sec_order_mat_pas_prevu(int, double, double, double, double) {
   cout << "Sec_order : base not implemented..." << endl ;
   abort() ;
@@ -119,4 +120,5 @@ void Ope_sec_order::do_ope_mat() const {
   }
   ope_mat = new Matrice(sec_order_mat[base_r](nr, alpha, 
 					      a_param, b_param, c_param)) ;
+}
 }

@@ -83,6 +83,9 @@ char cftcos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:53:18  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:18:48  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -112,8 +115,10 @@ char cftcos_C[] = "$Header$" ;
 #include "tbl.h"
 
 // Prototypage des sous-routines utilisees:
+namespace Lorene {
 fftw_plan prepare_fft(int, Tbl*&) ;
 double* cheb_ini(const int) ;
+
 //*****************************************************************************
 
 void cftcos(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -266,3 +271,5 @@ int i, j, k ;
    }	// fin de la boucle sur phi
 
 }
+}
+

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2005/02/28 23:04:56  k_taniguchi
  * Addition of two indicators for the backfround metric and the boundary
  * condition, and some codes for the conformally flat case
@@ -51,6 +54,7 @@
 // Lorene headers
 #include "etoile.h"
 
+namespace Lorene {
 /**
  * Class for a neutron star in black hole - neutron star binary systems.
  * \ingroup(star)
@@ -519,4 +523,5 @@ class Et_bin_bhns_extr : public Etoile_bin {
 
 };
 
+}
 #endif

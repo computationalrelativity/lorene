@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.23  2014/05/27 12:32:28  j_novak
  * Added possibility to converge to a given magnetic moment.
  *
@@ -116,6 +119,8 @@
 
 #include "etoile.h"
 #include "tensor.h"
+
+namespace Lorene {
 
 // Local prototype (for determining the surface)
 Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
@@ -815,5 +820,6 @@ class Et_magnetisation : public Et_rot_mag {
 
 };
 
+}
 #endif
 

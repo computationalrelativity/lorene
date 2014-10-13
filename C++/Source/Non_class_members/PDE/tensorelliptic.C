@@ -8,6 +8,7 @@
 #include "diff.h"
 
 
+namespace Lorene {
  void tensorelliptic( Scalar source, Scalar& resu, double fit, double fit2, double fit0d2, double fit1d2, double fit0d3, double fit1d3) {
 
   const int nz = (*source.get_mp().get_mg()).get_nzone(); 	// Number of domains
@@ -460,4 +461,5 @@
 	
 	resu = phi;
 
+}
 }

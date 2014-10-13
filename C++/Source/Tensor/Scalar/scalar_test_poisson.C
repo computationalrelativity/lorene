@@ -35,6 +35,9 @@ char scalar_test_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2003/10/29 13:14:29  e_gourgoulhon
  * Change of method name: laplacien --> laplacian.
  *
@@ -53,6 +56,7 @@ char scalar_test_poisson_C[] = "$Header$" ;
 // Headers Lorene
 #include "tensor.h"
 
+namespace Lorene {
 Tbl Scalar::test_poisson(const Scalar& uu, ostream& ostr, bool detail) const {
     
     assert( &(uu.get_mp()) == mp ) ; 
@@ -147,3 +151,4 @@ Tbl Scalar::test_poisson(const Scalar& uu, ostream& ostr, bool detail) const {
 
 }
 
+}

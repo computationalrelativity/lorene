@@ -29,6 +29,9 @@ char write_formatted_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/05/13 21:31:06  e_gourgoulhon
  * First version.
  *
@@ -45,6 +48,7 @@ char write_formatted_C[] = "$Header$" ;
 
 // double version 
 // --------------
+namespace Lorene {
 void write_formatted(const double& x, ostream& ost) { 
 
     ost.width(23) ; ost << x ; 
@@ -62,4 +66,5 @@ void write_formatted(const Tbl& tb, ostream& ost) {
         ost.width(23) ; ost << tb(i) ; 
     }
     
+}
 }

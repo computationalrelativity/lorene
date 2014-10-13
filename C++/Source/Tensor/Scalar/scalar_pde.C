@@ -36,6 +36,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.19  2007/05/06 10:48:15  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -129,6 +132,7 @@ char scalar_pde_C[] = "$Header$" ;
 // Version without parameters
 // --------------------------
 
+namespace Lorene {
 Scalar Scalar::poisson() const {
     
     Param bidon ;
@@ -439,4 +443,5 @@ Scalar Scalar::sol_elliptic_pseudo_1d (Param_elliptic& ope_var) const {
   map_affine->sol_elliptic_pseudo_1d(ope_var, *this, res) ;
 
   return (res) ;
+}
 }

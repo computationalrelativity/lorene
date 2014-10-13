@@ -34,6 +34,9 @@ char tenseur_pde_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2003/10/03 15:58:51  j_novak
  * Cleaning of some headers
  *
@@ -64,6 +67,7 @@ char tenseur_pde_regu_C[] = "$Header$" ;
 
 // Version avec parametres
 // -----------------------
+namespace Lorene {
 void Tenseur::poisson_vect_regu(int k_div, int nzet, double unsgam1,
 				double lambda, Param& para, Tenseur& shift,
 				Tenseur& vecteur, Tenseur& scalaire) const {
@@ -185,3 +189,4 @@ void Tenseur::poisson_vect_regu(int k_div, int nzet, double unsgam1,
 }
 
 
+}

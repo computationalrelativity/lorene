@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.92  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.91  2013/06/05 15:06:10  j_novak
  * Legendre bases are treated as standard bases, when the multi-grid
  * (Mg3d) is built with BASE_LEG.
@@ -363,6 +366,7 @@
 #include "valeur.h"
 #include "tensor.h"
 
+namespace Lorene {
 class Param ; 
 class Cmp ;
 class Param_elliptic ;
@@ -1968,4 +1972,5 @@ Tbl diffrelmax(const Scalar& a, const Scalar& b) ;
 void exp_filter_ylm_all_domains(Scalar& ss, int p, double alpha=-16.) ;
 
 /** @} */
+}
 #endif

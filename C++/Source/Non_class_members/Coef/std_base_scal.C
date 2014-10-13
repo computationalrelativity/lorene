@@ -31,6 +31,9 @@ char std_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/13 08:53:14  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.7  2014/10/06 15:16:04  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -82,6 +85,7 @@ char std_base_scal_C[] = "$Header$" ;
 		    //------------------------------//
 
 // Cree la base standart pour une zone
+namespace Lorene {
 int std_base_scal_1z(int type_r, int type_t, int type_p) {
     
   // Base d'echantillonnage en (r,theta,phi) a determiner :
@@ -427,3 +431,4 @@ int std_base_scal_odd_1z(int type_r, int type_t, int type_p) {
   return base_l ;
 }
 
+}

@@ -31,6 +31,9 @@ char star_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:38  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -60,6 +63,7 @@ char star_bin_global_C[] = "$Header$" ;
 			//	Baryon mass	    //
 			//--------------------------//
 
+namespace Lorene {
 double Star_bin::mass_b() const {
 
     if (p_mass_b == 0x0) {    // a new computation is required
@@ -136,3 +140,4 @@ double Star_bin::xa_barycenter() const {
 
 }
 
+}

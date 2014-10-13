@@ -30,6 +30,9 @@ char eos_fit_sly4_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:52:53  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2004/09/26 18:54:35  k_taniguchi
  * Initial revision
  *
@@ -49,6 +52,7 @@ char eos_fit_sly4_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Eos_fit_SLy4::Eos_fit_SLy4(const char* path)
     : Eos_fitting("EOS fitted to SLy4", "eos_fit_sly4.d", path)
 {}
@@ -111,4 +115,5 @@ ostream& Eos_fit_SLy4::operator>>(ostream& ost) const {
 
     return ost ;
 
+}
 }

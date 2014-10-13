@@ -32,6 +32,9 @@ char et_bin_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:56  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2003/10/24 12:26:38  k_taniguchi
  * Suppress the method of update metric for NS-BH
  *
@@ -93,6 +96,7 @@ char et_bin_upmetr_C[] = "$Header$" ;
 		    //	 Version without relaxation	//
 		    //----------------------------------//
 
+namespace Lorene {
 void Etoile_bin::update_metric(const Etoile_bin& comp) {
 
     // Computation of quantities coming from the companion
@@ -302,3 +306,4 @@ void Etoile_bin::update_metric(const Etoile_bin& comp,
     
 			      
 } 
+}

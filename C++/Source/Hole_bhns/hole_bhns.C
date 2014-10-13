@@ -30,6 +30,9 @@ char hole_bhns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:59  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:10  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -61,6 +64,7 @@ char hole_bhns_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Hole_bhns::Hole_bhns(Map& mp_i, bool kerrschild_i, bool bc_nd_i,
 		     bool bc_fs_i, bool irrot_i, double massbh)
       : Black_hole(mp_i, kerrschild_i, massbh),
@@ -674,3 +678,4 @@ void Hole_bhns::relax_bhns(const Hole_bhns& hole_prev,
 
 }
 
+}

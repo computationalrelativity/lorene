@@ -46,6 +46,7 @@ char leg_base_scal_C[] = "$Header $" ;
 		    //------------------------------//
 
 // Cree la base standart pour une zone
+namespace Lorene {
 int leg_base_scal_1z(int type_r, int type_t, int type_p) {
     
   // Base d'echantillonnage en (r,theta,phi) a determiner :
@@ -391,3 +392,4 @@ int leg_base_scal_odd_1z(int type_r, int type_t, int type_p) {
   return base_l ;
 }
 
+}

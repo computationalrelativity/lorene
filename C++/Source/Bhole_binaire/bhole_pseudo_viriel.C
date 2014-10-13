@@ -25,6 +25,9 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:12:58  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -72,6 +75,7 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "bhole.h"
 
+namespace Lorene {
 double Bhole::viriel_seul () const{
     
     int nz = mp.get_mg()->get_nzone() ;
@@ -107,3 +111,4 @@ double Bhole_binaire::viriel () const{
     return res ;
 }
 
+}

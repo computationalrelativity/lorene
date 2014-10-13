@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2014/10/13 08:52:34  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.16  2013/11/25 13:50:55  j_novak
  * The inheritance from Etoile_rot is no longer virtual.
  *
@@ -104,6 +107,8 @@
 // Headers Lorene
 #include "eos_bifluid.h"
 #include "etoile.h"
+
+namespace Lorene {
 
 // Local prototype (for determining the surface)
 Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
@@ -490,4 +495,5 @@ class Et_rot_bifluid : public Etoile_rot {
 
 };
 
+}
 #endif

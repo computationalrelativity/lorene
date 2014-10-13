@@ -29,6 +29,9 @@ char des_surf_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:22  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:16:05  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -57,6 +60,7 @@ char des_surf_scalar_C[] = "$Header$" ;
 #include "unites.h"
 
 // Local prototypes
+namespace Lorene {
 double fonc_des_surf_scal_x(double, const Param&) ; 
 double fonc_des_surf_scal_y(double, const Param&) ; 
 double fonc_des_surf_scal_z(double, const Param&) ; 
@@ -491,4 +495,5 @@ double fonc_des_surf_scal_z(double vrho, const Param& par) {
     
     return defsurf.val_point(r, theta, phi) ; 
     
+}
 }

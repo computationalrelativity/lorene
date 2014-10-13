@@ -32,6 +32,9 @@ char base_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:39  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:12:57  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -80,6 +83,7 @@ char base_vect_C[] = "$Header$" ;
 
 // Standard constructor without name
 // ---------------------------------
+namespace Lorene {
 Base_vect::Base_vect(){
     
     set_name("") ; 
@@ -173,3 +177,4 @@ bool Base_vect::operator!=(const Base_vect& bi) const {
     
 }
 
+}

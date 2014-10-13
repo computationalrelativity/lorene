@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2014/10/13 08:53:47  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.22  2005/05/25 16:11:05  j_novak
  * Better handling of the case with no compactified domain.
  *
@@ -126,6 +129,7 @@ char scalar_r_manip_C[] = "$Header$" ;
 			//	 div_r       //
 			//-------------------//
 
+namespace Lorene {
 void Scalar::div_r() {
     
   mp->div_r(*this) ;   // Call of the appropriate routine of the mapping
@@ -513,3 +517,4 @@ void Scalar::inc_dzpuis(int inc) {
 
 
 
+}

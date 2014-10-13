@@ -33,6 +33,9 @@ char scalar_import_asymy_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:16:15  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -65,6 +68,7 @@ char scalar_import_asymy_C[] = "$Header$" ;
 			//  Importation in all domains   //
 			//-------------------------------//
 
+namespace Lorene {
 void Scalar::import_asymy(const Scalar& ci) {
     
     int nz = mp->get_mg()->get_nzone() ; 
@@ -609,4 +613,5 @@ void Scalar::import_align_asymy(int nzet, const Scalar& cm_d) {
     
     set_dzpuis(0) ; 
 
+}
 }

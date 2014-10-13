@@ -30,6 +30,9 @@ char bin_bhns_extr_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:42  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -56,6 +59,7 @@ char bin_bhns_extr_global_C[] = "$Header$" ;
           //          X coordinate of the barycenter          //
           //--------------------------------------------------//
 
+namespace Lorene {
 double Bin_bhns_extr::xa_barycenter_extr() const {
 
   using namespace Unites ;
@@ -287,4 +291,5 @@ double Bin_bhns_extr::mass_b_extr() const {
 
     return *p_mass_b_extr ;
 
+}
 }

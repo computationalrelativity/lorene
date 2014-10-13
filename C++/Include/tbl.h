@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -132,6 +135,7 @@
 #include "dim_tbl.h"
 #include "itbl.h"
 
+namespace Lorene {
 class Grille3d ;
 class Matrice ;
 
@@ -500,4 +504,5 @@ double diffrelmax(const Tbl& a, const Tbl& b) ;
 /** @}*/
 
 
+}
 #endif

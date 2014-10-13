@@ -30,6 +30,9 @@ char star_bhns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:53:40  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:16  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,7 @@ char star_bhns_C[] = "$Header$" ;
 #include "unites.h"
 
 // Local prototype
+namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ;
 
                     //---------------------//
@@ -612,4 +616,5 @@ void Star_bhns::relax_bhns(const Star_bhns& star_prev, double relax_ent,
 
     equation_of_state() ;
 
+}
 }

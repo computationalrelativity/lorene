@@ -31,6 +31,9 @@ char valeur_equipot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:53:50  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:23  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -70,6 +73,7 @@ char valeur_equipot_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 // Local prototypes
+namespace Lorene {
 double valeur_equipot_fonc(double, const Param&) ;
 
 //****************************************************************************
@@ -215,3 +219,4 @@ double valeur_equipot_fonc(double xi, const Param& par) {
     return cuu.val_point_jk(l, xi, j, k) - uu0 ;     
 }
 
+}

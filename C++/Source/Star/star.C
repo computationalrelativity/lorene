@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2014/10/13 08:53:37  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.20  2013/04/20 20:56:15  m_bejger
  * Fix for three domains in star in Star::equation_of_state from Etoile/etoile.C
  *
@@ -117,6 +120,7 @@ char star_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
+namespace Lorene {
 Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		 : mp(mpi), 
 		   nzet(nzet_i), 
@@ -578,4 +582,5 @@ void Star::hydro_euler() {
     
     abort() ;        
     
+}
 }

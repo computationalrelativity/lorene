@@ -33,6 +33,9 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2014/10/13 08:53:08  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.5  2009/10/23 12:56:19  j_novak
  * New base T_LEG_MI
  *
@@ -63,6 +66,7 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 
 
 // Prototypage des fonctions utilisees:
+namespace Lorene {
 void _poisangu_pas_prevu(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_p(Mtbl_cf *, int, double) ;
 void _poisangu_t_leg_i(Mtbl_cf *, int, double) ;
@@ -105,4 +109,5 @@ void Mtbl_cf::poisson_angu(double lambda) {
 		poisangu[base_t](this, l, lambda) ;
     }
     
+}
 }

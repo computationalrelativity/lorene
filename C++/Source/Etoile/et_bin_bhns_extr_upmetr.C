@@ -31,6 +31,9 @@ char et_bin_bhns_extr_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -58,6 +61,7 @@ char et_bin_bhns_extr_upmetr_C[] = "$Header$" ;
           //          No relaxation for a fixed BH background          //
           //-----------------------------------------------------------//
 
+namespace Lorene {
 void Et_bin_bhns_extr::update_metric_extr(const double& mass,
 					  const double& sepa)
 {
@@ -266,4 +270,5 @@ void Et_bin_bhns_extr::update_metric_extr(const double& mass,
 
     }
 
+}
 }

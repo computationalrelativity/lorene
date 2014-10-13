@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:52:33  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2014/10/06 15:09:39  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -59,6 +62,7 @@
 #include "param.h"
 
 // External classes which appear in the declaration of class Eos_fitting:
+namespace Lorene {
 class Tbl ; 
 class Cmp ;
 class Param ;
@@ -407,4 +411,5 @@ class Eos_fit_AkmalPR : public Eos_fitting {
 
 };
 
+}
 #endif

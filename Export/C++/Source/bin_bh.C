@@ -29,6 +29,9 @@ char bin_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/13 08:54:05  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.3  2006/09/12 08:04:05  j_novak
  * Removal of the include path Export/C++/Include, updating of the relevant
  * source files in Export/C++/Source.
@@ -52,6 +55,7 @@ char bin_bh_C[] = "$Header$" ;
 		    //	    Constructor from a binary file     //
 		    //-----------------------------------------//
 
+namespace Lorene {
 Bin_BH::Bin_BH(FILE* fich) {
     
  	fread(&omega, sizeof(double), 1, fich) ;	
@@ -324,3 +328,4 @@ void Bin_BH::save_form(ofstream& fich) const {
 
 }
 
+}

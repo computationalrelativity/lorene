@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.17  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -111,6 +114,7 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
                     //    Equation for N\Psi     //
                     //----------------------------//
 
+namespace Lorene {
 Scalar Tslice_dirac_max::solve_npsi(const Scalar* p_ener_dens,
                                  const Scalar* p_trace_stress) const {
 
@@ -248,3 +252,4 @@ Vector Tslice_dirac_max::solve_beta(int method)
 }
                 
 
+}

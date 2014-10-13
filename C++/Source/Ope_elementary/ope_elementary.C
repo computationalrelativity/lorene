@@ -23,6 +23,9 @@ char ope_elementary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2014/10/13 08:53:32  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.1  2003/12/11 14:48:50  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -35,6 +38,7 @@ char ope_elementary_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
+namespace Lorene {
 Ope_elementary::Ope_elementary (int nbr, int base, double alf, double bet) : 
   nr (nbr), base_r (base), alpha(alf), beta(bet),
   ope_mat(0x0), ope_cl (0x0), non_dege(0x0) {}
@@ -66,3 +70,4 @@ Ope_elementary::~Ope_elementary() {
     delete non_dege ;
 }
 
+}

@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:53:48  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2014/10/06 15:13:22  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -84,6 +87,7 @@ char tslice_conf_init_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 void Time_slice_conf::initial_data_cts(const Sym_tensor& uu, 
                 const Scalar& trk_in, const Scalar& trk_point, 
                 double pdt, double precis, int method_poisson_vect,
@@ -343,3 +347,4 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
     del_deriv() ; 
     
 } 
+}

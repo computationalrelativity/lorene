@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2014/10/13 08:52:36  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.12  2008/12/10 13:53:56  jl_jaramillo
  * versions developed at Meudon in Novemver 2008
  *
@@ -73,6 +76,7 @@
  */
 #include "metric.h"
 
+namespace Lorene {
 /**
  * Spheroidal 2-surfaces embedded in a time-slice of the 3+1 formalism.\ingroup (star)
  * 
@@ -455,4 +459,5 @@ class App_hor : public Spheroid {
 } ;
 	
 
+}
 #endif

@@ -33,6 +33,9 @@ char et_bin_bhns_extr_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:55  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:08  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -51,6 +54,7 @@ char et_bin_bhns_extr_phi_C[] = "$Header$" ;
 #include "et_bin_bhns_extr.h"
 #include "utilitaires.h"
 
+namespace Lorene {
 double Et_bin_bhns_extr::phi_longest_rad(double x_max, double y_max) const {
 
     //----------------------------------------------------------------//
@@ -119,4 +123,5 @@ double Et_bin_bhns_extr::phi_longest_rad(double x_max, double y_max) const {
 
     return ppp ;
 
+}
 }

@@ -30,6 +30,9 @@ char blackhole_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/13 08:52:46  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.4  2014/10/06 15:13:02  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -62,6 +65,7 @@ char blackhole_global_C[] = "$Header$" ;
                //          Irreducible mass of BH         //
                //-----------------------------------------//
 
+namespace Lorene {
 double Black_hole::mass_irr() const {
 
     // Fundamental constants and units
@@ -810,4 +814,5 @@ const Tbl& Black_hole::angu_mom_bh() const {
 
     return *p_angu_mom_bh ;
 
+}
 }

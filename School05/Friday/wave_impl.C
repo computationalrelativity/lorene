@@ -12,6 +12,8 @@
 #include "graphique.h"
 #include "diff.h"
 
+using namespace Lorene ;
+
 int main() {
 
     // Construction of a multi-grid (Mg3d)

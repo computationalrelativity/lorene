@@ -30,6 +30,9 @@ char bin_bhns_shift_ana_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2014/10/13 08:52:41  j_novak
+ * Lorene classes and functions now belong to the namespace Lorene.
+ *
  * Revision 1.2  2014/10/06 15:13:00  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -52,6 +55,7 @@ char bin_bhns_shift_ana_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
+namespace Lorene {
 void Bin_bhns::shift_analytic(double reduce_shift_bh, double reduce_shift_ns)
 {
 
@@ -343,4 +347,5 @@ void Bin_bhns::shift_analytic(double reduce_shift_bh, double reduce_shift_ns)
 
     (star.set_shift_auto()).std_spectral_base() ;
 
+}
 }
