@@ -40,6 +40,9 @@ char facto_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/15 12:48:22  j_novak
+ * Corrected namespace declaration.
+ *
  * Revision 1.4  2014/10/13 08:53:18  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -87,9 +90,6 @@ char facto_ini_C[] = "$Header$" ;
 // Prototypes of F77 subroutines
 #include "headcpp.h"
 #include "proto_f77.h"
-
-// Variable de loch
-//int loch_facto_ini = 0 ;
 
 namespace Lorene {
 int *facto_ini( int n )

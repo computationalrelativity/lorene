@@ -82,6 +82,9 @@ char cipcossin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/15 12:48:21  j_novak
+ * Corrected namespace declaration.
+ *
  * Revision 1.3  2014/10/13 08:53:16  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -129,7 +132,6 @@ char cipcossin_C[] = "$Header$" ;
 namespace Lorene {
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
-namespace Lorene {
 //*****************************************************************************
 
 void cipcossin(const int* deg, const int* dimc, const int* dimf, 
@@ -245,6 +247,5 @@ int i, j, k, index ;
     // Menage
     free (t1) ;
     
-}
 }
 }

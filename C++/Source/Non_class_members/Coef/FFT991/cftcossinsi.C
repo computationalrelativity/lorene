@@ -87,6 +87,9 @@ char cftcossinsi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2014/10/15 12:48:21  j_novak
+ * Corrected namespace declaration.
+ *
  * Revision 1.3  2014/10/13 08:53:16  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -139,7 +142,6 @@ int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
-namespace Lorene {
 //*****************************************************************************
 
 void cftcossinsi(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -619,6 +621,5 @@ int i, j, k ;
     free (t1) ;
     free (g) ;
 
-}
 }
 }
