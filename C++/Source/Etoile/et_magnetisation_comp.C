@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2014/10/21 09:23:54  j_novak
+ * Addition of global functions mass_g(), angu_mom(), grv2/3() and mom_quad().
+ *
  * Revision 1.11  2014/10/13 08:52:57  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -522,14 +525,302 @@ void Et_magnetisation::MHD_comput() {
 
 }
 
+			//----------------------------//
+			//	Gravitational mass    //
+			//----------------------------//
+
+double Et_magnetisation::mass_g() const {
+
+  if (p_mass_g == 0x0) {    // a new computation is required
+    
+    if (relativistic) {
+      
+      // Magnetisation: S_{rr} + S_{\theta\theta}
+      Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
+      SrrplusStt = SrrplusStt / a_car ; // S^r_r + S^\theta_\theta
+      
+      Tenseur Spp (Cmp(Sij_I(3, 3))) ; // Magnetisation: S_{\phi\phi}
+      Spp = Spp / b_car ; // S^\phi_\phi
+
+      Cmp temp(E_I) ;
+      Tenseur E_i (temp) ;
+      Tenseur J_i (Cmp(J_I(3))) ;
+      
+      Tenseur source = nnn * (ener_euler + E_em + E_i 
+			      + s_euler + Spp_em + SrrplusStt + Spp) + 
+	nphi * (Jp_em + J_i) 
+	+ 2 * bbb * (ener_euler + press) * tnphi * uuu ;
+      
+      source = a_car * bbb * source ;
+      
+      source.set_std_base() ;
+      
+      p_mass_g = new double( source().integrale() ) ;
 
 
+    }
+    else{  // Newtonian case 
+      p_mass_g = new double( mass_b() ) ;   // in the Newtonian case
+      //  M_g = M_b
+    }
+  }
+    
+  return *p_mass_g ; 
+
+} 
+
+			//----------------------------//
+			//	Angular momentum      //
+			//----------------------------//
+
+double Et_magnetisation::angu_mom() const {
+
+  if (p_angu_mom == 0x0) {    // a new computation is required
+	
+    Cmp dens = uuu() ; 
+
+    dens.mult_r() ;			//  Multiplication by
+    dens.va = (dens.va).mult_st() ;	//    r sin(theta)
+
+    if (relativistic) {
+      dens = a_car() * (b_car() * (ener_euler() + press()) 
+			* dens + bbb() * (Jp_em() + Cmp(J_I(3)) ) ) ; 
+    }
+    else {    // Newtonian case 
+      dens = nbar() * dens ; 
+    }
+
+    dens.std_base_scal() ; 
+
+    p_angu_mom = new double( dens.integrale() ) ;
+    
+  }
+    
+  return *p_angu_mom ; 
+
+}
+
+			//----------------------------//
+			//	     GRV2	      //
+			//----------------------------//
+
+double Et_magnetisation::grv2() const {
+
+    if (p_grv2 == 0x0) {    // a new computation is required
+	
+      // To get qpig:	
+      using namespace Unites ;
+
+      Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
+      Spp = Spp / b_car ; // S^\phi_\phi
+
+      Tenseur sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
+					   * uuu*uuu + Spp) ;
+      
+      Tenseur sou_q =   2 * qpig * a_car * Spp_em + 1.5 * ak_car
+	- flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() ) ;
+
+      p_grv2 = new double( double(1) - lambda_grv2(sou_m(), sou_q()) ) ; 
+
+    }
+    
+    return *p_grv2 ; 
+
+}
 
 
+			//----------------------------//
+			//	     GRV3	      //
+			//----------------------------//
 
+double Et_magnetisation::grv3(ostream* ost) const {
 
+    if (p_grv3 == 0x0) {    // a new computation is required
 
+	// To get qpig:	
+      using namespace Unites ;
+      
+      Tenseur source(mp) ; 
+	
+	// Gravitational term [cf. Eq. (43) of Gourgoulhon & Bonazzola
+	// ------------------	    Class. Quantum Grav. 11, 443 (1994)]
 
+	if (relativistic) {
+	    Tenseur alpha = dzeta - logn ; 
+	    Tenseur beta = log( bbb ) ; 
+	    beta.set_std_base() ; 
+	    
+	    source = 0.75 * ak_car 
+		     - flat_scalar_prod(logn.gradient_spher(),
+					logn.gradient_spher() )
+		     + 0.5 * flat_scalar_prod(alpha.gradient_spher(),
+					      beta.gradient_spher() ) ; 
+	    
+	    Cmp aa = alpha() - 0.5 * beta() ; 
+	    Cmp daadt = aa.srdsdt() ;	// 1/r d/dth
+	    
+	    // What follows is valid only for a mapping of class Map_radial : 
+	    const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ; 
+	    if (mpr == 0x0) {
+		cout << "Etoile_rot::grv3: the mapping does not belong"
+		     << " to the class Map_radial !" << endl ; 
+		abort() ; 
+	    }
+		
+	    // Computation of 1/tan(theta) * 1/r daa/dtheta
+	    if (daadt.get_etat() == ETATQCQ) {
+		Valeur& vdaadt = daadt.va ; 
+		vdaadt = vdaadt.ssint() ;	// division by sin(theta)
+		vdaadt = vdaadt.mult_ct() ;	// multiplication by cos(theta)
+	    }
+	    
+	    Cmp temp = aa.dsdr() + daadt ; 
+	    temp = ( bbb() - a_car()/bbb() ) * temp ; 
+	    temp.std_base_scal() ; 
+	    
+	    // Division by r 
+	    Valeur& vtemp = temp.va ; 
+	    vtemp = vtemp.sx() ;    // division by xi in the nucleus
+				    // Id in the shells
+				    // division by xi-1 in the ZEC
+	    vtemp = (mpr->xsr) * vtemp ; // multiplication by xi/r in the nucleus
+					 //		  by 1/r in the shells
+					 //		  by r(xi-1) in the ZEC
+
+	    // In the ZEC, a multiplication by r has been performed instead
+	    //   of the division: 			
+	    temp.set_dzpuis( temp.get_dzpuis() + 2 ) ;  
+	    
+	    source = bbb() * source() + 0.5 * temp ; 
+
+	}
+	else{
+	    source = - 0.5 * flat_scalar_prod(logn.gradient_spher(),
+					      logn.gradient_spher() ) ; 
+	}
+	
+	source.set_std_base() ; 
+
+	double int_grav = source().integrale() ; 
+
+	// Matter term
+	// -----------
+	
+	if (relativistic) {   
+ 
+	  // S_{rr} + S_{\theta\theta}
+	  Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
+	  SrrplusStt = SrrplusStt / a_car ; // S^r_r + S^\theta_\theta
+	  
+	  Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
+	  Spp = Spp / b_car ; // S^\phi_\phi
+  
+	    source  = qpig * a_car * bbb * ( s_euler + Spp_em + SrrplusStt + Spp ) ;
+	}
+	else{
+	    source = qpig * ( 3 * press + nbar * uuu * uuu ) ; 
+	}
+
+	source.set_std_base() ; 
+
+	double int_mat = source().integrale() ; 
+
+	// Virial error
+	// ------------
+	if (ost != 0x0) {
+	    *ost << "Et_magnetisation::grv3 : gravitational term : " << int_grav 
+		 << endl ;
+	    *ost << "Et_magnetisation::grv3 : matter term :        " << int_mat 
+		 << endl ;
+	}
+
+	p_grv3 = new double( (int_grav + int_mat) / int_mat ) ; 	 
+
+    }
+    
+    return *p_grv3 ; 
+
+}
+
+			//----------------------------//
+			//     Quadrupole moment      //
+			//----------------------------//
+
+double Et_magnetisation::mom_quad() const {
+
+  if (p_mom_quad == 0x0) {    // a new computation is required
+    
+    // To get qpig:	
+    using namespace Unites ;
+    
+    // Source for of the Poisson equation for nu
+    // -----------------------------------------
+    
+    Tenseur source(mp) ; 
+    
+    if (relativistic) {
+      // S_{rr} + S_{\theta\theta}
+      Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
+      SrrplusStt = SrrplusStt / a_car ; // S^r_r + S^\theta_\theta
+      
+      Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
+      Spp = Spp / b_car ; // S^\phi_\phi
+      
+      Cmp temp(E_I) ;
+      Tenseur E_i(temp) ;
+
+      Tenseur beta = log(bbb) ; 
+      beta.set_std_base() ; 
+      source =  qpig * a_car *( ener_euler + E_em + E_i
+				+ s_euler + Spp_em + SrrplusStt + Spp) 
+	+ ak_car - flat_scalar_prod(logn.gradient_spher(), 
+		   logn.gradient_spher() + beta.gradient_spher()) ; 
+    }
+    else {
+      source = qpig * nbar ; 
+    }
+    source.set_std_base() ; 	
+    
+    // Multiplication by -r^2 P_2(cos(theta))
+    //  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
+    // ------------------------------------------------------------------
+    
+    // Multiplication by r^2 : 
+    // ----------------------
+    Cmp& csource = source.set() ; 
+    csource.mult_r() ; 
+    csource.mult_r() ; 
+    if (csource.check_dzpuis(2)) {
+      csource.inc2_dzpuis() ; 
+    }
+    
+    // Muliplication by cos^2(theta) :
+    // -----------------------------
+    Cmp temp = csource ; 
+    
+    // What follows is valid only for a mapping of class Map_radial : 
+    assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
+    
+    if (temp.get_etat() == ETATQCQ) {
+      Valeur& vtemp = temp.va ; 
+      vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+      vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+    }
+    
+    // Muliplication by -P_2(cos(theta)) :
+    // ----------------------------------
+    source = 0.5 * source() - 1.5 * temp ; 
+    
+    // Final result
+    // ------------
+    
+    p_mom_quad = new double( source().integrale() / qpig ) ; 	 
+    
+  }
+  
+  return *p_mom_quad ; 
+  
+}
 
 
 }

@@ -31,6 +31,9 @@ char et_magnetisation_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/10/21 09:23:53  j_novak
+ * Addition of global functions mass_g(), angu_mom(), grv2/3() and mom_quad().
+ *
  * Revision 1.9  2014/10/13 08:52:56  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -700,6 +703,9 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
     Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
     Spp = Spp / b_car ; // S^\phi_\phi
 
+    Cmp temp(E_I) ;
+    Tenseur E_int(temp) ; 
+
     //-----------------------------------------------
     //  Sources of the Poisson equations
     //-----------------------------------------------
@@ -711,7 +717,7 @@ void Et_magnetisation::equilibrium_mag(double ent_c, double omega0,
     
     if (relativistic) {
       source_nuf =  
-	qpig * a_car *( ener_euler + s_euler + SrrplusStt + Spp ) ; 
+	qpig * a_car *( ener_euler + s_euler + E_int + SrrplusStt + Spp ) ; 
       
       source_nuq = ak_car 
 	- flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() 

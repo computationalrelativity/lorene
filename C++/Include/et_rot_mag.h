@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2014/10/21 09:23:53  j_novak
+ * Addition of global functions mass_g(), angu_mom(), grv2/3() and mom_quad().
+ *
  * Revision 1.24  2014/10/13 08:52:34  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -688,6 +691,37 @@ class Et_magnetisation : public Et_rot_mag {
    
   /// Operator >> (virtual function called by the operator <<). 
   virtual ostream& operator>>(ostream& ) const ;    
+
+  // Global quantities
+  // -----------------
+ public:
+  virtual double mass_g() const ;	    ///< Gravitational mass
+  virtual double angu_mom() const ;  ///< Angular momentum
+  virtual double grv2() const ;	///< Error on the virial identity GRV2
+
+  /** Error on the virial identity GRV3.
+   *  The error is computed as the integral defined
+   *  by Eq. (43) of [Gourgoulhon and Bonazzola, 
+   *  \a Class. \a Quantum \a Grav. \b 11 , 443 (1994)] divided by
+   *  the integral of the matter terms.
+   * 
+   *  @param ost output stream to give details of the computation;
+   *		if set to 0x0 [default value], no details will be
+   *		given.
+   *   
+   */
+  virtual double grv3(ostream* ost = 0x0) const ;	
+
+  /** Quadrupole moment.
+   *  The quadrupole moment \e Q  is defined according to Eq. (7) of
+   *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+   *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
+   *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
+   *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
+   *  Note that \e Q  is the negative of the quadrupole moment defined 
+   *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
+   */
+  virtual double mom_quad() const ;	
 
   // Computational routines
   // ----------------------
