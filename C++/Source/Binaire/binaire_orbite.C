@@ -34,6 +34,9 @@ char binaire_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2014/10/24 11:27:49  j_novak
+ * Minor change in the setting of parameters for zero_list, to avoid problems with g++-4.8. To be further explored...
+ *
  * Revision 1.7  2014/10/13 08:52:44  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -329,7 +332,7 @@ void Binaire::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 
     Param parf ; 
     parf.add_int(relat) ; 
-    parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
+    parf.add_double( ori_x1, 0) ; 
     parf.add_double( dnulg[0], 1) ;  
     parf.add_double( asn2[0], 2) ;    
     parf.add_double( dasn2[0], 3) ;    
@@ -661,7 +664,7 @@ void Binaire::orbit_eqmass(double fact_omeg_min, double fact_omeg_max,
 
     Param parf ; 
     parf.add_int(relat) ; 
-    parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
+    parf.add_double( ori_x1, 0) ; 
     parf.add_double( dnulg[0], 1) ;  
     parf.add_double( asn2[0], 2) ;    
     parf.add_double( dasn2[0], 3) ;    
