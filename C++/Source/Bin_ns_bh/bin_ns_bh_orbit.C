@@ -31,6 +31,9 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2014/10/24 14:10:24  j_novak
+ * Minor change to prevent weird error from g++-4.8...
+ *
  * Revision 1.6  2014/10/13 08:52:43  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -179,9 +182,10 @@ void Bin_ns_bh::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
     //------------------------------------------------------
     int relat = ( star.is_relativistic() ) ? 1 : 0 ;
 
+    double ori_x = (star.get_mp()).get_ori_x() ;
     Param parf ;
     parf.add_int(relat) ;
-    parf.add_double( (star.get_mp()).get_ori_x(), 0) ;
+    parf.add_double( ori_x, 0) ;
     parf.add_double( dnulg, 1) ;
     parf.add_double( asn2, 2) ;
     parf.add_double( dasn2, 3) ;

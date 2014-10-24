@@ -29,6 +29,9 @@ char binary_orbit_xcts_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2014/10/24 14:10:24  j_novak
+ * Minor change to prevent weird error from g++-4.8...
+ *
  * Revision 1.13  2014/10/13 08:52:45  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -282,7 +285,7 @@ void Binary_xcts::orbit(double fact_omeg_min,
 
     Param parf ; 
     parf.add_int(relat) ; 
-    parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
+    parf.add_double( ori_x1, 0) ; 
     parf.add_double( dnulg[0], 1) ;  
     parf.add_double( asn2[0], 2) ;    
     parf.add_double( dasn2[0], 3) ;    

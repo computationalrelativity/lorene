@@ -31,6 +31,9 @@ char bin_bhns_extr_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2014/10/24 14:10:23  j_novak
+ * Minor change to prevent weird error from g++-4.8...
+ *
  * Revision 1.4  2014/10/13 08:52:42  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -223,9 +226,10 @@ void Bin_bhns_extr::orbit_omega_ks(double fact_omeg_min,
     //------------------------------------------------------
     int relat = ( star.is_relativistic() ) ? 1 : 0 ;
 
+    double ori_x = (star.get_mp()).get_ori_x() ;
     Param parf ;
     parf.add_int(relat) ;
-    parf.add_double( (star.get_mp()).get_ori_x(), 0) ;
+    parf.add_double( ori_x, 0) ;
     parf.add_double( dnulg, 1) ;
     parf.add_double( asn2, 2) ;
     parf.add_double( dasn2, 3) ;
@@ -443,10 +447,11 @@ void Bin_bhns_extr::orbit_omega_cf(double fact_omeg_min,
     // Start of calculation of the orbital angular velocity
     //------------------------------------------------------
     int relat = ( star.is_relativistic() ) ? 1 : 0 ;
+    double ori_x = (star.get_mp()).get_ori_x() ;
 
     Param parf ;
     parf.add_int(relat) ;
-    parf.add_double( (star.get_mp()).get_ori_x(), 0) ;
+    parf.add_double( ori_x, 0) ;
     parf.add_double( dnulg, 1) ;
     parf.add_double( asn2, 2) ;
     parf.add_double( dasn2, 3) ;

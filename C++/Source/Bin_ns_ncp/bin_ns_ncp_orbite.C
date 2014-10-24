@@ -264,7 +264,7 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 
     Param parf ; 
     parf.add_int(relat) ; 
-    parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
+    parf.add_double( ori_x1, 0) ; 
     parf.add_double( dnulg[0], 1) ;
     parf.add_double( g00[0], 2) ;
     parf.add_double( g10[0], 3) ;
