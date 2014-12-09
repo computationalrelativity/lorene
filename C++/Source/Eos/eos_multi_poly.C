@@ -31,6 +31,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2014/12/09 14:07:14  j_novak
+ * Changed (corrected?) the formula for computing the kappa's.
+ *
  * Revision 1.9  2014/10/13 08:52:53  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -277,14 +280,14 @@ void Eos_multi_poly::set_auxiliary() {
     if (npeos > 2) {
 
         kappa_cgs[2] = kappa_cgs[1]
-	  * pow(10., logRho[0]*(gamma[1]-gamma[2])) ;
+	  * pow(10., logRho[1]*(gamma[1]-gamma[2])) ;
 
 	if (npeos > 3) {
 
 	    for (int l=3; l<npeos; l++) {
 
 	        kappa_cgs[l] = kappa_cgs[l-1]
-		  * pow(10., logRho[l-2]*(gamma[l-1]-gamma[l])) ;
+		  * pow(10., logRho[l-1]*(gamma[l-1]-gamma[l])) ;
 
 	    }
 
