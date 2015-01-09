@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2015/01/09 15:28:52  j_novak
+ * New integration function for general non-equally-spaced grids.
+ *
  * Revision 1.15  2014/10/13 08:52:37  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -233,6 +236,21 @@ void zero_list( double (*f)(double, const Param&), const Param& par,
 		double xmin, double xmax, int nsub, 
 		Tbl*& az, Tbl*& bz ) ;  
 		
+/** Integrates a function defined on an unequally-spaced grid, approximating
+ * it by piece parabolae.
+ *
+ * This function performs the numerical integration of a function given by its
+ * values on a unequally-spaced grid, by means of local parabolic approximation.
+ * The resulting primitive is set to 0 on the lower end of the integration
+ * interval.
+ *      @param xx [input] \c Tbl containing the grid abscissas
+ *      @param ff [input] \c Tbl containing the values of the function to be 
+ *                integrated, on the grid points
+ *      @return a \c Tbl with the values of the primitive of \c ff at the grid
+ *                points, such that it is zero at the first grid point.
+ */
+ Tbl integ1D(const Tbl& xx, const Tbl& ff) ;
+
 /** Writes integer(s) into a binary file according to the
  *  big endian convention.
  *
