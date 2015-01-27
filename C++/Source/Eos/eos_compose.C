@@ -32,6 +32,9 @@ char eos_compose_C[] = "$Header: " ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2015/01/27 14:22:38  j_novak
+ * New methods in Eos_tabul to correct for EoS themro consistency (optional).
+ *
  * Revision 1.4  2014/10/13 08:52:52  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -58,6 +61,7 @@ char eos_compose_C[] = "$Header: " ;
 #include "headcpp.h"
 #include "eos.h"
 #include "tbl.h"
+#include "utilitaires.h"
 #include "unites.h"
 
 			//----------------------------//
@@ -67,8 +71,8 @@ char eos_compose_C[] = "$Header: " ;
 // Standard constructor
 // --------------------			
 namespace Lorene {
-Eos_CompOSE::Eos_CompOSE(const char* file_name)
-		: Eos_tabul("Tabulated EoS", file_name)
+  Eos_CompOSE::Eos_CompOSE(const char* file_name, bool modi)
+    : Eos_tabul("Tabulated EoS", file_name, modi)
 {}
 
 
@@ -80,15 +84,17 @@ Eos_CompOSE::Eos_CompOSE(FILE* fich) : Eos_tabul(fich)
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_CompOSE::Eos_CompOSE(ifstream& fich) : Eos_tabul(fich) 
+  Eos_CompOSE::Eos_CompOSE(ifstream& fich, bool modi) : Eos_tabul(fich, modi) 
 {}
 
 
 // Constructor from CompOSE data files
 // ------------------------------------
-Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos") 
+  Eos_CompOSE::Eos_CompOSE(const string& files, bool modi) : Eos_tabul("CompOSE Eos") 
 {
   
+  mod_table = modi ;
+
   using namespace Unites ;
     	
   // Files containing data and a test
@@ -138,8 +144,6 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos")
   double rhonuc_cgs = rhonuc_si * 1e-3 ;
   double c2_cgs = c_si * c_si * 1e4 ;    
   double m_neutron_MeV, m_proton_MeV ;
-    	
-  double ww = 0 ;
   
   ifstream in_p_rho (file_thermo.data()) ;
   if (!in_p_rho) {
@@ -173,26 +177,46 @@ Eos_CompOSE::Eos_CompOSE(const string& files) : Eos_tabul("CompOSE Eos")
       cout << "Aborting..." << endl ;
       abort() ;
     }
-    double psc2_cgs = p_cgs / c2_cgs ;
-    double h = log( (rho_cgs + psc2_cgs) /
-		    (10 * nb_fm3 * rhonuc_cgs) ) ;
     
-    press[i] = psc2_cgs ; 
+    press[i] = p_cgs / c2_cgs ; 
     nb[i]    = nb_fm3 ;
     ro[i]    = rho_cgs ; 
+  }
 
-    if (i==0) { ww = h ; }
-    		
-    h = h - ww + 1.e-14 ;    		
+  if (mod_table) {
+    Tbl pp(nbp) ; pp.set_etat_qcq() ;
+    Tbl dh(nbp) ; dh.set_etat_qcq() ;
+    for (int i=0; i<nbp; i++) {
+      pp.set(i) = log(press[i] / rhonuc_cgs) ;
+      dh.set(i) = press[i] / (ro[i] + press[i]) ;
+    }
     
-    logh->set(i) = log10( h ) ;
-    logp->set(i) = log10( psc2_cgs / rhonuc_cgs ) ;
-    dlpsdlh->set(i) = h * (rho_cgs + psc2_cgs) / psc2_cgs ;
-    lognb->set(i) = log10(nb_fm3) ;
+    Tbl hh  = integ1D(pp, dh) + 1.e-14 ;
     
-  } // End of reading the table
-
-
+    for (int i=0; i<nbp; i++) {
+      logh->set(i) = log10( hh(i) ) ;
+      logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+      dlpsdlh->set(i) = hh(i) / dh(i) ;
+      lognb->set(i) = log10(nb[i]) ;
+    }
+  }
+   
+  else {
+    double ww = 0. ;
+    for (int i=0; i<nbp; i++) {
+      double h = log( (ro[i] + press[i]) /
+		      (10 * nb[i] * rhonuc_cgs) ) ;
+      
+      if (i==0) { ww = h ; }    		
+      h = h - ww + 1.e-14 ;    		
+      
+      logh->set(i) = log10( h ) ;
+      logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+      dlpsdlh->set(i) = h * (ro[i] + press[i]) / press[i] ;
+      lognb->set(i) = log10(nb[i]) ;
+    } 
+  }
+  
   // Computation of dpdnb
   //---------------------
   double p0, p1, p2, n0, n1, n2, dpdnb; 
@@ -305,7 +329,10 @@ ostream& Eos_CompOSE::operator>>(ostream & ost) const {
     ost << "Built from file " << tablename << endl ;
     ost << "Authors : " << authors << endl ;
     ost << "Number of points in file : " << logh->get_taille() << endl ;
-    	
+    if (mod_table) {
+      ost << "Table eventually slightly modified to ensure the relation" << endl ;
+      ost << "dp = (e+p) dh" << endl ;
+    }
     return ost ;
 
 }

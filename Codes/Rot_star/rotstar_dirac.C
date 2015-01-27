@@ -30,6 +30,9 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2015/01/27 14:22:39  j_novak
+ * New methods in Eos_tabul to correct for EoS themro consistency (optional).
+ *
  * Revision 1.10  2014/10/13 08:53:59  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -387,11 +390,6 @@ int main(){
     fichfinal << endl <<
     "===================================================================" 
     << endl ; 
-    //    fichfinal << "Diff_ent : " << diff(0) << endl ; 
-    //    fichfinal << "Relative error on the virial theorem GRV2 : "
-    //	      << star.grv2() << endl ;   
-    //    fichfinal << "Relative error on the virial theorem GRV3 : "
-    //	      << star.grv3() << endl ;   
     
     fichfinal << endl <<
     "================================================================" << endl ;
@@ -400,7 +398,7 @@ int main(){
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat parrot.d >> calcul.d") ; 
+    int ret = system("cat parrot.d >> calcul.d") ; 
 
     fichfinal.open("calcul.d", ios::app) ;
     fichfinal << endl <<
@@ -410,18 +408,10 @@ int main(){
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat par_eos.d >> calcul.d") ;
+    ret = system("cat par_eos.d >> calcul.d") ;
 
-    // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("calcul.d", ios::app) ; 
-    fichfinal << endl <<
-    "================================================================" << endl ; 
-    fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
-    fichfinal << 
-    "================================================================" << endl ; 
-    fichfinal.close() ; 
-//    system("ident rotstar_dirac >> calcul.d") ; 
-
+    if (ret == -1) cout << "Warning: problems in identification of the parameters!"
+			<< endl ;
 
     // Saveguard of the whole configuration
     // ------------------------------------

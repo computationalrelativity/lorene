@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2015/01/27 14:22:38  j_novak
+ * New methods in Eos_tabul to correct for EoS themro consistency (optional).
+ *
  * Revision 1.14  2014/10/13 08:52:53  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -375,23 +378,28 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	}
 
 	case 17 : {
-	  int option ;
+	  int format, option ;
+	  fich >> format ;
+	  fich.ignore(1000, '\n') ;
 	  fich >> option ;
 	  fich.ignore(1000, '\n') ;
 
 #ifndef NDEBUG
 	  cout << "Reading tabulated EoS, with "
-	       << ( (option == 0) ? "standard LORENE " : "original CompOSE ")
+	       << ( (format == 0) ? "standard LORENE " : "original CompOSE ")
 	       << "format." << endl ;
+	  if ( option == 0 ) 
+	    cout << "Eventually modified to ensure thermodynamic consistency." 
+		 << endl ; 
 #endif
-	  if (option == 1) {
+	  if (format == 1) {
 	    fich.ignore(1000, '\n') ;
 	    string files_path ;
 	    fich >> files_path ;	    
-	    p_eos = new Eos_CompOSE(files_path) ;
+	    p_eos = new Eos_CompOSE(files_path, bool(option) ) ;
 	  }
 	  else 
-	    p_eos = new Eos_CompOSE(fich) ;
+	    p_eos = new Eos_CompOSE(fich, bool(option) ) ;
 	  break ;
 	}
 

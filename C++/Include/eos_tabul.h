@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2015/01/27 14:22:38  j_novak
+ * New methods in Eos_tabul to correct for EoS themro consistency (optional).
+ *
  * Revision 1.14  2014/10/13 08:52:34  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -152,6 +155,8 @@ class Eos_tabul : public Eos {
     	
 	string authors ; ///<Authors - reference for the table
 
+	bool mod_table ; ///< Has the table been modified for thermo consistency 
+
     	/// Lower boundary of the enthalpy interval
     	double hmin ;
     	
@@ -187,16 +192,21 @@ class Eos_tabul : public Eos {
 	 * @param name_i Name of the equation of state
 	 * @param table Name of the file containing the EOS table
 	 * @param path Path to the directory containing the EOS file
+	 * @param modi Flag to say wether the table should can be modified
+	 *            in order to ensure themrodynamic consistency.
 	 */
-	Eos_tabul(const char* name_i, const char* table, const char* path) ;	
+	Eos_tabul(const char* name_i, const char* table, const char* path,
+		  bool modi = false) ;	
 
 	/** Standard constructor from the full filename.
 	 *
 	 * @param name_i Name of the equation of state
 	 * @param table Full name of the file containing the EOS table
 	 *              (including the absolute path).
+	 * @param modi Flag to say wether the table should can be modified
+	 *            in order to ensure themrodynamic consistency.
 	 */
-	Eos_tabul(const char* name_i, const char* file_name) ;
+	Eos_tabul(const char* name_i, const char* file_name, bool modi = false) ;
 
 	Eos_tabul(const Eos_tabul& ) ;	///< Copy constructor	
 
@@ -221,8 +231,10 @@ class Eos_tabul : public Eos {
 	 *		and the path to the directory containing the EOS file
 	 *		as second line
 	 *   @param table Name of the file containing the EOS table
+	 *   @param modi Flag to say wether the table should can be modified
+	 *               in order to ensure themrodynamic consistency.
 	 */
-	Eos_tabul(ifstream& ist, const char* table) ;
+	Eos_tabul(ifstream& ist, const char* table, bool modi = false) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
@@ -233,8 +245,10 @@ class Eos_tabul : public Eos {
 	 *		and the full filename (including the path) containing 
 	 *              the EOS file as second line
 	 *   @param table Name of the file containing the EOS table
+	 *   @param modi Flag to say wether the table should can be modified
+	 *               in order to ensure themrodynamic consistency.
 	 */
-	Eos_tabul(ifstream& ist) ;
+	Eos_tabul(ifstream& ist, bool modi = false) ;
 	
 	/// The construction functions from a file
 	friend Eos* Eos::eos_from_file(FILE* ) ;
@@ -924,6 +938,7 @@ class Eos_GlendNH3 : public Eos_tabul {
  * be composed of the following lines:
  * \verbatim 17	Type of the EOS 
 1	0: standard format	1: CompOSE format 
+0	0: no change to the table 1: thermo consistency enforced (change in n_B)
 Tabulated EoS
 /full/path/to/the/eos/table/name_of_the_table \endverbatim
  * On the second line '0' means that the table has the standard LORENE format
@@ -931,6 +946,9 @@ Tabulated EoS
  * are used and that the 'name_of_the_table' should be without suffix:
  * e.g. \c great_eos would stand for files \c great_eos.nb and 
  * \c great_eos.thermo (see CompOSE documentation).
+ * On the third line, if the flag is set to 1, then the log-enthalpy \f$h\f$ 
+ * is computed to ensure the relation \f$ dp = (e+p) dh \f$, thus eventually 
+ * modifying the table. 
  */
 class Eos_CompOSE : public Eos_tabul {
 
@@ -946,8 +964,11 @@ class Eos_CompOSE : public Eos_tabul {
    *                   files \c my_eos.nb and \c my_eos.thermo
    *                   as dowloaded from the <a href="http://compose.obspm.fr">
    *                   CompOSE server</a>.
+   * @param modi       If set to \c true , the table can be eventually slightly 
+   *                   modified to ensure thermodynamic consistency 
+   *                   (see class description). By default, this is not activated.
    */
-  Eos_CompOSE(const string& files_path) ;
+  Eos_CompOSE(const string& files_path, bool modi = false) ;
   
   /** Standard constructor.
    *
@@ -966,8 +987,11 @@ XXX  <-- Number of lines
    * where 'XXX' is the number of following lines of the EoS, each line containing 
    * an index (integer), baryon density, energy total density and pressure 
    * in the units given above.
+   * @param modi       If set to \c true , the table can be eventually slightly 
+   *                   modified to ensure thermodynamic consistency 
+   *                   (see class description). By default, this is not activated.
    */
-  Eos_CompOSE(const char* file_name) ;	
+  Eos_CompOSE(const char* file_name, bool modi = false) ;	
 
 	
  protected:
@@ -983,8 +1007,11 @@ XXX  <-- Number of lines
    *  This constructor is protected because any EOS construction
    *  from a formatted file must be done via the function
    *  \c  Eos::eos_from_file(ifstream\& ) .
+   * @param modi       If set to \c true , the table can be eventually slightly 
+   *                   modified to ensure thermodynamic consistency 
+   *                   (see class description). By default, this is not activated.
    */
-  Eos_CompOSE(ifstream& ) ;
+  Eos_CompOSE(ifstream&, bool modi = false) ;
   
  private:	
   /** Copy constructor (private to make \c  Eos_CompOSE 

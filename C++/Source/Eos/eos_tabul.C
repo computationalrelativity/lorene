@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2015/01/27 14:22:38  j_novak
+ * New methods in Eos_tabul to correct for EoS themro consistency (optional).
+ *
  * Revision 1.14  2014/10/13 08:52:54  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -125,20 +128,19 @@ void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
 // Standard constructor
 // --------------------			
 Eos_tabul::Eos_tabul(const char* name_i, const char* table,
-		     const char* path) : Eos(name_i) {	
-
+		     const char* path, bool modi) : Eos(name_i), mod_table(modi)
+{	
 	tablename = path ;
 	tablename += "/" ;
 	tablename += table ;
 	
 	read_table() ; 	
-
 }
 
 // Standard constructor with full filename
 // ---------------------------------------
-Eos_tabul::Eos_tabul(const char* name_i, const char* file_name) 
-  : Eos(name_i) {	
+  Eos_tabul::Eos_tabul(const char* name_i, const char* file_name, bool modi) 
+    : Eos(name_i), mod_table(modi) {	
 
 	tablename = file_name ;
 	
@@ -149,11 +151,15 @@ Eos_tabul::Eos_tabul(const char* name_i, const char* file_name)
 
 // Constructor from binary file
 // ----------------------------
-Eos_tabul::Eos_tabul(FILE* fich) : Eos(fich) {
+  Eos_tabul::Eos_tabul(FILE* fich) : Eos(fich), mod_table(false) {
 
   char tmp_string[160] ;
   fread(tmp_string, sizeof(char), 160, fich) ;
   tablename = tmp_string ;
+
+  bool tmp_mod ;
+  size_t lu = fread(&tmp_mod, sizeof(bool), 1, fich) ;
+  if (lu > 0) mod_table = tmp_mod ;
 
   read_table() ;
 
@@ -163,7 +169,8 @@ Eos_tabul::Eos_tabul(FILE* fich) : Eos(fich) {
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_tabul::Eos_tabul(ifstream& fich, const char* table) : Eos(fich) {
+  Eos_tabul::Eos_tabul(ifstream& fich, const char* table, bool modi) : 
+    Eos(fich), mod_table(modi) {
 
   fich >> tablename ;
   tablename += "/" ;
@@ -173,18 +180,18 @@ Eos_tabul::Eos_tabul(ifstream& fich, const char* table) : Eos(fich) {
 
 }
 
-Eos_tabul::Eos_tabul(ifstream& fich) : Eos(fich) {
-
+  Eos_tabul::Eos_tabul(ifstream& fich, bool modi) : Eos(fich), mod_table(modi) 
+{
   fich >> tablename ;
 	
   read_table() ; 	
-
 }
 
 // Standard constructor with a name
 // ---------------------------------
-Eos_tabul::Eos_tabul(const char* name_i) : Eos(name_i), logh(0x0), logp(0x0),
-					   dlpsdlh(0x0), lognb(0x0), dlpsdlnb(0x0)
+  Eos_tabul::Eos_tabul(const char* name_i) : Eos(name_i), mod_table(false), 
+					     logh(0x0), logp(0x0), dlpsdlh(0x0), 
+					     lognb(0x0), dlpsdlnb(0x0)
 {}
 
 
@@ -211,7 +218,7 @@ void Eos_tabul::sauve(FILE* fich) const {
   char tmp_string[160] ;
   strcpy(tmp_string, tablename.c_str()) ;
   fwrite(tmp_string, sizeof(char), 160, fich) ;		
-
+  fwrite(&mod_table, sizeof(bool), 1, fich) ;
 }
 
 			//------------------------//
@@ -275,8 +282,6 @@ void Eos_tabul::read_table() {
     	int no ;
     	double nb_fm3, rho_cgs, p_cgs ;
     	
-    	double ww = 0 ;
-    	
     	for (int i=0; i<nbp; i++) {
     	
     		fich >> no ;
@@ -291,53 +296,64 @@ void Eos_tabul::read_table() {
 		  cout << "Aborting..." << endl ;
 		  abort() ;
 		}
-    		double psc2_cgs = p_cgs / c2_cgs ;
-    		double h = log( (rho_cgs + psc2_cgs) /
-    		                    (10 * nb_fm3 * rhonuc_cgs) ) ;
-    		
-                press[i] = psc2_cgs ; 
+		
+                press[i] = p_cgs / c2_cgs ;
                 nb[i]    = nb_fm3 ;
                 ro[i]    = rho_cgs ; 
+	}
 
-    		if (i==0) { ww = h ; }
-    		
-    		h = h - ww + 1.e-14 ;    		
-    		
-//##
-//	cout.precision(8) ;
-// 	cout << i << "  " << rho_cgs << "  " << p_cgs << "  " << h
-// 		  << "  "  << nb_fm3 << endl ;
-//## 		
-    		
-    		logh->set(i) = log10( h ) ;
-    		logp->set(i) = log10( psc2_cgs / rhonuc_cgs ) ;
-    		dlpsdlh->set(i) = h * (rho_cgs + psc2_cgs) / psc2_cgs ;
-		lognb->set(i) = log10(nb_fm3) ;
+	if (mod_table) {
+	  Tbl pp(nbp) ; pp.set_etat_qcq() ;
+	  Tbl dh(nbp) ; dh.set_etat_qcq() ;
+	  for (int i=0; i<nbp; i++) {
+	    pp.set(i) = log(press[i] / rhonuc_cgs) ;
+	    dh.set(i) = press[i] / (ro[i] + press[i]) ;
+	  }
+	
+	  Tbl hh = integ1D(pp, dh) + 1.e-14 ;
+	
+	  for (int i=0; i<nbp; i++) {
+	    logh->set(i) = log10( hh(i) ) ;
+	    logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+	    dlpsdlh->set(i) = hh(i) / dh(i) ;
+	    lognb->set(i) = log10(nb[i]) ;
+	  }
+	}
 
-    	}
+	else {
+	  double ww = 0. ;
+	  for (int i=0; i<nbp; i++) {
+	    double h = log( (ro[i] + press[i]) /
+			    (10 * nb[i] * rhonuc_cgs) ) ;
+
+	    if (i==0) { ww = h ; }    		
+	    h = h - ww + 1.e-14 ;    		
+
+	    logh->set(i) = log10( h ) ;
+	    logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+	    dlpsdlh->set(i) = h * (ro[i] + press[i]) / press[i] ;
+	    lognb->set(i) = log10(nb[i]) ;
+	  } 
+	}
 
         double p0, p1, p2, n0, n1, n2, dpdnb; 
 
 	// special case: i=0
 
-          p0 = log(press[0]);
-          p1 = log(press[1]);
-          p2 = log(press[2]);
+	p0 = log(press[0]);
+	p1 = log(press[1]);
+	p2 = log(press[2]);
+	
+	n0 = log(nb[0]);
+	n1 = log(nb[1]);
+	n2 = log(nb[2]);
+	
+	dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
+	  p1*(n0-n2)/(n1-n0)/(n1-n2) +
+	  p2*(n0-n1)/(n2-n0)/(n2-n1) ;
 
-          n0 = log(nb[0]);
-          n1 = log(nb[1]);
-          n2 = log(nb[2]);
-
-          dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
-	                 p1*(n0-n2)/(n1-n0)/(n1-n2) +
-                         p2*(n0-n1)/(n2-n0)/(n2-n1) ;
-
-          dlpsdlnb->set(0) = dpdnb ; 
-
-/*
-	  cout << exp(n0) << "  " << ro[0] << "  " 
-               << c2_cgs*exp(p0) << "  " << dpdnb << endl ;
-*/
+	dlpsdlnb->set(0) = dpdnb ; 
+	
 	for(int i=1;i<nbp-1;i++) { 
 
           p0 = log(press[i-1]);
@@ -354,34 +370,24 @@ void Eos_tabul::read_table() {
 
 	  dlpsdlnb->set(i) = dpdnb ;
 
-/*
-	  cout << exp(n1) << "  " << ro[i] << "  " 
-               << c2_cgs*exp(p1) << "  " << dpdnb << endl ;
-*/
-
         } 
      	
 	// special case: i=nbp-1
 
-          p0 = log(press[nbp-3]);
-          p1 = log(press[nbp-2]);
-          p2 = log(press[nbp-1]);
-
-          n0 = log(nb[nbp-3]);
-          n1 = log(nb[nbp-2]);
-          n2 = log(nb[nbp-1]);
-
-          dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
-	                 p1*(n2-n0)/(n1-n0)/(n1-n2) +
-                         p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
-
-	  dlpsdlnb->set(nbp-1) = dpdnb ;
-
-/*
-	  cout << exp(n2) << "  " << ro[nbp-1] << "  " 
-               << c2_cgs*exp(p2) << "  " << dpdnb << endl ;
-*/
-                
+	p0 = log(press[nbp-3]);
+	p1 = log(press[nbp-2]);
+	p2 = log(press[nbp-1]);
+	
+	n0 = log(nb[nbp-3]);
+	n1 = log(nb[nbp-2]);
+	n2 = log(nb[nbp-1]);
+	
+	dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
+	  p1*(n2-n0)/(n1-n0)/(n1-n2) +
+	  p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
+	
+	dlpsdlnb->set(nbp-1) = dpdnb ;
+	
      	hmin = pow( double(10), (*logh)(0) ) ;
      	hmax = pow( double(10), (*logh)(nbp-1) ) ;
      	
@@ -400,7 +406,7 @@ void Eos_tabul::read_table() {
 //     	cout << *dlpsdlnb << endl ;
 //
 //     	
-//     	cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
+     	cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
 //##     	
      	
      	fich.close();
@@ -436,10 +442,17 @@ double Eos_tabul::nbar_ent_p(double ent, const Param* ) const {
 
            double pp = pow(double(10), logp0) ;
 
-           return pp / ent * dlpsdlh0 * exp(-ent) ;
+           double resu = pp / ent * dlpsdlh0 * exp(-ent) ;
+	   if ( (mod_table) && (i_near == 0) ) 
+	     { // Use of linear interpolation for the first interval
+	     double pp_near = pow(double(10), (*logp)(i_near)) ;
+	     double ent_near = pow(double(10), (*logh)(i_near)) ;
+	     resu = pp_near / ent_near * (*dlpsdlh)(i_near) * exp(-ent_near) ;
+	     }
+	   return resu ;
     }
     else{
-	return 0 ;
+      return 0 ;
     }
 }
 
@@ -463,10 +476,17 @@ double Eos_tabul::ener_ent_p(double ent, const Param* ) const {
 
            double pp = pow(double(10), logp0) ;
 
-           return pp / ent * dlpsdlh0 - pp ;
+	   double resu = pp / ent * dlpsdlh0 - pp ;
+	   if ( (mod_table) && (i_near == 0) )
+	     {
+	       double pp_near = pow(double(10), (*logp)(i_near)) ;
+	       double ent_near = pow(double(10), (*logh)(i_near)) ;
+	       resu = pp_near / ent_near * (*dlpsdlh)(i_near) - pp_near ;
+	     }
+	   return resu ;
     }
     else{
-	return 0 ;
+      return 0 ;
     }
 }
 
@@ -488,11 +508,18 @@ double Eos_tabul::press_ent_p(double ent, const Param* ) const {
            double dlpsdlh0 ;
            interpol_herm(*logh, *logp, *dlpsdlh, logh0, i_near, logp0,
            		 dlpsdlh0) ;
-
-           return pow(double(10), logp0) ;
+ 	   if ( (mod_table) && (i_near == 0) )
+	     {
+	       double logp_near = (*logp)(i_near) ;
+	       double logp_nearp1 = (*logp)(i_near+1) ;
+	       double delta = (*logh)(i_near+1) - (*logh)(i_near) ;
+	       logp0 = (logp_nearp1*(logh0 - (*logh)(i_near)) 
+			- logp_near*(logh0 - (*logh)(i_near+1))) / delta  ;
+	     }
+	   return pow(double(10), logp0) ;
     }
     else{
-	return 0 ;
+      return 0 ;
     }
 }
 

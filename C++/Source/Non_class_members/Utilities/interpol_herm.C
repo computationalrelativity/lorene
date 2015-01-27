@@ -1,5 +1,5 @@
 /*
- * Hermite interpolation of degree 3
+ * Hermite interpolation functions.
  *
  */
 
@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2015/01/27 14:22:38  j_novak
+ * New methods in Eos_tabul to correct for EoS themro consistency (optional).
+ *
  * Revision 1.10  2014/10/13 08:53:32  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -77,6 +80,10 @@ char interpol_herm_C[] = "$Header$" ;
 #include "tbl.h"
 
 namespace Lorene {
+
+  //---------------------------------------------------------------
+  // Value bracketting in an ordered table (from Numerical Recipes)
+  //---------------------------------------------------------------
 void huntm(const Tbl& xx, double& x, int& i_low) {
 
   assert (xx.get_etat() == ETATQCQ) ;
@@ -128,7 +135,9 @@ void huntm(const Tbl& xx, double& x, int& i_low) {
   return ;
 }
 
-// Linear interpolation 
+  //---------------------
+  // Linear interpolation 
+  //---------------------
 void interpol_linear(const Tbl& xtab, const Tbl& ytab, 
                      double x, int& i, double& y) {
 
@@ -155,13 +164,15 @@ void interpol_linear(const Tbl& xtab, const Tbl& ytab,
 
 }
 
-// Version returning the function and its first derivative 
+  //------------------------------------------------------------
+  // Cubic Hermite interpolation, returning the first derivative
+  //------------------------------------------------------------
 void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 		   double x, int& i, double& y, double& dy) {
 
 	assert(ytab.dim == xtab.dim) ;
 	assert(dytab.dim == xtab.dim) ;	
-	
+
 	huntm(xtab, x, i) ;
 	
 	int i1 = i + 1 ;
@@ -186,7 +197,9 @@ void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 }
 
 
-// Version returning the second derivative 
+  //-------------------------------------------------------------
+  // Cubic Hermite interpolation, returning the second derivative
+  //-------------------------------------------------------------
 void interpol_herm_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 		   double x, int& i, double& y, double& dy, double& ddy) {
 
@@ -220,7 +233,9 @@ void interpol_herm_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 		   		
 }
 
-
+  //----------------------------------------------
+  // Bi-cubic Hermite interpolation, for 2D arrays
+  //----------------------------------------------
 void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab, 
 		      const Tbl& dfdxtab, const Tbl& dfdytab, const Tbl& d2fdxdytab,
 		      double x, double y, double& f, double& dfdx, double& dfdy) {
@@ -349,4 +364,50 @@ void interpol_herm_2d(const Tbl& xtab, const Tbl& ytab, const Tbl& ftab,
   return ;
 
 }
+
+  //--------------------------------------------------------------------
+  // Quintic Hermite interpolation using data from the second derivative
+  //--------------------------------------------------------------------
+void interpol_herm_2nd_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
+			   const Tbl& d2ytab, double x, int& i, double& y, 
+			   double& dy) {
+
+	assert(ytab.dim == xtab.dim) ;
+	assert(dytab.dim == xtab.dim) ;	
+	assert(d2ytab.dim == xtab.dim) ;	
+	
+	huntm(xtab, x, i) ;
+	
+	int i1 = i + 1 ;
+	
+	double dx = xtab(i1) - xtab(i) ;
+
+	double u = (x - xtab(i)) / dx ;
+	double u2 = u*u ;
+	double u3 = u2*u ;
+	double u4 = u2*u2 ;
+	double u5 = u3*u2 ;
+
+	double v = 1. - u ;
+	double v2 = v*v ;
+	double v3 = v2*v ;
+	double v4 = v2*v2 ;
+	double v5 = v3*v2 ;
+
+	y =   ytab(i) * ( -6.*u5 + 15.*u4 - 10.*u3 + 1. )
+	  + ytab(i1) * ( -6.*v5 + 15.*v4 - 10.*v3 + 1. )
+	  + dytab(i) * dx * ( -3.*u5 + 8.*u4 -6.*u3 + u )
+	  - dytab(i1) * dx * ( -3.*v5 + 8.*v4 -6.*v3 + v ) 
+	  + d2ytab(i) * dx*dx * ( -0.5*u5 + 1.5*u4 - 1.5*u3 + 0.5*u2 )
+	  + d2ytab(i1) * dx*dx * ( -0.5*v5 + 1.5*v4 - 1.5*v3 + 0.5*v2 ) ; 
+     	
+ 	dy = 30.*( ytab(i) / dx * ( -u4 + 2.*u3 - u2 ) 
+		   - ytab(i1) / dx * ( -v4 + 2.*v3 - v2 ) )  
+	  + dytab(i) * ( -15.*u4 + 32.*u3 - 18.*u2 + 1. ) 
+	  + dytab(i1) * ( -15.*v4 + 32.*v3 - 18.*v2 + 1. ) 
+	  + d2ytab(i) * dx * ( -2.5*u4 + 6.*u3 -4.5*u2 + u ) 
+	  - d2ytab(i1) * dx * ( -2.5*v4 + 6.*v3 -4.5*v2 + v ) ;
+
 }
+
+} // End of namespace Lorene
