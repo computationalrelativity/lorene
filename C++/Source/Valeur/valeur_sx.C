@@ -34,6 +34,9 @@ char valeur_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2015/03/05 08:49:33  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.5  2014/10/13 08:53:51  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -93,6 +96,8 @@ void _sx_identite (Tbl *, int &) ;
 void _sx_r_chebpi_p(Tbl *, int &) ;
 void _sx_r_chebpi_i(Tbl *, int &) ;
 void _sxpun_r_jaco02(Tbl *, int &) ;
+void _sx_r_legp(Tbl *, int &) ;
+void _sx_r_legi(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -162,6 +167,9 @@ static int nap = 0 ;
 	_sx[R_CHEBPI_P >> TRA_R] = _sx_r_chebpi_p ;
 	_sx[R_CHEBPI_I >> TRA_R] = _sx_r_chebpi_i ;
 	_sx[R_JACO02 >> TRA_R] = _sxpun_r_jaco02 ;
+	_sx[R_LEG >> TRA_R] = _sx_identite ;
+	_sx[R_LEGP >> TRA_R] = _sx_r_legp ;
+	_sx[R_LEGI >> TRA_R] = _sx_r_legi ;
     }
 
     //- Debut de la routine -

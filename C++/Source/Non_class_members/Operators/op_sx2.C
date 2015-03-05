@@ -43,6 +43,9 @@ char op_sx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2015/03/05 08:49:32  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.3  2014/10/13 08:53:26  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -73,13 +76,16 @@ char op_sx2_C[] = "$Header$" ;
 #include "tbl.h" 
 #include "proto.h" 
 
+namespace Lorene {
+
+void _sx_1d_r_legp(int, double* , double *) ;
+void _sx_1d_r_legi(int, double* , double *) ;
 
 
 		//-----------------------------------
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
-namespace Lorene {
 void _sx2_pas_prevu(Tbl * tb, int& base) {
     cout << "sx pas prevu..." << endl ;
     cout << "Tbl: " << tb << " base: " << base << endl ;
@@ -503,9 +509,9 @@ void _sx2_r_chebu(Tbl* tb, int&)
     // inchangee
 }
 
-			//---------------
+			//------------------
 			// cas R_CHEBPI_P --
-			//--------------
+			//------------------
 void _sx2_r_chebpi_p(Tbl* tb, int&)
     {
     // Peut-etre rien a faire ?
@@ -590,9 +596,9 @@ void _sx2_r_chebpi_p(Tbl* tb, int&)
     // inchangee
 }
 
-			//----------------
+			//-------------------
 			// cas R_CHEBPI_I ---
-			//----------------
+			//-------------------
 
 void _sx2_r_chebpi_i(Tbl* tb, int&)
 {
@@ -676,6 +682,122 @@ void _sx2_r_chebpi_i(Tbl* tb, int&)
     
     // base de developpement
     // inchangee
+}
+
+			//--------------
+			// cas R_LEGP --
+			//--------------
+void _sx2_r_legp(Tbl* tb, int&)
+    {
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+
+    // Tableau de travail
+    double* interm = new double[nr] ;
+
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    for (int k=0 ; k<np+1 ; k++) 
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	    }
+	    
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	  _sx_1d_r_legp(nr, xci, interm) ;
+	  _sx_1d_r_legi(nr, interm, xco) ;	    
+
+	  xci += nr ;
+	  xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+    delete [] interm ;
+}
+
+			//---------------
+			// cas R_LEGI ---
+			//---------------
+
+void _sx2_r_legi(Tbl* tb, int&)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+     
+    // Tableau de travail
+    double* interm = new double[nr] ;
+
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    for (int k=0 ; k<np+1 ; k++) 
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	    }
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	  _sx_1d_r_legi(nr, xci, interm) ;
+	  _sx_1d_r_legp(nr, interm, xco) ;	    
+	    
+	  xci += nr ;
+	  xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+
+    delete [] interm ;
 }
 
 }

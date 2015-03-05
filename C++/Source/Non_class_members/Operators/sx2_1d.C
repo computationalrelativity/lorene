@@ -25,6 +25,9 @@ char sx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2015/03/05 08:49:32  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.5  2014/10/13 08:53:27  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -71,12 +74,16 @@ char sx2_1d_C[] = "$Header$" ;
  *Sortie : tb contient les coefficients du resultat
  * 
  */
+namespace Lorene {
+
+  void _sx_1d_r_legp(int, double* , double *) ;
+  void _sx_1d_r_legi(int, double* , double *) ;
+
 
 		//-----------------------------------
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
-namespace Lorene {
 void _sx2_1d_pas_prevu(int nr, double* tb, double *res) {
     cout << "sx2 pas prevu..." << tb << "    " << res << endl ;
     cout << "nr : " << nr << endl ;
@@ -162,6 +169,34 @@ void _sxm12_1d_r_chebu(int nr, double* tb, double *xo) {
 	xo[i] = tb[i] ;
 }  
 
+			//--------------
+			// cas R_LEGP --
+			//--------------
+
+void _sx2_1d_r_legp(int nr, double* tb, double *xo)
+{  
+  // On appelle juste deux fois la routine existante :
+  double* interm = new double[nr] ;
+  _sx_1d_r_legp(nr, tb, interm) ;
+  _sx_1d_r_legi(nr, interm, xo) ;
+  delete [] interm ;
+
+}
+
+
+			//--------------
+			// cas R_LEGI --
+			//--------------
+
+void _sx2_1d_r_legi(int nr, double* tb, double *xo)
+{
+  // On appelle juste deux fois la routine existante :
+  double* interm = new double[nr] ;
+  _sx_1d_r_legi(nr, tb, interm) ;
+  _sx_1d_r_legp(nr, interm, xo) ;
+  delete [] interm ;
+}
+
 		    //----------------------
 		    // La routine a appeler
 		    //----------------------
@@ -183,6 +218,9 @@ static int nap = 0 ;
 	sx2_1d[R_CHEB >> TRA_R] = _sx2_1d_identite ;
 	sx2_1d[R_CHEBP >> TRA_R] = _sx2_1d_r_chebp ;
 	sx2_1d[R_CHEBI >> TRA_R] = _sx2_1d_r_chebi ;
+	sx2_1d[R_LEG >> TRA_R] = _sx2_1d_identite ;
+	sx2_1d[R_LEGP >> TRA_R] = _sx2_1d_r_legp ;
+	sx2_1d[R_LEGI >> TRA_R] = _sx2_1d_r_legi ;
 	sx2_1d[R_CHEBU >> TRA_R] = _sxm12_1d_r_chebu ;
     }
     

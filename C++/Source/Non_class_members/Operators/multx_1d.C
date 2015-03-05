@@ -25,6 +25,9 @@ char multx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2015/03/05 08:49:32  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.4  2014/10/13 08:53:24  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -52,6 +55,7 @@ char multx_1d_C[] = "$Header$" ;
  
  // Includes
 #include <cstdlib>
+#include <cassert>
 
 #include "headcpp.h"
 #include "type_parite.h"
@@ -103,6 +107,24 @@ void _multx_1d_r_cheb (int nr, double* tb, double* res) {
 }
 
 
+		//----------------
+		// cas R_LEG   ---
+		//----------------
+
+void _multx_1d_r_leg (int nr, double* tb, double* res) {
+    
+  assert(nr > 1) ;
+    res[0] = tb[1]/3. ;
+    res[1] = tb[0]+0.4*tb[2] ;
+    res[nr-1] = double(nr-1)*tb[nr-2]/double(2*nr-3) ;
+    
+    for (int i=2 ; i<nr-1 ; i++)
+      res[i] = double(i)*tb[i-1]/double(2*i-1) 
+		+ double(i+1)*tb[i+1]/double(2*i+3) ;
+	
+}
+
+
 
 		// ----------------------
 		// La routine a appeler 
@@ -123,6 +145,7 @@ void multx_1d(int nr,  double **tb, int base_r)
 	}
 		// Les routines existantes
 	multx_1d[R_CHEB >> TRA_R] = _multx_1d_r_cheb ;
+	multx_1d[R_LEG >> TRA_R] = _multx_1d_r_leg ;
     }
     
     

@@ -25,6 +25,9 @@ char op_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2015/03/05 08:49:32  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.5  2014/10/13 08:53:25  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -652,6 +655,146 @@ void _mult_x_r_jaco02(Tbl* tb, int&)
     // base de developpement
     // inchangée
 
+}
+
+			//--------------
+			// cas R_LEGP --
+			//--------------
+
+void _mult_x_r_legp(Tbl* tb, int& base)
+    {
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_t = base & MSQ_T ;
+	int base_p = base & MSQ_P ;
+	base = base_p | base_t | R_LEGI ;
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+    
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+
+    int borne_phi = np + 1 ; 
+    if (np == 1) {
+	borne_phi = 1 ; 
+    }
+    
+    for (int k=0 ; k< borne_phi ; k++)
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	}
+	else {
+	for (int j=0 ; j<nt ; j++) {
+
+	    xco[0] = xci[0] + 0.4*xci[1] ;
+	    for (int i = 1 ; i < nr-1 ; i++ ) {
+	      xco[i] = double(2*i+1)*xci[i]/double(4*i+1)
+		+ double(2*i+2)*xci[i+1]/double(4*i+5) ;
+	    }	// Fin de la boucle sur r
+	    xco[nr-1] = 0 ;
+	    
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // pair -> impair
+    int base_t = base & MSQ_T ;
+    int base_p = base & MSQ_P ;
+    base = base_p | base_t | R_LEGI ;
+
+}
+
+			//----------------
+			// cas R_LEGI ---
+			//----------------
+
+void _mult_x_r_legi(Tbl* tb, int& base)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_t = base & MSQ_T ;
+	int base_p = base & MSQ_P ;
+	base = base_p | base_t | R_LEGP ;
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+    
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    int borne_phi = np + 1 ; 
+    if (np == 1) {
+	borne_phi = 1 ; 
+    }
+    
+    for (int k=0 ; k< borne_phi ; k++) 
+	if (k == 1)  {
+		xci += nr*nt ;
+		xco += nr*nt ;
+		}
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	    
+	    xco[0] = xci[0]/3. ;
+	    for (int i = 1 ; i < nr-1 ; i++ ) {
+	      xco[i] = double(2*i+1)*xci[i]/double(4*i+3)
+		+ double(2*i)*xci[i-1]/double(4*i-1) ;
+	    }	// Fin de la premiere boucle sur r
+	    xco[nr-1] = double(2*nr-2)*xci[nr-2]/double(4*nr-5) ;
+	    
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // impair -> pair
+    int base_t = base & MSQ_T ;
+    int base_p = base & MSQ_P ;    
+    base = base_p | base_t | R_LEGP ;
 }
 
 }

@@ -37,6 +37,9 @@ char op_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2015/03/05 08:49:32  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.6  2014/10/13 08:53:24  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -1046,7 +1049,7 @@ void _d2sdx2_r_leg(Tbl *tb, int & )
 	for (int i=0 ; i<nr ; i++) {
 	  cx1[i] =  (i+2)*(i+3) ;
 	  cx2[i] =  i*(i+1) ;
-	  cx3[i] =  double(i) + 0.5 ; ;
+	  cx3[i] =  double(i) + 0.5 ;
 	}
     }
     

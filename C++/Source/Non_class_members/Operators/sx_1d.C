@@ -25,6 +25,9 @@ char sx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2015/03/05 08:49:32  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.3  2014/10/13 08:53:27  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -128,6 +131,38 @@ void _sx_1d_r_chebu (int nr, double* tb, double* res) {
 
 }
 
+		//------------------
+		// case R_LEGP	 ---
+		//------------------
+
+void _sx_1d_r_legp (int nr, double* tb, double* res) {
+   
+    double term = 0 ;
+    res[nr-1] = 0 ;
+    for (int i=nr-2 ; i>=0 ; i--) {
+	term += tb[i+1] ;
+	res[i] = double(4*i+3)/double(2*i+2)*term ;
+	term *= -double(2*i+1)/double(2*i+2) ;
+    }
+ 
+}
+
+
+		//------------------
+		// case R_LEGI	 ---
+		//------------------
+
+void _sx_1d_r_legi (int nr, double* tb, double* res) {
+ 
+  double term = 0 ;
+  res[nr-1] = 0 ;
+  for (int i=nr-2; i>=0; i--) {
+    term += tb[i] ;
+    res[i] = double(4*i+1)/double(2*i+1)*term ;
+    term *= -double(2*i)/double(2*i+1) ;
+  }
+}
+
 
 
 		// ----------------------
@@ -149,6 +184,8 @@ void sx_1d(int nr,  double **tb, int base_r)
 		// Les routines existantes
 	sx_1d[R_CHEBP >> TRA_R] = _sx_1d_r_chebp ;
 	sx_1d[R_CHEBI >> TRA_R] = _sx_1d_r_chebi ;
+	sx_1d[R_LEGP >> TRA_R] = _sx_1d_r_legp ;
+	sx_1d[R_LEGI >> TRA_R] = _sx_1d_r_legi ;
 	sx_1d[R_CHEBU >> TRA_R] = _sx_1d_r_chebu ;
     }
     

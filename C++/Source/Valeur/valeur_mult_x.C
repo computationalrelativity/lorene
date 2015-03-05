@@ -34,6 +34,9 @@ char valeur_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2015/03/05 08:49:33  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.5  2014/10/13 08:53:50  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -89,6 +92,8 @@ void _mult_x_identite (Tbl *, int &) ;
 void _mult_x_r_chebpi_p(Tbl *, int &) ;
 void _mult_x_r_chebpi_i(Tbl *, int &) ;
 void _mult_x_r_jaco02(Tbl *, int &) ;
+void _mult_x_r_legp(Tbl *, int &) ;
+void _mult_x_r_legi(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -158,6 +163,9 @@ static int nap = 0 ;
 	_mult_x[R_CHEBPI_P >> TRA_R] = _mult_x_r_chebpi_p ;
 	_mult_x[R_CHEBPI_I >> TRA_R] = _mult_x_r_chebpi_i ;
 	_mult_x[R_JACO02 >> TRA_R] = _mult_x_r_jaco02 ;
+	_mult_x[R_LEG >> TRA_R] = _mult_x_identite ;
+	_mult_x[R_LEGP >> TRA_R] = _mult_x_r_legp ;
+	_mult_x[R_LEGI >> TRA_R] = _mult_x_r_legi ;
     }
 
     // Debut de la routine 

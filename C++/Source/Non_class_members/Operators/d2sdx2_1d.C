@@ -25,6 +25,9 @@ char d2sdx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2015/03/05 08:49:31  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.6  2014/10/13 08:53:23  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -299,6 +302,147 @@ void _d2sdx2_1d_r_chebi(int nr, double* tb, double *xo)
 
 }
 
+			//--------------
+			// cas R_LEG ---
+			//--------------
+
+void _d2sdx2_1d_r_leg(int nr, double* tb, double *xo)
+{
+  
+    // Variables statiques
+    static double* cx1 = 0x0 ;
+    static double* cx2 = 0x0 ;
+    static double* cx3 = 0x0 ;
+    static int nr_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    if (nr > nr_pre) {
+	nr_pre = nr ;
+	if (cx1 != 0x0) delete [] cx1 ;
+	if (cx2 != 0x0) delete [] cx2 ;
+	if (cx3 != 0x0) delete [] cx3 ;
+	cx1 = new double [nr] ;
+	cx2 = new double [nr] ;
+	cx3 = new double [nr] ;
+	for (int i=0 ; i<nr ; i++) {
+	  cx1[i] =  (i+2)*(i+3) ;
+	  cx2[i] =  i*(i+1) ;
+	  cx3[i] =  double(i) + 0.5 ;
+	    }
+	}
+
+    double som1, som2 ;
+	    
+    xo[nr-1] = 0 ;
+    som1 = (nr-1)* nr * tb[nr-1] ;
+    som2 = tb[nr-1] ;
+    if (nr > 2) 
+      xo[nr-3] = (double(nr) - 2.5) * (som1 - (nr-3)*(nr-2)*som2) ;
+    for (int i = nr-5 ; i >= 0 ; i -= 2 ) {
+	som1 += cx1[i] * tb[i+2] ;
+	som2 += tb[i+2] ;
+	xo[i] = cx3[i]*(som1 - cx2[i] * som2) ;
+    }	// Fin de la premiere boucle sur r
+    if (nr > 1) xo[nr-2] = 0 ;
+    if (nr > 3) {
+      som1 = (nr-2)*(nr-1) * tb[nr-2] ;
+      som2 = tb[nr-2] ;
+      xo[nr-4] = (double(nr) - 3.5) * (som1 - (nr-4)*(nr-3)*som2) ;
+    }
+    for (int i = nr-6 ; i >= 0 ; i -= 2 ) {
+	som1 += cx1[i] * tb[i+2] ;
+	som2 += tb[i+2] ;
+	xo[i] = cx3[i]*(som1 - cx2[i] * som2) ;
+    }	// Fin de la deuxieme boucle sur r
+	   
+}
+
+			//---------------
+			// cas R_LEGP ---
+			//---------------
+
+void _d2sdx2_1d_r_legp(int nr, double* tb, double *xo)
+{
+    // Variables statiques
+    static double* cx1 = 0x0 ;
+    static double* cx2 = 0x0 ;
+    static double* cx3 = 0x0 ;
+    static int nr_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    if (nr > nr_pre) {
+      nr_pre = nr ;
+      if (cx1 != 0x0) delete [] cx1 ;
+      if (cx2 != 0x0) delete [] cx2 ;
+      if (cx3 != 0x0) delete [] cx3 ;
+      cx1 = new double [nr] ;
+      cx2 = new double [nr] ;
+      cx3 = new double [nr] ;
+      for (int i=0 ; i<nr ; i++) {
+	cx1[i] =  (2*i+2)*(2*i+3) ;
+	cx2[i] =  2*i*2*(i+1) ;
+	cx3[i] =  double(2*i)+ 0.5 ;
+      }
+    }
+    
+    double som1, som2 ;
+
+    xo[nr-1] = 0 ; 
+    som1 = (2*nr-2)*(2*nr-1)* tb[nr-1] ;
+    som2 = tb[nr-1] ;
+    if (nr > 1) 
+      xo[nr-2] = (double(2*nr) - 1.5)*(som1 - 2*(nr-2)*(2*nr-1)*som2) ;
+    for (int i = nr-3 ; i >= 0 ; i-- ) {
+      som1 += cx1[i] * tb[i+1] ;
+      som2 += tb[i+1] ;
+      xo[i] = cx3[i]*(som1 - cx2[i]*som2) ;
+    }	// Fin de la boucle sur r
+}
+
+			//---------------
+			// cas R_LEGI --
+			//---------------
+
+void _d2sdx2_1d_r_legi(int nr, double* tb, double *xo)
+{
+    // Variables statiques
+    static double* cx1 = 0x0 ;
+    static double* cx2 = 0x0 ;
+    static double* cx3 = 0x0 ;
+    static int nr_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    
+    if (nr > nr_pre) {
+	nr_pre = nr ;
+	if (cx1 != 0x0) delete [] cx1 ;
+	if (cx2 != 0x0) delete [] cx2 ;
+	if (cx3 != 0x0) delete [] cx3 ;
+	cx1 = new double [nr] ;
+	cx2 = new double [nr] ;
+	cx3 = new double [nr] ;
+	for (int i=0 ; i<nr ; i++) {
+	    cx1[i] =  (2*i+3)*(2*i+4) ;
+	    cx2[i] =  (2*i+1)*(2*i+2) ;
+	    cx3[i] =  double(2*i) + 1.5 ;
+	    }
+	}
+  
+    // pt. sur le tableau de double resultat
+    double som1, som2 ;
+	    
+    xo[nr-1] = 0 ;
+    som1 = (2*nr-1)*(2*nr) * tb[nr-1] ;
+    som2 = tb[nr-1] ;
+    if (nr > 1)
+      xo[nr-2] = (double(nr) - 1.5)*(som1 - (2*nr-3)*(2*nr-2)*som2) ;
+    for (int i = nr-3 ; i >= 0 ; i-- ) {
+	som1 += cx1[i] * tb[i+1] ;
+	som2 += tb[i+1] ;
+	xo[i] = cx3[i]*(som1 - cx2[i] * som2) ;
+    }	// Fin de la boucle sur r
+}
+
 
 		// ---------------------
 		// La routine a appeler
@@ -323,6 +467,9 @@ void d2sdx2_1d(int nr, double** tb, int base_r)
 	d2sdx2_1d[R_CHEBU >> TRA_R] = _d2sdx2_1d_r_chebu ;
 	d2sdx2_1d[R_CHEBP >> TRA_R] = _d2sdx2_1d_r_chebp ;
 	d2sdx2_1d[R_CHEBI >> TRA_R] = _d2sdx2_1d_r_chebi ;
+	d2sdx2_1d[R_LEG >> TRA_R] = _d2sdx2_1d_r_leg ;
+	d2sdx2_1d[R_LEGP >> TRA_R] = _d2sdx2_1d_r_legp ;
+	d2sdx2_1d[R_LEGI >> TRA_R] = _d2sdx2_1d_r_legi ;
 	d2sdx2_1d[R_JACO02 >> TRA_R] = _d2sdx2_1d_r_jaco02 ;
     }
     

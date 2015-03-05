@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2015/03/05 08:49:31  j_novak
+ * Implemented operators with Legendre bases.
+ *
  * Revision 1.7  2014/10/13 08:53:23  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -165,6 +168,65 @@ void _dsdx_1d_r_chebp(int nr,  double* tb, double *xo)
     }	
 }
 
+			//--------------
+			// cas R_LEG ---
+			//--------------
+
+void _dsdx_1d_r_leg(int nr, double* tb, double *xo)
+{
+    double som ;
+	    
+    xo[nr-1] = 0 ;
+    som = tb[nr-1] ;
+    xo[nr-2] = double(2*nr-3)*som ;
+    for (int i = nr-4 ; i >= 0 ; i -= 2 ) {
+	som += tb[i+1] ;
+	xo[i] = double(2*i+1)*som ;
+    }	// Fin de la premiere boucle sur r
+    som = tb[nr-2] ;
+    if (nr > 2) xo[nr-3] = double(2*nr-5)*som ;
+    for (int i = nr-5 ; i >= 0 ; i -= 2 ) {
+	som += tb[i+1] ;
+	xo[i] = double(2*i+1)*som ;
+    }	// Fin de la deuxieme boucle sur r
+}
+
+			//---------------
+			// cas R_LEGI ---
+			//---------------
+
+void _dsdx_1d_r_legi(int nr,  double* tb, double *xo)
+{
+
+    double som ;
+	    
+    xo[nr-1] = 0 ;
+    som = tb[nr-2] ;
+    if (nr > 1) xo[nr-2] = double(4*nr-7)*som ;
+    for (int i = nr-3 ; i >= 0 ; i -- ) {
+      som += tb[i] ;
+      xo[i] = double(4*i+1)*som ;
+    }	
+}
+
+			//---------------
+			// cas R_LEGP ---
+			//---------------
+
+void _dsdx_1d_r_legp(int nr,  double* tb, double *xo)
+{
+
+    double som ;
+	    
+    xo[nr-1] = 0 ;
+    som = tb[nr-1] ;
+    if (nr > 1) xo[nr-2] = double(4*nr-5)*som ;
+    for (int i = nr-3 ; i >= 0 ; i --) {
+      som += tb[i+1] ;
+      xo[i] = double(4*i+3)*som ;
+    }	
+}
+
 		// ---------------------
 		// La routine a appeler
 		//----------------------
@@ -188,6 +250,9 @@ void dsdx_1d(int nr, double** tb, int base_r)
 	dsdx_1d[R_CHEBP >> TRA_R] = _dsdx_1d_r_chebp ;
 	dsdx_1d[R_CHEBI >> TRA_R] = _dsdx_1d_r_chebi ;
 	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_cheb ;
+	dsdx_1d[R_CHEBP >> TRA_R] = _dsdx_1d_r_legp ;
+	dsdx_1d[R_CHEBI >> TRA_R] = _dsdx_1d_r_legi ;
+	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_leg ;
 	dsdx_1d[R_JACO02 >> TRA_R] = _dsdx_1d_r_jaco02 ;
 
     }
