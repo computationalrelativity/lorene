@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2015/03/09 10:32:27  j_novak
+ * Inclusion of r-Legendre bases.
+ *
  * Revision 1.11  2014/10/13 08:52:38  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -106,6 +109,12 @@ void Base_val::dsdx() {
 	case R_CHEBPI_I: 
 	    set_base_r(0, R_CHEBPI_P) ;
 	    break ;    
+	case R_LEGP: 
+	    set_base_r(0, R_LEGI) ;
+	    break ;
+	case R_LEGI: 
+	    set_base_r(0, R_LEGP) ;
+	    break ;
 	default: 
 	    break ;
     }  
@@ -133,6 +142,12 @@ void Base_val::sx() {
 	case R_CHEBPI_I: 
 	    set_base_r(0, R_CHEBPI_P) ;
 	    break ;
+	case R_LEGP: 
+	    set_base_r(0, R_LEGI) ;
+	    break ;
+	case R_LEGI: 
+	    set_base_r(0, R_LEGP) ;
+	    break ;
 	default: 
 	    break ;
     }  
@@ -159,6 +174,12 @@ void Base_val::mult_x() {
 	    break ;
 	case R_CHEBPI_I: 
 	    set_base_r(0, R_CHEBPI_P) ;
+	    break ;
+	case R_LEGP: 
+	    set_base_r(0, R_LEGI) ;
+	    break ;
+	case R_LEGI: 
+	    set_base_r(0, R_LEGP) ;
 	    break ;
 	default: 
 	    break ;

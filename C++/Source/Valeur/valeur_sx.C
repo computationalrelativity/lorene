@@ -34,6 +34,9 @@ char valeur_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2015/03/09 10:32:27  j_novak
+ * Inclusion of r-Legendre bases.
+ *
  * Revision 1.6  2015/03/05 08:49:33  j_novak
  * Implemented operators with Legendre bases.
  *
@@ -89,6 +92,8 @@ namespace Lorene {
 void _sx_pas_prevu(Tbl *, int &) ;
 void _sx_r_chebp(Tbl *, int &) ;
 void _sx_r_chebi(Tbl *, int &) ;
+void _sx_r_legp(Tbl *, int &) ;
+void _sx_r_legi(Tbl *, int &) ;
 void _sx_r_chebpim_p(Tbl *, int &) ;
 void _sx_r_chebpim_i(Tbl *, int &) ;
 void _sxm1_cheb(Tbl *, int&) ;
@@ -162,6 +167,9 @@ static int nap = 0 ;
 	_sx[R_CHEBU >> TRA_R] = _sxm1_cheb ;
 	_sx[R_CHEBP >> TRA_R] = _sx_r_chebp ;
 	_sx[R_CHEBI >> TRA_R] = _sx_r_chebi ;
+	_sx[R_LEG >> TRA_R] = _sx_identite ;
+	_sx[R_LEGP >> TRA_R] = _sx_r_legp ;
+	_sx[R_LEGI >> TRA_R] = _sx_r_legi ;
 	_sx[R_CHEBPIM_P >> TRA_R] = _sx_r_chebpim_p ;
 	_sx[R_CHEBPIM_I >> TRA_R] = _sx_r_chebpim_i ;
 	_sx[R_CHEBPI_P >> TRA_R] = _sx_r_chebpi_p ;
