@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2015/03/17 14:19:59  j_novak
+ * New class Hot_eos to deal with temperature-dependent EOSs.
+ *
  * Revision 1.20  2014/10/13 08:52:33  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -177,7 +180,7 @@ class Param ;
 		    //------------------------------------//
 
 /**
- * Equation of state base class. \ingroup (eos)
+ * Equation of state base class. \ingroup(eos)
  * 
  *
  */

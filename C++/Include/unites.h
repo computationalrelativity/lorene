@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2015/03/17 14:20:00  j_novak
+ * New class Hot_eos to deal with temperature-dependent EOSs.
+ *
  * Revision 1.7  2014/10/13 08:52:37  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -67,40 +70,44 @@
                   //--------------------------//     
 
 namespace Lorene {
-/** \namespace Unites
- *  \brief Standard units of space, time and mass.
- *
- * These are the units used in LORENE for space, time and mass. They
- * are mainly designed to study compact objects like neutron stars 
- * and black holes.\ingroup (unites)
- */
-namespace Unites {
-const double g_si = 6.6738E-11 ;	 ///< Newton gravitational constant [SI]
-const double c_si = 2.99792458E+8 ;	 ///< Velocity of light [m/s]
-const double rhonuc_si = 1.66E+17 ;	 ///< Nuclear density [kg/m3] (arbitrary)
-const double km_si = 1.E+3 ;	 ///< One kilometer [m]
-const double msol_si = 1.9885E+30 ;	 ///< Solar mass [kg]
-const double mev_si = 1.602176565E-13 ;   ///< One MeV [J]
-
-const double r_unit = 1.e4 ;  ///< Lorene's unit of length = 10 km
-const double v_unit = c_si ; ///< Lorene's unit of velocity = c 
-const double rho_unit = rhonuc_si ;	///< Lorene's unit of mass density
-const double t_unit = r_unit/v_unit ; ///< Lorene's unit of time
-const double m_unit = rho_unit * pow(r_unit, 3.) ;  ///< Lorene's unit of mass
-const double g_unit = 1./(rho_unit*t_unit*t_unit) ; ///< Lorene's unit for G
-const double f_unit = 1./t_unit ;	///< Lorene's unit of frequency
+  /** \namespace Unites
+   *  \brief Standard units of space, time and mass.
+   *
+   * These are the units used in LORENE for space, time and mass. They
+   * are mainly designed to study compact objects like neutron stars 
+   * and black holes.\ingroup (unites)
+   */
+  namespace Unites {
+    const double g_si = 6.6738E-11 ;	 ///< Newton gravitational constant [SI]
+    const double c_si = 2.99792458E+8 ;	 ///< Velocity of light [m/s]
+    const double kB_si = 1.3806488E-23 ; ///< Boltzmann constant [J/K]
+    const double rhonuc_si = 1.66E+17 ;	 ///< Nuclear density [kg/m3] (arbitrary)
+    const double km_si = 1.E+3 ;	 ///< One kilometer [m]
+    const double msol_si = 1.9885E+30 ;	 ///< Solar mass [kg]
+    const double mev_si = 1.602176565E-13 ;   ///< One MeV [J]
     
-const double ggrav = g_si / g_unit ;  ///< G in Lorene's units
-const double qpig = 4 * M_PI * ggrav ; ///< 4 Pi G in Lorene's units
-const double msol = msol_si/m_unit ; ///< Solar mass in Lorene's units
-const double km = km_si/r_unit ;	///< One kilometer in Lorene's units
-/// 1 MeV/fm3 in Lorene's units
-const double mevpfm3 = mev_si/( rho_unit * v_unit *v_unit) *1.e45 ;  
+    const double r_unit = 1.e4 ;  ///< Lorene's unit of length = 10 km
+    const double v_unit = c_si ; ///< Lorene's unit of velocity = c 
+    const double rho_unit = rhonuc_si ;	///< Lorene's unit of mass density
+    const double t_unit = r_unit/v_unit ; ///< Lorene's unit of time
+    const double m_unit = rho_unit * pow(r_unit, 3.) ;  ///< Lorene's unit of mass
+    const double g_unit = 1./(rho_unit*t_unit*t_unit) ; ///< Lorene's unit for G
+    const double f_unit = 1./t_unit ;	///< Lorene's unit of frequency
+    
+    const double ggrav = g_si / g_unit ;  ///< G in Lorene's units
+    const double qpig = 4 * M_PI * ggrav ; ///< 4 Pi G in Lorene's units
+    const double msol = msol_si/m_unit ; ///< Solar mass in Lorene's units
+    const double km = km_si/r_unit ;	///< One kilometer in Lorene's units
+    /// 1 MeV/fm3 in Lorene's units
+    const double mevpfm3 = mev_si/( rho_unit * v_unit *v_unit) *1.e45 ;  
+    /// Atomic mass conversion from Lorene's units to MeV
+    const double m_u_mev = rho_unit / 1.e44 *c_si*c_si / mev_si ;
+  }
 
-}
-                  //-----------------------------//
-                  //  Electro-mag LORENE units   //
-                  //-----------------------------//     
+
+                  //----------------------------------//
+                  //  Electro-magnetic LORENE units   //
+                  //----------------------------------//     
 
 
 
