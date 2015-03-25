@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2015/03/25 15:03:00  j_novak
+ * Correction of a bug...
+ *
  * Revision 1.8  2015/03/05 08:49:31  j_novak
  * Implemented operators with Legendre bases.
  *
@@ -250,9 +253,9 @@ void dsdx_1d(int nr, double** tb, int base_r)
 	dsdx_1d[R_CHEBP >> TRA_R] = _dsdx_1d_r_chebp ;
 	dsdx_1d[R_CHEBI >> TRA_R] = _dsdx_1d_r_chebi ;
 	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_cheb ;
-	dsdx_1d[R_CHEBP >> TRA_R] = _dsdx_1d_r_legp ;
-	dsdx_1d[R_CHEBI >> TRA_R] = _dsdx_1d_r_legi ;
-	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_leg ;
+	dsdx_1d[R_LEGP >> TRA_R] = _dsdx_1d_r_legp ;
+	dsdx_1d[R_LEGI >> TRA_R] = _dsdx_1d_r_legi ;
+	dsdx_1d[R_LEG >> TRA_R] = _dsdx_1d_r_leg ;
 	dsdx_1d[R_JACO02 >> TRA_R] = _dsdx_1d_r_jaco02 ;
 
     }
