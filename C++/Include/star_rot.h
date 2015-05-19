@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2015/05/19 09:30:55  j_novak
+ * New methods for computing the area of the star and its mean radius.
+ *
  * Revision 1.5  2014/10/13 08:52:36  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -232,6 +235,7 @@ class Star_rot : public Star {
 	mutable double* p_grv3 ;	///< Error on the virial identity GRV3
 	mutable double* p_r_circ ;	///< Circumferential radius
 	mutable double* p_aplat ;	///< Flatening r_pole/r_eq
+	mutable double* p_area ;        ///< Integrated surface area 
 	mutable double* p_z_eqf ;	///< Forward redshift factor at equator
 	mutable double* p_z_eqb ;	///< Backward redshift factor at equator
 	mutable double* p_z_pole ;	///< Redshift factor at North pole
@@ -451,6 +455,9 @@ class Star_rot : public Star {
 
 	virtual double r_circ() const ;	///< Circumferential radius
 	virtual double aplat() const ;	///< Flatening r_pole/r_eq
+	virtual double area() const ;   ///< Integrated surface area in \f${\rm km}^2\f$
+	/// Mean star radius from the area \f$ r_{\rm mean} = \sqrt{\mathcal{A}} / 4\pi\f$
+	virtual double mean_radius() const ; 
 	virtual double z_eqf() const ;	///< Forward redshift factor at equator
 	virtual double z_eqb() const ;	///< Backward redshift factor at equator
 	virtual double z_pole() const ;	///< Redshift factor at North pole

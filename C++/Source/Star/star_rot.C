@@ -30,6 +30,9 @@ char star_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2015/05/19 09:30:56  j_novak
+ * New methods for computing the area of the star and its mean radius.
+ *
  * Revision 1.8  2014/10/13 08:53:39  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -300,6 +303,7 @@ void Star_rot::del_deriv() const {
     if (p_grv2 != 0x0) delete p_grv2 ; 
     if (p_grv3 != 0x0) delete p_grv3 ; 
     if (p_r_circ != 0x0) delete p_r_circ ; 
+    if (p_area != 0x0) delete p_area ; 
     if (p_aplat != 0x0) delete p_aplat ; 
     if (p_z_eqf != 0x0) delete p_z_eqf ; 
     if (p_z_eqb != 0x0) delete p_z_eqb ; 
@@ -324,6 +328,7 @@ void Star_rot::set_der_0x0() const {
     p_grv2 = 0x0 ;
     p_grv3 = 0x0 ;
     p_r_circ = 0x0 ;
+    p_area = 0x0 ;
     p_aplat = 0x0 ;
     p_z_eqf = 0x0 ;
     p_z_eqb = 0x0 ;
@@ -499,6 +504,10 @@ ostream& Star_rot::operator>>(ostream& ost) const {
     ost << "Ratio T/W :            " << tsw() << endl ; 
     ost << "Circumferential equatorial radius R_circ :     " 
 	<< r_circ()/km << " km" << endl ;  
+    if (mp.get_mg()->get_np(0) == 1) {
+      ost << "Surface area :   " << area()/(km*km) << " km^2" << endl ;
+      ost << "Mean radius :    " << mean_radius()/km << " km" << endl ;
+    }
     ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km" 
 	 << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 
@@ -678,7 +687,7 @@ void Star_rot::display_poly(ostream& ost) const {
 	ost << "  J	  : " << angu_mom() / j_poly << endl ; 
 	ost << "  r_eq	  : " << ray_eq() / r_poly << endl ; 
 	ost << "  R_circ  : " << r_circ() / r_poly << endl ; 
-	
+	ost << "  R_mean  : " << mean_radius() / r_poly << endl ;
     
     }
     

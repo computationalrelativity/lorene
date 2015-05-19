@@ -31,6 +31,9 @@ char star_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2015/05/19 09:30:56  j_novak
+ * New methods for computing the area of the star and its mean radius.
+ *
  * Revision 1.4  2014/10/13 08:53:39  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -62,148 +65,135 @@ char star_rot_global_C[] = "$Header$" ;
 			//--------------------------//
 
 namespace Lorene {
-const Itbl& Star_rot::l_surf() const {
-
+  const Itbl& Star_rot::l_surf() const {
+    
     if (p_l_surf == 0x0) {    // a new computation is required
-    
-	assert(p_xi_surf == 0x0) ;  // consistency check
-	
-	int np = mp.get_mg()->get_np(0) ;   
-	int nt = mp.get_mg()->get_nt(0) ;   
-	
-	p_l_surf = new Itbl(np, nt) ;
-	p_xi_surf = new Tbl(np, nt) ;
-	
-	double ent0 = 0 ;	// definition of the surface
-	double precis = 1.e-15 ; 
-	int nitermax = 100 ; 
-	int niter ; 
-	
-	(ent.get_spectral_va()).equipot(ent0, nzet, precis, nitermax, niter, *p_l_surf, 
-		    *p_xi_surf) ; 
-    
+      
+      assert(p_xi_surf == 0x0) ;  // consistency check
+      
+      int np = mp.get_mg()->get_np(0) ;   
+      int nt = mp.get_mg()->get_nt(0) ;   
+      
+      p_l_surf = new Itbl(np, nt) ;
+      p_xi_surf = new Tbl(np, nt) ;
+      
+      double ent0 = 0 ;	// definition of the surface
+      double precis = 1.e-15 ; 
+      int nitermax = 100 ; 
+      int niter ; 
+      
+      (ent.get_spectral_va()).equipot(ent0, nzet, precis, nitermax, niter, *p_l_surf, 
+				      *p_xi_surf) ; 
+      
     }
-   
+    
     return *p_l_surf ; 
     
-}
-
-			//--------------------------//
-			//	Baryon mass	    //
-			//--------------------------//
-
-double Star_rot::mass_b() const {
-
-    if (p_mass_b == 0x0) {    // a new computation is required
-	
-	if (relativistic) {
-
-	    Scalar dens = a_car * bbb * gam_euler * nbar ;
-	    
-	    p_mass_b = new double( dens.integrale() ) ;
-
-	}
-	else{  // Newtonian case 
-	    assert(nbar.get_etat() == ETATQCQ) ; 
-
-	    p_mass_b = new double( nbar.integrale() ) ;
-
-	}
-
-    }
+  }
+  
+                    //------------------------------//
+                    //	       Baryon mass	    //
+                    //------------------------------//
+  
+  double Star_rot::mass_b() const {
     
+    if (p_mass_b == 0x0) {    // a new computation is required
+      
+      if (relativistic) {
+	
+	Scalar dens = a_car * bbb * gam_euler * nbar ;
+	
+	p_mass_b = new double( dens.integrale() ) ;	
+      }
+      else{  // Newtonian case 
+	assert(nbar.get_etat() == ETATQCQ) ; 
+	
+	p_mass_b = new double( nbar.integrale() ) ;
+	
+      }
+      
+    }
     return *p_mass_b ; 
-
-} 
+  } 
 
 
 			//----------------------------//
 			//	Gravitational mass    //
 			//----------------------------//
 
-double Star_rot::mass_g() const {
-
-    if (p_mass_g == 0x0) {    // a new computation is required
-	
-	if (relativistic) {
-
-	    Scalar source = nn * (ener_euler + s_euler) 
-				+ 2 * bbb * (ener_euler + press)
-				    * tnphi * uuu ; 
-	    source = a_car * bbb * source ;
-	    source.std_spectral_base() ; 
-
-	    p_mass_g = new double( source.integrale() ) ;
-
-
-	}
-	else{  // Newtonian case 
-	    p_mass_g = new double( mass_b() ) ;   // in the Newtonian case
-						    //  M_g = M_b
-	}
-    }
+  double Star_rot::mass_g() const {
     
+    if (p_mass_g == 0x0) {    // a new computation is required
+      
+      if (relativistic) {
+	
+	Scalar source = nn * (ener_euler + s_euler) 
+	  + 2 * bbb * (ener_euler + press)
+	  * tnphi * uuu ; 
+	source = a_car * bbb * source ;
+	source.std_spectral_base() ; 
+	
+	p_mass_g = new double( source.integrale() ) ;	
+      }
+      else{  // Newtonian case 
+	p_mass_g = new double( mass_b() ) ;   // in the Newtonian case
+	                                      //  M_g = M_b
+      }
+    }
     return *p_mass_g ; 
-
 } 
 		
 			//----------------------------//
 			//	Angular momentum      //
 			//----------------------------//
 
-double Star_rot::angu_mom() const {
-
-    if (p_angu_mom == 0x0) {    // a new computation is required
-	
-	Scalar dens = uuu ; 
-
-	dens.mult_r() ;			//  Multiplication by
-	dens.set_spectral_va() = (dens.get_spectral_va()).mult_st() ;	//    r sin(theta)
-
-	if (relativistic) {
-	    dens = a_car * b_car * (ener_euler + press) * dens ; 
-	}
-	else {    // Newtonian case 
-	    dens = nbar * dens ; 
-	}
-
-	p_angu_mom = new double( dens.integrale() ) ;
-
-    }
+  double Star_rot::angu_mom() const {
     
+    if (p_angu_mom == 0x0) {    // a new computation is required
+      
+      Scalar dens = uuu ; 
+      
+      dens.mult_r() ;			//  Multiplication by
+      dens.set_spectral_va() = (dens.get_spectral_va()).mult_st() ;	//    r sin(theta)
+      
+      if (relativistic) {
+	dens = a_car * b_car * (ener_euler + press) * dens ; 
+      }
+      else {    // Newtonian case 
+	dens = nbar * dens ; 
+      }
+      
+      p_angu_mom = new double( dens.integrale() ) ; 
+    }
     return *p_angu_mom ; 
-
-}
+  }
 
 
 			//----------------------------//
 			//	     T/W	      //
 			//----------------------------//
 
-double Star_rot::tsw() const {
-
-    if (p_tsw == 0x0) {    // a new computation is required
-	
-	double tcin = 0.5 * omega * angu_mom() ;
-	
-	if (relativistic) {
-	    
-	    Scalar dens = a_car * bbb * gam_euler * ener ;
-	    double mass_p = dens.integrale() ; 
-	    
-	    p_tsw = new double( tcin / ( mass_p + tcin - mass_g() ) ) ;  	
-	   
-	}
-	else {	    // Newtonian case 
-	    Scalar dens = 0.5 * nbar * logn ;
-	    double wgrav = dens.integrale() ; 
-	    p_tsw = new double( tcin / fabs(wgrav) ) ;  
-	}
-
-    }
+  double Star_rot::tsw() const {
     
+    if (p_tsw == 0x0) {    // a new computation is required
+      
+      double tcin = 0.5 * omega * angu_mom() ;
+      
+      if (relativistic) {
+	
+	Scalar dens = a_car * bbb * gam_euler * ener ;
+	double mass_p = dens.integrale() ; 
+	
+	p_tsw = new double( tcin / ( mass_p + tcin - mass_g() ) ) ;  	
+	
+      }
+      else {	    // Newtonian case 
+	Scalar dens = 0.5 * nbar * logn ;
+	double wgrav = dens.integrale() ; 
+	p_tsw = new double( tcin / fabs(wgrav) ) ;  
+      } 
+    }
     return *p_tsw ; 
-
 }
 
 
@@ -369,6 +359,65 @@ double Star_rot::r_circ() const {
 
 }
 
+			//----------------------------//
+			//	  Surface area	      //
+			//----------------------------//
+
+  double Star_rot::area() const {
+
+    if (p_area == 0x0) {    // a new computation is required
+      const Mg3d& mg = *(mp.get_mg()) ; 
+      int np = mg.get_np(0) ;
+      int nt = mg.get_nt(0) ;
+      assert(np == 1) ; //Only valid for axisymmetric configurations
+      
+      const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&mp) ;
+      assert(mp_rad != 0x0) ;
+
+      Valeur va_r(mg.get_angu()) ;
+      va_r.annule_hard() ;
+      Itbl lsurf = l_surf() ;
+      Tbl xisurf = xi_surf() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  int l_star = lsurf(k, j) ;
+	  double xi_star = xisurf(k, j) ;
+	  va_r.set(0, k, j, 0) = mp_rad->val_r_jk(l_star, xi_star, j, k) ;
+	}
+      }
+      va_r.std_base_scal() ;
+      
+      Valeur integ(mg.get_angu()) ;
+      Valeur dr = va_r.dsdt() ;
+      integ = sqrt(va_r*va_r + dr*dr) ;
+      Valeur a2 = get_a_car().get_spectral_va() ; a2.std_base_scal() ;
+      Valeur b = get_bbb().get_spectral_va() ; b.std_base_scal() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  integ.set(0, k, j, 0) *= sqrt(a2.val_point_jk(lsurf(k, j), xisurf(k, j), j, k))
+	    * b.val_point_jk(lsurf(k, j), xisurf(k, j), j, k) * va_r(0, k, j, 0) ;
+	}
+      }
+      integ.std_base_scal() ;
+      Valeur integ2 = integ.mult_st() ;
+      double surftot = 0. ;
+      for (int j=0; j<nt; j++) {
+	surftot += (*integ2.c_cf)(0, 0, j, 0) / double(2*j+1) ;
+      }
+      
+      p_area = new double( 4*M_PI*surftot) ;
+
+    }
+    
+    return *p_area ; 
+
+}
+
+  double Star_rot::mean_radius() const {
+
+    return sqrt(area()/(4*M_PI)) ;
+
+  }
 
 			//----------------------------//
 			//	   Flattening	      //
