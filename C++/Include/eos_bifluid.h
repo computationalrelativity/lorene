@@ -1,7 +1,7 @@
 /*
  *  Definition of Lorene classes Eos_bifluid
  *				 Eos_bf_poly
- *
+ *                               Eos_bf_tabul
  */
 
 /*
@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2015/06/10 14:39:17  a_sourie
+ * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
+ *
  * Revision 1.19  2014/10/13 08:52:33  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -211,7 +214,16 @@ class Eos_bifluid {
 	 */
 	Eos_bifluid (const char *fname ) ; 
 	
-	
+        /** Construction of an EOS from a formatted file.
+	 *
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function 
+	 *  \c Eos_bifluid::eos_from_file(ifstream& ). 
+	 *
+	 */
+	Eos_bifluid (ifstream& fich) ; 
+
+
     public:
 	virtual ~Eos_bifluid() ;			///< Destructor
 
@@ -258,6 +270,20 @@ class Eos_bifluid {
 	 */
 	static Eos_bifluid* eos_from_file ( const char *fname ) ; 
 	
+	/** Construction of an EOS from a formatted file.
+	 * 
+	 *  The fist line of the file must start by the EOS number, according 
+	 *  to the following conventions:
+	 *  - 1 = 2-fluid relativistic polytropic EOS (class \c Eos_bf_poly ). 
+	 *  - 2 = 2-fluid Newtonian polytropic EOS (class \c Eos_bf_poly_newt ). 
+	 *  - 3 = 2-fluid tabulated EOS (class \c Eos_bf_tabul). 
+	 *  The second line in the file should contain a name given by the user to the EOS.
+	 *  The following lines should contain the EOS parameters (one
+	 *  parameter per line), in the same order than in the class declaration.
+	 */
+	static Eos_bifluid* eos_from_file(ifstream& ) ; 
+
+
 	/// Comparison operator (egality)
 	virtual bool operator==(const Eos_bifluid& ) const = 0 ; 
 
@@ -305,9 +331,13 @@ class Eos_bifluid {
 	 *      in \c [l_min,l_min+nzet-1] . In the other
 	 *	domains, it is set to zero. 
 	 */
-	void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
+	virtual void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
 			  Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press,
 			  int nzet, int l_min = 0) const ; 
+ 	virtual void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
+ 			  Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press, Cmp& K_nn, Cmp& K_np, Cmp& K_pp,
+ 			  int nzet, int l_min = 0) const ; 
+
 
  	/** Computes both baryon densities from the log-enthalpies 
 	 *  (virtual function implemented in the derived classes). 
@@ -570,6 +600,7 @@ class Eos_bifluid {
      	Cmp get_Knp(const Cmp& nbar1, const Cmp& nbar2, const Cmp& x2,
 		    int nzet, int l_min = 0) const ; 
 
+
 	/**  General computational method for \c Cmp 's (\f$K^{ij}\f$'s).
 	 * 
 	 *  @param nbar1 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
@@ -598,6 +629,110 @@ class Eos_bifluid {
 		     Cmp& resu)
 	  const ; 
  	
+	 /** Computes the derivatives of the energy/(baryonic density 1)\f$^2\f$.
+	 *
+	 *  @param ent1 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 1 at which 
+	 *           the derivatives are to be computed
+	 *  @param ent2 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 2 at which 
+	 *           the derivatives are to be computed
+	 *  @param x2 [input, unit \f$n_{\rm nuc}^2c^2\f$]
+	 *             relative velocity\f$\times\f$both densities at which 
+	 *           the derivative is to be computed	
+	 *  @param nzet  number of domains where the derivatives are to be
+	 *	computed. 
+	 *  @param l_min  index of the innermost domain is which the
+	 *	derivatives are
+	 *	to be computed [default value: 0]; the derivatives are
+	 *	computed only in domains whose indices are in 
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero. 
+	 * 
+	 *  @return derivative \f$K^{11}\f$ field (see \c get_K11 ) 
+	 */
+    	Cmp get_Knn_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& x2,
+		    int nzet, int l_min = 0) const  ; 
+
+	/** Computes the derivatives of the energy/(baryonic density 2)\f$^2\f$.
+	 *
+	 *  @param ent1 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 1 at which 
+	 *           the derivatives are to be computed
+	 *  @param ent2 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 2 at which 
+	 *           the derivatives are to be computed
+	 *  @param x2 [input, unit \f$n_{\rm nuc}^2c^2\f$]
+	 *             relative velocity\f$\times\f$both densities at which 
+	 *           the derivative is to be computed	
+	 *  @param nzet  number of domains where the derivatives are to be
+	 *	computed. 
+	 *  @param l_min  index of the innermost domain is which the
+	 *	derivatives are
+	 *	to be computed [default value: 0]; the derivatives are
+	 *	computed only in domains whose indices are in 
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero. 
+	 * 
+	 *  @return derivative \f$K^{22}\f$ field (see \c get_K12 ) 
+	 */
+    	Cmp get_Kpp_ent(const Cmp& ent1, const Cmp& ent2, const Cmp&
+		    x2, int nzet, int l_min = 0) const ; 
+
+	/** Computes the derivatives of the energy with respect to
+	 *  \f$x^2=n_1n_2\Gamma_\Delta^2\f$.
+	 *
+	 *  @param ent1 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 1 at which 
+	 *           the derivatives are to be computed
+	 *  @param ent2 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 2 at which 
+	 *           the derivatives are to be computed
+	 *  @param x2 [input, unit \f$n_{\rm nuc}^2c^2\f$]
+	 *             relative velocity\f$\times\f$both densities at which 
+	 *           the derivative is to be computed	
+	 *  @param nzet  number of domains where the derivatives are to be
+	 *	computed. 
+	 *  @param l_min  index of the innermost domain is which the
+	 *	derivatives are
+	 *	to be computed [default value: 0]; the derivatives are
+	 *	computed only in domains whose indices are in 
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero. 
+	 * 
+	 *  @return derivative \f$K^{12}\f$ field (see \c get_K12 ) 
+	 */
+     	Cmp get_Knp_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& x2,
+		    int nzet, int l_min = 0) const ; 
+
+	/**  General computational method for \c Cmp 's (\f$K^{ij}\f$'s).
+	 * 
+	 *  @param ent1 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 1 at which 
+	 *           the derivatives are to be computed.
+	 *  @param ent2 [input, unit \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *           baryonic log enthalpy field of fluid 2 at which  
+	 *           the derivatives are to be computed
+	 *  @param x2 [input, unit \f$n_{\rm nuc}^2c^2\f$]
+	 *             relative velocity\f$\times\f$both densities at which 
+	 *           the derivative is to be computed	
+	 *  @param nzet  [input] number of domains where \c resu  is to be
+	 *	computed. 
+	 *  @param l_min [input] index of the innermost domain is which \c resu 
+	 *	is to be computed [default value: 0]; \c resu  is 
+	 *	computed only in domains whose indices are in 
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero. 
+	 *  @param fait [input] pointer on the member function of class 
+	 *	  \c Eos_bifluid  which performs the pointwise calculation.
+	 *  @param resu [output] result of the computation. 
+	 */
+	void calcule_ent(const Cmp& ent1, const Cmp& ent2, const Cmp&
+		     x2, int nzet, int l_min, double
+		     (Eos_bifluid::*fait)(double, double, double) const, 
+		     Cmp& resu)
+	  const ; 
+
    // Conversion functions
     // ---------------------
 
@@ -1368,7 +1503,436 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 
 };
 
-		
+
+/* Declaration of the new class Eos_bf_tabul derived from Eos_bifluid */
+
+		    //------------------------------------//
+		    //	      class Eos_bf_tabul	  //
+		    //------------------------------------//
+
+/**
+ * Class for a two-fluid (tabulated) equation of state. 
+ *
+ * This EOS depends on three variables \f$(\Delta^2, \mu_n, \mu_p )\f$: relative velocity 
+ * between the two fluids and the two enthalpies (for neutrons and protons).
+ * 
+ * The interpolation through the tables is
+ * a cubic Hermite interpolation in \mu_n and \mu_p which is
+ * thermodynamically consistent, i.e. preserves the
+ * Gibbs-Duhem relation. It is defined in
+ * [Nozawa, Stergioulas, Gourgoulhon \& Eriguchi,
+ * \a Astron. \a Astrophys. Suppl. Ser.  \b 132 , 431 (1998)],
+ * and derives from a general technique presented in
+ * [Swesty, \a J. \a Comp. \a Phys.  \b 127 , 118 (1996)].
+ * The value of \Delta^{2} being calculated with a first order precision, 
+ * we use a linear interpolation in \Delta^{2}.
+ * 
+ */
+
+class Eos_bf_tabul : public Eos_bifluid {
+
+    // Data :
+    // -----
+
+    protected: 
+	/// Name of the file containing the tabulated data (be careful, Eos_bifluid uses char*)
+        string tablename ; 
+	
+	/// Authors
+        string authors ; 
+	
+      	/// Lower boundary of the relative velocity interval --> 0 ?
+    	double delta_car_min ;
+    	
+    	/// Upper boundary of the relative velocity interval --> 1 ?
+	/// or a maximal value until which the linear approximation in \Delta^{2} is fine ?
+    	double delta_car_max ;
+    	
+
+      	/// Lower boundary of the log-enthalpy interval (fluid 1 = n)
+    	double ent1_min ;
+    	
+    	/// Upper boundary of the log-enthalpy interval (fluid 1 = n)
+    	double ent1_max ;
+    	
+	/// Lower boundary of the log-enthalpy interval (fluid 2 = p)
+    	double ent2_min ;
+    	
+    	/// Upper boundary of the log-enthalpy interval (fluid 2 = p)
+    	double ent2_max ;
+
+    	/// Table of \f$ \log H_n \f$ where \f$ H_n = \ln \( \frac{mu_n}{m_n} \) \f$
+    	Tbl* logent1 ;
+    	
+	/// Table of \f$ \log H_p \f$ where \f$ H_p = \ln \( \frac{mu_p}{m_p} \) \f$
+    	Tbl* logent2 ;
+
+        /// Table of \f$ \Delta^{2} \f$
+    	Tbl* delta_car ; 
+	
+	/// Table of \f$ \log \Psi \f$
+    	Tbl* logp ;
+
+    	/// Table of \f$ \frac {\partial \log \Psi } {\partial \log H_n}\f$
+    	Tbl* dlpsdlent1 ;
+    	
+	/// Table of \f$ \frac {\partial \log \Psi } {\partial \log H_p}\f$
+    	Tbl* dlpsdlent2 ;
+
+	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_n \partial \log H_p} \f$
+    	Tbl* d2lpsdlent1dlent2 ;
+
+//// rajout des derivees secondes !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_n \partial \log H_n} \f$
+    	Tbl* d2lpsdlent1dlent1 ;
+	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_p \partial \log H_p} \f$
+    	Tbl* d2lpsdlent2dlent2 ;
+
+
+	/// Table of \f$ \frac {\partial \log \Psi}{\partial \Delta^{2}}  \f$  
+    	Tbl* dlpsddelta_car ;
+
+	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_n \partial \Delta^{2}} \f$
+    	Tbl* d2lpsdlent1ddelta_car ;
+
+	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_p \partial \Delta^{2}} \f$
+    	Tbl* d2lpsdlent2ddelta_car ;
+
+	/// if necessary for the interpolation to find alpha (derivee seconde croisee)
+	/// ie, if it's possible to calculate it (when the eos is calculated) 
+	/// Table of \f$ \frac {\partial^3 \log \Psi} {\partial \log H_p \partial \log H_n  \partial \Delta^{2}} \f$
+    	Tbl* d3lpsdlent1dlent2ddelta_car ;
+
+
+	// to save the limit curve of nn = 0
+	Tbl* delta_car_n0 ;
+	Tbl* mu1_n0 ;
+	Tbl* mu2_n0 ;
+	// to save the limit curve of np = 0
+	Tbl* delta_car_p0 ;
+	Tbl* mu1_p0 ;
+	Tbl* mu2_p0 ;
+
+	// to save the 1 fluid table //
+	Tbl* mu1_N ;
+	Tbl* n_n_N ;
+	Tbl* press_N ;
+	Tbl* mu2_P ;
+	Tbl* n_p_P ;
+	Tbl* press_P ;
+
+
+   // Constructors - Destructor     
+   // -------------------------
+     protected:
+
+	/** Standard constructor.
+	 *
+	 * @param name_i Name of the equation of state
+	 * @param table Name of the file containing the EOS table
+	 * @param path Path to the directory containing the EOS file
+	 * @param mass1 Mass of particles in fluid 1 (neutrons)
+	 * @param mass2 Mass of particles in fluid 2 (protons)
+	 */
+	Eos_bf_tabul(const char* name_i, const char* table, const char* path, double mass1, double mass2) ;	
+
+	/** Standard constructor from the full filename.
+	 *
+	 * @param name_i Name of the equation of state
+	 * @param file_name Full name of the file containing the EOS table
+	 *              (including the absolute path).
+	 * @param mass1 Mass of particles in fluid 1 (neutrons)
+	 * @param mass2 Mass of particles in fluid 2 (protons)
+	 */
+	Eos_bf_tabul(const char* name_i, const char* file_name, double mass1, double mass2) ;
+
+    private:
+	Eos_bf_tabul(const Eos_bf_tabul& ) ;	///< Copy constructor	
+	
+    protected:
+	
+	/** Constructor from a binary file (created by the function
+	 *  \c sauve(FILE*) ).
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function
+	 * \c Eos_bifluid::eos_from_file(FILE*) .
+	 */
+	Eos_bf_tabul(FILE* ) ;
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  \c  Eos_bifluid::eos_from_file(ifstream\& ) .
+	 *
+	 *   @param ist input file stream containing a name as first line
+	 *		and the path to the directory containing the EOS file
+	 *		as second line
+	 *   @param table Name of the file containing the EOS table
+	 */
+	Eos_bf_tabul(ifstream& ist, const char* table) ;
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
+	 *
+	 *   @param ist input file stream containing a name as first line
+	 *		and the full filename (including the path) containing 
+	 *              the EOS file as second line
+	 */
+	Eos_bf_tabul(ifstream& ist) ;
+	
+	/// The construction functions from a file
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ;
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& ) ;
+
+      public:
+	virtual ~Eos_bf_tabul() ;			///< Destructor
+
+    // Assignment
+    // ----------
+     private :
+	/// Assignment to another \c Eos_bf_tabul 
+	void operator=(const Eos_bf_tabul& ) ;
+
+
+  // Miscellaneous
+    // -------------
+
+    protected: 	
+    	/** Reads the file containing the table and initializes
+    	 *  the arrays logent1, \c logent2, \c delta_car, \c logp, \c dlpsdlent1, \c dlpsdlent2,
+	 *  c\ d2lpsdlent1dlent2, c\ dlpsddelta_car, c\ d2lpsdlent1ddelta_car, 
+	 *  c\ d2lpsdlent2ddelta_car, c\ d3lpsdlent1dlent2ddelta_car
+	 **/
+    	void read_table() ;
+
+    public : 
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos_bifluid& ) const ; 
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos_bifluid& ) const ; 
+    
+	/** Returns a number to identify the sub-classe of \c  Eos  the
+	 *  object belongs to.
+	 */
+	virtual int identify() const ;
+   
+
+    // Outputs
+    // -------
+
+    public: 
+	virtual void sauve(FILE* ) const ;	///< Save in a file
+
+
+    protected: 
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+    public: 
+	/**  General computational method for \c Cmp 's, it computes
+	 *   both baryon densities, energy and pressure profiles.
+	 * 
+	 *  @param ent1 [input] the first log-enthalpy field \f$H_1\f$.  
+	 *  @param ent2 [input] the second log-enthalpy field \f$H_2\f$.
+	 *  @param delta2 [input] the relative velocity field \f$\Delta^2 \f$
+	 *  @param nbar1 [output] baryonic density of the first fluid
+	 *  @param nbar2 [output] baryonic density of the second fluid
+	 *  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *  @param ener [output] total energy density \f$\cal E\f$ 
+	 *                             of both fluids together
+	 *  @param press [output] pressure \e p  of both fluids together
+	 *  @param K_nn [output] coefficient \e K_nn  
+	 *  @param K_np [output] coefficient \e K_np  
+	 *  @param K_pp [output] coefficient \e K_pp  
+	 *  @param nzet  [input] number of domains where \c resu  is to be
+	 *	computed. 
+	 *  @param l_min [input] index of the innermost domain is which 
+	 *      \c resu  is to be computed [default value: 0]; 
+	 *      \c resu  is computed only in domains whose indices are 
+	 *      in \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero. 
+	 */
+	virtual void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
+			  Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press, Cmp& K_nn, Cmp& K_np, Cmp& K_pp,
+			  int nzet, int l_min = 0) const ; 
+
+ 	/** Computes both baryon densities from the log-enthalpies
+	 * 
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ 
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ 
+	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$ 
+	 * 
+	 *  @param nbar1 [output] baryonic density of the first fluid
+	 *  @param nbar2 [output] baryonic density of the second fluid
+	 *  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 * 
+	 */
+    	virtual bool nbar_ent_p(const double ent1, const double ent2, 
+				const double delta2, double& nbar1, 
+				double& nbar2) const ; 
+       
+	/** Computes baryon density out of the log-enthalpy asuming
+	 *  that only fluid 1 is present.
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p1(const double ent1) const  ;
+
+	/** Computes baryon density out of the log-enthalpy assuming
+	 *  that only fluid 2 is present.
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p2(const double ent2) const  ;
+
+ 	/** Computes the total energy density from the baryonic densities
+	 *  and the relative velocity. 
+	 * 
+	 *  @param nbar1 [input] baryonic density of the first fluid
+	 *  @param nbar2 [input] baryonic density of the second fluid
+	 *  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$\Delta^2\f$ 
+	 * 
+	 *  @return energy density \f$\cal E\f$ [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double ener_nbar_p(const double nbar1, const double nbar2, 
+				   const double delta2) const  ; 
+       
+ 	/** Computes the pressure from the baryonic densities
+	 *  and the relative velocity.
+	 * 
+	 *  @param nbar1 [input] baryonic density of the first fluid
+	 *  @param nbar2 [input] baryonic density of the second fluid
+	 *  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$\Delta^2\f$ 
+	 * 
+	 *  @return pressure \e p  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double press_nbar_p(const double nbar1, const double nbar2, 
+				    const double delta2) const ; 
+       
+         /** Computes the derivative of the energy with respect to
+	 * (baryonic density 1)\f$^2\f$. 
+	 *
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 at 		
+	 *  which the derivative is to be computed
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 at 		
+	 *  which the derivative is to be computed 
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$ at 	
+	 *  which the derivative is to be computed 
+	 *
+	 *  @return derivative \f$K^{11}=2\frac{\partial{\cal{E}}}{\partial{n_1^2}}\f$ 
+	 */
+	virtual double get_K11(const double delta2, const double ent1, 
+				const double ent2)  const  ;
+
+	/** Computes the derivative of the energy with respect to 
+	 *  \f$x^2=n_1n_2\Gamma_\Delta\f$.
+	 *
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 at 		
+	 *  which the derivative is to be computed
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 at 		
+	 *  which the derivative is to be computed 
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$ at 	
+	 *  which the derivative is to be computed  
+	 *
+	 *  @return derivative \f$K^{12}=\frac{\partial {\cal E}}{\partial (n_1n_2\Gamma_\Delta)}\f$ 
+	 */
+	virtual double get_K12(const double delta2, const double ent1 , 
+				const double ent2)  const  ;
+
+	/** Computes the derivative of the energy/(baryonic density 2)\f$^2\f$.
+	 *
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 at 	
+	 *  which the derivative is to be computed
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 at 	
+	 *  which the derivative is to be computed 
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$ at 
+	 *  which the derivative is to be computed  
+	 *
+	 *  @return derivative \f$K^{22} = 2\frac{\partial {\cal E}}{\partial n_2^2}\f$ 
+	 */
+	virtual double get_K22(const double delta2, const double ent1, 
+				const double ent2)  const  ;
+     
+ 	/** Computes the total energy density from the baryonic log-enthalpies
+	 *  and the relative velocity.
+	 *
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$ 
+	 *
+	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double ener_ent_p(const double ent1, const double ent2, 
+				const double delta_car) const ;
+
+ 	/** Computes the pressure from the baryonic log-enthalpies
+	 *  and the relative velocity. Computes the pressure from the log-enthalpy.
+	 *
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$
+	 *
+	 *  @return pressure \e p  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double press_ent_p(const double ent1, const double ent2, 
+				const double delta_car) const ;
+
+
+
+	/** Computes the pressure from the baryonic log-enthalpies asuming
+	 *  that only fluid 1 is present.
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double press_ent_p1(const double ent1) const  ;
+
+	/** Computes the pressure from the baryonic log-enthalpies assuming
+	 *  that only fluid 2 is present.
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double press_ent_p2(const double ent2) const  ;
+
+
+
+         /** Computes alpha, the derivative of the total energy density 
+	 * with respect to \f$ Delta^2\f$ from the baryonic log-enthalpies
+	 *  and the relative velocity. 
+	 *
+	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 
+	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ Delta^2\f$
+	 *
+	 *  @return \alpha  
+	 */
+	virtual double alpha_ent_p(const double ent1, const double ent2, 
+				const double delta_car) const ;
+
+
+	// Conversion function
+	// ---------------------
+
+	/** Makes a translation from \c Eos_bifluid  to \c Eos . 
+	 *
+	 *  This is only useful for the construction of a 
+	 *  \c Et_rot_bifluid star and ought not to be used in other situations.
+	 */
+	virtual Eos* trans2Eos() const ;
+       
+};
+
 
 }
 #endif

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2015/06/10 14:39:17  a_sourie
+ * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
+ *
  * Revision 1.17  2014/10/13 08:52:34  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -150,6 +153,10 @@ class Et_rot_bifluid : public Etoile_rot {
   
   Tenseur nbar2 ; ///< Baryon density in the fluid frame, for fluid 2
   
+   Tenseur K_nn ;  ///< Coefficient Knn
+   Tenseur K_np ;  ///< Coefficient Knp
+   Tenseur K_pp ;  ///< Coefficient Kpp 
+
   // Fluid quantities with respect to the Eulerian frame
   // ---------------------------------------------------
 
@@ -165,6 +172,22 @@ class Et_rot_bifluid : public Etoile_rot {
    * is nonzero.
    */
   Tenseur j_euler;
+
+  Tenseur j_euler1;//To compute Jn
+  Tenseur j_euler2;//To compute Jp
+
+  Tenseur j_euler11_1;//To compute In (1st version)
+  Tenseur j_euler12_1;//To compute Ip (1st version)
+
+  Tenseur j_euler21_1;// To compute epsN (1st version)
+  Tenseur j_euler22_1;// To compute epsP (1st version)
+
+  Tenseur j_euler11_2;//To compute In (2nd version)
+  Tenseur j_euler12_2;//To compute Ip (2nd version)
+
+  Tenseur j_euler21_2;// To compute epsN (2nd version)
+  Tenseur j_euler22_2;// To compute epsP (2nd version)
+
 
   /// the combination \f$E+S_i^i\f$: useful because in the Newtonian limit \f$\rightarrow \rho\f$.
   Tenseur enerps_euler;
@@ -209,11 +232,27 @@ class Et_rot_bifluid : public Etoile_rot {
   mutable Tbl* p_xi_surf2 ; 
 	
   mutable double* p_r_circ2 ;	///< Circumferential radius of fluid no.2
+  mutable double* p_area2 ;	///< Surface area of fluid no.2
   mutable double* p_aplat2 ;	///< Flatening r_pole/r_eq of fluid no.2
 
 	
   mutable double* p_mass_b1 ;	///< Baryon mass of fluid 1
   mutable double* p_mass_b2 ;	///< Baryon mass of fluid 2
+	
+  mutable double* p_angu_mom_1;	///< Angular momentum of fluid 1
+  mutable double* p_angu_mom_2;	///< Angular momentum of fluid 2
+
+  mutable double* p_angu_mom_1_part1_1;	///< To compute In (1st version)
+  mutable double* p_angu_mom_2_part1_1;	///< To compute Ip (1st version)
+
+  mutable double* p_angu_mom_1_part2_1;	///< To compute Xn (1st version)
+  mutable double* p_angu_mom_2_part2_1;	///< To compute Xp (1st version)
+
+  mutable double* p_angu_mom_1_part1_2;	///< To compute In (2nd version)
+  mutable double* p_angu_mom_2_part1_2;	///< To compute Ip (2nd version)
+
+  mutable double* p_angu_mom_1_part2_2;	///< To compute Xn (2nd version)
+  mutable double* p_angu_mom_2_part2_2;	///< To compute Xp (2nd version)
 
 
   // Constructors - Destructor
@@ -296,7 +335,14 @@ class Et_rot_bifluid : public Etoile_rot {
 
   /// Returns the proper baryon density for fluid 2
   const Tenseur& get_nbar2() const {return nbar2 ; } ;
-	
+
+  /// Returns the coefficient Knn
+   const Tenseur& get_K_nn() const {return K_nn ; } ;
+  /// Returns the coefficient Knp
+   const Tenseur& get_K_np() const {return K_np ; } ;
+  /// Returns the coefficient Kpp
+   const Tenseur& get_K_pp() const {return K_pp ; } ;
+
   /// Returns the "relative velocity" (squared) \f$\Delta^2\f$ of the two fluids
   const Tenseur& get_delta_car() const {return delta_car ; } ;
 
@@ -392,19 +438,56 @@ class Et_rot_bifluid : public Etoile_rot {
    */
   virtual double grv3(ostream* ost = 0x0) const ;	
 
-  virtual double r_circ2() const ;     ///< Circumferential radius for fluid 2
-  virtual double aplat2() const ;      ///< Flatening r_pole/r_eq for fluid 2
+  virtual double r_circ2() const ;    		///< Circumferential radius for fluid 2
+  virtual double area2() const ;				///< Surface area for fluid 2
+  virtual double mean_radius2() const ;	///< Mean radius for fluid 2
+  virtual double aplat2() const ;     		///< Flatening r_pole/r_eq for fluid 2
 
-  /** Quadrupole moment.
-   *  The quadrupole moment \e Q is defined according to Eq. (7) of
-   *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
-   *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
-   *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
-   *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
-   *  Note that \e Q is the negative of the quadrupole moment defined 
-   *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
-   */
-  virtual double mom_quad() const ;	
+   /** Quadrupole moment.
+	 *  The quadrupole moment \e Q is defined according to Eq. (11) of
+	 *  [Pappas and Apostolatos, \a Physical \a Review \a Letters 
+	 *  \b 108, 231104 (2012)]. This is a corrected version of the quadrupole
+	 *  moment defined by [Salgado, Bonazzola, Gourgoulhon and Haensel,
+	 *  \a Astron. \a Astrophys. \b 291 , 155 (1994)]. 
+    *  Following this definition, \f$Q = \e {\bar Q } - 4/3 (1/4 + b) M^3 \f$, 
+	 *  where \e {\bar Q } is defined as the negative of the (wrong) quadrupole moment defined 
+	 *  in Eq. (7) of [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+	 *  \b 291 , 155 (1994)], \e b is defined by Eq. (3.37) of 
+    *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
+	 *  Cambridge Monograph on mathematical physics] and \e M is 
+	 *  the gravitational mass of the star.
+	 */
+	virtual double mom_quad() const ;	
+
+	/** Part of the quadrupole moment.
+	 *  This term \e {\bar Q } is defined by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
+	 *  Note that \e {\bar Q } is the negative of the (wrong) quadrupole moment defined in Eq. (7) of
+	 *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+	 *   \b 291 , 155 (1994)]. 
+	 *  
+	 */
+	virtual double mom_quad_old() const ;
+
+	/** Part of the quadrupole moment.
+	 *  \e B_o is defined as \f$bM^2\f$, where \e b is given by Eq. (3.37) of 
+    *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
+	 *  Cambridge Monograph on mathematical physics] and \e M is the 
+	 *  the gravitational mass of the star. 
+	 */
+	virtual double mom_quad_Bo() const ;
+
+  virtual double angu_mom_1() const ;	///< Angular momentum of fluid 1
+  virtual double angu_mom_2() const ;	///< Angular momentum of fluid 2
+  virtual double angu_mom_1_part1_1() const ;	///< To compute In (1st version)
+  virtual double angu_mom_2_part1_1() const ;	///< To compute Ip (1st version)
+  virtual double angu_mom_1_part2_1() const ;	///< To compute Xn (1st version)
+  virtual double angu_mom_2_part2_1() const ;	///< To compute Xp (1st version)
+  virtual double angu_mom_1_part1_2() const ;	///< To compute In (2nd version)
+  virtual double angu_mom_2_part1_2() const ;	///< To compute Ip (2nd version)
+  virtual double angu_mom_1_part2_2() const ;	///< To compute Xn (2nd version)
+  virtual double angu_mom_2_part2_2() const ;	///< To compute Xp (2nd version)
+
+
 
   // Computational routines
   // ----------------------
@@ -413,7 +496,7 @@ class Et_rot_bifluid : public Etoile_rot {
    *  observer from those in the fluid frame.
    *
    *  The calculation is performed starting from the quantities
-   *  \c ent , \c ent2 , \c ener , \c press , and \c a_car ,  
+   *  \c ent , \c ent2 , \c ener , \c press , \c K_nn , \c K_np , \c K_pp and \c a_car ,  
    *  which are supposed to be up to date.  
    *  From these,  the following fields are updated:
    *  \c delta_car , \c gam_euler , \c gam_euler2 , \c ener_euler , 
@@ -422,7 +505,7 @@ class Et_rot_bifluid : public Etoile_rot {
   virtual void hydro_euler() ; 
 	
   /** Computes the proper baryon and energy densities, as well as
-   *  pressure from the enthalpies and both velocities.
+   *  pressure and the coefficients Knn, Knp and Kpp, from the enthalpies and both velocities.
    */
   virtual void equation_of_state() ; 
 	

@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2015/06/10 14:39:17  a_sourie
+ * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
+ *
  * Revision 1.19  2014/10/13 08:52:54  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -165,7 +168,7 @@ void Et_rot_bifluid::equilibrium_bi
   double ent2_b = ent2_limit(nzet-1) ;
 
   // This value is chosen so that the grid contain both fluids
-  //  double ent_b = (ent1_b > ent2_b ? ent1_b : ent2_b) ; 
+//       double ent_b = (ent1_b > ent2_b ? ent1_b : ent2_b) ; 
     
   // Parameters to control the iteration
   // -----------------------------------
@@ -867,35 +870,75 @@ void Et_rot_bifluid::equilibrium_bi
     // Convergence towards given baryon masses  (if mer_mass > 0)
     //-----------------------------------------
     
-    if ((mer_mass>0) && (mer > mer_mass)) {
+    // If we want to impose baryonic masses for both fluids. 
+    //Be careful, the code acts on mu_n and mu_p (at the center)
+    // -> beta equilibrium can be not verified
+    cout << "DEBUG MODE : mbar1_wanted : " << mbar1_wanted << endl ;
+    cout << "DEBUG MODE : mbar2_wanted : " << mbar2_wanted << endl ; 
+    if (mbar2_wanted != 0 )  		
+     		 
+    {
+      if ((mer_mass>0) && (mer > mer_mass)) {
       
-      double xx, xprog, ax, fact; 
+	double xx, xprog, ax, fact; 
 
-      // fluid 1
-      xx = mass_b1() / mbar1_wanted - 1. ;
-      cout << "Discrep. baryon mass1 <-> wanted bar. mass1 : " << xx << endl ; 
+	// fluid 1
+	xx = mass_b1() / mbar1_wanted - 1. ;
+	cout << "Discrep. baryon mass1 <-> wanted bar. mass1 : " << xx << endl ; 
 
-      xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
-      xx *= xprog ; 
-      ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
-      fact = pow(ax, aexp_mass) ; 
-      cout << "Fluid1:  xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
-      ent_c *= fact ; 
+	xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
+	xx *= xprog ; 
+	ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
+	fact = pow(ax, aexp_mass) ; 
+	cout << "Fluid1:  xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
+	ent_c *= fact ; 
 
-      // fluid 2
-      xx = mass_b2() / mbar2_wanted - 1. ;
-      cout << "Discrep. baryon mass2 <-> wanted bar. mass2 : " << xx << endl ; 
+	// fluid 2
+	xx = mass_b2() / mbar2_wanted - 1. ;
+	cout << "Discrep. baryon mass2 <-> wanted bar. mass2 : " << xx << endl ; 
 
-      xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
-      xx *= xprog ; 
-      ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
-      fact = pow(ax, aexp_mass) ; 
-      cout << "Fluid2: xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
-      ent2_c *= fact ; 
+	xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
+	xx *= xprog ; 
+	ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
+	fact = pow(ax, aexp_mass) ; 
+	cout << "Fluid2: xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
+	ent2_c *= fact ; 
+	cout << "H1c = " << ent_c << "   H2c = " << ent2_c << endl ;
+      }
+    }
+    
+    else {
+    // If we want to impose Mb_tot and  beta equilibrium
+    // In this case : mbar1_wanted = total baryonic mass wanted
+    //	              mbar2_wanted must be set to -1 and is not used.
+      
+      if ((mer_mass>0) && (mer > mer_mass)) {
+      
+	double xx, xprog, ax, fact; 
 
+	// total mass
+	xx = mass_b() / mbar1_wanted - 1. ; // mbar1_wanted = " mbar_wanted"
+	cout << "Discrep. baryon mass <-> wanted bar. mass : " << xx << endl ; 
+
+	xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
+	xx *= xprog ; 
+	ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
+	fact = pow(ax, aexp_mass) ; 
+	cout << "Fluid1:  xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
+	ent_c *= fact ; 
+	
+	double m1 = 1.009000285 ; 
+	double m2 = 1.008160139 ;
+	ent2_c = ent_c + log(m1/m2); // to ensure beta_equilibrium  
+	cout << "DEBUG MODE : ent_c " << ent_c << endl ;
+	cout << "DEBUG MODE : ent2_c " << ent2_c << endl ;	
+	cout << "H1c = " << ent_c << "   H2c = " << ent2_c << endl ;
+      
+      }
+      
     } /* if mer > mer_mass */
 	
-
+  
 
 
 

@@ -31,6 +31,9 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2015/06/10 14:39:17  a_sourie
+ * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
+ *
  * Revision 1.9  2014/10/13 08:52:52  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -90,6 +93,7 @@ int Eos_bf_poly::identify() const	{ return 1; }
 
 int Eos_bf_poly_newt::identify() const	{ return 2; }
 
+int Eos_bf_tabul::identify() const	{ return 3; }
 
 		//---------------------------------------------//
 		//    EOS construction from a binary file      //
@@ -107,6 +111,11 @@ Eos_bifluid* Eos_bifluid::eos_from_file(FILE* fich) {
 	
 	case 1 : {
 	    p_eos = new Eos_bf_poly(fich) ; 
+	    break ; 
+	}
+	
+        case 3 : {
+	    p_eos = new Eos_bf_tabul(fich) ; 
 	    break ; 
 	}
 	
@@ -137,7 +146,7 @@ Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) {
 	cerr << "ERROR: Could not read the required variable 'ident' in " << fname << endl;
 	exit (-1);
       }
-
+   
     Eos_bifluid* p_eos ; 
     
     switch(identificator) {
@@ -152,6 +161,40 @@ Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) {
 	    break ; 
 	}
 	
+	default : {
+	    cout << "Eos_bifluid::eos_from_file : unknown type of EOS !" << endl ; 
+	    cout << " identificator = " << identificator << endl ; 
+	    abort() ; 
+	    break ; 
+	}
+	
+    }
+    
+    return p_eos ; 
+    
+}
+
+		//----------------------------------------------//
+		//    EOS construction from a formatted file    //
+		//----------------------------------------------//
+
+Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& fich) {
+    
+    int identificator ; 
+    char blabla[80] ;
+
+    // EOS identificator : 
+    fich >> identificator ; fich.getline(blabla, 80) ;
+
+    Eos_bifluid* p_eos ; 
+    
+    switch(identificator) {
+	
+	case 3 : {
+	    p_eos = new Eos_bf_tabul(fich) ; 
+	    break ; 
+	}
+
 	default : {
 	    cout << "Eos_bifluid::eos_from_file : unknown type of EOS !" << endl ; 
 	    cout << " identificator = " << identificator << endl ; 

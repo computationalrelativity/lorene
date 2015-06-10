@@ -25,6 +25,9 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2015/06/10 14:39:17  a_sourie
+ * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
+ *
  * Revision 1.16  2014/10/13 08:52:54  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -210,6 +213,257 @@ double Et_rot_bifluid::angu_mom() const {
 }
 
 
+double Et_rot_bifluid::angu_mom_1() const {
+
+  if (p_angu_mom_1 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler1;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_1 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_1 ; 
+
+}
+
+double Et_rot_bifluid::angu_mom_2() const {
+
+ if (p_angu_mom_2 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler2;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_2 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_2 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_1_part1_1() const {
+
+ if (p_angu_mom_1_part1_1 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler11_1;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_1_part1_1 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_1_part1_1 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_2_part1_1() const {
+
+ if (p_angu_mom_2_part1_1 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler21_1;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_2_part1_1 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_2_part1_1 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_1_part2_1() const {
+
+ if (p_angu_mom_1_part2_1 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler12_1;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_1_part2_1 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_1_part2_1 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_2_part2_1() const {
+
+ if (p_angu_mom_2_part2_1 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler22_1;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_2_part2_1 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_2_part2_1 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_1_part1_2() const {
+
+ if (p_angu_mom_1_part1_2 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler11_2;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_1_part1_2 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_1_part1_2 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_2_part1_2() const {
+
+ if (p_angu_mom_2_part1_2 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler21_2;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_2_part1_2 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_2_part1_2 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_1_part2_2() const {
+
+ if (p_angu_mom_1_part2_2 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler12_2;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_1_part2_2 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_1_part2_2 ;
+
+}
+
+double Et_rot_bifluid::angu_mom_2_part2_2() const {
+
+ if (p_angu_mom_2_part2_2 == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ;
+
+    // this should work for both relativistic AND Newtonian, 
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler22_2;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
+
+    dens = a_car() * b_car()* bbb() * dens ; 
+
+    dens.std_base_scal() ; 
+      
+    p_angu_mom_2_part2_2 = new double( dens.integrale() ) ;
+      
+  }
+    
+  return *p_angu_mom_2_part2_2 ;
+
+}
+
+
 //----------------------------//
 //	     GRV2	      //
 //----------------------------//
@@ -376,6 +630,73 @@ double Et_rot_bifluid::aplat2() const {
 
 
 //----------------------------//
+//	  Surface area	      //
+//----------------------------//
+
+  double Et_rot_bifluid::area2() const {
+
+    if (p_area2 == 0x0) {    // a new computation is required
+      const Mg3d& mg = *(mp.get_mg()) ; 
+      int np = mg.get_np(0) ;
+      int nt = mg.get_nt(0) ;
+      assert(np == 1) ; //Only valid for axisymmetric configurations
+      
+      const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&mp) ;
+      assert(mp_rad != 0x0) ;
+
+      Valeur va_r(mg.get_angu()) ;
+      va_r.annule_hard() ;
+      Itbl lsurf2 = l_surf2() ;
+      Tbl xisurf2 = xi_surf2() ;
+           
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  int l_star2 = lsurf2(k, j) ; 
+	  double xi_star2 = xisurf2(k, j) ;
+		
+	  va_r.set(0, k, j, 0) = mp_rad->val_r_jk(l_star2, xi_star2, j, k) ;
+	}
+      }
+      va_r.std_base_scal() ;
+      
+      Valeur integ(mg.get_angu()) ;
+      Valeur dr = va_r.dsdt() ;
+      integ = sqrt(va_r*va_r + dr*dr) ;
+      Cmp aaaa = get_a_car()() ;
+      Valeur a2 = aaaa.va ; a2.std_base_scal() ;
+      Cmp bbbb = get_bbb()() ;
+      Valeur b = bbbb.va ; b.std_base_scal() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  integ.set(0, k, j, 0) *= sqrt(a2.val_point_jk(lsurf2(k, j), xisurf2(k, j), j, k))
+	    * b.val_point_jk(lsurf2(k, j), xisurf2(k, j), j, k) * va_r(0, k, j, 0) ;
+	}
+      }
+      integ.std_base_scal() ;
+      Valeur integ2 = integ.mult_st() ;
+      double surftot = 0. ;
+      for (int j=0; j<nt; j++) {
+	surftot += (*integ2.c_cf)(0, 0, j, 0) / double(2*j+1) ;
+      }
+      
+      p_area2 = new double( 4*M_PI*surftot) ;
+
+    }
+    
+    return *p_area2 ; 
+
+}
+
+  double Et_rot_bifluid::mean_radius2() const {
+
+    return sqrt(area2()/(4*M_PI)) ;
+
+  }
+
+
+
+
+//----------------------------//
 //     Quadrupole moment      //
 //----------------------------//
 
@@ -384,6 +705,45 @@ double Et_rot_bifluid::mom_quad() const {
   using namespace Unites ;
 
   if (p_mom_quad == 0x0) {    // a new computation is required
+	
+    double b = mom_quad_Bo() / ( mass_g() * mass_g() ) ;
+    p_mom_quad = new double(  mom_quad_old() - 4./3. * ( 1./4. + b ) * pow(mass_g(), 3) * ggrav * ggrav ) ;	 
+   
+  }
+    
+  return *p_mom_quad ; 
+
+}
+
+
+double Et_rot_bifluid::mom_quad_Bo() const {
+
+  using namespace Unites ;
+
+  if (p_mom_quad_Bo == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ; 
+   
+   dens = press() ;
+   dens = a_car() * bbb() * nnn() * dens ; 
+   dens.mult_rsint() ;
+   dens.std_base_scal() ; 
+      
+   p_mom_quad_Bo = new double( - 32. * dens.integrale() / qpig  ) ; 
+
+  }
+    
+  return *p_mom_quad_Bo ; 
+
+}
+
+
+
+double Et_rot_bifluid::mom_quad_old() const {
+
+  using namespace Unites ;
+
+  if (p_mom_quad_old == 0x0) {    // a new computation is required
 	
     // Source for of the Poisson equation for nu
     // -----------------------------------------
@@ -435,11 +795,11 @@ double Et_rot_bifluid::mom_quad() const {
     // Final result
     // ------------
 
-    p_mom_quad = new double( source().integrale() / qpig ) ; 	 
+    p_mom_quad_old = new double(- source().integrale() / qpig ) ; 	 
 
   }
     
-  return *p_mom_quad ; 
+  return *p_mom_quad_old ; 
 
 }
 

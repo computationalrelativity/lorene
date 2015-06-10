@@ -13,7 +13,7 @@
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
- *
+ * 
  *   LORENE is distributed in the hope that it will be useful,
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2015/06/10 14:39:17  a_sourie
+ * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
+ *
  * Revision 1.18  2014/10/13 08:52:52  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -100,7 +103,7 @@ char eos_bifluid_C[] = "$Header$" ;
  *  pour conformite au compilateur HP.
  *
  * Revision 1.4  2001/08/31  15:48:11  novak
- * The flag tronc has been added to nbar_ent... functions
+ * The flag tronc has been added to ar_ent... functions
  *
  * Revision 1.3  2001/08/27 12:23:40  novak
  * The Cmp arguments delta2 put to const
@@ -186,6 +189,23 @@ the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
     }
 
 }
+
+// // Constructor from a formatted file
+// // ---------------------------------
+// Eos_bifluid::Eos_bifluid(ifstream& fich):name(0x0){
+      
+//   string aname ;
+
+//   // EOS identificator : 
+//   char blabla[80] ;
+//   fich >> aname; 
+//   set_name(aname.data()) ;
+//   fich.getline(blabla, 80) ;
+
+//   fich >> m_1 ; fich.getline(blabla, 80) ;
+//   fich >> m_2 ; fich.getline(blabla, 80) ;
+// }
+
 
 
 
@@ -330,6 +350,18 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
 	  xx = delta2(l,k,j,i) ;
 	  if (inside) {
 	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
+
+/*cout << "   " << endl ;
+cout << " k =" << k <<  " np0 =" << np0 << endl ;
+cout << " j =" << j << " nt0 =" << nt0 << endl ;
+cout << " l =" << l << " lmax =" << l_min + nzet << endl ;
+cout << " i =" << i << " imax =" << mp->get_mg()->get_nr(l) << endl ;
+cout << "ent 1 " << ent1(l,k,j,i)  <<  endl ;
+cout << "ent 2 " << ent2(l,k,j,i)  <<  endl ;
+cout << " n1  " << n1 << endl;
+cout << " n2  " << n2 << endl;
+*/
+
 	    //	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
 	    inside1 = (n1 > 0.) ;
 	    //	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
@@ -365,12 +397,35 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
 	  ener.set(l,k,j,i) = ener_nbar_p(n1, n2, xx) ;
 	  press.set(l,k,j,i) = press_nbar_p(n1, n2, xx) ;
 
-	}
+
+/*cout << "inside = " << inside <<endl ;
+cout << "inside1 = " << inside1 <<endl ;
+cout << "inside2 = " << inside2 <<endl ;
+
+cout << "nbar1  " << nbar1(l,k,j,i)  <<  endl ;
+cout << "nbar2  " << nbar2(l,k,j,i) <<  endl;
+cout << "delta2  " << delta2(l,k,j,i) <<  endl;
+cout << "press  " << press(l,k,j,i) <<  endl;
+cout << "ener " << ener(l,k,j,i) <<  endl;
+//if ((k==0) & (j==0) & (i==32)) { abort();}
+	*/}
       }
     }
   }
 
 }
+
+
+void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2, 
+			       const Cmp& delta2, Cmp& nbar1, Cmp& nbar2,  
+			       Cmp& ener, Cmp& press, Cmp& Knn, Cmp& Knp, Cmp& Kpp,  
+			       int nzet, int l_min) const {
+  
+	 c_est_pas_fait("Eos_bifluid::calcule_tout" ) ;
+
+}
+
+
 
 // Baryon density from enthalpy 
 //------------------------------
@@ -694,6 +749,8 @@ void Eos_bifluid::calcule(const Cmp& nbar1, const Cmp& nbar2, const Cmp&
 	tresu->t[i] = (this->*fait)(n1, n2, xx ) ;
       }  
       
+      
+      
     }  // End of the loop on domains where the computation had to be done
     
     // resu is set to zero in the other domains :
@@ -739,4 +796,134 @@ Cmp Eos_bifluid::get_Kpp(const Cmp& nbar1, const Cmp& nbar2, const Cmp&
     return resu ; 
     
 }
+
+// new functions --> ok ?
+
+// Generic computational routine for get_Kxx_ent
+//----------------------------------------------
+//Rk : nbar1 and nbar2 have been replaced by ent1 and ent2
+void Eos_bifluid::calcule_ent(const Cmp& ent1, const Cmp& ent2, const Cmp&
+		     x2, int nzet, int l_min, double
+		     (Eos_bifluid::*fait)(double, double, double) const, 
+			  Cmp& resu) const {
+    
+    assert(ent1.get_etat() != ETATNONDEF) ; 
+    assert(ent2.get_etat() != ETATNONDEF) ; 
+    assert(x2.get_etat() != ETATNONDEF) ; 
+    
+    const Map* mp = ent1.get_mp() ;	// Mapping
+    assert(mp == ent2.get_mp()) ;    
+    
+    
+    if ((ent1.get_etat() == ETATZERO)&&(ent2.get_etat() == ETATZERO)) {
+	resu.set_etat_zero() ; 
+	return ; 
+    }
+    
+    bool le1 = ent1.get_etat() == ETATQCQ ; 
+    bool le2 = ent2.get_etat() == ETATQCQ ; 
+    bool bx2 = x2.get_etat() == ETATQCQ ; 
+    const Valeur* vent1 = 0x0 ;
+    const Valeur* vent2 = 0x0 ;
+    const Valeur* vx2 = 0x0 ;
+    if (le1) { vent1 = &ent1.va ;
+    vent1->coef_i() ; }
+    if (le2) { vent2 = &ent2.va ;
+    vent2->coef_i() ; }
+    if (bx2) {vx2 = & x2.va ;
+    vx2->coef_i() ; }
+   
+    const Mg3d* mg = mp->get_mg() ;	// Multi-grid
+    
+    int nz = mg->get_nzone() ;		// total number of domains
+    
+    // Preparations for a point by point computation:
+    resu.set_etat_qcq() ;
+    Valeur& vresu = resu.va ; 
+    vresu.set_etat_c_qcq() ;
+    vresu.c->set_etat_qcq() ;
+
+    // Loop on domains where the computation has to be done :
+    for (int l = l_min; l< l_min + nzet; l++) {
+	
+      assert(l>=0) ; 
+      assert(l<nz) ; 
+      
+      Tbl* tent1 = 0x0 ;
+      Tbl* tent2 = 0x0 ;
+      Tbl* tx2 = 0x0 ;
+      
+      if (le1) tent1 = vent1->c->t[l] ;
+      if (le2) tent2 = vent2->c->t[l] ;
+      if (bx2) tx2 = vx2->c->t[l] ;
+      Tbl* tresu = vresu.c->t[l] ; 
+      
+      bool le1b = false ;
+      if (le1) le1b = tent1->get_etat() == ETATQCQ ;
+      bool le2b = false ;
+      if (le2) le2b = tent2->get_etat() == ETATQCQ ;
+      bool bx2b = false ;
+      if (bx2) bx2b = tx2->get_etat() == ETATQCQ ;
+      tresu->set_etat_qcq() ;
+      
+      double H1, H2, xx ;
+      
+      for (int i=0; i<tent1->get_taille(); i++) {
+	
+	H1 = le1b ? tent1->t[i] : 0 ;
+	H2 = le2b ? tent2->t[i] : 0 ;
+	xx = bx2b ? tx2->t[i] : 0 ;
+
+//cout << " LA" << H1 << "   " << H2 << "   " << xx <<  endl;
+	tresu->t[i] = (this->*fait)(xx, H1, H2) ;
+      }  
+      
+    }  // End of the loop on domains where the computation had to be done
+    
+    // resu is set to zero in the other domains :
+
+    if (l_min > 0) {
+      resu.annule(0, l_min-1) ; 
+    }
+    
+    if (l_min + nzet < nz) {
+      resu.annule(l_min + nzet, nz - 1) ; 
+    }
 }
+
+// rajout de ces fonctions
+Cmp Eos_bifluid::get_Knn_ent(const Cmp& ent1, const Cmp& ent2, const Cmp&
+			 delta2, int nzet, int l_min) const {
+    
+    Cmp resu(ent1.get_mp()) ; 
+
+    calcule_ent(ent1, ent2, delta2, nzet, l_min, &Eos_bifluid::get_K11, resu) ;
+
+    return resu ; 
+    
+}
+
+Cmp Eos_bifluid::get_Knp_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& 
+			 delta2, int nzet, int l_min) const {
+    
+    Cmp resu(delta2.get_mp()) ; 
+    
+    calcule_ent(ent1, ent2, delta2, nzet, l_min, &Eos_bifluid::get_K12, resu) ;
+    
+    return resu ; 
+    
+}
+
+Cmp Eos_bifluid::get_Kpp_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& 
+			 delta2, int nzet, int l_min) const {
+    
+    Cmp resu(ent2.get_mp()) ; 
+    
+    calcule_ent(ent1, ent2, delta2, nzet, l_min, &Eos_bifluid::get_K22, resu) ;
+    
+    return resu ; 
+    
+}
+
+}
+
