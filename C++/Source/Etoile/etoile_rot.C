@@ -31,6 +31,9 @@ char etoile_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2015/06/10 14:37:44  a_sourie
+ * Corrected the formula for the quadrupole.
+ *
  * Revision 1.5  2014/10/13 08:52:59  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -335,11 +338,14 @@ void Etoile_rot::del_deriv() const {
     if (p_grv2 != 0x0) delete p_grv2 ; 
     if (p_grv3 != 0x0) delete p_grv3 ; 
     if (p_r_circ != 0x0) delete p_r_circ ; 
+    if (p_area != 0x0) delete p_area ;
     if (p_aplat != 0x0) delete p_aplat ; 
     if (p_z_eqf != 0x0) delete p_z_eqf ; 
     if (p_z_eqb != 0x0) delete p_z_eqb ; 
     if (p_z_pole != 0x0) delete p_z_pole ; 
     if (p_mom_quad != 0x0) delete p_mom_quad ;
+    if (p_mom_quad_old != 0x0) delete p_mom_quad_old ;  
+    if (p_mom_quad_Bo != 0x0) delete p_mom_quad_Bo ;
     if (p_r_isco != 0x0) delete p_r_isco ;
     if (p_f_isco != 0x0) delete p_f_isco ;
     if (p_lspec_isco != 0x0) delete p_lspec_isco ;
@@ -361,11 +367,14 @@ void Etoile_rot::set_der_0x0() const {
     p_grv2 = 0x0 ;
     p_grv3 = 0x0 ;
     p_r_circ = 0x0 ;
+    p_area = 0x0 ;
     p_aplat = 0x0 ;
     p_z_eqf = 0x0 ;
     p_z_eqb = 0x0 ;
     p_z_pole = 0x0 ;
     p_mom_quad = 0x0 ;
+    p_mom_quad_old = 0x0 ;
+    p_mom_quad_Bo = 0x0 ;
     p_r_isco = 0x0 ;
     p_f_isco = 0x0 ;
     p_lspec_isco = 0x0 ;
@@ -524,7 +533,9 @@ ostream& Etoile_rot::operator>>(ostream& ost) const {
 
     ost << "Ratio T/W :            " << tsw() << endl ; 
     ost << "Circumferential equatorial radius R_circ :     " 
-	<< r_circ()/km << " km" << endl ;  
+	<< r_circ()/km << " km" << endl ; 
+    ost << "Mean radius R_mean :    " 
+	<< mean_radius()/km << " km" << endl ;
     ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km" 
 	 << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 

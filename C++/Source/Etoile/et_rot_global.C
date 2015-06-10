@@ -31,6 +31,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2015/06/10 14:37:44  a_sourie
+ * Corrected the formula for the quadrupole.
+ *
  * Revision 1.7  2014/10/13 08:52:57  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -407,6 +410,81 @@ double Etoile_rot::r_circ() const {
 
 }
 
+			//----------------------------//
+			//	  Surface area	      //
+			//----------------------------//
+
+  double Etoile_rot::area() const {
+
+    if (p_area == 0x0) {    // a new computation is required
+      const Mg3d& mg = *(mp.get_mg()) ; 
+      int np = mg.get_np(0) ;
+      int nt = mg.get_nt(0) ;
+      assert(np == 1) ; //Only valid for axisymmetric configurations
+      
+      const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&mp) ;
+      assert(mp_rad != 0x0) ;
+
+      Valeur va_r(mg.get_angu()) ;
+      va_r.annule_hard() ;
+      Itbl lsurf = l_surf() ;
+      Tbl xisurf = xi_surf() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  int l_star = lsurf(k, j) ;
+	  double xi_star = xisurf(k, j) ;
+	  va_r.set(0, k, j, 0) = mp_rad->val_r_jk(l_star, xi_star, j, k) ;
+	}
+      }
+      va_r.std_base_scal() ;
+      
+      Valeur integ(mg.get_angu()) ;
+      Valeur dr = va_r.dsdt() ;
+      integ = sqrt(va_r*va_r + dr*dr) ;
+      Cmp aaaa = get_a_car()() ;
+      Valeur a2 = aaaa.va ; a2.std_base_scal() ;
+      Cmp bbbb = get_bbb()() ;
+      Valeur b = bbbb.va ; b.std_base_scal() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  integ.set(0, k, j, 0) *= sqrt(a2.val_point_jk(lsurf(k, j), xisurf(k, j), j, k))
+	    * b.val_point_jk(lsurf(k, j), xisurf(k, j), j, k) * va_r(0, k, j, 0) ;
+	}
+      }
+      integ.std_base_scal() ;
+      Valeur integ2 = integ.mult_st() ;
+      double surftot = 0. ;
+      for (int j=0; j<nt; j++) {
+	surftot += (*integ2.c_cf)(0, 0, j, 0) / double(2*j+1) ;
+      }
+      
+      p_area = new double( 4*M_PI*surftot) ;
+
+    }
+    
+    return *p_area ; 
+
+}
+
+  double Etoile_rot::mean_radius() const {
+
+    return sqrt(area()/(4*M_PI)) ;
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 			//----------------------------//
 			//	   Flattening	      //
@@ -515,66 +593,107 @@ double Etoile_rot::z_pole() const {
 			//     Quadrupole moment      //
 			//----------------------------//
 
+
 double Etoile_rot::mom_quad() const {
 
   using namespace Unites ;
-    if (p_mom_quad == 0x0) {    // a new computation is required
-	
-	// Source for of the Poisson equation for nu
-	// -----------------------------------------
 
-	Tenseur source(mp) ; 
+  if (p_mom_quad == 0x0) {    // a new computation is required
 	
-	if (relativistic) {
-	    Tenseur beta = log(bbb) ; 
-	    beta.set_std_base() ; 
-	    source =  qpig * a_car *( ener_euler + s_euler ) 
-			+ ak_car - flat_scalar_prod(logn.gradient_spher(), 
-			    logn.gradient_spher() + beta.gradient_spher()) ; 
-	}
-	else {
-	    source = qpig * nbar ; 
-	}
-	source.set_std_base() ; 	
-
-	// Multiplication by -r^2 P_2(cos(theta))
-	//  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
-	// ------------------------------------------------------------------
-	
-	// Multiplication by r^2 : 
-	// ----------------------
-	Cmp& csource = source.set() ; 
-	csource.mult_r() ; 
-	csource.mult_r() ; 
-	if (csource.check_dzpuis(2)) {
-	    csource.inc2_dzpuis() ; 
-	}
-		
-	// Muliplication by cos^2(theta) :
-	// -----------------------------
-	Cmp temp = csource ; 
-	
-	// What follows is valid only for a mapping of class Map_radial : 
-	assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
-		
-	if (temp.get_etat() == ETATQCQ) {
-	    Valeur& vtemp = temp.va ; 
-	    vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
-	    vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
-	}
-	
-	// Muliplication by -P_2(cos(theta)) :
-	// ----------------------------------
-	source = 0.5 * source() - 1.5 * temp ; 
-	
-	// Final result
-	// ------------
-
-	p_mom_quad = new double( source().integrale() / qpig ) ; 	 
-
-    }
+    double b = mom_quad_Bo() / ( mass_g() * mass_g() ) ;
+    p_mom_quad = new double(  mom_quad_old() - 4./3. * ( 1./4. + b ) * pow(mass_g(), 3) * ggrav * ggrav ) ;	 
+   
+  }
     
-    return *p_mom_quad ; 
+  return *p_mom_quad ; 
+
+}
+
+
+double Etoile_rot::mom_quad_Bo() const {
+
+  using namespace Unites ;
+
+  if (p_mom_quad_Bo == 0x0) {    // a new computation is required
+	
+    Cmp dens(mp) ; 
+   
+   dens = press() ;
+   dens = a_car() * bbb() * nnn() * dens ; 
+   dens.mult_rsint() ;
+   dens.std_base_scal() ; 
+      
+   p_mom_quad_Bo = new double( - 32. * dens.integrale() / qpig  ) ; 
+
+  }
+    
+  return *p_mom_quad_Bo ; 
+
+}
+
+
+
+double Etoile_rot::mom_quad_old() const {
+
+  using namespace Unites ;
+
+  if (p_mom_quad_old == 0x0) {    // a new computation is required
+	
+    // Source for of the Poisson equation for nu
+    // -----------------------------------------
+
+    Tenseur source(mp) ; 
+	
+    if (relativistic) {
+      Tenseur beta = log(bbb) ; 
+      beta.set_std_base() ; 
+      source =  qpig * a_car *( ener_euler + s_euler ) 
+	+ ak_car - flat_scalar_prod(logn.gradient_spher(), 
+				    logn.gradient_spher() + beta.gradient_spher()) ; 
+    }
+    else {
+      source = qpig * nbar ; 
+    }
+    source.set_std_base() ; 	
+
+    // Multiplication by -r^2 P_2(cos(theta))
+    //  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
+    // ------------------------------------------------------------------
+	
+    // Multiplication by r^2 : 
+    // ----------------------
+    Cmp& csource = source.set() ; 
+    csource.mult_r() ; 
+    csource.mult_r() ; 
+    if (csource.check_dzpuis(2)) {
+      csource.inc2_dzpuis() ; 
+    }
+		
+    // Muliplication by cos^2(theta) :
+    // -----------------------------
+    Cmp temp = csource ; 
+	
+    // What follows is valid only for a mapping of class Map_radial : 
+    assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
+		
+    if (temp.get_etat() == ETATQCQ) {
+      Valeur& vtemp = temp.va ; 
+      vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+      vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+    }
+	
+    // Muliplication by -P_2(cos(theta)) :
+    // ----------------------------------
+    source = 0.5 * source() - 1.5 * temp ; 
+	
+    // Final result
+    // ------------
+
+    p_mom_quad_old = new double(- source().integrale() / qpig ) ; 	 
+
+  }
+    
+  return *p_mom_quad_old ; 
 
 }
 
