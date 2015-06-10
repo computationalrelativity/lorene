@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2015/06/10 14:36:39  a_sourie
+ * Corrected the formula for the computation of the quadrupole momentum.
+ *
  * Revision 1.32  2014/10/13 08:52:34  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -1623,18 +1626,21 @@ class Etoile_rot : public Etoile {
 	mutable double* p_grv2 ;	///< Error on the virial identity GRV2
 	mutable double* p_grv3 ;	///< Error on the virial identity GRV3
 	mutable double* p_r_circ ;	///< Circumferential radius
+	mutable double* p_area ;	///< Surface area 
 	mutable double* p_aplat ;	///< Flatening r_pole/r_eq
 	mutable double* p_z_eqf ;	///< Forward redshift factor at equator
 	mutable double* p_z_eqb ;	///< Backward redshift factor at equator
 	mutable double* p_z_pole ;	///< Redshift factor at North pole
 	mutable double* p_mom_quad ;	///< Quadrupole moment
+	mutable double* p_mom_quad_old ; ///< Part of the quadrupole moment
+	mutable double* p_mom_quad_Bo ; ///< Part of the quadrupole moment
 	mutable double* p_r_isco ;	///< Circumferential radius of the ISCO
 	mutable double* p_f_isco ;	///< Orbital frequency of the ISCO
 	/// Specific energy of a particle on the ISCO 
 	mutable double* p_espec_isco ;	
 	/// Specific angular momentum of a particle on the ISCO
 	mutable double* p_lspec_isco ;	
-        mutable double* p_f_eq ;        ///< Orbital frequency at the equator
+   mutable double* p_f_eq ;        ///< Orbital frequency at the equator
 	
 	 
 
@@ -1836,22 +1842,46 @@ class Etoile_rot : public Etoile {
 	 */
 	virtual double grv3(ostream* ost = 0x0) const ;	
 
-	virtual double r_circ() const ;	///< Circumferential radius
-	virtual double aplat() const ;	///< Flatening r_pole/r_eq
-	virtual double z_eqf() const ;	///< Forward redshift factor at equator
-	virtual double z_eqb() const ;	///< Backward redshift factor at equator
-	virtual double z_pole() const ;	///< Redshift factor at North pole
+	virtual double r_circ() const ;			///< Circumferential radius
+	virtual double area() const ;				///< Surface area
+	virtual double mean_radius() const ;	///< Mean radius
+	virtual double aplat() const ;			///< Flatening r_pole/r_eq
+	virtual double z_eqf() const ;			///< Forward redshift factor at equator
+	virtual double z_eqb() const ;			///< Backward redshift factor at equator
+	virtual double z_pole() const ;			///< Redshift factor at North pole
     
 	/** Quadrupole moment.
-	 *  The quadrupole moment \e Q is defined according to Eq. (7) of
-	 *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
-	 *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
-	 *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
-	 *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
-	 *  Note that \e Q is the negative of the quadrupole moment defined 
-	 *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
+	 *  The quadrupole moment \e Q is defined according to Eq. (11) of
+	 *  [Pappas and Apostolatos, \a Physical \a Review \a Letters 
+	 *  \b 108, 231104 (2012)]. This is a corrected version of the quadrupole
+	 *  moment defined by [Salgado, Bonazzola, Gourgoulhon and Haensel,
+	 *  \a Astron. \a Astrophys. \b 291 , 155 (1994)]. 
+    *  Following this definition, \f$Q = \e {\bar Q } - 4/3 (1/4 + b) M^3 \f$, 
+	 *  where \e {\bar Q } is defined as the negative of the (wrong) quadrupole moment defined 
+	 *  in Eq. (7) of [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+	 *  \b 291 , 155 (1994)], \e b is defined by Eq. (3.37) of 
+    *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
+	 *  Cambridge Monograph on mathematical physics] and \e M is 
+	 *  the gravitational mass of the star.
 	 */
 	virtual double mom_quad() const ;	
+
+	/** Part of the quadrupole moment.
+	 *  This term \e {\bar Q } is defined by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
+	 *  Note that \e {\bar Q } is the negative of the (wrong) quadrupole moment defined in Eq. (7) of
+	 *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+	 *   \b 291 , 155 (1994)]. 
+	 *  
+	 */
+	virtual double mom_quad_old() const ;
+
+	/** Part of the quadrupole moment.
+	 *  \e B_o is defined as \f$bM^2\f$, where \e b is given by Eq. (3.37) of 
+    *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
+	 *  Cambridge Monograph on mathematical physics] and \e M is the 
+	 *  the gravitational mass of the star. 
+	 */
+	virtual double mom_quad_Bo() const ;
 
 	/** Circumferential radius of the innermost stable circular orbit (ISCO).	
 	 *
