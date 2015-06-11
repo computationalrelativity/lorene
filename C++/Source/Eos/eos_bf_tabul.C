@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2015 Aurelien Sourie
  *
  *   This file is part of LORENE.
  *
@@ -32,18 +32,11 @@ char eos_bf_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/06/11 13:50:19  j_novak
+ * Minor corrections
+ *
  * Revision 1.1  2015/06/10 14:39:17  a_sourie
  * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
- *
- * Revision 1.12  2014/03/06 15:53:35  j_novak
- * Eos_compstar is now Eos_compOSE. Eos_tabul uses strings and contains informations about authors.
- *
- * Revision 1.11  2012/11/09 10:32:44  m_bejger
- * Implementing der_ener_ent_p
- *
- *
- * Revision 2.0  2000/11/22  19:31:30  eric
- * *** empty log message ***
  *
  *
  * $Header$
@@ -54,7 +47,7 @@ char eos_bf_tabul_C[] = "$Header$" ;
 #include <cstdlib>  
 #include <cstring>
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 
 // Headers Lorene // Are they all useful ??
@@ -414,7 +407,6 @@ void Eos_bf_tabul::read_table() {
       	dlpsddelta_car = new Tbl(n_delta, n_mu1, n_mu2) ;
 	d2lpsdlent1ddelta_car = new Tbl(n_delta, n_mu1, n_mu2) ;
 	d2lpsdlent2ddelta_car = new Tbl(n_delta, n_mu1, n_mu2) ;
-	d3lpsdlent1dlent2ddelta_car = new Tbl(n_delta, n_mu1, n_mu2) ;
 	d2lpsdlent1dlent1 = new Tbl(n_delta, n_mu1, n_mu2) ; 
 	d2lpsdlent2dlent2 = new Tbl(n_delta, n_mu1, n_mu2) ; 
 
@@ -428,7 +420,6 @@ void Eos_bf_tabul::read_table() {
       	dlpsddelta_car->set_etat_qcq() ;
 	d2lpsdlent1ddelta_car->set_etat_qcq() ;
 	d2lpsdlent2ddelta_car->set_etat_qcq() ;
-	d3lpsdlent1dlent2ddelta_car->set_etat_qcq()  ;
  	d2lpsdlent1dlent1->set_etat_qcq() ; 
 	d2lpsdlent2dlent2->set_etat_qcq() ; 
 
@@ -436,8 +427,6 @@ void Eos_bf_tabul::read_table() {
 	// We have to choose the right unites (SI, cgs , LORENE)
 	//------------------------------------------------------
 	// sor far, all the calculations are done with Lorene units
-
-    	int no ;
 
 	//Grandeurs issues de la table à deux fluides (unités physiques adaptées)
 	double mu1_MeV, mu2_MeV, n1_fm3, n2_fm3; 
@@ -448,99 +437,98 @@ void Eos_bf_tabul::read_table() {
     	double delta_car_adim, mu1_adim, mu2_adim, n1_01fm3, n2_01fm3, Knp_adim  ;
 	double press_adim,  dpress_ddelta_car_adim, dn1_ddelta_car_adim, dn2_ddelta_car_adim ;
 	double d2press_dmu1dmu2_adim;
-	double d3press_dmu1dmu2ddelta_car_adim; // ce terme n'est donné que pour la table analytique. Je le stocke en unité Lorene pour plus de simplicité
-
 	double hbarc = 197.33 ; //en Mev*fm
 	double hbarc3 = hbarc * hbarc * hbarc ;
 
 
 	for (int j=0 ; j < n_delta ; j++) {
-  		for (int k=0 ; k < n_mu1 ; k++) {
-  			  for (int l=0 ; l < n_mu2 ; l++) {
- 
-			    fich >> delta_car_adim ;
-			    fich >> mu1_MeV ;
-			    mu1_adim = mu1_MeV * mev_si / (m_b_si * v_unit * v_unit ) ;
-			    fich >> mu2_MeV ;
-			    mu2_adim = mu2_MeV * mev_si / (m_b_si * v_unit * v_unit ) ;
-			    fich >> n1_fm3 ;
-			    n1_01fm3 = 10. * n1_fm3 ;
-			    fich >> n2_fm3 ;
-			    n2_01fm3 = 10. * n2_fm3 ;
-			    fich >> Knp_Mev_2 ; 
- 			    Knp_adim = Knp_Mev_2 / ( m_b_si * v_unit * v_unit *10. ) * (mev_si *hbarc3 )  ;
-			    dpress_ddelta_car_adim = - Knp_adim * n1_01fm3 * n2_01fm3  * pow( 1.-delta_car_adim, -1.5)  / 2. ;
-			   // cout << "neg" << dpress_ddelta_car_adim << endl ;
-    		            fich >> press_MeV_fm3 ;
-			    press_adim = press_MeV_fm3 * mevpfm3 ;	
-			    fich >>  d2press_dmu1dmu2_MeV_fm3 ;
-			    d2press_dmu1dmu2_adim = d2press_dmu1dmu2_MeV_fm3 * (10. * m_b_si * v_unit * v_unit ) / mev_si ;
-		            fich >> dn1_ddelta_car_fm3 ;
-			    dn1_ddelta_car_adim = dn1_ddelta_car_fm3 * 10. ;
-			    fich >> dn2_ddelta_car_fm3 ;
-			    dn2_ddelta_car_adim = dn2_ddelta_car_fm3 * 10. ;
-			   // fich >> d3press_dmu1dmu2ddelta_car_adim ;  // depend de la table -------------------------------------------------------------------
-			   
-	 	            //To check the reading is well done :
-	 		    //cout << j << "   " << k << "    " << l << "   " << delta_car_adim << "  "<< mu1_MeV << "   "<< mu2_MeV << "   " <<  Knp_Mev_2 << "  " <<  dn2_ddelta_car_fm3  <<  endl;
+	  for (int k=0 ; k < n_mu1 ; k++) {
+	    for (int l=0 ; l < n_mu2 ; l++) {
+	      
+	      fich >> delta_car_adim ;
+	      fich >> mu1_MeV ;
+	      mu1_adim = mu1_MeV * mev_si / (m_b_si * v_unit * v_unit ) ;
+	      fich >> mu2_MeV ;
+	      mu2_adim = mu2_MeV * mev_si / (m_b_si * v_unit * v_unit ) ;
+	      fich >> n1_fm3 ;
+	      n1_01fm3 = 10. * n1_fm3 ;
+	      fich >> n2_fm3 ;
+	      n2_01fm3 = 10. * n2_fm3 ;
+	      fich >> Knp_Mev_2 ; 
+	      Knp_adim = Knp_Mev_2 / ( m_b_si * v_unit * v_unit *10. ) 
+		* (mev_si *hbarc3 )  ;
+	      dpress_ddelta_car_adim = - Knp_adim * n1_01fm3 * n2_01fm3  
+		* pow( 1.-delta_car_adim, -1.5)  / 2. ;
+	      // cout << "neg" << dpress_ddelta_car_adim << endl ;
+	      fich >> press_MeV_fm3 ;
+	      press_adim = press_MeV_fm3 * mevpfm3 ;	
+	      fich >>  d2press_dmu1dmu2_MeV_fm3 ;
+	      d2press_dmu1dmu2_adim = d2press_dmu1dmu2_MeV_fm3 
+		* (10. * m_b_si * v_unit * v_unit ) / mev_si ;
+	      fich >> dn1_ddelta_car_fm3 ;
+	      dn1_ddelta_car_adim = dn1_ddelta_car_fm3 * 10. ;
+	      fich >> dn2_ddelta_car_fm3 ;
+	      dn2_ddelta_car_adim = dn2_ddelta_car_fm3 * 10. ;
+	      
+	      //To check the reading is well done :
+	      //cout << j << "   " << k << "    " << l << "   " << delta_car_adim << "  "<< mu1_MeV << "   "<< mu2_MeV << "   " <<  Knp_Mev_2 << "  " <<  dn2_ddelta_car_fm3  <<  endl;
 		
-			    fich.ignore(1000,'\n') ;    		
-		
-			    /* if ( (n1_fm3<0) || (n2_fm3<0) || (press_MeV_fm3  < 0)){ 
-			      cout << "Eos_tabul::read_table(): " << endl ;
-			      cout << "Negative value in table!" << endl ;
-			      cout << "n_neutrons = " << n1_fm3 << ", n_protons " << n2_fm3 <<
-				", p = " << press_MeV_fm3  << ", "<< endl ;
-			      cout << "Aborting..." << endl ;
-			      abort() ;		
-			      }*/ // il peut y avoir des densités négatives selon la table à deux fluides utilisés...
-
-
-
-			    /* redefinition de la masse --> permet de redefinir le minimum en log enthalpie !
-			       double ww1 = 1.;
-			       double ww2 = 1.;
-			       if ((k==0) && (l==0) ) {ww1 = mu1_adim; ww2 = mu2_adim;} ;
-			       cout << setprecision(16) ; 
-			       cout << ww1 ;
-			       mu1_adim = mu1_adim/ww1 ; //+1e-14 ;
-			       mu2_adim = mu2_adim/ww2  ;
-			    */
-
-			    // on enregistre les grandeurs dans des tableaux sans passer par des logarithmes !!! --> si on garde il faudra choisir des meilleurs noms de tableaux !
-			    logent1->set(j,k,l) = mu1_adim ;
-			    logent2->set(j,k,l) = mu2_adim ;
-			    delta_car->set(j,k,l) = delta_car_adim ;
-// 			    logp->set(j,k,l) = log(press_adim) ;
- 			    if (press_adim<=0) {press_adim = 0. ;}
- 			    logp->set(j,k,l) = press_adim ;					// non en log	   
-// 			    dlpsdlent1->set(j,k,l) = n1_01fm3 /press_adim ;
- 			    dlpsdlent1->set(j,k,l) = n1_01fm3 ; 				// non en log					    
-// 			    dlpsdlent2->set(j,k,l) = n2_01fm3 /press_adim ;
- 			    dlpsdlent2->set(j,k,l) = n2_01fm3 ;					// non en log
+	      fich.ignore(1000,'\n') ;    		
+	      
+	      /* if ( (n1_fm3<0) || (n2_fm3<0) || (press_MeV_fm3  < 0)){ 
+		 cout << "Eos_tabul::read_table(): " << endl ;
+		 cout << "Negative value in table!" << endl ;
+		 cout << "n_neutrons = " << n1_fm3 << ", n_protons " << n2_fm3 <<
+		 ", p = " << press_MeV_fm3  << ", "<< endl ;
+		 cout << "Aborting..." << endl ;
+		 abort() ;		
+		 }*/ // il peut y avoir des densités négatives selon la table à deux fluides utilisés...
+	      
+	      
+	      
+	      /* redefinition de la masse --> permet de redefinir le minimum en log enthalpie !
+		 double ww1 = 1.;
+		 double ww2 = 1.;
+		 if ((k==0) && (l==0) ) {ww1 = mu1_adim; ww2 = mu2_adim;} ;
+		 cout << setprecision(16) ; 
+		 cout << ww1 ;
+		 mu1_adim = mu1_adim/ww1 ; //+1e-14 ;
+		 mu2_adim = mu2_adim/ww2  ;
+	      */
+	      
+	      // on enregistre les grandeurs dans des tableaux sans passer par des logarithmes !!! --> si on garde il faudra choisir des meilleurs noms de tableaux !
+	      logent1->set(j,k,l) = mu1_adim ;
+	      logent2->set(j,k,l) = mu2_adim ;
+	      delta_car->set(j,k,l) = delta_car_adim ;
+	      // logp->set(j,k,l) = log(press_adim) ;
+	      if (press_adim<=0) {press_adim = 0. ;}
+	      logp->set(j,k,l) = press_adim ;  // non en log	   
+	      // dlpsdlent1->set(j,k,l) = n1_01fm3 /press_adim ;
+	      dlpsdlent1->set(j,k,l) = n1_01fm3 ;  // non en log
+	      // dlpsdlent2->set(j,k,l) = n2_01fm3 /press_adim ;
+	      dlpsdlent2->set(j,k,l) = n2_01fm3 ;  // non en log
  			    
-			    if ((n1_01fm3 < 1e-16) && (n2_01fm3 <1e-16 )) {
-			      d2press_dmu1dmu2_adim  = 0. ;
-			      dpress_ddelta_car_adim = 0. ;
-			       dn1_ddelta_car_adim =0. ;
-			      dn2_ddelta_car_adim  = 0. ;
-			    }
-// 			    d2lpsdlent1dlent2->set(j,k,l) = d2press_dmu1dmu2_adim / press_adim - n1_01fm3 /press_adim * n2_01fm3 /press_adim    ; 
- 			    d2lpsdlent1dlent2->set(j,k,l) = d2press_dmu1dmu2_adim  ; 		// non en log
-			    dlpsddelta_car->set(j,k,l) = dpress_ddelta_car_adim  ;
-			    d2lpsdlent1ddelta_car->set(j,k,l) =  dn1_ddelta_car_adim  ;
-			    d2lpsdlent2ddelta_car->set(j,k,l) =  dn2_ddelta_car_adim  ;
-			    d3lpsdlent1dlent2ddelta_car->set(j,k,l) =  d3press_dmu1dmu2ddelta_car_adim ;
-		
-    			}  
+	      if ((n1_01fm3 < 1e-16) && (n2_01fm3 <1e-16 )) {
+		d2press_dmu1dmu2_adim  = 0. ;
+		dpress_ddelta_car_adim = 0. ;
+		dn1_ddelta_car_adim =0. ;
+		dn2_ddelta_car_adim  = 0. ;
+	      }
+	      // d2lpsdlent1dlent2->set(j,k,l) = d2press_dmu1dmu2_adim 
+	      // / press_adim - n1_01fm3 /press_adim * n2_01fm3 /press_adim    ; 
+	      d2lpsdlent1dlent2->set(j,k,l) = d2press_dmu1dmu2_adim  ; // non en log
+	      dlpsddelta_car->set(j,k,l) = dpress_ddelta_car_adim  ;
+	      d2lpsdlent1ddelta_car->set(j,k,l) =  dn1_ddelta_car_adim  ;
+	      d2lpsdlent2ddelta_car->set(j,k,l) =  dn2_ddelta_car_adim  ;
+	    }  
 
-			  fich.ignore(1000, '\n') ;  // BIEN VERIFIER QU ON SAUTE UNE LIGNE DANS TOUTES LES TABLES MAIS NORMALEMENT OUI !
-
- 	 	}
-
-		fich.ignore(1000, '\n') ;
+	    fich.ignore(1000, '\n') ;  // BIEN VERIFIER QU ON SAUTE UNE LIGNE DANS TOUTES LES TABLES MAIS NORMALEMENT OUI !
 
 	  }
+	  
+	  fich.ignore(1000, '\n') ;
+	  
+	}
 	//abort();
  	delta_car_min = (*delta_car)(0, 0, 0)  ;
  	delta_car_max = (*delta_car)(n_delta-1, 0, 0) ;
@@ -884,7 +872,7 @@ void Eos_bf_tabul::read_table() {
 // Complete computational routine giving all thermo variables
 //-----------------------------------------------------------
 
-void Eos_bf_tabul::calcule_tout(const Cmp& ent1, const Cmp& ent2, 
+void Eos_bf_tabul::calcule_interpol(const Cmp& ent1, const Cmp& ent2, 
 			       const Cmp& delta2, Cmp& nbar1, Cmp& nbar2,  
 			       Cmp& ener, Cmp& press, Cmp& K_nn, Cmp& K_np, Cmp& K_pp,
 			       int nzet, int l_min) const {
@@ -952,19 +940,9 @@ void Eos_bf_tabul::calcule_tout(const Cmp& ent1, const Cmp& ent2,
   for (int k=0; k<np0; k++) {
     for (int j=0; j<nt0; j++) {
 
-      bool inside = true ;  
-      bool inside1 = true ; 
-      bool inside2 = true ; 
-     
       for (int l=l_min; l< l_min + nzet; l++) {
 	for (int i=0; i<mp->get_mg()->get_nr(l); i++) {
 
-	  /*cout << " k =" << k <<  " np0 =" << np0 << endl ;
-	    cout << " j =" << j << " nt0 =" << nt0 << endl ;
-	    cout << " l =" << l << " lmax =" << l_min + nzet << endl ;
-	    cout << " i =" << i << " imax =" << mp->get_mg()->get_nr(l) << endl ;
-	  */
-	  
 	  double xx, xx1, xx2; // xx1 = H1 = ln(mu1/m1)
 	  xx1 = ent1(l,k,j,i) ; 
 	  xx2 = ent2(l,k,j,i) ; 
@@ -1047,13 +1025,14 @@ void Eos_bf_tabul::calcule_tout(const Cmp& ent1, const Cmp& ent2,
 	    // plus d'appel à plein de fonctions, tout est fait d'un coup! 
 	    //-----------------------------------------------------------------------------------------------------------------
 
-	    bool one_fluid = false; 
 	    if (xx < delta_car_min) {
-		cout << "Eos_bf_tabul::calcule_tout : delta2 < delta_car_min !" << endl ;
+		cout << "Eos_bf_tabul::calcule_tout : delta2 < delta_car_min !" 
+		     << endl ;
            	abort() ; 
 	    }
 	    if (xx > delta_car_max) {	
-		cout << "Eos_bf_tabul::calcule_tout : delta2 > delta_car_max !" << endl ;
+		cout << "Eos_bf_tabul::calcule_tout : delta2 > delta_car_max !" 
+		     << endl ;
            	abort() ; 
 	    }
 	    if (m_1 * exp(xx1) > ent1_max) {
@@ -1444,18 +1423,15 @@ double Eos_bf_tabul::press_ent_p2(const double ent2) const {
 // Energy from baryonic log - enthalpies
 //--------------------------------------
 
- double Eos_bf_tabul::ener_ent_p(const double ent1, const double ent2, const double delta2) const {
-
+  double Eos_bf_tabul::ener_ent_p(const double ent1, const double ent2, 
+				  const double delta2) const {
    double energy= 0.; 
-   double pressure = 0. ; 
-   double nbar1= 0. ;
-   double nbar2=0.;
 
-if ( (exp(ent1) < 1.) && ( exp(ent2) < 1.)) {
-	energy = 0. ;
-}
-else {
-	/*Eos_bf_tabul::nbar_ent_p( ent1,  ent2, delta2, nbar1, nbar2);
+   if ( (exp(ent1) < 1.) && ( exp(ent2) < 1.)) {
+     energy = 0. ;
+   }
+   else {
+     /*Eos_bf_tabul::nbar_ent_p( ent1,  ent2, delta2, nbar1, nbar2);
 	
 	if ( (nbar1 > 0) && (nbar2 > 0) ) { 
 	
@@ -1523,14 +1499,17 @@ else {
 // Alpha  from baryonic log - enthalpies
 //--------------------------------------- 
 
-double Eos_bf_tabul::alpha_ent_p(const double ent1, const double ent2, const double delta2) const {
+double Eos_bf_tabul::alpha_ent_p(const double ent1, const double ent2, 
+				 const double delta2) const {
 
 	if (delta2 < delta_car_min) {
-		cout << "Eos_bf_tabul::alpha_ent_p : delta2 < delta_car_min !" << endl ;
+		cout << "Eos_bf_tabul::alpha_ent_p : delta2 < delta_car_min !" 
+		     << endl ;
            	abort() ; 
 	}
  	if (delta2 > delta_car_max) {
-		cout << "Eos_bf_tabul::alpha_ent_p : delta2 > delta_car_max !" << endl ;
+		cout << "Eos_bf_tabul::alpha_ent_p : delta2 > delta_car_max !" 
+		     << endl ;
            	abort() ; 
 	}
 	if (m_1 * exp(ent1) > ent1_max) {
@@ -1542,13 +1521,10 @@ double Eos_bf_tabul::alpha_ent_p(const double ent1, const double ent2, const dou
            	abort() ; 
 	}
 
-
-	bool test= false ;
 	double alpha;
 	
 	if ((exp(ent1) <= 1.) && (exp(ent2) <= 1.) ) {
 		alpha = 0. ;
-		test = false ;
 	}
 
 	else {
@@ -1559,8 +1535,7 @@ double Eos_bf_tabul::alpha_ent_p(const double ent1, const double ent2, const dou
 	  double p_interpol ;
 	  double dpsdent1_interpol ; 
 	  double dpsdent2_interpol ;
-//	  double alpha ;
-	
+
 	  interpol_mixed_3d_new(m_1, m_2, *delta_car, *logent1, *logent2, 
 			*logp,  *dlpsdlent1, *dlpsdlent2,  *d2lpsdlent1dlent2,
 			*dlpsddelta_car,  *d2lpsdlent1ddelta_car, *d2lpsdlent2ddelta_car, 

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2015/06/11 13:50:18  j_novak
+ * Minor corrections
+ *
  * Revision 1.20  2015/06/10 14:39:17  a_sourie
  * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
  *
@@ -334,10 +337,6 @@ class Eos_bifluid {
 	virtual void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
 			  Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press,
 			  int nzet, int l_min = 0) const ; 
- 	virtual void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
- 			  Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press, Cmp& K_nn, Cmp& K_np, Cmp& K_pp,
- 			  int nzet, int l_min = 0) const ; 
-
 
  	/** Computes both baryon densities from the log-enthalpies 
 	 *  (virtual function implemented in the derived classes). 
@@ -1517,15 +1516,15 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
  * between the two fluids and the two enthalpies (for neutrons and protons).
  * 
  * The interpolation through the tables is
- * a cubic Hermite interpolation in \mu_n and \mu_p which is
+ * a cubic Hermite interpolation in \f$\mu_n\f$ and \f$\mu_p\f$ which is
  * thermodynamically consistent, i.e. preserves the
  * Gibbs-Duhem relation. It is defined in
  * [Nozawa, Stergioulas, Gourgoulhon \& Eriguchi,
  * \a Astron. \a Astrophys. Suppl. Ser.  \b 132 , 431 (1998)],
  * and derives from a general technique presented in
  * [Swesty, \a J. \a Comp. \a Phys.  \b 127 , 118 (1996)].
- * The value of \Delta^{2} being calculated with a first order precision, 
- * we use a linear interpolation in \Delta^{2}.
+ * The value of \f$\Delta^{2}\f$ being calculated with a first order precision, 
+ * we use a linear interpolation in \f$\Delta^{2}\f$.
  * 
  */
 
@@ -1582,7 +1581,6 @@ class Eos_bf_tabul : public Eos_bifluid {
 	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_n \partial \log H_p} \f$
     	Tbl* d2lpsdlent1dlent2 ;
 
-//// rajout des derivees secondes !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_n \partial \log H_n} \f$
     	Tbl* d2lpsdlent1dlent1 ;
 	/// Table of \f$ \frac {\partial^2 \log \Psi} {\partial \log H_p \partial \log H_p} \f$
@@ -1758,9 +1756,10 @@ class Eos_bf_tabul : public Eos_bifluid {
 	 *      in \c [l_min,l_min+nzet-1] . In the other
 	 *	domains, it is set to zero. 
 	 */
-	virtual void calcule_tout(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
-			  Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press, Cmp& K_nn, Cmp& K_np, Cmp& K_pp,
-			  int nzet, int l_min = 0) const ; 
+	void calcule_interpol(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
+			      Cmp& nbar1, Cmp& nbar2, Cmp& ener, Cmp& press, 
+			      Cmp& K_nn, Cmp& K_np, Cmp& K_pp,
+			      int nzet, int l_min = 0) const ; 
 
  	/** Computes both baryon densities from the log-enthalpies
 	 * 
@@ -1913,7 +1912,7 @@ class Eos_bf_tabul : public Eos_bifluid {
 	 *
 	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 
 	 *  @param ent2 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_2\f$ of fluid 2 
- 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ Delta^2\f$
+ 	 *  @param delta2 [input,  unit: \f$c^2\f$] relative velocity \f$ \Delta^2\f$
 	 *
 	 *  @return \alpha  
 	 */

@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2015/06/11 13:50:19  j_novak
+ * Minor corrections
+ *
  * Revision 1.19  2015/06/10 14:39:17  a_sourie
  * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
  *
@@ -190,21 +193,21 @@ the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
 
 }
 
-// // Constructor from a formatted file
-// // ---------------------------------
-// Eos_bifluid::Eos_bifluid(ifstream& fich):name(0x0){
+// Constructor from a formatted file
+// ---------------------------------
+Eos_bifluid::Eos_bifluid(ifstream& fich):name(0x0){
       
-//   string aname ;
+  string aname ;
 
-//   // EOS identificator : 
-//   char blabla[80] ;
-//   fich >> aname; 
-//   set_name(aname.data()) ;
-//   fich.getline(blabla, 80) ;
+  // EOS identificator : 
+  char blabla[80] ;
+  fich >> aname; 
+  name = aname ;
+  fich.getline(blabla, 80) ;
 
-//   fich >> m_1 ; fich.getline(blabla, 80) ;
-//   fich >> m_2 ; fich.getline(blabla, 80) ;
-// }
+  fich >> m_1 ; fich.getline(blabla, 80) ;
+  fich >> m_2 ; fich.getline(blabla, 80) ;
+}
 
 
 
@@ -351,17 +354,6 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
 	  if (inside) {
 	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
 
-/*cout << "   " << endl ;
-cout << " k =" << k <<  " np0 =" << np0 << endl ;
-cout << " j =" << j << " nt0 =" << nt0 << endl ;
-cout << " l =" << l << " lmax =" << l_min + nzet << endl ;
-cout << " i =" << i << " imax =" << mp->get_mg()->get_nr(l) << endl ;
-cout << "ent 1 " << ent1(l,k,j,i)  <<  endl ;
-cout << "ent 2 " << ent2(l,k,j,i)  <<  endl ;
-cout << " n1  " << n1 << endl;
-cout << " n2  " << n2 << endl;
-*/
-
 	    //	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
 	    inside1 = (n1 > 0.) ;
 	    //	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
@@ -397,34 +389,12 @@ cout << " n2  " << n2 << endl;
 	  ener.set(l,k,j,i) = ener_nbar_p(n1, n2, xx) ;
 	  press.set(l,k,j,i) = press_nbar_p(n1, n2, xx) ;
 
-
-/*cout << "inside = " << inside <<endl ;
-cout << "inside1 = " << inside1 <<endl ;
-cout << "inside2 = " << inside2 <<endl ;
-
-cout << "nbar1  " << nbar1(l,k,j,i)  <<  endl ;
-cout << "nbar2  " << nbar2(l,k,j,i) <<  endl;
-cout << "delta2  " << delta2(l,k,j,i) <<  endl;
-cout << "press  " << press(l,k,j,i) <<  endl;
-cout << "ener " << ener(l,k,j,i) <<  endl;
-//if ((k==0) & (j==0) & (i==32)) { abort();}
-	*/}
+	}
       }
     }
+    
   }
-
 }
-
-
-void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2, 
-			       const Cmp& delta2, Cmp& nbar1, Cmp& nbar2,  
-			       Cmp& ener, Cmp& press, Cmp& Knn, Cmp& Knp, Cmp& Kpp,  
-			       int nzet, int l_min) const {
-  
-	 c_est_pas_fait("Eos_bifluid::calcule_tout" ) ;
-
-}
-
 
 
 // Baryon density from enthalpy 

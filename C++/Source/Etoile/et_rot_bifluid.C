@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2015/06/11 13:50:19  j_novak
+ * Minor corrections
+ *
  * Revision 1.14  2015/06/10 14:39:17  a_sourie
  * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
  *
@@ -788,18 +791,18 @@ void Et_rot_bifluid::equation_of_state() {
   K_pp.set_etat_qcq() ;
 
  
+  const Eos_bf_tabul* eos_t = dynamic_cast<const Eos_bf_tabul*>(&eos) ;
   
-  int id = eos.identify() ;
-  if (id == 3) {  // if the equation of state is tabulated
-  eos.calcule_tout(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
+  if (eos_t != 0x0) {  // if the equation of state is tabulated
+  eos_t->calcule_interpol(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
   		   ener.set(), press.set(), K_nn.set(), K_np.set(), K_pp.set(), 
 		   nzet)  ; 
   }
-  else {	 // if the equation of state is tabulated
+  else {	 // if the equation of state is not tabulated
   
   eos.calcule_tout(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
   		   ener.set(), press.set(), nzet)  ; 	  
-		   // est-ce que Knn, Knp, et Kpp bien calculée ?
+  // est-ce que Knn, Knp, et Kpp bien calculée ?
 		   
   }
   // Set the bases for spectral expansion 
