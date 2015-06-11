@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2015/06/11 14:41:59  a_sourie
+ * Corrected minor bug
+ *
  * Revision 1.20  2015/06/11 13:50:19  j_novak
  * Minor corrections
  *
@@ -195,7 +198,7 @@ the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bifluid::Eos_bifluid(ifstream& fich):name(0x0){
+  Eos_bifluid::Eos_bifluid(ifstream& fich){
       
   string aname ;
 

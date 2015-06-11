@@ -32,6 +32,9 @@ char eos_bf_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2015/06/11 14:41:59  a_sourie
+ * Corrected minor bug
+ *
  * Revision 1.2  2015/06/11 13:50:19  j_novak
  * Minor corrections
  *
@@ -156,25 +159,23 @@ Eos_bifluid(fich)
   read_table() ;
 }
 
-// Constructor from a formatted file
-// ---------------------------------
-Eos_bf_tabul::Eos_bf_tabul(ifstream& fich, const char* table) : 
-Eos_bifluid(fich) 
-{
-   fich >> tablename ;
-   tablename += "/" ;
-   tablename += table ;
-    
-   read_table() ;    
-}
- 
-Eos_bf_tabul::Eos_bf_tabul(ifstream& fich) : 
-Eos_bifluid(fich) 
-{
-  fich >> tablename ;
+// // Constructor from a formatted file
+// // ---------------------------------
+  Eos_bf_tabul::Eos_bf_tabul(ifstream& fich, const char* table) : 
+   Eos_bifluid(fich) 
+   {
+      fich >> tablename ;
+      tablename += "/" ;
+      tablename += table ;
+      read_table() ;    
+    }
 
-  read_table() ;    
-}
+    Eos_bf_tabul::Eos_bf_tabul(ifstream& fich) : 
+  Eos_bifluid(fich) 
+  {
+    fich >> tablename ;
+    read_table() ;    
+  }
                     
 
 			//--------------//

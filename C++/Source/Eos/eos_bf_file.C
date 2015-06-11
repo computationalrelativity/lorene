@@ -31,6 +31,9 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2015/06/11 14:41:59  a_sourie
+ * Corrected minor bug
+ *
  * Revision 1.10  2015/06/10 14:39:17  a_sourie
  * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
  *
@@ -174,7 +177,7 @@ Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) {
     
 }
 
-		//----------------------------------------------//
+		//----------------------------------------------// 
 		//    EOS construction from a formatted file    //
 		//----------------------------------------------//
 
