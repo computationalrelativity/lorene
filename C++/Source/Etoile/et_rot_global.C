@@ -31,6 +31,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2015/06/12 12:38:25  j_novak
+ * Implementation of the corrected formula for the quadrupole momentum.
+ *
  * Revision 1.8  2015/06/10 14:37:44  a_sourie
  * Corrected the formula for the quadrupole.
  *
@@ -600,9 +603,11 @@ double Etoile_rot::mom_quad() const {
 
   if (p_mom_quad == 0x0) {    // a new computation is required
 	
-    double b = mom_quad_Bo() / ( mass_g() * mass_g() ) ;
-    p_mom_quad = new double(  mom_quad_old() - 4./3. * ( 1./4. + b ) * pow(mass_g(), 3) * ggrav * ggrav ) ;	 
-   
+    p_mom_quad = new double( mom_quad_old() ) ;
+    if (relativistic) {
+      double b = mom_quad_Bo() / ( mass_g() * mass_g() ) ;
+      *p_mom_quad -= 4./3. * ( 1./4. + b ) * pow(mass_g(), 3) * ggrav * ggrav  ;
+    }
   }
     
   return *p_mom_quad ; 

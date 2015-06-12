@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2015/06/12 12:38:25  j_novak
+ * Implementation of the corrected formula for the quadrupole momentum.
+ *
  * Revision 1.21  2014/10/13 08:52:58  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -500,68 +503,69 @@ double Et_rot_mag::grv3(ostream* ost) const {
 			//     Quadrupole moment      //
 			//----------------------------//
 
-double Et_rot_mag::mom_quad() const {
-
-    if (p_mom_quad == 0x0) {    // a new computation is required
-	
-	// To get qpig:	
+  double Et_rot_mag::mom_quad_old() const {
+    
+    if (p_mom_quad_old == 0x0) {    // a new computation is required
+      
+      // To get qpig:	
       using namespace Unites ;
-
-	// Source for of the Poisson equation for nu
-	// -----------------------------------------
-
-	Tenseur source(mp) ; 
-	
-	if (relativistic) {
-	    Tenseur beta = log(bbb) ; 
-	    beta.set_std_base() ; 
-	    source =  qpig * a_car *( ener_euler + s_euler + Spp_em ) 
-			+ ak_car - flat_scalar_prod(logn.gradient_spher(), 
-			    logn.gradient_spher() + beta.gradient_spher()) ; 
-	}
-	else {
-	    source = qpig * nbar ; 
-	}
-	source.set_std_base() ; 	
-
-	// Multiplication by -r^2 P_2(cos(theta))
-	//  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
-	// ------------------------------------------------------------------
-	
-	// Multiplication by r^2 : 
-	// ----------------------
-	Cmp& csource = source.set() ; 
-	csource.mult_r() ; 
-	csource.mult_r() ; 
-	if (csource.check_dzpuis(2)) {
-	    csource.inc2_dzpuis() ; 
-	}
-		
-	// Muliplication by cos^2(theta) :
-	// -----------------------------
-	Cmp temp = csource ; 
-	
-	// What follows is valid only for a mapping of class Map_radial : 
-	assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
-		
-	if (temp.get_etat() == ETATQCQ) {
-	    Valeur& vtemp = temp.va ; 
-	    vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
-	    vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
-	}
-	
-	// Muliplication by -P_2(cos(theta)) :
-	// ----------------------------------
-	source = 0.5 * source() - 1.5 * temp ; 
-	
-	// Final result
-	// ------------
-
-	p_mom_quad = new double( source().integrale() / qpig ) ; 	 
-
+      
+      // Source for of the Poisson equation for nu
+      // -----------------------------------------
+      
+      Tenseur source(mp) ; 
+      
+      if (relativistic) {
+	Tenseur beta = log(bbb) ; 
+	beta.set_std_base() ; 
+	source =  qpig * a_car *( ener_euler + s_euler + Spp_em ) 
+	  + ak_car - flat_scalar_prod(logn.gradient_spher(), 
+	    logn.gradient_spher() + beta.gradient_spher()) ; 
+      }
+      else {
+	source = qpig * nbar ; 
+      }
+      source.set_std_base() ; 	
+      
+      // Multiplication by -r^2 P_2(cos(theta))
+      //  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
+      // ------------------------------------------------------------------
+      
+      // Multiplication by r^2 : 
+      // ----------------------
+      Cmp& csource = source.set() ; 
+      csource.mult_r() ; 
+      csource.mult_r() ; 
+      if (csource.check_dzpuis(2)) {
+	csource.inc2_dzpuis() ; 
+      }
+      
+      // Muliplication by cos^2(theta) :
+      // -----------------------------
+      Cmp temp = csource ; 
+      
+      // What follows is valid only for a mapping of class Map_radial : 
+      assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
+      
+      if (temp.get_etat() == ETATQCQ) {
+	Valeur& vtemp = temp.va ; 
+	vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+	vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+      }
+      
+      // Muliplication by -P_2(cos(theta)) :
+      // ----------------------------------
+      source = 0.5 * source() - 1.5 * temp ; 
+      
+      // Final result
+      // ------------
+      
+      p_mom_quad_old = new double( source().integrale() / qpig ) ; 	 
+      
     }
     
-    return *p_mom_quad ; 
+    return *p_mom_quad_old ; 
+    
+  }
 
-}
 }

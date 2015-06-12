@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2015/06/12 12:38:24  j_novak
+ * Implementation of the corrected formula for the quadrupole momentum.
+ *
  * Revision 1.25  2014/10/21 09:23:53  j_novak
  * Addition of global functions mass_g(), angu_mom(), grv2/3() and mom_quad().
  *
@@ -326,16 +329,14 @@ class Et_rot_mag : public Etoile_rot {
    */
   virtual double grv3(ostream* ost = 0x0) const ;	
 
-  /** Quadrupole moment.
-   *  The quadrupole moment \e Q  is defined according to Eq. (7) of
+  /** Part of the quadrupole moment.
+   *  This term \f${\bar Q }\f$ is defined by Laarakkers and Poisson, 
+   *  \a Astrophys. \a J. \b 512 , 282 (1999). Note that \f${\bar Q }\f$ 
+   *  is the negative of the (wrong) quadrupole moment defined in Eq. (7) of
    *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
-   *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
-   *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
-   *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
-   *  Note that \e Q  is the negative of the quadrupole moment defined 
-   *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
+   *  \b 291 , 155 (1994)]. 
    */
-  virtual double mom_quad() const ;	
+  virtual double mom_quad_old() const ;
 
   // Computational routines
   // ----------------------
@@ -712,16 +713,22 @@ class Et_magnetisation : public Et_rot_mag {
    */
   virtual double grv3(ostream* ost = 0x0) const ;	
 
-  /** Quadrupole moment.
-   *  The quadrupole moment \e Q  is defined according to Eq. (7) of
+  /** Part of the quadrupole moment.
+   *  This term \f${\bar Q }\f$ is defined by Laarakkers and Poisson, 
+   *  \a Astrophys. \a J. \b 512 , 282 (1999). Note that \f${\bar Q }\f$ 
+   *  is the negative of the (wrong) quadrupole moment defined in Eq. (7) of
    *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
-   *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
-   *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
-   *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
-   *  Note that \e Q  is the negative of the quadrupole moment defined 
-   *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
+   *  \b 291 , 155 (1994)]. 
    */
-  virtual double mom_quad() const ;	
+  virtual double mom_quad_old() const ;
+
+  /** Part of the quadrupole moment.
+   *  \f$B_o\f$ is defined as \f$bM^2\f$, where \e b is given by Eq. (3.37) of 
+   *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
+   *  Cambridge Monograph on mathematical physics] and \e M is the 
+   *  the gravitational mass of the star. 
+   */
+  virtual double mom_quad_Bo() const ;
 
   // Computational routines
   // ----------------------

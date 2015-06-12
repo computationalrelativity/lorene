@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2015/06/12 12:38:25  j_novak
+ * Implementation of the corrected formula for the quadrupole momentum.
+ *
  * Revision 1.12  2014/10/21 09:23:54  j_novak
  * Addition of global functions mass_g(), angu_mom(), grv2/3() and mom_quad().
  *
@@ -746,81 +749,98 @@ double Et_magnetisation::grv3(ostream* ost) const {
 			//     Quadrupole moment      //
 			//----------------------------//
 
-double Et_magnetisation::mom_quad() const {
-
-  if (p_mom_quad == 0x0) {    // a new computation is required
+  double Et_magnetisation::mom_quad_old() const {
     
-    // To get qpig:	
+    if (p_mom_quad_old == 0x0) {    // a new computation is required
+      
+      // To get qpig:	
+      using namespace Unites ;
+      
+      // Source for of the Poisson equation for nu
+      // -----------------------------------------
+      
+      Tenseur source(mp) ; 
+      
+      if (relativistic) {
+	// S_{rr} + S_{\theta\theta}
+	Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
+	SrrplusStt = SrrplusStt / a_car ; // S^r_r + S^\theta_\theta
+	
+	Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
+	Spp = Spp / b_car ; // S^\phi_\phi
+	
+	Cmp temp(E_I) ;
+	Tenseur E_i(temp) ;
+	
+	Tenseur beta = log(bbb) ; 
+	beta.set_std_base() ; 
+	source =  qpig * a_car *( ener_euler + E_em + E_i
+				  + s_euler + Spp_em + SrrplusStt + Spp) 
+	  + ak_car - flat_scalar_prod(logn.gradient_spher(), 
+		     logn.gradient_spher() + beta.gradient_spher()) ; 
+      }
+      else {
+	source = qpig * nbar ; 
+      }
+      source.set_std_base() ; 	
+      
+      // Multiplication by -r^2 P_2(cos(theta))
+      //  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
+      // ------------------------------------------------------------------
+      
+      // Multiplication by r^2 : 
+      // ----------------------
+      Cmp& csource = source.set() ; 
+      csource.mult_r() ; 
+      csource.mult_r() ; 
+      if (csource.check_dzpuis(2)) {
+	csource.inc2_dzpuis() ; 
+      }
+      
+      // Muliplication by cos^2(theta) :
+      // -----------------------------
+      Cmp temp = csource ; 
+      
+      // What follows is valid only for a mapping of class Map_radial : 
+      assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
+      
+      if (temp.get_etat() == ETATQCQ) {
+	Valeur& vtemp = temp.va ; 
+	vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+	vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
+      }
+      
+      // Muliplication by -P_2(cos(theta)) :
+      // ----------------------------------
+      source = 0.5 * source() - 1.5 * temp ; 
+      
+      // Final result
+      // ------------
+      p_mom_quad_old = new double( source().integrale() / qpig ) ; 	  
+    }
+    return *p_mom_quad_old ; 
+  }
+
+
+  double Et_magnetisation::mom_quad_Bo() const {
+    
     using namespace Unites ;
     
-    // Source for of the Poisson equation for nu
-    // -----------------------------------------
-    
-    Tenseur source(mp) ; 
-    
-    if (relativistic) {
-      // S_{rr} + S_{\theta\theta}
-      Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
-      SrrplusStt = SrrplusStt / a_car ; // S^r_r + S^\theta_\theta
-      
-      Tenseur Spp (Cmp(Sij_I(3, 3))) ; //S_{\phi\phi}
-      Spp = Spp / b_car ; // S^\phi_\phi
-      
-      Cmp temp(E_I) ;
-      Tenseur E_i(temp) ;
+    if (p_mom_quad_Bo == 0x0) {    // a new computation is required
 
-      Tenseur beta = log(bbb) ; 
-      beta.set_std_base() ; 
-      source =  qpig * a_car *( ener_euler + E_em + E_i
-				+ s_euler + Spp_em + SrrplusStt + Spp) 
-	+ ak_car - flat_scalar_prod(logn.gradient_spher(), 
-		   logn.gradient_spher() + beta.gradient_spher()) ; 
+      // S_{rr} + S_{\theta\theta} =  A^2*(S^r_r + S^\theta_\theta)
+      Tenseur SrrplusStt( Cmp(Sij_I(1, 1) + Sij_I(2, 2)) ) ; 
+      
+      Cmp dens = a_car() * press() ;
+      dens = bbb() * nnn() * (SrrplusStt() + 2*dens) ; 
+      dens.mult_rsint() ;
+      dens.std_base_scal() ; 
+      
+      p_mom_quad_Bo = new double( - 16. * dens.integrale() / qpig  ) ;  
     }
-    else {
-      source = qpig * nbar ; 
-    }
-    source.set_std_base() ; 	
-    
-    // Multiplication by -r^2 P_2(cos(theta))
-    //  [cf Eq.(7) of Salgado et al. Astron. Astrophys. 291, 155 (1994) ]
-    // ------------------------------------------------------------------
-    
-    // Multiplication by r^2 : 
-    // ----------------------
-    Cmp& csource = source.set() ; 
-    csource.mult_r() ; 
-    csource.mult_r() ; 
-    if (csource.check_dzpuis(2)) {
-      csource.inc2_dzpuis() ; 
-    }
-    
-    // Muliplication by cos^2(theta) :
-    // -----------------------------
-    Cmp temp = csource ; 
-    
-    // What follows is valid only for a mapping of class Map_radial : 
-    assert( dynamic_cast<const Map_radial*>(&mp) != 0x0 ) ; 
-    
-    if (temp.get_etat() == ETATQCQ) {
-      Valeur& vtemp = temp.va ; 
-      vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
-      vtemp = vtemp.mult_ct() ;	// multiplication by cos(theta)
-    }
-    
-    // Muliplication by -P_2(cos(theta)) :
-    // ----------------------------------
-    source = 0.5 * source() - 1.5 * temp ; 
-    
-    // Final result
-    // ------------
-    
-    p_mom_quad = new double( source().integrale() / qpig ) ; 	 
-    
+    return *p_mom_quad_Bo ;  
   }
-  
-  return *p_mom_quad ; 
-  
-}
+
 
 
 }

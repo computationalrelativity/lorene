@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2015/06/12 12:38:24  j_novak
+ * Implementation of the corrected formula for the quadrupole momentum.
+ *
  * Revision 1.34  2015/06/11 13:50:19  j_novak
  * Minor corrections
  *
@@ -1846,48 +1849,48 @@ class Etoile_rot : public Etoile {
 	 */
 	virtual double grv3(ostream* ost = 0x0) const ;	
 
-	virtual double r_circ() const ;			///< Circumferential radius
-	virtual double area() const ;				///< Surface area
+	virtual double r_circ() const ;		///< Circumferential radius
+	virtual double area() const ;		///< Surface area
 	virtual double mean_radius() const ;	///< Mean radius
-	virtual double aplat() const ;			///< Flatening r_pole/r_eq
-	virtual double z_eqf() const ;			///< Forward redshift factor at equator
-	virtual double z_eqb() const ;			///< Backward redshift factor at equator
-	virtual double z_pole() const ;			///< Redshift factor at North pole
+	virtual double aplat() const ;		///< Flatening r_pole/r_eq
+	virtual double z_eqf() const ;		///< Forward redshift factor at equator
+	virtual double z_eqb() const ;		///< Backward redshift factor at equator
+	virtual double z_pole() const ;		///< Redshift factor at North pole
     
 	/** Quadrupole moment.
 	 *  The quadrupole moment \e Q is defined according to Eq. (11) of
 	 *  [Pappas and Apostolatos, \a Physical \a Review \a Letters 
 	 *  \b 108, 231104 (2012)]. This is a corrected version of the quadrupole
 	 *  moment defined by [Salgado, Bonazzola, Gourgoulhon and Haensel,
-	 *  \a Astron. \a Astrophys. \b 291 , 155 (1994)]. 
-    *  Following this definition, \f$Q = \e {\bar Q } - 4/3 (1/4 + b) M^3 \f$, 
-	 *  where \e {\bar Q } is defined as the negative of the (wrong) quadrupole moment defined 
-	 *  in Eq. (7) of [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
-	 *  \b 291 , 155 (1994)], \e b is defined by Eq. (3.37) of 
-    *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
-	 *  Cambridge Monograph on mathematical physics] and \e M is 
-	 *  the gravitational mass of the star.
+	 *  \a Astron. \a Astrophys. \b 291 , 155 (1994)]. Following this 
+	 *  definition, \f$Q = {\bar Q } - 4/3 (1/4 + b) M^3 \f$, where 
+	 *  \f${\bar Q }\f$ is defined as the negative of the (wrong) quadrupole 
+	 *  moment defined in Eq. (7) of [Salgado, Bonazzola, Gourgoulhon and 
+	 *  Haensel, \a Astron. \a Astrophys. \b 291 , 155 (1994)], \e b is 
+	 *  defined by Eq. (3.37) of [Friedman and Stergioulas, \a Rotating 
+	 *  \a Relativistic \a Stars, Cambridge Monograph on mathematical 
+	 *  physics] and \e M is the gravitational mass of the star.
 	 */
 	virtual double mom_quad() const ;	
 
 	/** Part of the quadrupole moment.
-	 *  This term \e {\bar Q } is defined by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
-	 *  Note that \e {\bar Q } is the negative of the (wrong) quadrupole moment defined in Eq. (7) of
+	 *  This term \f${\bar Q }\f$ is defined by Laarakkers and Poisson, 
+	 *  \a Astrophys. \a J. \b 512 , 282 (1999). Note that \f${\bar Q }\f$ 
+	 *  is the negative of the (wrong) quadrupole moment defined in Eq. (7) of
 	 *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
-	 *   \b 291 , 155 (1994)]. 
-	 *  
+	 *  \b 291 , 155 (1994)]. 
 	 */
 	virtual double mom_quad_old() const ;
 
 	/** Part of the quadrupole moment.
-	 *  \e B_o is defined as \f$bM^2\f$, where \e b is given by Eq. (3.37) of 
-    *  [Friedman and Stergioulas, \a Rotating \a Relativistic \a Stars, 
-	 *  Cambridge Monograph on mathematical physics] and \e M is the 
-	 *  the gravitational mass of the star. 
+	 *  \f$B_o\f$ is defined as \f$bM^2\f$, where \e b is given by 
+	 *  Eq. (3.37) of [Friedman and Stergioulas, \a Rotating \a 
+	 *  Relativistic \a Stars, Cambridge Monograph on mathematical 
+	 *  physics] and \e M is the the gravitational mass of the star. 
 	 */
 	virtual double mom_quad_Bo() const ;
 
-	/** Circumferential radius of the innermost stable circular orbit (ISCO).	
+	/** Circumferential radius of the innermost stable circular orbit (ISCO).
 	 *
 	 *  @param ost output stream to give details of the computation;
 	 *		if set to 0x0 [default value], no details will be

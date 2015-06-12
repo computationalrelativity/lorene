@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2015/06/12 12:38:24  j_novak
+ * Implementation of the corrected formula for the quadrupole momentum.
+ *
  * Revision 1.21  2015/06/11 14:41:59  a_sourie
  * Corrected minor bug
  *
@@ -163,7 +166,8 @@ Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
 Eos_bifluid::Eos_bifluid(FILE* fich)
 {
   char dummy [MAX_EOSNAME];
-  fread(dummy, sizeof(char),MAX_EOSNAME, fich) ;
+  if (fread(dummy, sizeof(char),MAX_EOSNAME, fich) == 0) 
+    cerr << "Reading problem in " << __FILE__ << endl ;
   name = dummy ;
   fread_be(&m_1, sizeof(double), 1, fich) ;		
   fread_be(&m_2, sizeof(double), 1, fich) ;	
@@ -248,7 +252,8 @@ void Eos_bifluid::sauve(FILE* fich) const
 
   strncpy (dummy, name.c_str(), MAX_EOSNAME);
   dummy[MAX_EOSNAME-1] = 0;
-  fwrite(dummy, sizeof(char), MAX_EOSNAME, fich );
+  if (fwrite(dummy, sizeof(char), MAX_EOSNAME, fich ) == 0)
+    cerr << "Writing problem in " << __FILE__ << endl ;
 
   fwrite_be(&m_1, sizeof(double), 1, fich) ;	
   fwrite_be(&m_2, sizeof(double), 1, fich) ;	
