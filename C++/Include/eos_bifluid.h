@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2015/06/26 14:10:08  j_novak
+ * Modified comments.
+ *
  * Revision 1.21  2015/06/11 13:50:18  j_novak
  * Minor corrections
  *
@@ -1560,10 +1563,16 @@ class Eos_bf_tabul : public Eos_bifluid {
     	/// Upper boundary of the log-enthalpy interval (fluid 2 = p)
     	double ent2_max ;
 
-    	/// Table of \f$ \log H_n \f$ where \f$ H_n = \ln \( \frac{mu_n}{m_n} \) \f$
+    	/**
+	 * Table of \f$ \log H_n \f$ where 
+	 * \f$ H_n = \ln \left( \frac{\mu_n}{m_n} \right) \f$.
+	 */
     	Tbl* logent1 ;
     	
-	/// Table of \f$ \log H_p \f$ where \f$ H_p = \ln \( \frac{mu_p}{m_p} \) \f$
+	/** 
+	 * Table of \f$ \log H_p \f$ where 
+	 * \f$ H_p = \ln \left( \frac{\mu_p}{m_p} \right) \f$.
+	 */
     	Tbl* logent2 ;
 
         /// Table of \f$ \Delta^{2} \f$
@@ -1700,8 +1709,8 @@ class Eos_bf_tabul : public Eos_bifluid {
     protected: 	
     	/** Reads the file containing the table and initializes
     	 *  the arrays logent1, \c logent2, \c delta_car, \c logp, \c dlpsdlent1, \c dlpsdlent2,
-	 *  c\ d2lpsdlent1dlent2, c\ dlpsddelta_car, c\ d2lpsdlent1ddelta_car, 
-	 *  c\ d2lpsdlent2ddelta_car, c\ d3lpsdlent1dlent2ddelta_car
+	 *  \c d2lpsdlent1dlent2, \c dlpsddelta_car, \c d2lpsdlent1ddelta_car, 
+	 *  \c d2lpsdlent2ddelta_car, \c d3lpsdlent1dlent2ddelta_car
 	 **/
     	void read_table() ;
 
@@ -1745,9 +1754,9 @@ class Eos_bf_tabul : public Eos_bifluid {
 	 *  @param ener [output] total energy density \f$\cal E\f$ 
 	 *                             of both fluids together
 	 *  @param press [output] pressure \e p  of both fluids together
-	 *  @param K_nn [output] coefficient \e K_nn  
-	 *  @param K_np [output] coefficient \e K_np  
-	 *  @param K_pp [output] coefficient \e K_pp  
+	 *  @param K_nn [output] coefficient \f$ K_{nn} \f$  
+	 *  @param K_np [output] coefficient \f$ K_{np} \f$  
+	 *  @param K_pp [output] coefficient \f$ K_{pp} \f$ 
 	 *  @param nzet  [input] number of domains where \c resu  is to be
 	 *	computed. 
 	 *  @param l_min [input] index of the innermost domain is which 
@@ -1907,7 +1916,7 @@ class Eos_bf_tabul : public Eos_bifluid {
 
 
          /** Computes alpha, the derivative of the total energy density 
-	 * with respect to \f$ Delta^2\f$ from the baryonic log-enthalpies
+	 * with respect to \f$ \Delta^2\f$ from the baryonic log-enthalpies
 	 *  and the relative velocity. 
 	 *
 	 *  @param ent1 [input,  unit: \f$c^2\f$] log-enthalpy \f$H_1\f$ of fluid 1 

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2015/06/26 14:10:08  j_novak
+ * Modified comments.
+ *
  * Revision 1.19  2015/06/11 13:50:18  j_novak
  * Minor corrections
  *
@@ -450,8 +453,8 @@ namespace Lorene {
      *  \b 108, 231104 (2012)]. This is a corrected version of the quadrupole
      *  moment defined by [Salgado, Bonazzola, Gourgoulhon and Haensel,
      *  \a Astron. \a Astrophys. \b 291 , 155 (1994)]. 
-     *  Following this definition, \f$Q = \e {\bar Q } - 4/3 (1/4 + b) M^3 \f$, 
-     *  where \e {\bar Q } is defined as the negative of the (wrong) quadrupole 
+     *  Following this definition, \f$Q = {\bar Q } - 4/3 (1/4 + b) M^3 \f$, 
+     *  where \f$ {\bar Q } \f$ is defined as the negative of the (wrong) quadrupole 
      *  moment defined in Eq. (7) of [Salgado, Bonazzola, Gourgoulhon and Haensel,
      *  \a Astron. \a Astrophys. \b 291 , 155 (1994)], \e b is defined by
      *  Eq. (3.37) of [Friedman and Stergioulas, \a Rotating \a Relativistic 
@@ -461,9 +464,9 @@ namespace Lorene {
     virtual double mom_quad() const ;	
     
     /** Part of the quadrupole moment.
-     *  This term \e {\bar Q } is defined by Laarakkers and Poisson,
+     *  This term \f$ {\bar Q } \f$ is defined by Laarakkers and Poisson,
      *  \a Astrophys. \a J. \b 512 , 282 (1999).
-     *  Note that \e {\bar Q } is the negative of the (wrong) quadrupole moment 
+     *  Note that \f$ {\bar Q }\f$ is the negative of the (wrong) quadrupole moment 
      *  defined in Eq. (7) of [Salgado, Bonazzola, Gourgoulhon and Haensel,
      *  \a Astron. \a Astrophys. \b 291 , 155 (1994)]. 
      */
