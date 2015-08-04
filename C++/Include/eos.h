@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2015/08/04 14:41:28  j_novak
+ * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
+ *
  * Revision 1.21  2015/03/17 14:19:59  j_novak
  * New class Hot_eos to deal with temperature-dependent EOSs.
  *
@@ -2441,6 +2444,7 @@ class MEos : public Eos {
 		//------------------//
 		
 #include "eos_tabul.h"
+#include "eos_compose.h"
 #include "eos_mag.h"		
 
 #endif

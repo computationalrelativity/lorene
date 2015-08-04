@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2015/08/04 14:41:29  j_novak
+ * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
+ *
  * Revision 1.15  2015/01/27 14:22:38  j_novak
  * New methods in Eos_tabul to correct for EoS themro consistency (optional).
  *
@@ -155,6 +158,8 @@ int Eos_mag::identify() const	{ return 18; }
 
 int Eos_Fermi::identify() const	{ return 19; }
 
+int Eos_consistent::identify() const	{ return 20; }
+
 int MEos::identify() const	{ return 100; }
 
 int Eos_multi_poly::identify() const	{ return 110; }
@@ -256,6 +261,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 19 : {
 	    p_eos = new Eos_Fermi(fich) ;
+	    break ;
+	}
+
+	case 20 : {
+	    p_eos = new Eos_consistent(fich) ;
 	    break ;
 	}
 
@@ -378,28 +388,22 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	}
 
 	case 17 : {
-	  int format, option ;
+	  int format ;
 	  fich >> format ;
 	  fich.ignore(1000, '\n') ;
-	  fich >> option ;
-	  fich.ignore(1000, '\n') ;
-
 #ifndef NDEBUG
 	  cout << "Reading tabulated EoS, with "
 	       << ( (format == 0) ? "standard LORENE " : "original CompOSE ")
 	       << "format." << endl ;
-	  if ( option == 0 ) 
-	    cout << "Eventually modified to ensure thermodynamic consistency." 
-		 << endl ; 
 #endif
 	  if (format == 1) {
 	    fich.ignore(1000, '\n') ;
 	    string files_path ;
 	    fich >> files_path ;	    
-	    p_eos = new Eos_CompOSE(files_path, bool(option) ) ;
+	    p_eos = new Eos_CompOSE(files_path ) ;
 	  }
 	  else 
-	    p_eos = new Eos_CompOSE(fich, bool(option) ) ;
+	    p_eos = new Eos_CompOSE(fich ) ;
 	  break ;
 	}
 
@@ -411,6 +415,26 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	case 19 : {
 	    p_eos = new Eos_Fermi(fich) ;
 	    break ;
+	}
+
+	case 20 : {
+	  int format ;
+	  fich >> format ;
+	  fich.ignore(1000, '\n') ;
+#ifndef NDEBUG
+	  cout << "Reading tabulated EoS, with "
+	       << ( (format == 0) ? "standard LORENE " : "original CompOSE ")
+	       << "format." << endl ;
+#endif
+	  if (format == 1) {
+	    fich.ignore(1000, '\n') ;
+	    string files_path ;
+	    fich >> files_path ;	    
+	    p_eos = new Eos_consistent(files_path ) ;
+	  }
+	  else 
+	    p_eos = new Eos_consistent(fich ) ;
+	  break ;
 	}
 
 	case 100 : {
