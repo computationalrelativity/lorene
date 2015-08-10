@@ -33,6 +33,9 @@ char binary_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2015/08/10 15:32:26  j_novak
+ * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
+ *
  * Revision 1.8  2014/10/13 08:52:45  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -315,7 +318,8 @@ using namespace Unites ;
 //-------------------------------------
 
     Param parf ; 
-    parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
+    double ori_x0 = (et[0]->get_mp()).get_ori_x() ;
+    parf.add_double( ori_x0, 0) ; 
     parf.add_double( dnulg[0], 1) ;
     parf.add_double( g00[0], 2) ;
     parf.add_double( g10[0], 3) ;

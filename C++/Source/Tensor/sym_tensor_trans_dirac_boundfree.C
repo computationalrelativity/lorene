@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2015/08/10 15:32:27  j_novak
+ * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
+ *
  * Revision 1.3  2014/10/13 08:53:43  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -735,10 +738,14 @@ void Sym_tensor_trans::sol_Dirac_BC3(const Scalar& bbt, const Scalar& hh,
     }
     if (param_new) {
       par_mat->clean_all() ;
-      par_mat->add_int_mod(*(new int(nz_bc)), 0) ;
-      par_mat->add_int_mod(*(new int(lmax)), 1) ;
-      par_mat->add_int_mod(*(new int(mgrid.get_type_t())), 2) ;
-      par_mat->add_int_mod(*(new int(mgrid.get_type_p())), 3) ;
+      int* nz_bc_new = new int(nz_bc) ;
+      par_mat->add_int_mod(*nz_bc_new, 0) ;
+      int* lmax_new = new int(lmax) ;
+      par_mat->add_int_mod(*lmax_new, 1) ;
+      int* type_t_new = new int(mgrid.get_type_t()) ;
+      par_mat->add_int_mod(*type_t_new, 2) ;
+      int* type_p_new = new int(mgrid.get_type_p()) ;
+      par_mat->add_int_mod(*type_p_new, 3) ;
       Itbl* pnr = new Itbl(nz) ;
       pnr->set_etat_qcq() ;
       par_mat->add_itbl_mod(*pnr) ;

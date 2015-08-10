@@ -29,6 +29,9 @@ char test_poisson_compact_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2015/08/10 15:32:27  j_novak
+ * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
+ *
  * Revision 1.3  2014/10/06 15:12:54  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -182,10 +185,12 @@ void main(){
     ent_limit.set_etat_qcq() ; 
     ent_limit.set(0) = 0 ; 
     
+    int i_one = 1 ;
+
     Param par ; 
     par.add_int(nitermax, 0) ;  
     par.add_int(nzet, 1) ;    
-    par.add_int(1, 2) ; // 1 = full computation
+    par.add_int(i_one, 2) ; // 1 = full computation
     par.add_int(j_bord, 3) ; 
     par.add_int(k_bord, 4) ; 
     par.add_int_mod(niter) ;  

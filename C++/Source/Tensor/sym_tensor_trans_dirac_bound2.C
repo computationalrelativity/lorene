@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2015/08/10 15:32:26  j_novak
+ * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
+ *
  * Revision 1.4  2014/10/13 08:53:43  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -60,14 +63,9 @@
 #include <cmath>
 
 // Lorene headers
-#include "nbr_spx.h"
-#include "utilitaires.h"
-#include "math.h"
 #include "param.h"
 #include "param_elliptic.h"
 #include "metric.h"
-#include "tensor.h"
-#include "sym_tensor.h"
 #include "diff.h"
 #include "proto.h"
 #include "param.h"
@@ -719,10 +717,14 @@ void Sym_tensor_trans::sol_Dirac_BC2(const Scalar& bb, const Scalar& cc, const S
       }
       if (param_new) {
 	par_mat->clean_all() ;
-	par_mat->add_int_mod(*(new int(nz_bc)), 0) ;
-	par_mat->add_int_mod(*(new int(lmax)), 1) ;
-	par_mat->add_int_mod(*(new int(mgrid.get_type_t())), 2) ;
-	par_mat->add_int_mod(*(new int(mgrid.get_type_p())), 3) ;
+	int* nz_bc_new = new int(nz_bc) ;
+	par_mat->add_int_mod(*nz_bc_new, 0) ;
+	int* lmax_new = new int(lmax) ;
+	par_mat->add_int_mod(*lmax_new, 1) ;
+	int* type_t_new = new int(mgrid.get_type_t()) ;
+	par_mat->add_int_mod(*type_t_new, 2) ;
+	int* type_p_new = new int(mgrid.get_type_p()) ;
+	par_mat->add_int_mod(*type_p_new, 3) ;
 	Itbl* pnr = new Itbl(nz) ;
 	pnr->set_etat_qcq() ;
 	par_mat->add_itbl_mod(*pnr) ;

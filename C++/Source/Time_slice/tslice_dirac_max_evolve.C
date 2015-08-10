@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2015/08/10 15:32:27  j_novak
+ * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
+ *
  * Revision 1.21  2014/10/13 08:53:48  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -206,13 +209,17 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     double anm1 = -4./3. ; 
     double anm2 = 5./12. ; 
 
+    int i_zero = 0 ;
+    int i_minus_one = -1 ;
+    int i_two = 2 ;
+
     Param par_A ;
     double *l_val_A = new double(1./Rmax) ;
     double *l_der_A = new double(1.) ;
     par_A.add_int(nz_bound, 0) ;
-    par_A.add_int(2, 1) ; //matching of function and derivative
-    par_A.add_int(0, 2) ;// no shift in l 
-    par_A.add_int(2, 3) ; // only for l>=2
+    par_A.add_int(i_two, 1) ; //matching of function and derivative
+    par_A.add_int(i_zero, 2) ;// no shift in l 
+    par_A.add_int(i_two, 3) ; // only for l>=2
     par_A.add_double_mod(*l_val_A, 0) ;
     par_A.add_double_mod(*l_der_A, 1) ;
     Tbl* tmp_Acc = new Tbl(np2, nt) ;
@@ -225,9 +232,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     double* l_val_B = new double(1./Rmax) ;
     double* l_der_B = new double(1.) ; 
     par_B.add_int(nz_bound, 0) ;
-    par_B.add_int(2, 1) ; //matching of function and derivative
-    par_B.add_int(-1, 2) ;// shift in l for tilde{B}
-    par_B.add_int(2, 3) ; // only for l>=2
+    par_B.add_int(i_two, 1) ; //matching of function and derivative
+    par_B.add_int(i_minus_one, 2) ;// shift in l for tilde{B}
+    par_B.add_int(i_two, 3) ; // only for l>=2
     par_B.add_double_mod(*l_val_B, 0) ;
     par_B.add_double_mod(*l_der_B, 1) ;
     Tbl* tmp_Bcc = new Tbl(np2, nt) ;
