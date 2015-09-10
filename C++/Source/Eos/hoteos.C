@@ -40,6 +40,7 @@ char hoteos_C[] = "$Header$" ;
 
 // Lorene headers
 #include "hoteos.h"
+#include "eos.h"
 #include "tensor.h"
 #include "utilitaires.h"
 
@@ -56,13 +57,19 @@ namespace Lorene {
   
   // Standard constructor with name
   // ---------------------------------
-  Hot_eos::Hot_eos(const string& name_i):name(name_i){ }
+  Hot_eos::Hot_eos(const string& name_i):name(name_i){ 
+    set_der_0x0() ;
+  }
 
-  Hot_eos::Hot_eos(const char* name_i):name(name_i){ }
+  Hot_eos::Hot_eos(const char* name_i):name(name_i){ 
+    set_der_0x0() ;
+  }
   
   // Copy constructor
   // ----------------
-  Hot_eos::Hot_eos(const Hot_eos& eos_i):name(eos_i.name){ }
+  Hot_eos::Hot_eos(const Hot_eos& eos_i):name(eos_i.name){
+    set_der_0x0() ;
+  }
   
   // Constructor from a binary file
   // ------------------------------
@@ -75,6 +82,7 @@ namespace Lorene {
     fread(t_name, sizeof(char), taille, fich) ;		
     set_name(t_name) ;
     delete [] t_name ;
+    set_der_0x0() ;
   }
   
   // Constructor from a formatted file
@@ -84,14 +92,28 @@ namespace Lorene {
     char t_name[100] ;
     fich.getline(t_name, 100) ;
     set_name(t_name) ;
+    set_der_0x0() ;
   }
 
 			//--------------//
 			//  Destructor  //
 			//--------------//
+  Hot_eos::~Hot_eos(){
+    Hot_eos::del_deriv() ;
+  }
 
-  Hot_eos::~Hot_eos(){}
+               //----------------------------------//
+               // Management of derived quantities //
+               //----------------------------------//
 
+  void Hot_eos::del_deriv() const {
+    if (p_cold_eos != 0x0)  delete p_cold_eos ;
+    set_der_0x0() ;
+  }
+
+  void Hot_eos::set_der_0x0() const {
+    p_cold_eos = 0x0 ;
+  }
 
 void Hot_eos::set_name(const char* name_i) {
 
@@ -123,7 +145,6 @@ ostream& operator<<(ostream& ost, const Hot_eos& eqetat)  {
     eqetat >> ost ;
     return ost ;
 }
-
 
 			//-------------------------------//
 			// Generic computational routine //

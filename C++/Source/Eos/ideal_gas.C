@@ -31,6 +31,9 @@ char ideal_gas_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/09/10 13:28:23  j_novak
+ * New methods for the class Hot_Eos
+ *
  * Revision 1.1  2015/03/17 14:20:00  j_novak
  * New class Hot_eos to deal with temperature-dependent EOSs.
  *
@@ -46,6 +49,7 @@ char ideal_gas_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "hoteos.h"
+#include "eos.h"
 #include "utilitaires.h"
 #include "unites.h"
 
@@ -146,6 +150,20 @@ namespace Lorene {
   
   double Ideal_gas::get_m_0() const {
     return m_0 ;
+  }
+
+
+			//-------------------------------//
+			//  The corresponding cold Eos   //
+			//-------------------------------//
+
+  const Eos& Ideal_gas::new_cold_Eos() const {
+    
+    if (p_cold_eos == 0x0) {
+      p_cold_eos = new Eos_poly(gam, kap, m_0) ;
+    }
+    
+    return *p_cold_eos ;
   }
 
 
@@ -278,7 +296,8 @@ namespace Lorene {
     using namespace Unites ;
 
     if ( ent > 0. ) {
-      return m_u_mev * kap * gam1sgamkap * ( exp(ent) - 1. ) ;
+      return kap * gam1sgamkap * ( exp(ent) - 1. ) ;
+      //      return m_u_mev * kap * gam1sgamkap * ( exp(ent) - 1. ) ;
     }
     else {
       return 0 ;

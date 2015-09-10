@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/09/10 13:28:00  j_novak
+ * New methods for the class Hot_Eos
+ *
  * Revision 1.1  2015/03/17 14:19:59  j_novak
  * New class Hot_eos to deal with temperature-dependent EOSs.
  *
@@ -47,7 +50,7 @@ namespace Lorene{
 
 class Scalar ;
 class Param ;
-  
+class Eos ;  
 		    //------------------------------------//
 		    //		class Hot_eos		  //
 		    //------------------------------------//
@@ -95,6 +98,17 @@ class Param ;
   public:
     virtual ~Hot_eos() ;			///< Destructor
  
+    // Derived data : 
+    // ------------
+  protected:
+    mutable Eos* p_cold_eos ;     ///< Corresponding cold Eos.
+    
+    /// Deletes all the derived quantities
+    virtual void del_deriv() const ; 
+
+    /// Sets to \c 0x0 all the pointers on derived quantities
+    void set_der_0x0() const ; 
+	
     // Name manipulation
     // -----------------
   public:
@@ -146,6 +160,10 @@ class Param ;
 
   protected: 
     virtual ostream& operator>>(ostream &) const = 0 ;    ///< Operator >>
+
+  public:
+    /// Returns the corresponding cold \c Eos.
+    virtual const Eos& new_cold_Eos() const = 0 ; 
 
 
     // Computational functions
@@ -322,18 +340,19 @@ class Param ;
 		    //------------------------------------//
 
   /**
-   * Ideal-gas (temperature-dependent) equation of state, with mass-term in the energy
-   * density.
+   * Ideal-gas (temperature-dependent) equation of state, with mass-term 
+   * in the energy density. 
    * 
    * \f[
    *    p(n, s_b) = \kappa n^\gamma e^{(\gamma-1)s_b}\ .\qquad (1)
    * \f]
    * and \f[
    *    e(n, s_b) = \frac{\kappa}{\gamma - 1} n^\gamma e^{(\gamma-1)s_b} + m_0\, n\ .
-   *    \qquad (2)
+   *    \qquad (2) \f]
    * ### (to be written...)
    *
-   * \ingroup(eos)
+   *\ingroup (eos) 
+   *
    */
   class Ideal_gas : public Hot_eos {
     
@@ -430,6 +449,8 @@ class Param ;
      *  (cf. Eq. (1))
      */
     double get_m_0() const ;
+
+    virtual const Eos& new_cold_Eos() const ;
 
     protected:
     /** Computes the auxiliary quantities \c gam1 , \c unsgam1 ,

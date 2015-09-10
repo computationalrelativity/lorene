@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.93  2015/09/10 13:28:05  j_novak
+ * New methods for the class Hot_Eos
+ *
  * Revision 1.92  2014/10/13 08:52:36  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -904,11 +907,10 @@ class Scalar : public Tensor {
    *      \f$ F(r,\theta,\varphi) = \int_r^\infty f(r',\theta,\varphi) \, dr' \f$
    *  where \e f is the function represented by \c *this 
    * (and must have a \c dzpuis = 2). 
-   *      
-   *      @param null_infty if true (default), the primitive is null
+   * @param null_infty if true (default), the primitive is null
    *      at infinity (or on the grid boundary). \e F is null at the
    *      center otherwise
-   *      @return function \e F
+   * @return function \e F
    */ 
   Scalar primr(bool null_infty = true) const  ;  	    
 
