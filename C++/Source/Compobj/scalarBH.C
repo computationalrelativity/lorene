@@ -30,6 +30,9 @@ char scalarBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/10/27 10:53:23  f_vincent
+ * Updated class scalarBH
+ *
  * Revision 1.1  2015/10/22 09:18:36  f_vincent
  * New class ScalarBH
  *
@@ -62,7 +65,7 @@ namespace Lorene {
     ww(mpi),
     sfield(mpi)
   {
-
+    
     ifstream file(file_name) ; 
     if ( !file.good() ) {
       cerr << "Problem in opening the file " << file_name << endl ;
@@ -76,11 +79,17 @@ namespace Lorene {
     file >> rHor ;
     rH2 = rHor*rHor ;
 
+    if (rHor<0. || nrfile<0. || nthetafile<0.){
+      cerr << "In scalarBH::scalarBH(Map,char*): "
+	   << "Bad parameters rHor, nrfile, nthetafile" << endl;
+      abort();
+    }
+
     cout << "nr, ntheta from file = " << nrfile << " " << nthetafile << endl;
     cout << "rHor from file = " << rHor << endl;
 
-    double* rfile = new double[nrfile * nthetafile] ;
-    double* thetafile = new double[nthetafile * nthetafile] ;
+    double* Xfile = new double[nrfile * nthetafile] ;
+    double* thetafile = new double[nrfile * nthetafile] ;
     double* f0file = new double[nrfile * nthetafile] ;
     double* f1file = new double[nrfile * nthetafile] ;
     double* f2file = new double[nrfile * nthetafile] ;
@@ -90,65 +99,187 @@ namespace Lorene {
     cout << "Reading metric data... ";
     for (int ii=0;ii<nrfile*nthetafile;ii++){
       // there are empty lines in Carlos file, but it doesn't seem to be a pb
-      file >> rfile[ii] ; 
+      file >> Xfile[ii] ; 
       file >> thetafile[ii] ;
       file >> f0file[ii] ;
       file >> f1file[ii] ;
       file >> f2file[ii] ;
       file >> wwfile[ii] ;
       file >> sfieldfile[ii] ;
-      //cout << ii << " " << rfile[ii] << " " << thetafile[ii] << " " << f0file[ii] << " " << f1file[ii] << " " << f2file[ii] << " " << wwfile[ii] << " " << sfieldfile[ii] << endl;
+      //cout << ii << " " << Xfile[ii] << " " << thetafile[ii] << " " << f0file[ii] << " " << f1file[ii] << " " << f2file[ii] << " " << wwfile[ii] << " " << sfieldfile[ii] << endl;
     }  
     cout << "done" << endl;
     file.close() ; 
 
+    double Xbefmax = Xfile[nrfile-2];
 
     int nz = mg->get_nzone() ; 
-    cout << "nz : " << nz << endl ; 
-    cout << "Initializing metric scalars... ";
+    //cout << "nz : " << nz << endl ; 
     ff0.allocate_all() ; // Memory allocation for F_0
     ff1.allocate_all() ; // Memory allocation for F_1
     ff2.allocate_all() ; // Memory allocation for F_2
     ww.allocate_all() ; // Memory allocation for W
     sfield.allocate_all() ; // Memory allocation for scalar field phi
-    cout << "done." << endl;
 
+    double delta_theta = 0.1*fabs(thetafile[nrfile] - thetafile[0]); // small wrt the theta step in Carlos grid
+
+    cout << "Starting interpolating Lorene grid... " ;
     Mtbl rr(mp.r); 
-    int l_min = 0; // this should be 0 for a spacetime without horizon, 1 with
+    Mtbl theta(mp.tet); 
+    int l_min; // this should be 0 for a spacetime without horizon, 1 with
+    if (rHor>0.){
+      l_min = 1; 
+    }else{
+      l_min = 0; 
+    }
     for (int l=l_min; l<nz; l++) {
-      cout << "l = " << l << endl ; 
       int nr = mg->get_nr(l) ; 
       int nt = mg->get_nt(l) ; 
       int np = mg->get_np(l) ;
-      cout << "Starting loop k j i" << endl;
+      //cout << "Starting loop k j i" << endl;
       for (int k=0; k<np; k++){
 	for (int j=0; j<nt; j++){
+	  double th0 = theta(l, k, j, 0);
 	  for (int i=0; i<nr; i++){
-	    cout << "Calling r at grid point" << endl;
 	    double r0 = rr(l, k, j, i);
-	    cout << "Few computation" << endl;
-	    double x0 = sqrt(r0*r0 - rH2);
-	    double xx0 = x0 / (x0+1);
-	    double f0 = 0; // here interpolation!
-	    //ff0.set_spectral_va().set(l,0,j,i) = f0;
-	    cout << "affecting value to metric coef" << endl;
-	    ff0.set_grid_point(l,k,j,i) = f0 ;
-	    cout << "the end" << endl;
+	    double x0, xx0;
+	    if (r0 < __infinity){
+	      x0 = sqrt(r0*r0 - rH2);
+	      xx0 = x0 / (x0+1);
+	    }else{
+	      xx0 = 1.;
+	    }
+	    
+	    //cout << "Loene radial stuff= " << r0 << " " << x0 << " " << xx0 << endl;
+	    //cout << "Lorene points= " << xx0 << " " << th0 << endl;
+	      
+	    int ith=0;
+	    int ithbis=0;
+	    double thc = thetafile[ith];
+	    while (fabs(th0 - thc) > delta_theta){
+	      ith += nrfile;
+	      ithbis++;
+	      thc = thetafile[ith];
+	    }
+	    int ir=ith;
+	    double xc = Xfile[ir];
+	    if (xc > 0.){
+	      cerr << "In scalarBH::ScalarBH(): "
+		"r should be zero here" << endl;
+	      abort();
+	    }
+	    int doradinterp=1;
+	    if (xx0 == 0.){
+	      doradinterp=0;
+	    }else if(xx0 == 1.){
+	      ir += nrfile-1;
+	      xc = Xfile[ir];
+	      doradinterp=0;
+	    }else if(xx0 > Xbefmax && xx0< 1.){
+	      ir+=nrfile-2;
+	      xc = Xfile[ir];
+	    }else{
+	      //cout << "Indice= " << ithbis << " " << ir << " " << xc << endl;
+
+	      while (xx0 > xc){
+		ir ++;
+		xc = Xfile[ir];
+		//cout << "xc, xx0 in loop= " << xc << " " << xx0 << endl;
+	      }	      
+	    }
+
+	    double f0interp, f1interp, f2interp, winterp, sfieldinterp;
+	    if (doradinterp){
+	      double xcinf = Xfile[ir-1], xcsup = Xfile[ir+1];
+	      if (fabs(thc-th0)>delta_theta){
+		cerr << "scalarBH::ScalarBH(): theta problem in grid" << endl;
+		cerr << "Theta info: " << thc << " " << th0 << endl;
+		abort();
+	      }
+	      if (xx0 <= Xbefmax &&
+		  (xx0 < xcinf || xx0 > xc || xx0 > xcsup)){
+		cerr << "scalarBH::ScalarBH(): rad problem in grid" << endl;
+		cerr << "Radial info: " << xcinf << " " << xx0 << " " 
+		     << xc << " " << xcsup << endl;
+		abort();
+	      }else if (xx0 > Xbefmax &&
+			(xx0 < xcinf || xx0 < xc || xx0 > xcsup)){
+		cerr << "scalarBH::ScalarBH(): special rad "
+		  "problem in grid" << endl;
+		cerr << "Radial info: " << xcinf << " " << xx0 << " " 
+		     << xc << " " << xcsup << endl;
+		abort();
+	      }
+	      // Radial polynomials
+	      double polyrinf = (xx0-xc)*(xx0-xcsup)/((xcinf-xc)*(xcinf-xcsup)),
+		polyrmid = (xx0-xcinf)*(xx0-xcsup)/((xc-xcinf)*(xc-xcsup)),
+		polyrsup = (xx0-xcinf)*(xx0-xc)/((xcsup-xcinf)*(xcsup-xc));
+	      // Grid values of all Scalars
+	      double f0inf = f0file[ir-1], f0mid = f0file[ir], 
+		f0sup = f0file[ir+1], f1inf = f1file[ir-1], f1mid = f1file[ir], 
+		f1sup = f1file[ir+1], f2inf = f2file[ir-1], f2mid = f2file[ir], 
+		f2sup = f2file[ir+1], winf = wwfile[ir-1], wmid = wwfile[ir], 
+		wsup = wwfile[ir+1], sfinf = sfieldfile[ir-1], 
+		sfmid = sfieldfile[ir], sfsup = sfieldfile[ir+1];
+	      
+	      /*cout << "Interpolating" << endl;
+	      cout << "Carlos points= " << xcinf << " " << xc << " " << xcsup << endl;
+	      cout << "f0= " << f0inf << " " << f0mid << " " << f0sup << endl;*/
+	      
+	      // Interpolate Scalars
+	      f0interp = f0inf*polyrinf + f0mid*polyrmid + f0sup*polyrsup;
+	      f1interp = f1inf*polyrinf + f1mid*polyrmid + f1sup*polyrsup;
+	      f2interp = f2inf*polyrinf + f2mid*polyrmid + f2sup*polyrsup;
+	      winterp = winf*polyrinf + wmid*polyrmid + wsup*polyrsup;
+	      sfieldinterp = sfinf*polyrinf + sfmid*polyrmid + sfsup*polyrsup;
+	      
+	      //cout << "f0interp= " << f0interp << endl;
+	    }else{
+	      
+	      /*cout << "Not interpolating" << endl;
+	      cout << "Carlos point= " << xc << endl;
+	      cout << "f0= " << f0file[ir] << endl;*/
+	      // No interpolation at grid ends
+	      f0interp = f0file[ir] ;
+	      f1interp = f1file[ir] ;
+	      f2interp = f2file[ir] ;
+	      winterp = wwfile[ir] ;
+	      sfieldinterp = sfieldfile[ir] ;
+	    }
+	    //cout << "theta stuff= " << thc << " should be equal to " << th0 << endl;
+	    //cout << "X stuff= " << Xfile[ir-1] << " " << xx0 << " " << xc << " " << Xfile[ir+1] << endl;
+
+	    ff0.set_grid_point(l,k,j,i) = f0interp ;
+	    ff1.set_grid_point(l,k,j,i) = f1interp ;
+	    ff2.set_grid_point(l,k,j,i) = f2interp ;
+	    ww.set_grid_point(l,k,j,i) = winterp ;
+	    sfield.set_grid_point(l,k,j,i) = sfieldinterp ;
 	  }
 	} 
       }
     }
-   
-  //bbb.std_spectral_base() ;
 
-    // Deleting arrays
-    delete[] rfile;
+    // Deleting arrays useless now
+    delete[] Xfile;
     delete[] thetafile;
     delete[] f0file;
     delete[] f1file;
     delete[] f2file;
     delete[] wwfile;
     delete[] sfieldfile;
+
+    ff0.std_spectral_base() ;
+    ff1.std_spectral_base() ;
+    ff2.std_spectral_base() ;
+    ww.std_spectral_base() ;
+    sfield.std_spectral_base() ;
+
+    cout << "done." << endl;
+
+    // At this point the Scalar ff0, ff1, ff2, ww, sfield
+    // are initialized on the Lorene grid to proper interpolated values
+
+    // Next step: from the Lorene metric
    
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
