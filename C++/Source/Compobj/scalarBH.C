@@ -30,6 +30,9 @@ char scalarBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2015/11/05 17:30:46  f_vincent
+ * Updated class scalarBH.
+ *
  * Revision 1.2  2015/10/27 10:53:23  f_vincent
  * Updated class scalarBH
  *
@@ -63,7 +66,8 @@ namespace Lorene {
     ff1(mpi),
     ff2(mpi),
     ww(mpi),
-    sfield(mpi)
+    sfield(mpi),
+    rHor(0.)
   {
     
     ifstream file(file_name) ; 
@@ -73,7 +77,7 @@ namespace Lorene {
     }
   
     const Mg3d* mg = mp.get_mg() ; 
-    double rHor, rH2 ;
+    double rH2 ;
     int nrfile, nthetafile;
     file >> nrfile >> nthetafile ;
     file >> rHor ;
@@ -101,11 +105,11 @@ namespace Lorene {
       // there are empty lines in Carlos file, but it doesn't seem to be a pb
       file >> Xfile[ii] ; 
       file >> thetafile[ii] ;
-      file >> f0file[ii] ;
       file >> f1file[ii] ;
       file >> f2file[ii] ;
-      file >> wwfile[ii] ;
+      file >> f0file[ii] ;
       file >> sfieldfile[ii] ;
+      file >> wwfile[ii] ;
       //cout << ii << " " << Xfile[ii] << " " << thetafile[ii] << " " << f0file[ii] << " " << f1file[ii] << " " << f2file[ii] << " " << wwfile[ii] << " " << sfieldfile[ii] << endl;
     }  
     cout << "done" << endl;
@@ -272,14 +276,16 @@ namespace Lorene {
     ff1.std_spectral_base() ;
     ff2.std_spectral_base() ;
     ww.std_spectral_base() ;
-    sfield.std_spectral_base() ;
+    sfield.std_spectral_base() ; // to be modified: parity of |Phi|
+
 
     cout << "done." << endl;
 
     // At this point the Scalar ff0, ff1, ff2, ww, sfield
     // are initialized on the Lorene grid to proper interpolated values
 
-    // Next step: from the Lorene metric
+    update_metric();
+
    
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -293,7 +299,8 @@ namespace Lorene {
     ff1(other.ff0),
     ff2(other.ff0),
     ww(other.ff0),
-    sfield(other.ff0)
+    sfield(other.ff0),
+    rHor(other.rHor)
   {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -308,7 +315,8 @@ namespace Lorene {
     ff1(mpi),
     ff2(mpi),
     ww(mpi),
-    sfield(mpi)
+    sfield(mpi),
+    rHor(0.)
   {
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -432,4 +440,53 @@ namespace Lorene {
     // del_deriv() ; 
 
   //}
+
+
+void ScalarBH::update_metric() {
+  Mtbl rr(mp.r); 
+  Scalar NN(mp);
+  NN = 1 - rHor/rr;
+  if (rHor>0.){
+    NN.annule(0,0);
+  }
+
+  //nn = exp(2*ff0)*NN;
+  nn = exp(ff0)*sqrt(NN);
+  nn.std_spectral_base() ;
+
+  Sym_tensor gam(mp, COV, mp.get_bvect_spher()) ; 
+  // Component in an orthonormal basis, thus, no r^2, r^2sin2theta terms
+  gam.set(1,1) = exp(2*ff1)/NN ; 
+  gam.set(1,1).std_spectral_base() ;
+  gam.set(1,2) = 0 ; 
+  gam.set(1,3) = 0 ; 
+  gam.set(2,2) = gam(1,1) ; 
+  gam.set(2,3) = 0 ; 
+  gam.set(3,3) = exp(2*ff2) ;
+  gam.set(3,3).std_spectral_base() ;
+  
+  gamma = gam ;
+
+  assert(*(beta.get_triad()) == mp.get_bvect_spher()) ; 
+  
+  beta.set(1) = 0 ;
+  beta.set(2) = 0 ;
+  Scalar nphi_ortho(ww) ; 
+  nphi_ortho.mult_rsint() ;
+  beta.set(3) = - nphi_ortho ; 
+	
+  // Tensor B^{-2} K_{ij} and Scalar A^2 K_{ij} K^{ij}
+  // -------------------------------------------------
+  
+  extrinsic_curvature() ; 
+  
+  
+  // The derived quantities are no longer up to date : 
+  // -----------------------------------------------
+  
+  del_deriv() ;  
+	
 }
+
+
+} // End nammespace Lorene

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2015/11/05 17:31:21  f_vincent
+ * Updated class scalarBH.
+ *
  * Revision 1.19  2015/10/22 09:18:35  f_vincent
  * New class ScalarBH
  *
@@ -1022,11 +1025,12 @@ namespace Lorene {
 
     //char description1[256] ;  ///< String describing the model
     // char description2[256] ;  ///< String describing the model    
-    Scalar ff0 ;
-    Scalar ff1 ; 
-    Scalar ff2 ;
-    Scalar ww ;
-    Scalar sfield ;
+    Scalar ff0 ; ///< Metric field F_0 of Herdeiro \& Radu (2015)
+    Scalar ff1 ; ///< Metric field F_1 of Herdeiro \& Radu (2015)
+    Scalar ff2 ; ///< Metric field F_2 of Herdeiro \& Radu (2015)
+    Scalar ww ; ///< Metric field W of Herdeiro \& Radu (2015)
+    Scalar sfield ; ///< Scalar field (modulus of Phi) 
+    double rHor ; ///< Event horizon coordinate radius
 
     // Constructors - Destructor
     // -------------------------
@@ -1066,6 +1070,17 @@ namespace Lorene {
   public:
     /// Assignment to another \c ScalarBH 
     void operator=(const ScalarBH& ) ;   
+
+    // Accessors
+    // ---------
+  public:
+    /// Returns f0
+    const Scalar& get_ff0() const {return ff0; } ; 
+    const Scalar& get_ff1() const {return ff1; } ; 
+    const Scalar& get_ff2() const {return ff2; } ; 
+    const Scalar& get_ww() const {return ww; } ; 
+    const Scalar& get_sfield() const {return sfield; } ; 
+    const double get_rHor() const {return rHor; } ; 
     
     // Outputs
     // -------
@@ -1084,7 +1099,7 @@ namespace Lorene {
     // Computational routines
     // ----------------------
   public: 
-    
+    virtual void update_metric();
   };
 
 
