@@ -29,6 +29,9 @@ char scalarbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/11/05 17:32:11  f_vincent
+ * Updated code for class scalarBH.
+ *
  * Revision 1.1  2015/10/22 09:20:02  f_vincent
  * New code scalarbh
  *
@@ -121,38 +124,44 @@ int main() {
   // Construction of the ScalarBH object:
   // ----------------------------------
 
-  ScalarBH bh(map, file_name) ; 
+  ScalarBH object(map, file_name) ; 
 
-  //bh.update_metric() ; // TO BE ADDED WHEN WRITTEN
+  //object.update_metric() ; // TO BE ADDED WHEN WRITTEN
 
   cout.precision(15) ; 
-  cout << endl << "******* bh ******** " << endl ;  
-  cout << bh << endl ; 
+  cout << endl << "******* object ******** " << endl ;  
+  cout << object << endl ; 
+
+  /*cout << "Lapse= " << endl;
+  cout << object.get_nn() << endl;
+
+  cout << "F0= " << endl;
+  cout << object.get_ff0() << endl;*/
     
   // Drawings    
   if (graphic_out == 1) 
     {
-      double r_max = 1.5*map.val_r(nzm1,-1.,0.,0.) ; 
-      des_meridian(bh.get_nn(), 0, r_max, "N", 1) ; 
-      //des_meridian(diffn , 0, r_max, "N - N(2)", 2) ; 
-      //des_meridian(diffddn , 0, r_max, "diff d2N", 3) ; 
+      double r_max = 4;//1.5*map.val_r(nzm1,-1.,0.,0.) ; 
+      //des_meridian(object.get_sfield(), 0, r_max, "Phi", 1) ; 
+
+      //des_meridian(object.get_nn(), 0, r_max, "N", 1) ; 
 	
-      //des_meridian(bh.get_nphi(), 0, r_max, "Nphi", 4) ; 
-      //des_meridian(bh.get_nphi().dsdr(), 0, r_max, "dNphi/dr", 5) ; 
+      //des_meridian(object.get_gamma().cov()(1,1), 0.58, 0.64, "gamma_11", 2) ; 
+      //des_meridian(object.get_gamma().cov()(2,2), 0.58, 0.64, "gamma_22", 3) ; 
+      //des_meridian(object.get_gamma().cov()(3,3), 0., r_max, "gamma_33", 4) ; 
+
+      des_meridian(object.get_beta()(3), 0., r_max, "Nphi", 5) ; 
+      //des_meridian(object.get_beta()(3), 1.62, 1.63, "Nphi", 6) ; 
 	
-      des_meridian(bh.get_gamma().cov()(1,1), 0, r_max, "gamma_11", 6) ; 
-      des_meridian(bh.get_gamma().cov()(3,3), 0, r_max, "gamma_33", 7) ; 
-	
-      des_meridian(bh.get_kk()(1,3), 0.4, 0.6, "K_(r)(ph)", 8) ; 
-      //des_meridian(bh.get_krphi(), 0.4, 0.6, "K_(r)(ph)/sin(theta) from file", 9) ; 
-      des_meridian(bh.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 10) ; 
-      //arrete() ; 
+      //des_meridian(object.get_kk()(1,3), 0, r_max, "K_(r)(ph)", 7) ; 
+      //des_meridian(object.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 8) ; 
+      arrete() ; 
     }
     
   //----------------------
   // Output file for GYOTO
   //----------------------
-  bh.gyoto_data("gyoto_scalarBH.d") ;    
+  object.gyoto_data("gyoto_scalarBH.d") ;    
     
   return EXIT_SUCCESS ; 
 }
