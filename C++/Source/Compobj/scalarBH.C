@@ -30,6 +30,9 @@ char scalarBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2015/11/09 16:00:57  f_vincent
+ * Updated ScalarBH class
+ *
  * Revision 1.3  2015/11/05 17:30:46  f_vincent
  * Updated class scalarBH.
  *
@@ -195,6 +198,18 @@ namespace Lorene {
 	    double f0interp, f1interp, f2interp, winterp, sfieldinterp;
 	    if (doradinterp){
 	      double xcinf = Xfile[ir-1], xcsup = Xfile[ir+1];
+	      int irext1, irext2;
+	      if (ir-3>0) {irext1=ir-2; irext2=ir-3;}
+	      else if (ir+3<nrfile) {irext1=ir+2; irext2=ir+3;}
+	      else{
+		cerr << "scalarBH::scalarBH(): bad radial indice" << endl;
+		abort();
+	      }
+	      double xcext1 = Xfile[irext1], xcext2 = Xfile[irext2];
+	      
+	      // At this stage we have either xcext2<xcext1<xcinf<xx0<xc<xcsup
+	      // or xcinf<xx0<xc<xcsup<xcext1<xcext2
+
 	      if (fabs(thc-th0)>delta_theta){
 		cerr << "scalarBH::ScalarBH(): theta problem in grid" << endl;
 		cerr << "Theta info: " << thc << " " << th0 << endl;
@@ -214,35 +229,52 @@ namespace Lorene {
 		     << xc << " " << xcsup << endl;
 		abort();
 	      }
-	      // Radial polynomials
-	      double polyrinf = (xx0-xc)*(xx0-xcsup)/((xcinf-xc)*(xcinf-xcsup)),
-		polyrmid = (xx0-xcinf)*(xx0-xcsup)/((xc-xcinf)*(xc-xcsup)),
-		polyrsup = (xx0-xcinf)*(xx0-xc)/((xcsup-xcinf)*(xcsup-xc));
+	      //Radial polynomials
+	      double polyrinf = (xx0-xc)*(xx0-xcsup)*(xx0-xcext1)*(xx0-xcext2)/((xcinf-xc)*(xcinf-xcsup)*(xcinf-xcext1)*(xcinf-xcext2));
+	      double polyrmid = (xx0-xcinf)*(xx0-xcsup)*(xx0-xcext1)*(xx0-xcext2)/((xc-xcinf)*(xc-xcsup)*(xc-xcext1)*(xc-xcext2));
+	      double polyrsup = (xx0-xcinf)*(xx0-xc)*(xx0-xcext1)*(xx0-xcext2)/((xcsup-xcinf)*(xcsup-xc)*(xcsup-xcext1)*(xcsup-xcext2));
+	      double polyrext1 = (xx0-xcinf)*(xx0-xc)*(xx0-xcsup)*(xx0-xcext2)/((xcext1-xcinf)*(xcext1-xc)*(xcext1-xcsup)*(xcext1-xcext2));
+	      double polyrext2 = (xx0-xcinf)*(xx0-xc)*(xx0-xcsup)*(xx0-xcext1)/((xcext2-xcinf)*(xcext2-xc)*(xcext2-xcsup)*(xcext2-xcext1));
+
 	      // Grid values of all Scalars
-	      double f0inf = f0file[ir-1], f0mid = f0file[ir], 
-		f0sup = f0file[ir+1], f1inf = f1file[ir-1], f1mid = f1file[ir], 
-		f1sup = f1file[ir+1], f2inf = f2file[ir-1], f2mid = f2file[ir], 
-		f2sup = f2file[ir+1], winf = wwfile[ir-1], wmid = wwfile[ir], 
-		wsup = wwfile[ir+1], sfinf = sfieldfile[ir-1], 
+	      double f0ext1 = f0file[irext1], f0ext2 = f0file[irext2], 
+		f0inf = f0file[ir-1], 
+		f0mid = f0file[ir], 
+		f0sup = f0file[ir+1], f1ext1=f1file[irext1],
+		f1ext2=f1file[irext2],
+		f1inf = f1file[ir-1], f1mid = f1file[ir], 
+		f1sup = f1file[ir+1], f2ext1=f2file[irext1],
+		f2ext2=f2file[irext2],
+		f2inf = f2file[ir-1], f2mid = f2file[ir], 
+		f2sup = f2file[ir+1], wext1=wwfile[irext1],
+		wext2=wwfile[irext2],
+		winf = wwfile[ir-1], wmid = wwfile[ir], 
+		wsup = wwfile[ir+1], sfext1=sfieldfile[irext1],
+		sfext2=sfieldfile[irext2],
+		sfinf = sfieldfile[ir-1], 
 		sfmid = sfieldfile[ir], sfsup = sfieldfile[ir+1];
-	      
+
 	      /*cout << "Interpolating" << endl;
-	      cout << "Carlos points= " << xcinf << " " << xc << " " << xcsup << endl;
+	      cout << "Carlos points= " << xcinf << " " << xx0 << " " <<  xc << " " << xcsup << endl;
 	      cout << "f0= " << f0inf << " " << f0mid << " " << f0sup << endl;*/
 	      
 	      // Interpolate Scalars
-	      f0interp = f0inf*polyrinf + f0mid*polyrmid + f0sup*polyrsup;
-	      f1interp = f1inf*polyrinf + f1mid*polyrmid + f1sup*polyrsup;
-	      f2interp = f2inf*polyrinf + f2mid*polyrmid + f2sup*polyrsup;
-	      winterp = winf*polyrinf + wmid*polyrmid + wsup*polyrsup;
-	      sfieldinterp = sfinf*polyrinf + sfmid*polyrmid + sfsup*polyrsup;
-	      
-	      //cout << "f0interp= " << f0interp << endl;
+	      f0interp = f0ext1*polyrext1 + f0ext2*polyrext2 + f0inf*polyrinf 
+		+ f0mid*polyrmid + f0sup*polyrsup;
+	      f1interp = f1ext1*polyrext1 + f1ext2*polyrext2 + f1inf*polyrinf 
+		+ f1mid*polyrmid + f1sup*polyrsup;
+	      f2interp = f2ext1*polyrext1 + f2ext2*polyrext2 + f2inf*polyrinf 
+		+ f2mid*polyrmid + f2sup*polyrsup;
+	      winterp = wext1*polyrext1 +  wext2*polyrext2 + winf*polyrinf 
+		+ wmid*polyrmid + wsup*polyrsup;
+	      sfieldinterp = sfext1*polyrext1 + sfext2*polyrext2 
+		+ sfinf*polyrinf 
+		+ sfmid*polyrmid + sfsup*polyrsup;
 	    }else{
 	      
 	      /*cout << "Not interpolating" << endl;
 	      cout << "Carlos point= " << xc << endl;
-	      cout << "f0= " << f0file[ir] << endl;*/
+	      cout << "W= " << wwfile[ir] << endl;*/
 	      // No interpolation at grid ends
 	      f0interp = f0file[ir] ;
 	      f1interp = f1file[ir] ;
@@ -250,8 +282,6 @@ namespace Lorene {
 	      winterp = wwfile[ir] ;
 	      sfieldinterp = sfieldfile[ir] ;
 	    }
-	    //cout << "theta stuff= " << thc << " should be equal to " << th0 << endl;
-	    //cout << "X stuff= " << Xfile[ir-1] << " " << xx0 << " " << xc << " " << Xfile[ir+1] << endl;
 
 	    ff0.set_grid_point(l,k,j,i) = f0interp ;
 	    ff1.set_grid_point(l,k,j,i) = f1interp ;
