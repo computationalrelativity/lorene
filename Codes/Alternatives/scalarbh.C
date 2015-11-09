@@ -29,6 +29,9 @@ char scalarbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2015/11/09 16:01:42  f_vincent
+ * Updated scalarBH code
+ *
  * Revision 1.2  2015/11/05 17:32:11  f_vincent
  * Updated code for class scalarBH.
  *
@@ -129,14 +132,17 @@ int main() {
   //object.update_metric() ; // TO BE ADDED WHEN WRITTEN
 
   cout.precision(15) ; 
-  cout << endl << "******* object ******** " << endl ;  
-  cout << object << endl ; 
+  //cout << endl << "******* object ******** " << endl ;  
+  //cout << object << endl ; 
 
   /*cout << "Lapse= " << endl;
   cout << object.get_nn() << endl;
 
   cout << "F0= " << endl;
   cout << object.get_ff0() << endl;*/
+
+  cout << "betap far= " << object.get_beta()(3).val_point(1e5,M_PI/2.,0.) << endl;
+  //cout << "lapse far= " << object.get_nn().val_point(10000,0.157,0.) << endl;
     
   // Drawings    
   if (graphic_out == 1) 
@@ -151,6 +157,7 @@ int main() {
       //des_meridian(object.get_gamma().cov()(3,3), 0., r_max, "gamma_33", 4) ; 
 
       des_meridian(object.get_beta()(3), 0., r_max, "Nphi", 5) ; 
+      des_meridian(object.get_beta()(3), 1e10, 1e12, "Nphi", 6) ; 
       //des_meridian(object.get_beta()(3), 1.62, 1.63, "Nphi", 6) ; 
 	
       //des_meridian(object.get_kk()(1,3), 0, r_max, "K_(r)(ph)", 7) ; 
