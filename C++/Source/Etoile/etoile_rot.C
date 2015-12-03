@@ -31,6 +31,9 @@ char etoile_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2015/12/03 14:17:24  j_novak
+ * Check added for the computation of area (thanks S. Koeppel).
+ *
  * Revision 1.6  2015/06/10 14:37:44  a_sourie
  * Corrected the formula for the quadrupole.
  *
@@ -534,8 +537,15 @@ ostream& Etoile_rot::operator>>(ostream& ost) const {
     ost << "Ratio T/W :            " << tsw() << endl ; 
     ost << "Circumferential equatorial radius R_circ :     " 
 	<< r_circ()/km << " km" << endl ; 
-    ost << "Mean radius R_mean :    " 
-	<< mean_radius()/km << " km" << endl ;
+    if (mp.get_mg()->get_np(0) == 1) {
+      ost << "Surface area :   " << area()/(km*km) << " km^2" << endl ;
+      ost << "Mean radius R_mean :    " 
+	  << mean_radius()/km << " km" << endl ;
+    } else {
+      ost << 
+    "Skipping surface statements due to number of points in phi direction np == 1" 
+	  << endl;
+    }
     ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km" 
 	 << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 
