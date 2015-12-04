@@ -32,6 +32,9 @@ char eos_compose_C[] = "$Header$ " ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2015/12/04 16:27:05  j_novak
+ * Correction of constructor calling.
+ *
  * Revision 1.6  2015/08/04 14:41:29  j_novak
  * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
  *
@@ -75,7 +78,7 @@ char eos_compose_C[] = "$Header$ " ;
 // --------------------			
 namespace Lorene {
   Eos_CompOSE::Eos_CompOSE(const char* file_name)
-    : Eos_tabul("Tabulated EoS")
+    : Eos_tabul("Tabulated EoS", file_name)
 {}
 
 
