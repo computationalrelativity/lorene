@@ -32,6 +32,9 @@ char hoteos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/12/08 15:42:17  j_novak
+ * Low/zero entropy is set to the lowest value in the table in computational functions.
+ *
  * Revision 1.1  2015/12/08 10:52:18  j_novak
  * New class Hoteos_tabul for tabulated temperature-dependent EoSs.
  *
@@ -251,8 +254,6 @@ namespace Lorene {
     if (p_cold_eos == 0x0) {
       cerr << "Warning: Hoteos_tabul::new_cold_Eos " <<
 	"The corresponding cold EoS is likely not to function." << endl ;
-      cerr << "Type '1' to continue..." << endl ;
-      int in ; cin >> in ;
       p_cold_eos = new Eos_CompOSE(tablename.c_str()) ;
     }
     
@@ -295,13 +296,15 @@ double Hoteos_tabul::nbar_Hs_p(double ent, double sb) const {
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
 
+  if (sb < sbmin) sb = sbmin ;
+
   if ( ent >= hmin ) {
     if (ent > hmax) {
       cout << "Hoteos_tabul::nbar_Hs_p : ent > hmax !" << endl ;
       abort() ;
     }
 
-    if ( (sb > sbmax) || (sb < sbmin) ) {
+    if (sb > sbmax) {
       cerr << "Hoteos_tabul::nbar_Hs_p : s_B not in the tabulated interval !" 
 	   << endl ;
       cerr << "s_B = " << sb << ", sbmin = " << sbmin << ", sbmax = " << sbmax 
@@ -329,13 +332,15 @@ double Hoteos_tabul::ener_Hs_p(double ent, double sb) const {
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
 
+  if (sb < sbmin) sb = sbmin ;
+
   if ( ent >= hmin ) {
     if (ent > hmax) {
       cout << "Hoteos_tabul::ener_Hs_p : ent > hmax !" << endl ;
       abort() ;
     }
 
-    if ( (sb > sbmax) || (sb < sbmin) ) {
+    if (sb > sbmax) {
       cerr << "Hoteos_tabul::ener_Hs_p : s_B not in the tabulated interval !" 
 	   << endl ;
       cerr << "s_B = " << sb << ", sbmin = " << sbmin << ", sbmax = " << sbmax 
@@ -366,13 +371,15 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
 
+  if (sb < sbmin) sb = sbmin ;
+
   if ( ent >= hmin ) {
     if (ent > hmax) {
       cout << "Hoteos_tabul::press_Hs_p : ent > hmax !" << endl ;
       abort() ;
     }
 
-    if ( (sb > sbmax) || (sb < sbmin) ) {
+    if (sb > sbmax) {
       cerr << "Hoteos_tabul::press_Hs_p : s_B not in the tabulated interval !" 
 	   << endl ;
       cerr << "s_B = " << sb << ", sbmin = " << sbmin << ", sbmax = " << sbmax 
@@ -397,6 +404,8 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
     
     if ((ent > hmin - 1.e-12) && (ent < hmin))
       ent = hmin ;
+
+    if (sb < sbmin) sb = sbmin ;
     
     if ( ent >= hmin ) {
       if (ent > hmax) {
@@ -404,7 +413,7 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
 	abort() ;
       }
       
-      if ( (sb > sbmax) || (sb < sbmin) ) {
+      if (sb > sbmax) {
 	cerr << "Hoteos_tabul::temp_Hs_p : s_B not in the tabulated interval !" 
 	     << endl ;
 	cerr << "s_B = " << sb << ", sbmin = " << sbmin << ", sbmax = " << sbmax 
