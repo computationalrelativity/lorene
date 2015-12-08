@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2015/12/08 10:52:17  j_novak
+ * New class Hoteos_tabul for tabulated temperature-dependent EoSs.
+ *
  * Revision 1.2  2015/09/10 13:28:00  j_novak
  * New methods for the class Hot_Eos
  *
@@ -45,6 +48,7 @@
 
 //C headers
 #include<cstdio>
+#include "tbl.h"
 
 namespace Lorene{
 
@@ -112,7 +116,8 @@ class Eos ;
     // Name manipulation
     // -----------------
   public:
-    const string& get_name() const {return name; };	///< Returns the hot EOS name
+    /// Returns the hot EOS name
+    const string& get_name() const {return name; };
     
     /// Sets the hot EOS name
     void set_name(const char* ) ; 
@@ -457,6 +462,192 @@ class Eos ;
      *  \c gam1sgamkap  from the values of \c gam  and \c kap 
      */
     void set_auxiliary() ;
+
+    // Outputs
+    // -------
+
+  public:
+    virtual void sauve(FILE* ) const ;	///< Save in a file
+
+  protected:
+    virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+  public:
+    /** Computes the baryon density from the log-enthalpy and entropy per baryon
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} (to be modified) \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *
+     *  @return baryon density [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+     *
+     */
+    virtual double nbar_Hs_p(double ent, double sb) const ;
+
+    /** Computes the total energy density from the log-enthalpy and entropy per baryon
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *
+     *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     */
+    virtual double ener_Hs_p(double ent, double sb) const ;
+ 
+    /** Computes the pressure from the log-enthalpy and entropy per baryon
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *
+     *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
+     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     */
+    virtual double press_Hs_p(double ent, double sb) const ;
+
+    /** Computes the temperature from the log-enthalpy and entropy per baryon
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} (to be modified) \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *
+     *  @return temperature [unit: MeV]
+     *
+     */
+    virtual double temp_Hs_p(double ent, double sb) const ;
+
+};
+
+                    //------------------------------------//
+		    //	      class Hoteos_tabul	  //
+		    //------------------------------------//
+
+  /**
+   * Hot (temperature-dependent) tabulated equation of state, read from a file. 
+   * 
+   *
+   *\ingroup (eos) 
+   *
+   */
+  class Hoteos_tabul : public Hot_eos {
+    
+    // Data :
+    //-------
+    
+  protected:
+    /// Name of the file containing the tabulated data
+    string tablename ;
+    
+    string authors ; ///<Authors - reference for the table
+
+    /// Lower boundary of the enthalpy interval
+    double hmin ;
+    	
+    /// Upper boundary of the enthalpy interval
+    double hmax ;
+    
+    /// Lower boundary of the entropy interval
+    double sbmin ;
+    	
+    /// Upper boundary of the entropy interval
+    double sbmax ;
+    
+    /// Table of \f$H = \log ( e + P ) / n_B\f$
+    Tbl* hhh ;
+    
+    /// Table of \f$s_B\f$, entropy per baryon (in units of Boltzmann constant).
+    Tbl* s_B ;
+    
+    /// Table of pressure $P$
+    Tbl* ppp ;
+    
+    /// Table of \f$\partial P/\partial H\f$
+    Tbl* dpdh ;
+    
+    /// Table of \f$\partial P/\partial s_B\f$
+    Tbl* dpds ;
+    
+    /// Table of \f$\partial^2 P/\partial s_B \partial H\f$
+    Tbl* d2p ;
+    
+    // Constructors - Destructor
+    // -------------------------
+  public:
+    
+    /** Standard constructor from a filename.
+     */
+    Hoteos_tabul(const string& filename) ;
+
+    Hoteos_tabul(const Hoteos_tabul& ) ;	///< Copy constructor
+	
+    protected:
+    /** Constructor from a binary file (created by the function
+     *  \c sauve(FILE*) ).
+     *  This constructor is protected because any hot EOS construction
+     *  from a binary file must be done via the function 
+     *  \c Hot_eos::eos_from_file(FILE*) .
+     */
+    Hoteos_tabul(FILE* ) ;
+
+    /** Constructor from a formatted file.
+     *  This constructor is protected because any EOS construction
+     *  from a formatted file must be done via the function
+     *  \c Hot_eos::hoteos_from_file(ifstream&) . 
+     */
+    Hoteos_tabul(ifstream& ) ;
+
+    /// The construction functions from a file
+    friend Hot_eos* Hot_eos::hoteos_from_file(FILE* ) ;
+    friend Hot_eos* Hot_eos::hoteos_from_file(ifstream& ) ; 
+
+  public:
+    virtual ~Hoteos_tabul() ;			///< Destructor
+
+    /// Assignment to another \c Hoteos_tabul 
+    void operator=(const Hoteos_tabul& ) ;
+
+    // Miscellaneous
+    // -------------
+
+  protected: 	
+    /** Reads the file containing the table and initializes
+     *  in the arrays \c hhh , \c s_B, \c ppp, ...
+     */
+    void read_table() ;
+
+    /// Sets all the arrays to the null pointer.
+    void set_arrays_0x0() ;
+    
+  public :
+    /// Comparison operator (egality)
+    virtual bool operator==(const Hot_eos& ) const ;
+    
+    /// Comparison operator (difference)
+    virtual bool operator!=(const Hot_eos& ) const ;
+    
+    /** Returns a number to identify the sub-classe of \c Hot_eos the
+     *  object belongs to.
+     */
+    virtual int identify() const ; 
+    
+    virtual const Eos& new_cold_Eos() const ;
 
     // Outputs
     // -------

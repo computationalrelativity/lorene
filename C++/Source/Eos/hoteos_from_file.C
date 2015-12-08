@@ -31,6 +31,9 @@ char hoteos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2015/12/08 10:52:18  j_novak
+ * New class Hoteos_tabul for tabulated temperature-dependent EoSs.
+ *
  * Revision 1.1  2015/03/17 14:20:00  j_novak
  * New class Hot_eos to deal with temperature-dependent EOSs.
  *
@@ -46,85 +49,95 @@ char hoteos_from_file_C[] = "$Header$" ;
 #include "hoteos.h"
 #include "utilitaires.h"
 
+namespace Lorene {
+
 		//--------------------------------------//
 		//  Identification virtual functions	//
 		//--------------------------------------//
 
-
-namespace Lorene {
-int Ideal_gas::identify() const		{ return 1; }
+  int Ideal_gas::identify() const		{ return 1; }
+  
+  int Hoteos_tabul::identify() const	        { return 2; }
 
 
 		//-------------------------------------------------//
 		//    Hot EOS construction from a binary file      //
 		//-------------------------------------------------//
 
-Hot_eos* Hot_eos::hoteos_from_file(FILE* fich) {
+  Hot_eos* Hot_eos::hoteos_from_file(FILE* fich) {
     
     Hot_eos* p_eos ; 
     
     // Type (class) of EOS :
     int identificator ;     
     fread_be(&identificator, sizeof(int), 1, fich) ;		
-
+    
     switch(identificator) {
-	
-	case 1 : {
-	    p_eos = new Ideal_gas(fich) ; 
-	    break ; 
-	}
-	
 
-	default : {
-	    cout << "Hot_eos::hoteos_from_file : unknown type of EOS !" << endl ; 
-	    cout << " identificator = " << identificator << endl ; 
-	    abort() ; 
-	    break ; 
-	}
+    case 1 : {
+      p_eos = new Ideal_gas(fich) ; 
+      break ; 
+    }
 	
+    case 2 : {
+      p_eos = new Hoteos_tabul(fich) ; 
+      break ; 
+    }
+	
+    default : {
+      cout << "Hot_eos::hoteos_from_file : unknown type of EOS !" << endl ; 
+      cout << " identificator = " << identificator << endl ; 
+      abort() ; 
+      break ; 
+    }
+      
     }
     
     return p_eos ; 
     
-}
+  }
 
 		//--------------------------------------------------//
 		//    Hot EOS construction from a formatted file    //
 		//--------------------------------------------------//
 
-Hot_eos* Hot_eos::hoteos_from_file(ifstream& fich) {
+  Hot_eos* Hot_eos::hoteos_from_file(ifstream& fich) {
     
     int identificator ; 
-
+    if (!fich) {
+      cerr << "Hot_eos::hoteos_from_file: file cannot be opened!" << endl ;
+      abort() ;
+    }
+    
     // EOS identificator : 
     fich >> identificator ; fich.ignore(1000, '\n') ;
-
+    
     Hot_eos* p_eos ; 
     
     switch(identificator) {
-	
-	case 1 : {
-	    p_eos = new Ideal_gas(fich) ; 
-	    break ; 
-	}
-	
 
-	default : {
-	    cout << "Hot_eos::hoteos_from_file : unknown type of EOS !" << endl ; 
-	    cout << " identificator = " << identificator << endl ; 
-	    abort() ; 
-	    break ; 
-	}
+    case 1 : {
+      p_eos = new Ideal_gas(fich) ; 
+      break ; 
+    }
 	
+    case 2 : {
+      p_eos = new Hoteos_tabul(fich) ; 
+      break ; 
+    }
+	
+    default : {
+      cout << "Hot_eos::hoteos_from_file : unknown type of EOS !" << endl ; 
+      cout << " identificator = " << identificator << endl ; 
+      abort() ; 
+      break ; 
+    }
+      
     }
     
     return p_eos ; 
     
-}
-
-
-
-
+  }
 
 
 }
