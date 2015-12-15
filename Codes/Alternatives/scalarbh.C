@@ -29,6 +29,9 @@ char scalarbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2015/12/15 06:47:11  f_vincent
+ * Code cleaning in scalarBH
+ *
  * Revision 1.3  2015/11/09 16:01:42  f_vincent
  * Updated scalarBH code
  *
@@ -142,22 +145,23 @@ int main() {
   cout << object.get_ff0() << endl;*/
 
   cout << "betap far= " << object.get_beta()(3).val_point(1e5,M_PI/2.,0.) << endl;
+  cout << "At r=10, grr= " << object.get_gamma().cov()(1,1).val_point(10.,M_PI/2.,0.) << endl;
   //cout << "lapse far= " << object.get_nn().val_point(10000,0.157,0.) << endl;
     
   // Drawings    
   if (graphic_out == 1) 
     {
-      double r_max = 4;//1.5*map.val_r(nzm1,-1.,0.,0.) ; 
+      double r_max = 1;//1.5*map.val_r(nzm1,-1.,0.,0.) ; 
       //des_meridian(object.get_sfield(), 0, r_max, "Phi", 1) ; 
 
-      //des_meridian(object.get_nn(), 0, r_max, "N", 1) ; 
+      des_meridian(object.get_nn(), 0, r_max, "N", 1) ; 
 	
-      //des_meridian(object.get_gamma().cov()(1,1), 0.58, 0.64, "gamma_11", 2) ; 
-      //des_meridian(object.get_gamma().cov()(2,2), 0.58, 0.64, "gamma_22", 3) ; 
-      //des_meridian(object.get_gamma().cov()(3,3), 0., r_max, "gamma_33", 4) ; 
+      des_meridian(object.get_gamma().cov()(1,1), 0., r_max, "gamma_11", 2) ; 
+      des_meridian(object.get_gamma().cov()(2,2), 0., r_max, "gamma_22", 3) ; 
+      des_meridian(object.get_gamma().cov()(3,3), 0., r_max, "gamma_33", 4) ; 
 
       des_meridian(object.get_beta()(3), 0., r_max, "Nphi", 5) ; 
-      des_meridian(object.get_beta()(3), 1e10, 1e12, "Nphi", 6) ; 
+      //des_meridian(object.get_beta()(3), 1e10, 1e12, "Nphi", 6) ; 
       //des_meridian(object.get_beta()(3), 1.62, 1.63, "Nphi", 6) ; 
 	
       //des_meridian(object.get_kk()(1,3), 0, r_max, "K_(r)(ph)", 7) ; 
