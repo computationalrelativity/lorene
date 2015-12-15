@@ -30,6 +30,9 @@ char scalarBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2015/12/15 06:45:47  f_vincent
+ * Few modifs to scalarBH.C to handle spacetime with horizon
+ *
  * Revision 1.4  2015/11/09 16:00:57  f_vincent
  * Updated ScalarBH class
  *
@@ -111,7 +114,11 @@ namespace Lorene {
       file >> f1file[ii] ;
       file >> f2file[ii] ;
       file >> f0file[ii] ;
-      file >> sfieldfile[ii] ;
+      if (rHor==0.) {
+	file >> sfieldfile[ii] ;
+      }else{
+	sfieldfile[ii] = 0.;
+      }
       file >> wwfile[ii] ;
       //cout << ii << " " << Xfile[ii] << " " << thetafile[ii] << " " << f0file[ii] << " " << f1file[ii] << " " << f2file[ii] << " " << wwfile[ii] << " " << sfieldfile[ii] << endl;
     }  
@@ -209,6 +216,9 @@ namespace Lorene {
 	      
 	      // At this stage we have either xcext2<xcext1<xcinf<xx0<xc<xcsup
 	      // or xcinf<xx0<xc<xcsup<xcext1<xcext2
+
+	      //cout << "index, X= " << irext1 << " " << xcext1 <<" " << irext2 << " " << xcext2 << endl;
+	      //cout << "X stuff= " << xcext2 << " " << xcext1 << " " << xcinf << " " << xx0 << " " << xc << " " << xcsup << endl;
 
 	      if (fabs(thc-th0)>delta_theta){
 		cerr << "scalarBH::ScalarBH(): theta problem in grid" << endl;
@@ -314,8 +324,9 @@ namespace Lorene {
     // At this point the Scalar ff0, ff1, ff2, ww, sfield
     // are initialized on the Lorene grid to proper interpolated values
 
+    cout << "Starting updating metric... " ;
     update_metric();
-
+    cout << "done." << endl;
    
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
@@ -477,16 +488,15 @@ void ScalarBH::update_metric() {
   Scalar NN(mp);
   NN = 1 - rHor/rr;
   if (rHor>0.){
-    NN.annule(0,0);
+    NN.set_domain(0) = 1;
   }
 
-  //nn = exp(2*ff0)*NN;
   nn = exp(ff0)*sqrt(NN);
   nn.std_spectral_base() ;
 
   Sym_tensor gam(mp, COV, mp.get_bvect_spher()) ; 
   // Component in an orthonormal basis, thus, no r^2, r^2sin2theta terms
-  gam.set(1,1) = exp(2*ff1)/NN ; 
+  gam.set(1,1) = exp(2*ff1)/NN ;
   gam.set(1,1).std_spectral_base() ;
   gam.set(1,2) = 0 ; 
   gam.set(1,3) = 0 ; 
