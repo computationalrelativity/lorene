@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.94  2015/12/18 15:52:51  j_novak
+ * New method is_nan() for class Scalar.
+ *
  * Revision 1.93  2015/09/10 13:28:05  j_novak
  * New methods for the class Hot_Eos
  *
@@ -495,7 +498,8 @@ class Scalar : public Tensor {
   
   /**
    * Sets the logical state to \c ETATNONDEF  (undefined). 
-   * Calls the logical destructor of the \c Valeur \c va   * deallocates the memory occupied by all the derivatives. 
+   * Calls the logical destructor of the \c Valeur \c va   
+   * deallocates the memory occupied by all the derivatives. 
    */
   virtual void set_etat_nondef() ;   
   
@@ -562,7 +566,14 @@ class Scalar : public Tensor {
    *  is not equal to \c dzi , otherwise return true. 
    */
   bool check_dzpuis(int dzi) const ; 
-  
+
+  /** Looks for NaNs (not a number) in the scalar field.
+   *  If at least one NaN is found, it returns \c true. If the flag \c verbose
+   * is set to \c true, it outputs to the standard output the indices where NaNs
+   * have been found.
+   */
+  bool is_nan(bool verbose=false) const ;
+
   // Assignment
   // -----------
  public: 

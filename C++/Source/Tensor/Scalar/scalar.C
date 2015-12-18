@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2015/12/18 15:52:52  j_novak
+ * New method is_nan() for class Scalar.
+ *
  * Revision 1.39  2014/10/13 08:53:45  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -997,4 +1000,69 @@ void Scalar::change_triad(const Base_vect& ) {
   cout << "This method does nothing ... " << endl ;
 
 }
+
+		//---------------------------------//
+                //         Check for NaNs          //
+		//---------------------------------//
+
+  bool Scalar::is_nan(bool verb) const {
+
+    bool resu = false ;
+    if (etat == ETATQCQ) {
+      bool phys = false ;
+      bool coef = false ;
+      if (va.c != 0x0)
+	phys = true ;
+      if (va.c_cf != 0x0)
+	coef = true ;
+      int nz = mp->get_mg()->get_nzone() ;
+      for (int lz=0; lz<nz; lz++) {
+	bool domain_p = false ;
+	bool domain_c = false ;
+	if (phys) domain_p = (va.c->get_etat() == ETATQCQ) ;
+	if (coef) domain_c = (va.c_cf->get_etat() == ETATQCQ) ;
+	if (domain_p) {
+	  int np = mp->get_mg()->get_np(lz) ;
+	  int nt = mp->get_mg()->get_nt(lz) ;
+	  int nr = mp->get_mg()->get_nr(lz) ;
+	  for (int k=0; k<np; k++) {
+	    for (int j=0; j<nt; j++) {
+	      for (int i=0; i<nr; i++) {
+		if (isnan( (*va.c)(lz, k, j, i) ) ) {
+		  resu = true ;
+		  if (verb) {
+		    cout << "NaN found at physical grid point domain = " << lz
+			 << ", i= " << i << ", j= " << j << ", k= " << k << endl ;
+		  }
+		} 
+	      } // i loop 
+	    } // j loop
+	  } // k loop
+	}
+	if (domain_c) {
+	  int np = mp->get_mg()->get_np(lz) + 2 ;
+	  int nt = mp->get_mg()->get_nt(lz) ;
+	  int nr = mp->get_mg()->get_nr(lz) ;
+	  for (int k=0; k<np; k++) {
+	    for (int j=0; j<nt; j++) {
+	      for (int i=0; i<nr; i++) {
+		if (isnan( (*va.c_cf)(lz, k, j, i) ) ) {
+		  resu = true ;
+		  if (verb) {
+		    cout << "NaN found at coefficient, domain = " << lz
+			 << ", i= " << i << ", j= " << j << ", k= " << k << endl ;
+		  }
+		} 
+	      } // i loop 
+	    } // j loop
+	  } // k loop
+	}
+      } // lz loop
+    } // etat condition
+
+    return resu ;
+
+  }
+
+  
 }
