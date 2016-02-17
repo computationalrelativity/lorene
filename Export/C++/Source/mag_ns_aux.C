@@ -31,6 +31,9 @@ char mag_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/02/17 09:46:35  j_novak
+ * u_euler output in units of c.
+ *
  * Revision 1.3  2014/10/13 08:54:06  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -220,9 +223,9 @@ Mag_NS::Mag_NS(int nbpoints, const double* xi, const double* yi,
 	}
     
     Vector sp_u_euler(mapping, CON, mapping.get_bvect_cart()) ;
-    sp_u_euler.set(1) = star.get_u_euler()(0) * v_unit ;
-    sp_u_euler.set(2) = star.get_u_euler()(1) * v_unit ;
-    sp_u_euler.set(3) = star.get_u_euler()(2) * v_unit ;
+    sp_u_euler.set(1) = star.get_u_euler()(0) ;
+    sp_u_euler.set(2) = star.get_u_euler()(1) ;
+    sp_u_euler.set(3) = star.get_u_euler()(2) ;
 
     Vector sp_current(mp, CON, mapping.get_bvect_spher()) ;
     sp_current.set(1) = 0 ;
