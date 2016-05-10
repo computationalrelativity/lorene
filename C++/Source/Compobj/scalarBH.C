@@ -30,6 +30,9 @@ char scalarBH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2016/05/10 12:52:32  f_vincent
+ * scalarBH: adding a flag to treat both boson stars and scalar BH
+ *
  * Revision 1.5  2015/12/15 06:45:47  f_vincent
  * Few modifs to scalarBH.C to handle spacetime with horizon
  *
@@ -95,8 +98,20 @@ namespace Lorene {
       abort();
     }
 
+    int isphi;
+    file >> isphi ;
+
     cout << "nr, ntheta from file = " << nrfile << " " << nthetafile << endl;
     cout << "rHor from file = " << rHor << endl;
+    if (isphi==1) {
+      cout << "Scalar field values provided" << endl;
+    }else if (isphi==0){
+      cout << "Scalar field values not provided, put to zero" << endl;
+    }else{
+      cerr << "In scalarBH::scalarBH(Map,char*): "
+	   << "Bad parameter isphi" << endl;
+      abort();
+    }
 
     double* Xfile = new double[nrfile * nthetafile] ;
     double* thetafile = new double[nrfile * nthetafile] ;
@@ -114,7 +129,7 @@ namespace Lorene {
       file >> f1file[ii] ;
       file >> f2file[ii] ;
       file >> f0file[ii] ;
-      if (rHor==0.) {
+      if (isphi==1) {
 	file >> sfieldfile[ii] ;
       }else{
 	sfieldfile[ii] = 0.;
@@ -500,7 +515,8 @@ void ScalarBH::update_metric() {
   gam.set(1,1).std_spectral_base() ;
   gam.set(1,2) = 0 ; 
   gam.set(1,3) = 0 ; 
-  gam.set(2,2) = gam(1,1) ; 
+  gam.set(2,2) = exp(2*ff1); //gam(1,1) ; 
+  gam.set(2,2).std_spectral_base() ;
   gam.set(2,3) = 0 ; 
   gam.set(3,3) = exp(2*ff2) ;
   gam.set(3,3).std_spectral_base() ;
