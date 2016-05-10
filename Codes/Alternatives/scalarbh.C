@@ -29,6 +29,9 @@ char scalarbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/05/10 12:57:18  f_vincent
+ * scalarBH: added the computation of quantities needed to define an accretion torus in any BS or scalar BH spacetime
+ *
  * Revision 1.4  2015/12/15 06:47:11  f_vincent
  * Code cleaning in scalarBH
  *
@@ -78,13 +81,30 @@ int main() {
     
   char file_name[256] ; 
   fpar.getline(file_name, 256) ;
-  cout << "File to be read: " << file_name << endl ; 
+  cout << "File to be read: " << file_name << endl ;
 
-  double mass ; // M
+  ifstream file(file_name) ; 
+  if ( !file.good() ) {
+    cerr << "Problem in opening the file " << file_name << endl ;
+    abort() ;
+  }
+  double rHor ;
+  int nrfile, nthetafile;
+  file >> nrfile >> nthetafile ;
+  file >> rHor ; 
+  cout << "Event horizon is present at r= " << rHor << endl;
+
+  double mass ; // M_{object,ADM} in units of m_planck^2 / m_boson
   fpar >> mass ; fpar.ignore(1000,'\n') ;
     
   int graphic_out ; // flag for graphical outputs
   fpar >> graphic_out ; fpar.ignore(1000,'\n') ; 
+
+  int compute_qty ; // flag for computing useful doughnut quantities
+  fpar >> compute_qty ; fpar.ignore(1000,'\n') ; 
+
+  double ell ; // value of the constant angular momentum l = -u_phi/u_t
+  fpar >> ell ; fpar.ignore(1000,'\n') ; 
 
   int nr ; // Number of collocation points in r in each domain
   fpar >> nr; fpar.ignore(1000,'\n') ;
@@ -145,28 +165,112 @@ int main() {
   cout << object.get_ff0() << endl;*/
 
   cout << "betap far= " << object.get_beta()(3).val_point(1e5,M_PI/2.,0.) << endl;
-  cout << "At r=10, grr= " << object.get_gamma().cov()(1,1).val_point(10.,M_PI/2.,0.) << endl;
+  double rtest=10.;
+  cout << "grr, gthth, gpp in Gyoto basis= " << object.get_gamma().cov()(1,1).val_point(rtest,M_PI/2.,0.) << " " << rtest*rtest*object.get_gamma().cov()(2,2).val_point(rtest,M_PI/2.,0.) << " " << rtest*rtest*object.get_gamma().cov()(3,3).val_point(rtest,M_PI/2.,0.) << endl;
   //cout << "lapse far= " << object.get_nn().val_point(10000,0.157,0.) << endl;
     
   // Drawings    
   if (graphic_out == 1) 
     {
-      double r_max = 1;//1.5*map.val_r(nzm1,-1.,0.,0.) ; 
+      double r_min=0., r_max = 1.5;//1.5*map.val_r(nzm1,-1.,0.,0.) ; 
       //des_meridian(object.get_sfield(), 0, r_max, "Phi", 1) ; 
 
-      des_meridian(object.get_nn(), 0, r_max, "N", 1) ; 
-	
-      des_meridian(object.get_gamma().cov()(1,1), 0., r_max, "gamma_11", 2) ; 
-      des_meridian(object.get_gamma().cov()(2,2), 0., r_max, "gamma_22", 3) ; 
-      des_meridian(object.get_gamma().cov()(3,3), 0., r_max, "gamma_33", 4) ; 
+      
+      des_meridian(object.get_nn(), r_min, r_max, "N", 1) ; 
+      	
+      des_meridian(object.get_gamma().cov()(1,1), r_min, r_max, "gamma_11", 2); 
+      des_meridian(object.get_gamma().cov()(2,2), r_min, r_max, "gamma_22", 3) ; 
+      des_meridian(object.get_gamma().cov()(3,3), r_min, r_max, "gamma_33", 4) ; 
 
-      des_meridian(object.get_beta()(3), 0., r_max, "Nphi", 5) ; 
+      des_meridian(object.get_beta()(3), r_min, r_max, "Nphi", 5) ; 
       //des_meridian(object.get_beta()(3), 1e10, 1e12, "Nphi", 6) ; 
       //des_meridian(object.get_beta()(3), 1.62, 1.63, "Nphi", 6) ; 
 	
-      //des_meridian(object.get_kk()(1,3), 0, r_max, "K_(r)(ph)", 7) ; 
-      //des_meridian(object.get_kk()(2,3), 0, r_max, "K_(th)(ph)", 8) ; 
+      des_meridian(object.get_kk()(1,3), r_min, r_max, "K_(r)(ph)", 7) ; 
+      des_meridian(object.get_kk()(2,3), r_min, r_max, "K_(th)(ph)", 8) ; 
+      
       arrete() ; 
+    }
+
+  // Computing useful doughnut quantities
+  /*
+    This if loop computes quite a few relevant quantities that are necessary
+    in order to properly define an accretion torus ("ion torus") in a given
+    boson-star or scalar BH spacetime. These quantities will be saved in
+    the file output.dat.
+   */
+  if (compute_qty == 1)
+    {
+      ofstream outputfile;
+      outputfile.open("output.dat");
+      int nsize = 50000;
+      double rout=50.;
+      double rstart=rHor;
+      double dr=(rout-rstart)/double(nsize);
+      double Madm = mass;
+      //ell *= Madm; // no: ell is given in Mrond units already now
+      for(int ii=1;ii<nsize;ii++){
+	double rr = rstart+ii*dr;
+	// equatorial plane quantities, theta=pi/2
+	// Caution, switching from Lorene orthonormal to Gyoto coord basis:
+	double betap_Lorene = object.get_beta()(3).val_point(rr,M_PI/2.,0.);
+	double betap = 1./rr*betap_Lorene; 
+	double gpp = rr*rr*object.get_gamma().cov()(3,3).val_point(rr,M_PI/2.,0.);
+	double BB = sqrt(gpp/(rr*rr));
+	double NN = object.get_nn().val_point(rr,M_PI/2.,0.);
+	double Phi = fabs(object.get_sfield().val_point(rr,M_PI/2.,0.)); // I take fabs as the sign does not matter, I want it >0 to plot it
+	double dbetapdr = 
+	  1./rr*(object.get_beta()(3).dsdr().val_point(rr,M_PI/2.,0.) - betap);
+	double dNdr = object.get_nn().dsdr().val_point(rr,M_PI/2.,0.);
+	double gppr = 
+	  rr*rr*object.get_gamma().cov()(3,3).dsdr().val_point(rr,M_PI/2.,0.)
+	  +2./rr*gpp;
+	double dBdr = 
+	  1./(2.*BB)*object.get_gamma().cov()(3,3).dsdr().val_point(rr,M_PI/2.,0.);
+	double DD = BB*BB*rr*rr/(NN*NN)*dbetapdr*dbetapdr
+	  + 4.*dNdr/NN*(dBdr/BB+1./rr);
+	double V_Kepler_ZAMO_plus = 
+	  0.5*(-BB*rr/NN*dbetapdr+sqrt(DD))/(1./rr+dBdr/BB);
+	double V_Kepler_ZAMO_minus = 
+	  0.5*(-BB*rr/NN*dbetapdr-sqrt(DD))/(1./rr+dBdr/BB);
+	double E_Kepler = 
+	  1./sqrt(1-V_Kepler_ZAMO_plus*V_Kepler_ZAMO_plus)
+	  *(NN-betap*BB*rr*V_Kepler_ZAMO_plus);
+	double l_Kepler = BB*rr*V_Kepler_ZAMO_plus
+	  /(NN-betap*BB*rr*V_Kepler_ZAMO_plus);
+
+	double d2Ndr2 = object.get_nn().dsdr().dsdr().val_point(rr,M_PI/2.,0.);
+	double d2lnN_over_dr2 = 1./(NN*NN)*(d2Ndr2*NN-dNdr*dNdr);
+	double d2omega_over_dr2 = 
+	  2./(rr*rr)*(object.get_beta()(3).dsdr().val_point(rr,M_PI/2.,0.) 
+		      - betap)
+	  -1./rr*object.get_beta()(3).dsdr().dsdr().val_point(rr,M_PI/2.,0.);
+	double d2Bdr2 = 
+	  1./BB*(0.5*object.get_gamma().cov()(3,3).dsdr().dsdr().val_point(rr,M_PI/2.,0.) - dBdr*dBdr);
+	double d2lnB_over_dr2 = 1./(BB*BB)*(d2Bdr2*BB-dBdr*dBdr);
+	double iscoeq = 
+	  d2lnN_over_dr2 - 2.*dNdr*dNdr/(NN*NN) 
+	  + V_Kepler_ZAMO_plus*BB*rr/NN*(d2omega_over_dr2 + 4.*dNdr/NN*dbetapdr)
+	  + V_Kepler_ZAMO_plus*V_Kepler_ZAMO_plus*(-d2lnB_over_dr2+4./rr*dBdr/BB+2.*dBdr/BB*dBdr/BB+3./(rr*rr))
+	  - V_Kepler_ZAMO_plus*V_Kepler_ZAMO_plus*BB*BB*rr*rr/(NN*NN)*dbetapdr*dbetapdr;
+
+	double term1 = betap*BB*BB*rr*rr, term2 = -NN*NN+betap*term1;
+	double delta = term1*term1-term2*BB*BB*rr*rr;
+	double lmax = (-term1-sqrt(delta))/term2;
+	double gtp = gpp*betap;
+	double gtt = -NN*NN + gpp*betap*betap;
+	double utdownstairs2_nume = gtp*gtp-gtt*gpp;
+	double utdownstairs2_deno = gtt*ell*ell+2.*ell*gtp+gpp;
+	double Eminus=0, Eplus=0, EminusD=0, EplusD=0, photonpot=0,
+	  epsVzerominus=0, epsVzeroplus=0, particlepotential=0,
+	  epsVprimeplus=0, epsVprimeminus=0, g_tt=0, g_rr=0, g_thth=0,
+	  g_pp=0, g_tp=0; // just for fitting historical format
+
+	// this should give the same output as the readKadathData.C routine for BS
+	outputfile << ell << " " << Madm << " " << rr <<  " " << betap << " " << BB << " " << NN << " " << Phi << " " << DD  <<  " " << V_Kepler_ZAMO_plus << " " << E_Kepler << " " << l_Kepler  << " " << lmax << " " << utdownstairs2_nume << " " << utdownstairs2_deno << " "<< BB*BB*rr*rr/(NN*NN)*dbetapdr*dbetapdr  << " " << V_Kepler_ZAMO_minus << " " << dBdr << " " << dbetapdr << " " << dNdr << " " << particlepotential << " " << Eminus << " " << Eplus << " " << EminusD <<  " " << EplusD << " " << photonpot << " " << epsVzerominus << " " << epsVzeroplus << " " << epsVprimeminus << " " << epsVprimeplus << " " << g_tt << " " << g_rr << " " << g_thth << " " << g_pp << " " << g_tp << " " << iscoeq << endl;
+      }
+      
+      outputfile.close();
     }
     
   //----------------------
