@@ -25,7 +25,7 @@
  *
  */
 
-char star_bhns_C[] = "$Header$" ;
+char gravastar_C[] = "$Header$" ;
 
 
 // C++ headers

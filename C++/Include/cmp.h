@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2016/09/19 15:26:22  j_novak
+ * Correction of several bugs preventing the shared library compilation.
+ *
  * Revision 1.22  2014/10/13 08:52:33  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -1085,14 +1088,6 @@ class Cmp {
 	 */
 	Valeur** asymptot(int n, const int flag = 0) const ; 
 	
-	/// Function to compare the values of two Cmp
-
-	void compare(FILE* fich, const char* name_i) ;
-	void compare(const Cmp& comp, const char* name, int ii = -1
-		     , int jj = -1) ;
- 
-
-
 
     // PDE resolution 
     // --------------

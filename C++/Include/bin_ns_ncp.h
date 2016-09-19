@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2016/09/19 15:26:22  j_novak
+ * Correction of several bugs preventing the shared library compilation.
+ *
  * Revision 1.7  2014/10/13 08:52:32  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -58,7 +61,7 @@
  */
 
 // Lorene headers
-#include "et_bin_ncp.h"
+//#include "et_bin_ncp.h"
 #include "binaire.h"
 
 namespace Lorene {
@@ -348,19 +351,6 @@ class Bin_ns_ncp {
 	 *   {\tt Etoile\_bin}. 
 	 */
 	void analytical_shift() ; 
-
-	/** Performs a comparison between quantities as the shift, lapse and
-	 *  tkij_auto for two two binaries stars. This method takes a fich as 
-	 *  argument to construct the etoile_bin.
-	 */
-
-	void compare(FILE*) ;
-
-	/** Performs a comparison between quantities as the shift, lapse and
-	 *  tkij_auto for two two binaries stars.
-	 */
-
-	void compare(const Binaire&) ;
 
 	/**
 	 * Calculates {tt decouple} which is used to obtain {\tt a_car\_auto} by the formula : 

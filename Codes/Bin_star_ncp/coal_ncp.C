@@ -274,11 +274,6 @@ int main(){
       (star.set(i)).fait_d_psi() ; 
       (star.set(i)).hydro_euler() ; 
     }
-    /*
-    FILE* resu_init = fopen("resu_init.d", "r") ; 
-    star.compare(resu_init) ;
-    fclose(resu_init) ;
-    */
 
     // If the shift vector has not been set previously, it is set to
     //  some analytical value
@@ -338,12 +333,6 @@ int main(){
 	
 	
     }  // End of the setting of an analytical shift
-
-    /*
-    FILE* resu_update = fopen("resu_update.d", "r") ; 
-    star.compare(resu_update) ; 
-    fclose(resu_update) ;
-    */
 
 //##
 	FILE* fresu = fopen("resu.d", "w") ; 
@@ -526,13 +515,6 @@ int main(){
       }
 
     }
-    /*
-    if (mer == 8) {
-    FILE* resu_upmetrelax = fopen("resu_upmetrelax.d", "r") ; 
-    star.compare(resu_upmetrelax) ; 
-    fclose(resu_upmetrelax) ;
-    }
-    */
     //------------------------------------------------------------------
     //	    Computation of the orbital angular velocity Omega
     //------------------------------------------------------------------
@@ -554,13 +536,7 @@ int main(){
     }
 
     star.set_x_axe() = 0. ;
-    /*  
-    if (mer == 8) {    
-    FILE* resu_orbit = fopen("resu_orbit.d", "r") ; 
-    star.compare(resu_orbit) ; 
-    fclose(resu_orbit) ;
-    }
-    */
+
     // Relaxation on the orbital velocity
     // ----------------------------------
 
@@ -621,13 +597,7 @@ int main(){
 	
 	(star.set(i)).fait_d_psi() ; 
 	(star.set(i)).hydro_euler() ; 
-	/*	
-    if (mer == 8 && i==1) {
-      FILE* resu_hydro = fopen("resu_hydro.d", "r") ; 
-      star.compare(resu_hydro) ; 
-      fclose(resu_hydro) ;
-    }
-	*/
+
 	// Check of the Binaire::orbit computation 
 	//----------------------------------------
     
@@ -699,38 +669,12 @@ int main(){
 
 	// Call to Et_bin_ncp::equilibrium
 	// --------------------------------
-	/*	
-	if (i==1 && mer==8){
-	FILE* resu_avantequi = fopen("resu_avantequi.d", "r") ; 
-	star.compare(resu_avantequi) ;
-	fclose(resu_avantequi) ;
-	}
-	*/
 	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_poisson, 
 				  relax_poisson, mermax_potvit, relax_potvit, 
 				  thres_adapt[i-1], fact_resize[i-1], differ[i-1]) ;
 	
     }
-    /* 
-       if (mer == 8) {
-       for (int i=1; i<=2; i++) {
-      (star.set(i)).update_metric( (star(3-i)) ) ;
-    }
-    for (int i=1; i<=2; i++) {
-      (star.set(i)).update_metric_der_comp( (star(3-i)) ) ;
-    }
-    for (int i=1; i<=2; i++) {
-      (star.set(i)).equation_of_state() ;
-      (star.set(i)).kinematics(star.get_omega(), star.get_x_axe()) ; 
-      (star.set(i)).fait_d_psi() ; 
-      (star.set(i)).hydro_euler() ; 
-    }
-    
-      FILE* resu_apresequi = fopen("resu_apresequi.d", "r") ; 
-      star.compare(resu_apresequi) ;
-      fclose(resu_apresequi) ;
-	}
-    */
+
     //------------------------------------------------------------------
     //	  Relaxations
     //------------------------------------------------------------------
@@ -778,27 +722,6 @@ int main(){
 
     cout << star << endl ; 
  
-    /*
-         if (mer == 7) {
-
-     for (int i=1; i<=2; i++) {
-      (star.set(i)).update_metric( (star(3-i)) ) ;
-    }
-    for (int i=1; i<=2; i++) {
-      (star.set(i)).update_metric_der_comp( (star(3-i)) ) ;
-    }
-    for (int i=1; i<=2; i++) {
-      (star.set(i)).equation_of_state() ;
-      (star.set(i)).kinematics(star.get_omega(), star.get_x_axe()) ; 
-      (star.set(i)).fait_d_psi() ; 
-      (star.set(i)).hydro_euler() ; 
-    }
-    FILE* resu_finpas = fopen("resu_finpas.d", "r") ; 
-    star.compare(resu_finpas) ;
-    fclose(resu_finpas) ;
-    }
-    */ 
-
     // Graphical output
     // ----------------
     

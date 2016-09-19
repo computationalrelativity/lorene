@@ -25,11 +25,14 @@
  *
  */
 
-char name_of_this_file_C[] = "$Header$" ;
+char save_profile_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2016/09/19 15:26:23  j_novak
+ * Correction of several bugs preventing the shared library compilation.
+ *
  * Revision 1.2  2014/10/13 08:53:23  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

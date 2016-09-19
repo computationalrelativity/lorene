@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2016/09/19 15:26:22  j_novak
+ * Correction of several bugs preventing the shared library compilation.
+ *
  * Revision 1.18  2014/10/13 08:52:37  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -1020,13 +1023,6 @@ class Tenseur {
                            Tenseur& vect, Tenseur& scal) const ;
    
     
-    /// Functions to compare the values of tensors.
-
-    void compare( const Tenseur& tens, const char* name ) ;
-    void compare( FILE* fich, const char* name_i ) ;
-    
-
-
     // Friend classes 
     // ---------------
     friend class Tenseur_sym ;

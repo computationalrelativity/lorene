@@ -23,7 +23,7 @@
  *
  */
 
-char name_of_this_file_C[] = "$Header$" ;
+char prolonge_c1_C[] = "$Header$" ;
 
 #include "cmp.h"
 
