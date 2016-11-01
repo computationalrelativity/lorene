@@ -31,6 +31,9 @@ char et_magnetisation_comp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2016/11/01 09:12:59  j_novak
+ * Correction of a missing '-' in mom_quad_old().
+ *
  * Revision 1.13  2015/06/12 12:38:25  j_novak
  * Implementation of the corrected formula for the quadrupole momentum.
  *
@@ -816,7 +819,7 @@ double Et_magnetisation::grv3(ostream* ost) const {
       
       // Final result
       // ------------
-      p_mom_quad_old = new double( source().integrale() / qpig ) ; 	  
+      p_mom_quad_old = new double( - source().integrale() / qpig ) ; 	  
     }
     return *p_mom_quad_old ; 
   }
