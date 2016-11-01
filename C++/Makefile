@@ -88,6 +88,7 @@ uninstall:
 	cd Source/Black_hole; $(MAKE) -i uninstall
 	cd Source/Change_var; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
+	cd Source/Compobj; $(MAKE) -i uninstall
 	cd Source/Connection; $(MAKE) -i uninstall
 	cd Source/Coord; $(MAKE) -i uninstall
 	cd Source/Diff; $(MAKE) -i uninstall
