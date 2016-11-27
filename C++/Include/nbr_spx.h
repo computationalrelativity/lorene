@@ -89,6 +89,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2016/11/27 18:00:17  j_novak
+ * Simplifiaction du nbr_spx.h, 'INFINITY' etant standard
+ *
  * Revision 1.6  2014/10/06 15:09:40  j_novak
  * Modified #include directives to use c++ syntax.
  *
@@ -133,41 +136,7 @@
  *
  */
 
-#ifdef __alpha
-#include <cfloat>
-#define __infinity DBL_INFINITY
-#else
-#ifdef __hppa
-#include <cmath>
-#define __infinity HUGE_VAL
-#else
-#ifdef __linux
-#include <cmath>
-#define __infinity HUGE_VAL
-#else
-#ifdef __aix
-#include <cmath>
-#define __infinity HUGE_VAL
-#else
-#ifdef __ppc__
 #include <cmath>
 #define __infinity INFINITY
-#else
-#ifdef __i386__
-#include <cmath>
-#define __infinity INFINITY
-#else
-#ifdef __x86_64__
-#include <cmath>
-#define __infinity INFINITY
-#else
-extern double __infinity ;
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
 
 #endif
