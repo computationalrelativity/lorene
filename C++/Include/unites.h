@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2016/12/05 15:28:52  j_novak
+ * Suppressed the use of 'pow' to avoid compilation warnings.
+ *
  * Revision 1.8  2015/03/17 14:20:00  j_novak
  * New class Hot_eos to deal with temperature-dependent EOSs.
  *
@@ -63,8 +66,6 @@
  *
  */
 
-#include <cmath>
-
                   //--------------------------//
                   //  Standard LORENE units   //
                   //--------------------------//     
@@ -90,7 +91,7 @@ namespace Lorene {
     const double v_unit = c_si ; ///< Lorene's unit of velocity = c 
     const double rho_unit = rhonuc_si ;	///< Lorene's unit of mass density
     const double t_unit = r_unit/v_unit ; ///< Lorene's unit of time
-    const double m_unit = rho_unit * pow(r_unit, 3.) ;  ///< Lorene's unit of mass
+    const double m_unit = rho_unit * r_unit*r_unit*r_unit ;  ///< Lorene's unit of mass
     const double g_unit = 1./(rho_unit*t_unit*t_unit) ; ///< Lorene's unit for G
     const double f_unit = 1./t_unit ;	///< Lorene's unit of frequency
     
@@ -103,34 +104,33 @@ namespace Lorene {
     /// Atomic mass conversion from Lorene's units to MeV
     const double m_u_mev = rho_unit / 1.e44 *c_si*c_si / mev_si ;
   }
-
-
-                  //----------------------------------//
-                  //  Electro-magnetic LORENE units   //
-                  //----------------------------------//     
-
-
-
-/** \namespace Unites_mag
- *  \brief Standard electro-magnetic units.
- *
- * \ingroup (unites)
- */
-namespace Unites_mag {
-  using namespace Unites ;
-  const double mu_si = 1.2566370614359173e-6 ;///<Magnetic vacuum permeability
   
-  const double j_unit = 1e11 ; ///<Lorene's current density unit [\f$A/m^2\f$]
-
-  /// Lorene's units for magnetic field 
-  const double mag_unit = rho_unit*v_unit*v_unit/ (r_unit * j_unit) ;
-  /// Lorene's unit for electric field 
-  const double elec_unit = mag_unit * v_unit ;
-
-  /// Lorene's unit for \f$\mu_0\f$
-  const double mu0_unit = rho_unit*v_unit*v_unit / (pow(j_unit ,2)*pow(r_unit,2));
-  /// \f$\mu_0\f$ in Lorene's units
-  const double mu0 = mu_si / mu0_unit ;
-}
+  
+  //----------------------------------//
+  //  Electro-magnetic LORENE units   //
+  //----------------------------------//     
+  
+  
+  
+  /** \namespace Unites_mag
+   *  \brief Standard electro-magnetic units.
+   *
+   * \ingroup (unites)
+   */
+  namespace Unites_mag {
+    using namespace Unites ;
+    const double mu_si = 1.2566370614359173e-6 ;///<Magnetic vacuum permeability
+    
+    const double j_unit = 1e11 ; ///<Lorene's current density unit [\f$A/m^2\f$]
+    
+    /// Lorene's units for magnetic field 
+    const double mag_unit = rho_unit*v_unit*v_unit/ (r_unit * j_unit) ;
+    /// Lorene's unit for electric field 
+    const double elec_unit = mag_unit * v_unit ;
+    /// Lorene's unit for \f$\mu_0\f$
+    const double mu0_unit = rho_unit*v_unit*v_unit / (j_unit*j_unit*r_unit*r_unit);
+    /// \f$\mu_0\f$ in Lorene's units
+    const double mu0 = mu_si / mu0_unit ;
+  }
   
 }
