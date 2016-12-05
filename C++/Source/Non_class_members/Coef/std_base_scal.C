@@ -20,7 +20,7 @@
  */
 
 
-char std_base_scal_C[] = "$Header$" ;
+ 
 
 /*
  * Ensemble des routines de manipulation de base spectrales dans 
@@ -31,6 +31,9 @@ char std_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2016/12/05 16:18:02  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.8  2014/10/13 08:53:14  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

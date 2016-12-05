@@ -25,11 +25,14 @@
  *
  */
 
-char tslice_dirac_max_evolve_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2016/12/05 16:18:19  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.22  2015/08/10 15:32:27  j_novak
  * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
  *

@@ -25,11 +25,14 @@
  *
  */
 
-char scalarBH_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2016/12/05 16:17:49  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.6  2016/05/10 12:52:32  f_vincent
  * scalarBH: adding a flag to treat both boson stars and scalar BH
  *

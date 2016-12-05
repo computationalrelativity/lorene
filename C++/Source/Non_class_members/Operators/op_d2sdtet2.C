@@ -21,7 +21,7 @@
  */
 
 
-char op_d2dtet2_C[] = "$Header$" ;
+ 
 
 /*
  * Ensemble des routines de base pour la derivation seconde par rapport a theta
@@ -36,6 +36,9 @@ char op_d2dtet2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2016/12/05 16:18:07  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.5  2014/10/13 08:53:24  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

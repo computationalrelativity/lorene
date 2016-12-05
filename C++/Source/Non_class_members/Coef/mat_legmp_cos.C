@@ -21,7 +21,7 @@
  */
 
 
-char mat_legmp_cos_C[] = "$Header$" ;
+ 
 
 
 /*
@@ -64,6 +64,9 @@ char mat_legmp_cos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/12/05 16:18:02  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.3  2014/10/13 08:53:14  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

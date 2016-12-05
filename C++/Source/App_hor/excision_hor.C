@@ -23,7 +23,7 @@
  *
  */
 
-char excision_hor_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

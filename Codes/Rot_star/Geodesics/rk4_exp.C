@@ -19,11 +19,14 @@
  *
  */
 
-char _C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2016/12/05 16:18:26  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.1  2003/02/07 17:31:52  jp_chabbert
  * First version with rotstar input data
  *

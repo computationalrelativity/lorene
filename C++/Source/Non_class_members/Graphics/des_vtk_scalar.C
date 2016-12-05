@@ -23,7 +23,7 @@
  * Written with the assistance of Ian Hawke, University of Southampton
  */
 
-char des_coupe_vtk_scalar_C[] = "$ $" ;
+ 
 
 // Header C
 #include <cmath>

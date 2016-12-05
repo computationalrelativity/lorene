@@ -28,11 +28,14 @@
  */
 
 
-char et_rot_mag_global_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2016/12/05 16:17:54  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.23  2016/11/01 09:12:59  j_novak
  * Correction of a missing '-' in mom_quad_old().
  *

@@ -27,7 +27,7 @@
  */
 
 
-char gravastar_equil_C[] = "$Header$" ;
+ 
 
 
 

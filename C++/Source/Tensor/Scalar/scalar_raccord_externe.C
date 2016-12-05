@@ -23,11 +23,14 @@
  */
 
 
-char scalar_raccord_externe_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:19  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2014/10/13 08:53:47  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

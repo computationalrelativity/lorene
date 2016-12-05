@@ -28,7 +28,7 @@
  */
 
 
-char strot_dirac_diff_faitomeg_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

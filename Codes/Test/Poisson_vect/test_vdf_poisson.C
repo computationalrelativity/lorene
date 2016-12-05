@@ -23,11 +23,14 @@
  *
  */
 
-char test_vdf_poisson_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2016/12/05 16:18:29  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.7  2014/10/13 08:54:02  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

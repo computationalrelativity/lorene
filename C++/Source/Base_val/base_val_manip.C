@@ -20,11 +20,14 @@
  */
 
 
-char base_val_manip_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2016/12/05 16:17:44  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.12  2015/03/09 10:32:27  j_novak
  * Inclusion of r-Legendre bases.
  *

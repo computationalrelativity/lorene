@@ -24,11 +24,14 @@
  *
  */
 
-char map_cart_C[] = "$Header$" ;
+//// 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2016/12/05 16:17:58  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.2  2002/10/16 14:36:42  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.

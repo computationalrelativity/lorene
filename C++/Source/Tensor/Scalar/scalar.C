@@ -29,12 +29,15 @@
  */
 
 
-char scalar_C[] = "$Header$" ;
+ 
 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2016/12/05 16:18:18  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.40  2015/12/18 15:52:52  j_novak
  * New method is_nan() for class Scalar.
  *

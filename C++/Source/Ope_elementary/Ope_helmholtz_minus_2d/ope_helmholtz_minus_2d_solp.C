@@ -18,7 +18,7 @@
  *
  */
 
-char ope_helmholtz_minus_2d_solp_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

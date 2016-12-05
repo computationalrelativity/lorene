@@ -27,11 +27,14 @@
  */
 
 
-char vector_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2016/12/05 16:18:18  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.30  2014/10/13 08:53:44  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

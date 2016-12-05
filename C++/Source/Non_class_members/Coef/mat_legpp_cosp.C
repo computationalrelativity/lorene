@@ -20,7 +20,7 @@
  */
 
 
-char mat_legpp_cosp_C[] = "$Header$" ;
+ 
 
 
 /*
@@ -64,6 +64,9 @@ char mat_legpp_cosp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2016/12/05 16:18:02  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.6  2014/10/13 08:53:14  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -102,9 +105,6 @@ char mat_legpp_cosp_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "proto.h"
 
-// Variable de loch
-int loch_mat_legpp_cosp = 0 ;
-
 namespace Lorene {
 //******************************************************************************
 
@@ -120,7 +120,6 @@ static	int	nt_dejafait[NMAX] ;    // Valeurs de np pour lesquelles le
 
 int i, indice,  j,  j2,  m,  l ;
 
-//    #pragma critical (loch_mat_legpp_cosp)
     {
 // Les matrices B_{mjl} pour ce couple (np,nt) ont-elles deja ete calculees ? 
 

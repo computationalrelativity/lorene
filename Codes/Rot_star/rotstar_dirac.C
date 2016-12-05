@@ -25,11 +25,14 @@
  *
  */
 
-char rotstar_dirac_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2016/12/05 16:18:26  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.11  2015/01/27 14:22:39  j_novak
  * New methods in Eos_tabul to correct for EoS themro consistency (optional).
  *

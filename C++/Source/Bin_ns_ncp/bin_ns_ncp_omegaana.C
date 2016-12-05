@@ -25,7 +25,7 @@
  */
 
 
-char bin_ns_ncp_omegaana_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

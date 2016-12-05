@@ -20,7 +20,7 @@
  */
 
 
-char sxm1_1d_cheb_C[] = "$Header$" ;
+ 
 
 /*
  * Operateur [f(x) - f(1)]/(x-1) applique a une fonction f(x) developpee en 
@@ -51,6 +51,9 @@ char sxm1_1d_cheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2016/12/05 16:18:09  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.2  2014/10/13 08:53:27  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

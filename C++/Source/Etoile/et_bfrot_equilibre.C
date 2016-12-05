@@ -27,11 +27,14 @@
  */
 
 
-char et_bfrot_equilibre_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2016/12/05 16:17:52  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.20  2015/06/10 14:39:17  a_sourie
  * New class Eos_bf_tabul for tabulated 2-fluid EoSs and associated functions for the computation of rotating stars with such EoSs.
  *

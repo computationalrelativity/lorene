@@ -26,11 +26,14 @@
  */
 
 
-char eos_poly_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2016/12/05 16:17:51  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.9  2014/10/13 08:52:53  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

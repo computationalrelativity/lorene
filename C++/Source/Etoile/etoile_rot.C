@@ -26,11 +26,14 @@
  */
 
 
-char etoile_rot_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2016/12/05 16:17:55  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.7  2015/12/03 14:17:24  j_novak
  * Check added for the computation of area (thanks S. Koeppel).
  *

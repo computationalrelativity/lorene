@@ -18,7 +18,7 @@
  *
  */
 
-char ope_poisson_2d_non_dege_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

@@ -24,11 +24,14 @@
  *
  */
 
-char bin_bh_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:30  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2014/10/13 08:54:05  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

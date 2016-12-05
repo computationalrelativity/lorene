@@ -20,7 +20,7 @@
  */
 
 
-char citcossinsp_C[] = "$Header$" ;
+ 
 
 /*
  * Transformation inverse sin(2*l*theta) ou cos((2*l+1)*theta) (suivant la 
@@ -84,6 +84,9 @@ char citcossinsp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:04  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2014/10/15 12:48:22  j_novak
  * Corrected namespace declaration.
  *

@@ -18,7 +18,7 @@
  *
  */
 
-char ope_vorton_non_dege_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

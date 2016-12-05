@@ -24,11 +24,14 @@
  *
  */
 
-char test_map_et_deriv_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/12/05 16:18:28  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.3  2014/10/06 15:12:53  j_novak
  * Modified #include directives to use c++ syntax.
  *

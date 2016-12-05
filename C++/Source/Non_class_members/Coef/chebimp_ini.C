@@ -20,7 +20,7 @@
  */
 
 
-char chebimp_ini_C[] = "$Header$" ;
+ 
 
 
 /* 
@@ -47,6 +47,9 @@ char chebimp_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2016/12/05 16:18:01  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.6  2014/10/13 08:53:11  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -86,9 +89,6 @@ char chebimp_ini_C[] = "$Header$" ;
 
 #include "headcpp.h"
 
-// Variable externe de loch
-//int loch_chebimp_ini = 0 ;
-
 namespace Lorene {
 //*****************************************************************************
 
@@ -104,7 +104,6 @@ static	int	tbn[NMAX] ;		/* Tableau des points deja initialises */
 int indice ;
 
     // Mise en zone critique de toute la routine
-//    #pragma critical (loch_chebimp_ini)
     {
     // Ce nombre de points a-t-il deja ete utilise ?
     indice = -1 ;

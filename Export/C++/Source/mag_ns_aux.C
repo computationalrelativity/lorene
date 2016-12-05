@@ -26,11 +26,14 @@
  *
  */
 
-char mag_ns_aux_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:31  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2016/02/17 09:46:35  j_novak
  * u_euler output in units of c.
  *

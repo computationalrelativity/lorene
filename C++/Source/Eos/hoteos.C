@@ -25,7 +25,7 @@
  *
  */
 
-char hoteos_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

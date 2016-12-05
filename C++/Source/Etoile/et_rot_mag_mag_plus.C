@@ -27,11 +27,14 @@
  *
  */
 
-char et_rot_mag_mag_plus_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/12/05 16:17:54  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.3  2014/10/13 08:52:58  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

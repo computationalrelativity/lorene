@@ -24,11 +24,14 @@
  *
  */
 
-char grille_cart_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/12/05 16:17:55  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.3  2002/10/16 14:36:37  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.

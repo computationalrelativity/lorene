@@ -24,11 +24,14 @@
  *
  */
 
-char test_roche_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/12/05 16:18:23  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.3  2014/10/06 15:09:43  j_novak
  * Modified #include directives to use c++ syntax.
  *

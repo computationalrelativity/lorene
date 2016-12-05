@@ -18,7 +18,7 @@
  *
  */
 
-char ope_poisson_2d_mat_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

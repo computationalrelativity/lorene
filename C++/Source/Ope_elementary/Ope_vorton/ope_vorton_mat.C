@@ -18,7 +18,7 @@
  *
  */
 
-char ope_vorton_mat_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

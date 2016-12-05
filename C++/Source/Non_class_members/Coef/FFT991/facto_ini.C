@@ -21,7 +21,7 @@
  */
 
 
-char facto_ini_C[] = "$Header$" ;
+ 
 
 
 /* 
@@ -40,6 +40,9 @@ char facto_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2016/12/05 16:18:04  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.5  2014/10/15 12:48:22  j_novak
  * Corrected namespace declaration.
  *
@@ -104,8 +107,6 @@ static	int	tbn[NMAX] ;		/* Tableau des points deja initialises */
 static	int trois = 3 ;			// On aurait aime ecrire: "const int trois=3 ;"
 int indice ;
 
-
-//#pragma critical (loch_facto_ini)
 {
     // Ce nombre de points a-t-il deja ete utilise ?
     int i ;

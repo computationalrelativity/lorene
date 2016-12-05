@@ -25,7 +25,7 @@
  *
  */
 
-char gravastar_C[] = "$Header$" ;
+ 
 
 
 // C++ headers

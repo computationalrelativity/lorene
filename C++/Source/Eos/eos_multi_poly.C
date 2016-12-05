@@ -26,11 +26,14 @@
  *
  */
 
-char eos_multi_poly_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2016/12/05 16:17:51  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.10  2014/12/09 14:07:14  j_novak
  * Changed (corrected?) the formula for computing the kappa's.
  *

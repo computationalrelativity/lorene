@@ -27,11 +27,14 @@
  */
 
 
-char star_bin_upmetr_der_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2016/12/05 16:18:15  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.17  2014/10/13 08:53:38  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

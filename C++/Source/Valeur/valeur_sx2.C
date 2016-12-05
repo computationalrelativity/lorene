@@ -30,11 +30,14 @@
  */
 
 
-char valeur_sx2_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2016/12/05 16:18:21  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.5  2015/03/05 08:49:33  j_novak
  * Implemented operators with Legendre bases.
  *

@@ -26,11 +26,14 @@
  */
 
 
-char et_rot_global_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2016/12/05 16:17:54  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.9  2015/06/12 12:38:25  j_novak
  * Implementation of the corrected formula for the quadrupole momentum.
  *

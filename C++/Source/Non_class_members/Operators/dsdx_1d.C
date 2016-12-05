@@ -20,11 +20,14 @@
  */
 
 
-char dsdx_1d_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2016/12/05 16:18:07  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.9  2015/03/25 15:03:00  j_novak
  * Correction of a bug...
  *

@@ -24,7 +24,7 @@
  *
  */
 
-char gravastar_C[] = "$Header$" ;
+ 
 
 /*
  *

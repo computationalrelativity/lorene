@@ -20,7 +20,7 @@
  */
 
 
-char cftcossinci_C[] = "$Header$" ;
+ 
 
 /*
  * Transformation en  cos((2*l+1)*theta) ou sin(2*l*theta)(suivant la parite
@@ -88,6 +88,9 @@ char cftcossinci_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:03  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2014/10/15 12:48:20  j_novak
  * Corrected namespace declaration.
  *

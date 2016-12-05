@@ -29,11 +29,14 @@
  */
 
 
-char binaire_orbite_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2016/12/05 16:17:47  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.8  2014/10/24 11:27:49  j_novak
  * Minor change in the setting of parameters for zero_list, to avoid problems with g++-4.8. To be further explored...
  *

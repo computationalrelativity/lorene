@@ -27,7 +27,7 @@
  */
 
 
-char scalar_deriv_C[] = "$Header$" ;
+ 
 
 
 

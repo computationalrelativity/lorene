@@ -27,11 +27,14 @@
  */
 
 
-char eos_compose_C[] = "$Header$ " ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2016/12/05 16:17:51  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.7  2015/12/04 16:27:05  j_novak
  * Correction of constructor calling.
  *

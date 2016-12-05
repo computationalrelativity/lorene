@@ -26,7 +26,7 @@
  *
  */
 
-char isolhor_C[] = "$Header$" ;
+ 
 
 
 

@@ -20,11 +20,14 @@
  */
 
 
-char op_mult_x_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2016/12/05 16:18:08  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.6  2015/03/05 08:49:32  j_novak
  * Implemented operators with Legendre bases.
  *

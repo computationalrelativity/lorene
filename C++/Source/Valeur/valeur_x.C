@@ -29,7 +29,7 @@
  */
 
 
-char valeur_va_x_C[] = "$Header$" ;
+ 
 
 
 // Headers C

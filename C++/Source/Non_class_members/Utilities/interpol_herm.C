@@ -25,11 +25,14 @@
  */
 
 
-char interpol_herm_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2016/12/05 16:18:11  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.13  2015/06/15 15:08:22  j_novak
  * New file interpol_bifluid for interpolation of 2-fluid EoSs
  *

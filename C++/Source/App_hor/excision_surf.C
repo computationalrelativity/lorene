@@ -27,7 +27,7 @@
  *
  */
 
-char excision_surf_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

@@ -28,11 +28,14 @@
  */
 
 
-char binary_orbite_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2016/12/05 16:17:47  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.9  2015/08/10 15:32:26  j_novak
  * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
  *

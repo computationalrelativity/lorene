@@ -26,11 +26,14 @@
  */
 
 
-char star_rot_global_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2016/12/05 16:18:15  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.5  2015/05/19 09:30:56  j_novak
  * New methods for computing the area of the star and its mean radius.
  *

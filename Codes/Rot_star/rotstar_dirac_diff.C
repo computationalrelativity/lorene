@@ -26,7 +26,7 @@
  *
  */
 
-char rotstar_dirac_C[] = "$Header$" ;
+ 
 
 /*
  *

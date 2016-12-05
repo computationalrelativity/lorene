@@ -26,11 +26,14 @@
  *
  */
 
-char et_magnetisation_C[] = "$Header $" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2016/12/05 16:17:53  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.10  2014/10/21 09:23:53  j_novak
  * Addition of global functions mass_g(), angu_mom(), grv2/3() and mom_quad().
  *

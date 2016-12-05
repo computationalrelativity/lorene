@@ -26,11 +26,14 @@
  */
 
 
-char eos_from_file_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2016/12/05 16:17:51  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.16  2015/08/04 14:41:29  j_novak
  * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
  *

@@ -20,7 +20,7 @@
  */
 
 
-char cfrjaco02_C[] = "$Header$" ;
+ 
 
 /*
  * Transformation de Jacobi (cas fin) sur le troisieme indice (indice

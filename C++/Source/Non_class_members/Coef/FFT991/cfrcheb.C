@@ -20,7 +20,7 @@
  */
 
 
-char cfrcheb_C[] = "$Header$" ;
+ 
 
 /*
  * Transformation de Tchebyshev (cas fin) sur le troisieme indice (indice
@@ -84,6 +84,9 @@ char cfrcheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:03  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2014/10/15 12:48:19  j_novak
  * Corrected namespace declaration.
  *

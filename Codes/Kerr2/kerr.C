@@ -24,7 +24,7 @@
  */ 
 
 
-char kerr_C[] = "$Header$" ;
+ 
 
 // headers Lorene
 #include "nbr_spx.h"

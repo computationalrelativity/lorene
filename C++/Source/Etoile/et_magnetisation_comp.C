@@ -26,11 +26,14 @@
  *
  */
 
-char et_magnetisation_comp_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2016/12/05 16:17:53  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.14  2016/11/01 09:12:59  j_novak
  * Correction of a missing '-' in mom_quad_old().
  *

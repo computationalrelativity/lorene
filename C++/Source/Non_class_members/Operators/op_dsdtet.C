@@ -21,7 +21,7 @@
  */
 
 
-char op_dsdtet_C[] = "$Header$" ;
+ 
 
 /*
  * Ensemble des routines de base pour la derivation par rapport a theta
@@ -36,6 +36,9 @@ char op_dsdtet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2016/12/05 16:18:07  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.6  2014/10/13 08:53:25  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -122,7 +125,6 @@ void _dsdtet_t_cos(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cos_p)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -291,7 +293,6 @@ void _dsdtet_t_cos_p(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cos_p)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -460,7 +461,6 @@ void _dsdtet_t_sin_i(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cos_p)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -545,7 +545,6 @@ void _dsdtet_t_cos_i(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cos_i)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -631,7 +630,6 @@ void _dsdtet_t_cossin_cp(Tbl* tb, int & b)
     static int nt_pre = 0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cossin_cp)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -729,7 +727,6 @@ void _dsdtet_t_cossin_sp(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cossin_sp)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -827,7 +824,6 @@ void _dsdtet_t_cossin_ci(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cossin_ci)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -925,7 +921,6 @@ void _dsdtet_t_cossin_si(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cossin_si)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -1023,7 +1018,6 @@ void _dsdtet_t_cossin_c(Tbl* tb, int & b)
     static int nt_pre = 0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cossin_cp)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -1121,7 +1115,6 @@ void _dsdtet_t_cossin_s(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    //#pragma critical (loch_dsdtet_t_cossin_sp)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;

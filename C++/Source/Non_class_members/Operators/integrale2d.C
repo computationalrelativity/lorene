@@ -23,7 +23,7 @@
  *
  */
 
-char integrale2d_C[] = "$Header$" ;
+ 
 
 /*
  * $Id $

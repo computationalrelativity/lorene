@@ -27,11 +27,14 @@
  */
 
 
-char hoteos_tabul_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2016/12/05 16:17:52  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.2  2015/12/08 15:42:17  j_novak
  * Low/zero entropy is set to the lowest value in the table in computational functions.
  *

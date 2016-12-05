@@ -28,11 +28,14 @@
  */
 
 
-char integrate_1D_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2016/12/05 16:18:11  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.1  2015/01/09 15:28:52  j_novak
  * New integration function for general non-equally-spaced grids.
  *

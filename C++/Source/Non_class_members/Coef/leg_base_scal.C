@@ -20,7 +20,7 @@
  */
 
 
-char leg_base_scal_C[] = "$Header $" ;
+ 
 
 /*
  * Ensemble des routines de manipulation de base spectrales dans 

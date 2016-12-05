@@ -26,11 +26,14 @@
  */
 
 
-char eos_bifluid_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2016/12/05 16:17:51  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.22  2015/06/12 12:38:24  j_novak
  * Implementation of the corrected formula for the quadrupole momentum.
  *

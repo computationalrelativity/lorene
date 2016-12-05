@@ -26,11 +26,14 @@
  */
 
 
-char eos_bf_file_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2016/12/05 16:17:51  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.11  2015/06/11 14:41:59  a_sourie
  * Corrected minor bug
  *

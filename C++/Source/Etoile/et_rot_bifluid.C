@@ -27,11 +27,14 @@
  */
 
 
-char et_rot_bifluid_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2016/12/05 16:17:53  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.15  2015/06/11 13:50:19  j_novak
  * Minor corrections
  *

@@ -26,7 +26,7 @@
  */
 
 
-char bin_ns_ncp_anashift_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

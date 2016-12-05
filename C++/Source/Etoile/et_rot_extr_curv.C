@@ -24,12 +24,15 @@
  */
 
 
-char et_rot_extr_curv_C[] = "$Header$" ;
+ 
 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2016/12/05 16:17:54  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.2  2014/10/13 08:52:57  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

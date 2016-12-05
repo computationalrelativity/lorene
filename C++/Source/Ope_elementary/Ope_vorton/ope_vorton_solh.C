@@ -18,7 +18,7 @@
  *
  */
 
-char ope_vorton_solh_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

@@ -25,7 +25,7 @@
  *
  */
 
-char strot_dirac_diff_global_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

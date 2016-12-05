@@ -28,7 +28,7 @@
  *
  */
 
-char name_of_this_file_C[] = "$Header$" ;
+ 
 
 /*
  *

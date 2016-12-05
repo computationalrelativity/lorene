@@ -29,11 +29,14 @@
  */
 
 
-char valeur_sx_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2016/12/05 16:18:21  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.7  2015/03/09 10:32:27  j_novak
  * Inclusion of r-Legendre bases.
  *

@@ -23,11 +23,14 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-char Binary_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2016/12/05 16:17:47  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.16  2014/10/13 08:52:44  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

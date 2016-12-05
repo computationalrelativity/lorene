@@ -25,11 +25,14 @@
  *
  */
 
-char save_profile_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2016/12/05 16:18:07  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.3  2016/09/19 15:26:23  j_novak
  * Correction of several bugs preventing the shared library compilation.
  *

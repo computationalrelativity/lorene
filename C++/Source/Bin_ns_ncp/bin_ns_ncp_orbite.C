@@ -28,7 +28,7 @@
  */
 
 
-char bin_ns_ncp_orbite_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

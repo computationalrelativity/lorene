@@ -26,11 +26,14 @@
  *
  */
 
-char bin_ns_bh_orbit_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2016/12/05 16:17:46  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.7  2014/10/24 14:10:24  j_novak
  * Minor change to prevent weird error from g++-4.8...
  *

@@ -25,7 +25,7 @@
  *
  */
 
-char strot_dirac_diff_equil_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

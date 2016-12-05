@@ -18,7 +18,7 @@
  *
  */
 
-char ope_poisson_2d_cl_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

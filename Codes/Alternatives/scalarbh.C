@@ -24,11 +24,14 @@
  *
  */
 
-char scalarbh_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2016/12/05 16:18:22  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.5  2016/05/10 12:57:18  f_vincent
  * scalarBH: added the computation of quantities needed to define an accretion torus in any BS or scalar BH spacetime
  *

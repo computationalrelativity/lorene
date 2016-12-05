@@ -25,7 +25,7 @@
  *
  */
 
-char star_rot_dirac_diff_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

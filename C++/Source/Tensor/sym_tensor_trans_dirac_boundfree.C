@@ -25,11 +25,14 @@
  *
  */
 
-// char sym_tensor_trans_dirac_C[] = "$Header$" ;
+//  
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:17  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2015/08/10 15:32:27  j_novak
  * Better calls to Param::add_int(), to avoid weird problems (e.g. with g++ 4.8).
  *

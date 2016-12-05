@@ -18,7 +18,7 @@
  *
  */
 
-char ope_sec_order_solh_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$

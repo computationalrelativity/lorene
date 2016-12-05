@@ -26,11 +26,14 @@
  */
 
 
-char hoteos_from_file_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2016/12/05 16:17:52  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.2  2015/12/08 10:52:18  j_novak
  * New class Hoteos_tabul for tabulated temperature-dependent EoSs.
  *

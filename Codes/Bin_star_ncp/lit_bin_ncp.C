@@ -25,7 +25,7 @@
  *
  */
 
-char lit_bin_ncp_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

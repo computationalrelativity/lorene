@@ -22,7 +22,7 @@
  */
 
 
-char op_sxp12_C[] = "$Header$" ;
+ 
 
 /* 
  * Ensemble des routines de base de division par rapport a (x+1)²
@@ -37,6 +37,9 @@ char op_sxp12_C[] = "$Header$" ;
  /*
  * $Id$
  * $Log$
+ * Revision 1.5  2016/12/05 16:18:08  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.4  2014/10/13 08:53:26  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *

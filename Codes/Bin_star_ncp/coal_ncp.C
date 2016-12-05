@@ -26,7 +26,7 @@
  */ 
 
 
-char coal_ncp_C[] = "$Header$" ;
+ 
 
 /*
  * $Header$

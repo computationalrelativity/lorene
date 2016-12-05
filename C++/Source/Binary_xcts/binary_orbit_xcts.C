@@ -24,11 +24,14 @@
  *
  */
 
-char binary_orbit_xcts_C[] = "$Header$" ;
+ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2016/12/05 16:17:47  j_novak
+ * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
+ *
  * Revision 1.14  2014/10/24 14:10:24  j_novak
  * Minor change to prevent weird error from g++-4.8...
  *
