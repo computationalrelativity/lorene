@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2017/02/22 17:11:33  j_novak
+ * Addition of new Legendre basis.
+ *
  * Revision 1.8  2016/12/05 16:17:57  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -70,6 +73,9 @@ void _primr_pas_prevu(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ;
 void _primr_r_cheb(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebp(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebi(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
+void _primr_r_leg(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
+void _primr_r_legp(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
+void _primr_r_legi(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebpim_p(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebpim_i(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_jaco02(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ;
@@ -90,6 +96,9 @@ void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
 	    prim_domain[R_CHEBU >> TRA_R] = _primr_r_cheb ;
 	    prim_domain[R_CHEBP >> TRA_R] = _primr_r_chebp ;
 	    prim_domain[R_CHEBI >> TRA_R] = _primr_r_chebi ;
+	    prim_domain[R_LEG >> TRA_R] = _primr_r_leg ;
+	    prim_domain[R_LEGP >> TRA_R] = _primr_r_legp ;
+	    prim_domain[R_LEGI >> TRA_R] = _primr_r_legi ;
 	    prim_domain[R_CHEBPIM_P >> TRA_R] = _primr_r_chebpim_p ;
 	    prim_domain[R_CHEBPIM_I >> TRA_R] = _primr_r_chebpim_i ;
 	    prim_domain[R_JACO02 >> TRA_R] = _primr_r_jaco02 ;
