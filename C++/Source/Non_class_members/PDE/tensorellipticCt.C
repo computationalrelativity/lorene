@@ -527,7 +527,7 @@ namespace Lorene {
 
 	delete phi.set_spectral_va().c ;
 	phi.set_spectral_va().c = 0x0 ;
-	///  	phi.set_spectral_va().ylm_i() ;
+	//  	phi.set_spectral_va().ylm_i() ;
 	//	phi.set_spectral_va().ylm();
  
 	phi.annule_domain(nz-1);

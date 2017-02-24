@@ -18,6 +18,7 @@
  using namespace Lorene ;
  \endcode
  * after the include lines in your code.
+ * \copyright E Gourgoulhon, P Grandclement, J-A Marck, J Novak, K Taniguchi
  */
 namespace Lorene {}
 

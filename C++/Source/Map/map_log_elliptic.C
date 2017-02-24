@@ -1,4 +1,4 @@
-/**
+/*
  *   Copyright (c) 2004 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2017/02/24 15:34:59  j_novak
+ * Removal of spurious comments
+ *
  * Revision 1.7  2016/12/05 16:17:58  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *

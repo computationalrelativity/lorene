@@ -46,6 +46,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2017/02/24 15:34:59  j_novak
+ * Removal of spurious comments
+ *
  * Revision 1.4  2016/12/05 16:18:08  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -78,7 +81,7 @@ namespace Lorene {
 
 
 			//////////////////
-			/// Cas R_CHEB ///
+			//  Cas R_CHEB  //
 			//////////////////
 
 void som_r_cheb_symy
@@ -141,7 +144,7 @@ double* po = trtp ;	    // pointeur courant sur la sortie
 
 
 			///////////////////
-			/// Cas R_CHEBU ///
+			//  Cas R_CHEBU  //
 			///////////////////
 
 void som_r_chebu_symy
@@ -202,7 +205,7 @@ double* po = trtp ;	    // pointeur courant sur la sortie
 }
 
 			///////////////////////
-			/// Cas R_CHEBPIM_P ///
+			//  Cas R_CHEBPIM_P  //
 			///////////////////////
 
 void som_r_chebpim_p_symy
@@ -265,7 +268,7 @@ double* po = trtp ;	    // pointeur courant sur la sortie
 }
 
 			///////////////////////
-			/// Cas R_CHEBPIM_I ///
+			//  Cas R_CHEBPIM_I  //
 			///////////////////////
 
 void som_r_chebpim_i_symy
@@ -334,7 +337,7 @@ double* po = trtp ;	    // pointeur courant sur la sortie
 //****************************************************************************
 
 			///////////////////////
-			/// Cas T_COSSIN_CP ///
+			//  Cas T_COSSIN_CP  //
 			///////////////////////
 
 void som_tet_cossin_cp_symy
@@ -389,7 +392,7 @@ double* po = to ;	    // Pointeur courant sur la sortie
 }
 
 			///////////////////////
-			/// Cas T_COSSIN_CI ///
+			//  Cas T_COSSIN_CI  //
 			///////////////////////
 
 void som_tet_cossin_ci_symy

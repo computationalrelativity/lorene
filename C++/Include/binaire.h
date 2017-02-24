@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2017/02/24 15:34:59  j_novak
+ * Removal of spurious comments
+ *
  * Revision 1.6  2014/10/13 08:52:32  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -256,7 +259,7 @@ class Binaire {
     public:
 	void sauve(FILE *) const ;	    /// Save in a file
     
-	/// Display
+	// Display
 	friend ostream& operator<<(ostream& , const Binaire& ) ;	
 	
 	/// Display in polytropic units

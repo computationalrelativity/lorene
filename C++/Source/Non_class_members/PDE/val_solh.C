@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2017/02/24 15:34:59  j_novak
+ * Removal of spurious comments
+ *
  * Revision 1.6  2016/12/05 16:18:10  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -150,9 +153,9 @@ Tbl _val_solh_r_chebu (int l, double alpha, double) {
   res.set_etat_qcq() ;
   
   // Solution : 1/(x-1)^(l+1)
-  res.set(0) = 0 ; /// Not used
+  res.set(0) = 0 ; // Not used
   res.set(1) = pow(-2., l+1)/sqrt(double(2)) ; 
-  res.set(2) = 0. ; /// noy used
+  res.set(2) = 0. ; // not used
   res.set(3) = -alpha*(l+1)*pow(-2., l+2)/sqrt(double(2)) ;        
 
   return res ;

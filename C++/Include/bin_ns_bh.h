@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2017/02/24 15:34:59  j_novak
+ * Removal of spurious comments
+ *
  * Revision 1.19  2014/10/13 08:52:32  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -261,7 +264,7 @@ class Bin_ns_bh {
     public:
 	virtual void sauve(FILE *) const ;	    /// Save in a file
 
-	/// Display
+	// Display
 	friend ostream& operator<<(ostream& , const Bin_ns_bh& ) ;
 
     private:
