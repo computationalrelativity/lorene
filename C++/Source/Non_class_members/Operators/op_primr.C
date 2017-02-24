@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2017/02/24 14:55:55  j_novak
+ * Corrected error in the primitive formula
+ *
  * Revision 1.12  2017/02/22 17:11:33  j_novak
  * Addition of new Legendre basis.
  *
@@ -1052,7 +1055,7 @@ void _primr_r_leg(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
             for (int j=0 ; j<nt ; j++) {
             
                 for (int i=1; i<nr-2; i++) {
-                    xco[i] = (xci[i-1] - xci[i+1]) / double(2*i-1) ; 
+                    xco[i] = xci[i-1] / double(2*i-1) - xci[i+1] / double(2*i+3) ; 
                 }
                 
                 xco[nr-2] = xci[nr-3] / double(2*nr - 5) ; 
@@ -1126,7 +1129,7 @@ void _primr_r_legp(const Tbl& tin, int bin, const Tbl&, Tbl& tout,
             for (int j=0 ; j<nt ; j++) {
             
                 for (int i=0; i<nr-2; i++) {
-                    xco[i] = (xci[i] - xci[i+1]) / double(4*i+1) ; 
+		  xco[i] = xci[i]/ double(4*i+1) - xci[i+1]/double(4*i+5)  ; 
                 }
                 
                 xco[nr-2] = xci[nr-2] / double(4*nr - 7) ; 
@@ -1215,7 +1218,7 @@ void _primr_r_legi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
             for (int j=0 ; j<nt ; j++) {
             
                 for (int i=1; i<nr-1; i++) {
-                    xco[i] = (xci[i-1] - xci[i]) / double(4*i-1) ; 
+		  xco[i] = xci[i-1]/ double(4*i-1) - xci[i]/double(4*i+3)  ; 
                 }
                 
                 xco[nr-1] = xci[nr-2] / double(4*nr - 5) ; 
