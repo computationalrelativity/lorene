@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2017/02/24 16:50:27  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.14  2016/12/05 16:18:09  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -253,6 +256,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 		      som_r_chebi(der_hom.t, nr, 1, 1, 1., &dhom) ;
 		  }
 		  else {
+		    assert (base_r == R_CHEBI) ;
 		      som_r_chebi(sol_part->t, nr, 1, 1, 1., &part) ;
 		      _dsdx_r_chebi(&der_part, base_pipo) ;
 		      som_r_chebp(der_part.t, nr, 1, 1, 1., &dpart) ;

@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2017/02/24 16:50:27  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.8  2016/12/05 16:17:57  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -167,6 +170,14 @@ double Map_af::integrale_surface (const Cmp& ci, double rayon) const {
 		case R_CHEBPIM_I :
 		    som_r_chebpim_i (coef, nr, 1, 1, xi, auxi) ;
 		    break ;
+		case R_LEG :
+		    som_r_leg (coef, nr, 1, 1, xi, auxi) ;
+		    break ;
+		case R_LEGP :
+		    som_r_legp (coef, nr, 1, 1, xi, auxi) ;
+		    break ;
+		case R_LEGI :
+		    som_r_legi (coef, nr, 1, 1, xi, auxi) ;
 		default :
 		    som_r_pas_prevu (coef, nr, 1, 1, xi, auxi) ;
 		    break ;
@@ -354,6 +365,15 @@ double Map_af::integrale_surface (const Scalar& ci, double rayon) const {
 		    break ;
 		case R_CHEBPIM_I :
 		    som_r_chebpim_i (coef, nr, 1, 1, xi, auxi) ;
+		    break ;
+		case R_LEG :
+		    som_r_leg (coef, nr, 1, 1, xi, auxi) ;
+		    break ;
+		case R_LEGP :
+		    som_r_legp (coef, nr, 1, 1, xi, auxi) ;
+		    break ;
+		case R_LEGI :
+		    som_r_legi (coef, nr, 1, 1, xi, auxi) ;
 		    break ;
 		default :
 		    som_r_pas_prevu (coef, nr, 1, 1, xi, auxi) ;
