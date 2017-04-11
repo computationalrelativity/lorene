@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2017/04/11 10:46:55  m_bejger
+ * Star_rot::surf_grav() - surface gravity values along the theta direction
+ *
  * Revision 1.6  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -588,6 +591,42 @@ double Star_rot::mom_quad() const {
 }
 
 
+			//----------------------------//
+			//     Surface gravity        //
+			//----------------------------//
 
+const Tbl& Star_rot::surf_grav() const {
+
+  using namespace Unites ;
+    if (p_surf_grav == 0x0) {    // a new computation is required
+
+  	  // Index of the point at phi=0 at the surface of the star:
+	    const Mg3d* mg = mp.get_mg() ; 
+	    assert(mg->get_type_t() == SYM) ; 
+
+	  	int l_b = nzet - 1 ; 
+	    int i_b = mg->get_nr(l_b) - 1 ; 
+      int j_b = mg->get_nt(l_b) ;   // number of theta points  
+ 
+      Scalar loggam = log(gam_euler) ;
+      loggam.std_spectral_base() ; 
+ 
+	    Vector a = logn.derive_cov( mp.flat_met_spher() ) 
+               - loggam.derive_cov( mp.flat_met_spher() ); 
+
+      Scalar g = contract( a, 0, a.up_down(mp.flat_met_spher()), 0 ) ;
+
+      p_surf_grav = new Tbl(j_b) ;
+      p_surf_grav->set_etat_qcq() ;
+
+      int j; 
+      for(j = 0; j < j_b; j++)  
+        p_surf_grav->set(j) = sqrt(g.val_grid_point(l_b, 0, j, i_b)) ; 
+
+    } 
+
+    return *p_surf_grav ;   
+
+} 
 
 }

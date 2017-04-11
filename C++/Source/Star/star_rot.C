@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2017/04/11 10:46:55  m_bejger
+ * Star_rot::surf_grav() - surface gravity values along the theta direction
+ *
  * Revision 1.10  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -312,6 +315,7 @@ void Star_rot::del_deriv() const {
     if (p_z_eqb != 0x0) delete p_z_eqb ; 
     if (p_z_pole != 0x0) delete p_z_pole ; 
     if (p_mom_quad != 0x0) delete p_mom_quad ;
+    if (p_surf_grav != 0x0) delete p_surf_grav ;
     if (p_r_isco != 0x0) delete p_r_isco ;
     if (p_f_isco != 0x0) delete p_f_isco ;
     if (p_lspec_isco != 0x0) delete p_lspec_isco ;
@@ -337,6 +341,7 @@ void Star_rot::set_der_0x0() const {
     p_z_eqb = 0x0 ;
     p_z_pole = 0x0 ;
     p_mom_quad = 0x0 ;
+    p_surf_grav = 0x0 ; 
     p_r_isco = 0x0 ;
     p_f_isco = 0x0 ;
     p_lspec_isco = 0x0 ;

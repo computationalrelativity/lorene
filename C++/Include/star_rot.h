@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2017/04/11 10:46:55  m_bejger
+ * Star_rot::surf_grav() - surface gravity values along the theta direction
+ *
  * Revision 1.6  2015/05/19 09:30:55  j_novak
  * New methods for computing the area of the star and its mean radius.
  *
@@ -245,9 +248,10 @@ class Star_rot : public Star {
 	/// Specific energy of a particle on the ISCO 
 	mutable double* p_espec_isco ;	
 	/// Specific angular momentum of a particle on the ISCO
-	mutable double* p_lspec_isco ;	
-        mutable double* p_f_eq ;        ///< Orbital frequency at the equator
-	
+  mutable double* p_lspec_isco ;	
+  mutable double* p_f_eq ;        ///< Orbital frequency at the equator
+  mutable Tbl*    p_surf_grav ;	///< Surface gravity (along the theta direction) 
+
 	 
 
     // Constructors - Destructor
@@ -472,6 +476,11 @@ class Star_rot : public Star {
 	 *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
 	 */
 	virtual double mom_quad() const ;	
+
+  /** Surface gravity (table along the theta direction)
+    *  
+    */
+  virtual const Tbl& surf_grav() const ; 
 
 	/** Circumferential radius of the innermost stable circular orbit (ISCO).	
 	 *
