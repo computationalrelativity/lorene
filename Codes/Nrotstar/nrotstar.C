@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2017/04/11 12:58:54  m_bejger
+ * Updated output file for gyoto
+ *
  * Revision 1.14  2016/12/05 16:18:25  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -686,8 +689,31 @@ int main(){
     kk.set(2,2) = 0 ; 
     tmp = 0.5 * bb2 * beta_phi.dsdt() / nn ;
     tmp.mult_sint() ;
+    tmp.inc_dzpuis(2); 
     kk.set(2,3) = tmp ;
     kk.set(3,3) = 0 ;
+
+    // File for GYOTO
+    //-----------
+    Valeur ns_surf(mg.get_angu()) ;
+    ns_surf.annule_hard() ;
+    for (int k=0; k<np; k++)
+      for (int j=0; j<nt; j++)  {
+      ns_surf.set(0, k, j, 0) = mp.val_r_jk(star.l_surf()(k, j), star.xi_surf()(k, j), j, k) ;
+      }
+
+    // Horizon 
+    //--------
+    Valeur ah(mg.get_angu()) ;
+    ah.annule_hard() ;
+
+    Metric gamma = star.get_gamma() ;
+
+    // Lorentz facor and 3-velocity
+    //-----------------------------
+    Vector velo = star.get_u_euler();
+    velo.change_triad(mp.get_bvect_spher());
+    Vector u_euler = velo.up_down(gamma);
 
     // File for GYOTO
     FILE* file_out = fopen("resu_gyoto.d", "w") ;
@@ -700,6 +726,19 @@ int main(){
     star.get_gamma().cov().sauve(file_out) ;
     star.get_gamma().con().sauve(file_out) ;
     kk.sauve(file_out) ;
+
+    // Lorentz factor and 3-velocity save 
+    star.get_gam_euler().sauve(file_out) ;
+    u_euler.sauve(file_out) ;
+
+    // NS surface save 
+    ns_surf.get_mg()->sauve(file_out) ;
+    ns_surf.sauve(file_out) ;
+ 
+    // Horizon save 
+    ah.get_mg()->sauve(file_out) ;
+    ah.sauve(file_out) ;
+
     //  aa = c J / (G M^2)
     double aa = star.angu_mom()/( qpig / (4* M_PI) * pow(star.mass_g(), 2.) ) ;
     fwrite_be(&aa, sizeof(double), 1, file_out) ;
