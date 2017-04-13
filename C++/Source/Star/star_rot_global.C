@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2017/04/13 09:59:34  m_bejger
+ * Bug fix (contraction using physical gamma metric in surf_grav - vector a)
+ *
  * Revision 1.7  2017/04/11 10:46:55  m_bejger
  * Star_rot::surf_grav() - surface gravity values along the theta direction
  *
@@ -598,34 +601,34 @@ double Star_rot::mom_quad() const {
 const Tbl& Star_rot::surf_grav() const {
 
   using namespace Unites ;
-    if (p_surf_grav == 0x0) {    // a new computation is required
+  if (p_surf_grav == 0x0) {    // a new computation is required
 
-  	  // Index of the point at phi=0 at the surface of the star:
-	    const Mg3d* mg = mp.get_mg() ; 
-	    assert(mg->get_type_t() == SYM) ; 
+    const Mg3d* mg = mp.get_mg() ; 
+    assert(mg->get_type_t() == SYM) ; 
 
-	  	int l_b = nzet - 1 ; 
-	    int i_b = mg->get_nr(l_b) - 1 ; 
-      int j_b = mg->get_nt(l_b) ;   // number of theta points  
+    // Index of the point at phi=0 at the surface of the star:
+    int l_b = nzet - 1 ; 
+    int i_b = mg->get_nr(l_b) - 1 ; 
+    int j_b = mg->get_nt(l_b) ;   // number of theta points  
  
-      Scalar loggam = log(gam_euler) ;
-      loggam.std_spectral_base() ; 
+    Scalar loggam = log(gam_euler) ;
+    loggam.std_spectral_base() ; 
  
-	    Vector a = logn.derive_cov( mp.flat_met_spher() ) 
-               - loggam.derive_cov( mp.flat_met_spher() ); 
+    Vector a = logn.derive_cov( mp.flat_met_spher() ) 
+             - loggam.derive_cov( mp.flat_met_spher() ); 
 
-      Scalar g = contract( a, 0, a.up_down(mp.flat_met_spher()), 0 ) ;
+    Scalar g = contract( a, 0, a.up_down(gamma), 0 ) ;
 
-      p_surf_grav = new Tbl(j_b) ;
-      p_surf_grav->set_etat_qcq() ;
+    p_surf_grav = new Tbl(j_b) ;
+    p_surf_grav->set_etat_qcq() ;
 
-      int j; 
-      for(j = 0; j < j_b; j++)  
-        p_surf_grav->set(j) = sqrt(g.val_grid_point(l_b, 0, j, i_b)) ; 
+    int j; 
+    for(j = 0; j < j_b; j++)  
+      p_surf_grav->set(j) = sqrt(g.val_grid_point(l_b, 0, j, i_b)) ; 
 
-    } 
+  } 
 
-    return *p_surf_grav ;   
+  return *p_surf_grav ;   
 
 } 
 
