@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2017/06/06 15:36:42  j_novak
+ * Reads a number as first column of tabulated EoS
+ *
  * Revision 1.3  2016/12/05 16:17:52  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -205,11 +208,12 @@ namespace Lorene {
     double c2 = c_si * c_si ;
     double dummy, nb_fm3, rho_cgs, p_cgs, mu_MeV, entr, temp, der2 ;	
     double ww = 0. ;
+    int no;
 
     for (int j=0; j<nbp2; j++) {
       for (int i=0; i<nbp1; i++) {
-	fich >> mu_MeV >> entr >> nb_fm3 >> temp >> p_cgs >> der2 
-	     >> dummy >> rho_cgs ;
+	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> mu_MeV >> entr >> temp >> der2 
+	     >> dummy;
 	fich.ignore(1000,'\n') ;
 	if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
 	  cerr << "Eos_mag::read_table(): " << endl ;
@@ -256,12 +260,14 @@ namespace Lorene {
     
     if (p_cold_eos == 0x0) {
       cerr << "Warning: Hoteos_tabul::new_cold_Eos " <<
-	"The corresponding cold EoS is likely not to function." << endl ;
+	"The corresponding cold EoS is likely not to work" << endl ;
+      cout << "read from file:   "<< tablename.c_str() << endl;
       p_cold_eos = new Eos_CompOSE(tablename.c_str()) ;
     }
     
     return *p_cold_eos ;
   }
+
 
 
 			//------------------------//
