@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2017/08/10 15:14:27  j_novak
+ * Now Eos_consistent is also reading Lorene format tables.
+ *
  * Revision 1.2  2016/12/05 16:17:51  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -51,6 +54,7 @@
 #include "tbl.h"
 #include "utilitaires.h"
 #include "unites.h"
+#include<string>
 
 namespace Lorene {
   void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
@@ -77,7 +81,88 @@ Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich)
 // Constructor from a formatted file
 // ---------------------------------
   Eos_consistent::Eos_consistent(ifstream& fich) : Eos_CompOSE(fich) 
-{}
+{
+  using namespace Unites ;
+
+  cout << tablename << endl ;
+  ifstream tfich(tablename.data()) ;
+
+  for (int i=0; i<5; i++) {		//  jump over the file
+    tfich.ignore(1000, '\n') ;             // header
+  }                                       //
+
+  int nbp ;
+  tfich >> nbp ; tfich.ignore(1000, '\n') ;   // number of data
+  cout << "nbp = " << nbp << endl ;
+  if (nbp<=0) {
+    cerr << "Eos_tabul::read_table(): " << endl ;
+    cerr << "Wrong value for the number of lines!" << endl ;
+    cerr << "nbp = " << nbp << endl ;
+    cerr << "Aborting..." << endl ;
+    abort() ;
+  }
+  
+  for (int i=0; i<3; i++) {		//  jump over the table
+    tfich.ignore(1000, '\n') ;             // description
+  }
+  
+  press = new double[nbp] ;
+  nb    = new double[nbp] ;
+  ro    = new double[nbp] ; 
+  
+  double rhonuc_cgs = rhonuc_si * 1e-3 ;
+  double c2_cgs = c_si * c_si * 1e4 ;    	
+  
+  int no ;
+  double nb_fm3, rho_cgs, p_cgs ;
+  
+  for (int i=0; i<nbp; i++) {
+    
+    tfich >> no ;
+    tfich >> nb_fm3 ;
+    tfich >> rho_cgs ;
+    tfich >> p_cgs ; fich.ignore(1000,'\n') ;    		
+    if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
+      cout << "Eos_consistent(ifstream&): " << endl ;
+      cout << "Negative value in table!" << endl ;
+      cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
+	", p = " << p_cgs << endl ;
+      cout << "Aborting..." << endl ;
+      abort() ;
+    }
+    
+    press[i] = p_cgs / c2_cgs ;
+    nb[i]    = nb_fm3 ;
+    ro[i]    = rho_cgs ;
+  }
+
+  Tbl pp(nbp) ; pp.set_etat_qcq() ;
+  Tbl dh(nbp) ; dh.set_etat_qcq() ;
+  for (int i=0; i<nbp; i++) {
+    pp.set(i) = log(press[i] / rhonuc_cgs) ;
+    dh.set(i) = press[i] / (ro[i] + press[i]) ;
+  }
+    
+  Tbl hh  = integ1D(pp, dh) + 1.e-14 ;
+    
+  for (int i=0; i<nbp; i++) {
+    logh->set(i) = log10( hh(i) ) ;
+    logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+    dlpsdlh->set(i) = hh(i) / dh(i) ;
+    lognb->set(i) = log10(nb[i]) ;
+  }
+
+  hmin = pow( double(10), (*logh)(0) ) ;
+  hmax = pow( double(10), (*logh)(nbp-1) ) ;
+ 
+  // Cleaning
+  //---------
+  delete [] press ; 
+  delete [] nb ; 
+  delete [] ro ; 
+
+
+}
 
 
 // Constructor from CompOSE data files
@@ -151,6 +236,18 @@ Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich)
     dlpsdlh->set(i) = hh(i) / dh(i) ;
     lognb->set(i) = log10(nb[i]) ;
   }
+
+  for (int i=0; i<3; i++) {
+    cout << setprecision(16) ;
+    cout << i << '\t' << (*logh)(i) << ro[i] << '\t'
+	 << press[i] << '\t' << 10 * nb[i] * rhonuc_cgs
+	 << '\t' << (ro[i] - 10 * nb[i] * rhonuc_cgs) / press[i]
+	 << '\t' << (*dlpsdlnb)(i) / ((*dlpsdlnb)(i) - 1.) <<  endl ;
+    dlpsdlh->set(i) = (*dlpsdlnb)(i) / ((*dlpsdlnb)(i) - 1.) ;
+  }
+
+  cout << "---------------------" << endl ;
+  
   
   hmin = pow( double(10), (*logh)(0) ) ;
   hmax = pow( double(10), (*logh)(nbp-1) ) ;
@@ -262,9 +359,15 @@ double Eos_consistent::ener_ent_p(double ent, const Param* ) const {
     double resu = pp / ent * dlpsdlh0 - pp ;
     if (i_near == 0)
       {
-	double pp_near = pow(double(10), (*logp)(i_near)) ;
-	double ent_near = pow(double(10), (*logh)(i_near)) ;
-	resu = pp_near / ent_near * (*dlpsdlh)(i_near) - pp_near ;
+	double p_near = pow(double(10), (*logp)(i_near)) ;
+	double p_nearp1 = pow(double(10), (*logp)(i_near+1)) ;
+	double ener_near = p_near/ pow(double(10), (*logh)(i_near))
+	  * (*dlpsdlh)(i_near) - p_near ;
+	double ener_nearp1 = p_nearp1/ pow(double(10), (*logh)(i_near+1))
+	  * (*dlpsdlh)(i_near+1) - p_nearp1 ; 
+	double delta = (*logh)(i_near+1) - (*logh)(i_near) ;
+	resu = (ener_nearp1*(logh0 - (*logh)(i_near)) 
+		 - ener_near*(logh0 - (*logh)(i_near+1))) / delta  ;
       }
     return resu ;
   }
