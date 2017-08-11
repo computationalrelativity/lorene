@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2017/08/11 13:42:04  j_novak
+ * Suppression of spurious output
+ *
  * Revision 1.3  2017/08/10 15:14:27  j_novak
  * Now Eos_consistent is also reading Lorene format tables.
  *
@@ -84,7 +87,6 @@ Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich)
 {
   using namespace Unites ;
 
-  cout << tablename << endl ;
   ifstream tfich(tablename.data()) ;
 
   for (int i=0; i<5; i++) {		//  jump over the file
@@ -93,7 +95,6 @@ Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich)
 
   int nbp ;
   tfich >> nbp ; tfich.ignore(1000, '\n') ;   // number of data
-  cout << "nbp = " << nbp << endl ;
   if (nbp<=0) {
     cerr << "Eos_tabul::read_table(): " << endl ;
     cerr << "Wrong value for the number of lines!" << endl ;
@@ -121,7 +122,7 @@ Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich)
     tfich >> no ;
     tfich >> nb_fm3 ;
     tfich >> rho_cgs ;
-    tfich >> p_cgs ; fich.ignore(1000,'\n') ;    		
+    tfich >> p_cgs ; tfich.ignore(1000,'\n') ;    		
     if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
       cout << "Eos_consistent(ifstream&): " << endl ;
       cout << "Negative value in table!" << endl ;
@@ -237,18 +238,6 @@ Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich)
     lognb->set(i) = log10(nb[i]) ;
   }
 
-  for (int i=0; i<3; i++) {
-    cout << setprecision(16) ;
-    cout << i << '\t' << (*logh)(i) << ro[i] << '\t'
-	 << press[i] << '\t' << 10 * nb[i] * rhonuc_cgs
-	 << '\t' << (ro[i] - 10 * nb[i] * rhonuc_cgs) / press[i]
-	 << '\t' << (*dlpsdlnb)(i) / ((*dlpsdlnb)(i) - 1.) <<  endl ;
-    dlpsdlh->set(i) = (*dlpsdlnb)(i) / ((*dlpsdlnb)(i) - 1.) ;
-  }
-
-  cout << "---------------------" << endl ;
-  
-  
   hmin = pow( double(10), (*logh)(0) ) ;
   hmax = pow( double(10), (*logh)(nbp-1) ) ;
  
