@@ -1,0 +1,25 @@
+ident = 1			# ident: 1 -> (special-)relativistic EoS; 2 -> Newtonian EoS 
+						# This quantity also appears in settings.par (and should be modified here also)
+						# 
+						# Be careful : to be consistent, the "relat" parameter in "settings.par" 
+						# should be put to 0 if "ident" = 2 (Newtonian calculation) and 1 if
+						# "ident" = 1 (Relativistic calculation)
+
+name = "polytropic 2-fluid EoS" 
+
+m_1 = 	1.			# mass1
+m_2 = 	1. 		# mass2		
+
+gamma1 = 2.1
+gamma2 = 2.3
+gamma3 = 1.		
+gamma4 = 1.		
+gamma5 = 1
+gamma6 = 1.	
+kappa1 = 0.046 
+kappa2 = 1.4
+kappa3 = 0.
+beta   = 0.1
+
+slow_rot_style = 0	# use slow-rotation type EOS inversion
+

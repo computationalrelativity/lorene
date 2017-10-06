@@ -21,14 +21,19 @@
  */
 
 /***********************************************************************
- *   calculate stationary configuration of superfluid neutron star
+ *   compute expected value of the glitch rise time using Eq. (21) of 
+ *   Sourie, Chamel, Novak and Oertel, MNRAS 464, 4641 (2017)
  ***********************************************************************/
 
-/* Input parameters for the configuration should be set in settings.par
- * EoS parameters should be set in eos_tab.par or eos_anal.par 
- * depending on the type of the EoS under consideration
- */
-
+/* The input parameters are very similar to those of sfstar. Some new parameters
+ * relative to the computation of the partial moments of inertia and the mutual friction 
+ * coefficient should be set in glitch_rise.par.
+ *
+ * The partial moments of inertia I_{XY} are computed at a fixed total baryon mass M^B
+ * with beta-equilibrium or at fixed partial baryon masses M^B_n and M^B_p. To get the values
+ * of these masses corresponding to the gravitational mass under interest, it is recommended 
+ * to start by using the sfstar code (with convergence towards a given grav. mass).
+ */ 
 
 // headers C
 #include <math.h>
@@ -363,31 +368,80 @@ int main(){
 	cout << "=====================" << endl ;
     }
 
+	 //------------------------------------------------------------------
+    //	Read extra parameters necessary to compute the glitch rise time
+    //------------------------------------------------------------------
+	 
+	 double coeff_B ; 		// mutual friction parameter
+    double eps_freq ;		// epsilon parameter used to compute the partial moment of inertia 
+									// using a fourth-order finite difference method
+
+	 char *par_glitch = "glitch_rise.par"; // input parameters for the computation of the glitch rise time
+    int res_gl = 0;
+
+    res_gl += read_variable (par_glitch, "B", coeff_B);
+    res_gl += read_variable (NULL, "eps_freq", eps_freq);
+    
+    if ( res_gl != 0 )
+      {
+			cerr << "An error ocurred in reading the parameter file 'glitch_rise.par'. Terminating...\n";
+			exit (-1);
+      }
+
+	//-------------------------------
+   // To store intermediate results 
+	//-------------------------------
+  	
+	ofstream fich_der1 ; // Store quantites computed for fixed Omega_p
+   fich_der1.open("coupling_omega_p_fixed.d", ios::app); 
+
+	ofstream fich_der2 ; // Store quantites computed for fixed Omega_n
+   fich_der2.open("coupling_omega_n_fixed.d", ios::app); 
+
+	fich_der1.precision(12);
+   fich_der1 << "# Omega_n[Hz]   Omega_p[Hz]      Mb(Msol)	 Mbn(Msol)	Mbp(Msol)	Mg(Msol)	"
+		  << "  GRV2		GRV3	  J[10^38 kg m^2 s^-1]  Jn[10^38 kg m^2 s^-1]	Jp[10^38 kg m^2 s^-1]	"
+		  << "  tilde{I}_n[10^38 kg m^2]   tilde{I}_p[10^38 kg m^2]   tilde{omega}_n[rad s^-1]   tilde{omega}_p[rad s^-1]    tilde{eps}_n   tilde{eps}_p  "
+		  << endl;
+		  
+   fich_der2.precision(12);
+   fich_der2 << "# Omega_n[Hz]   Omega_p[Hz]      Mb(Msol)	 Mbn(Msol)	Mbp(Msol)	Mg(Msol)	"
+		  << "  GRV2		GRV3	  J[10^38 kg m^2 s^-1]  Jn[10^38 kg m^2 s^-1]	Jp[10^38 kg m^2 s^-1]	"
+		  << "  tilde{I}_n[10^38 kg m^2]   tilde{I}_p[10^38 kg m^2]   tilde{omega}_n[rad s^-1]   tilde{omega}_p[rad s^-1]    tilde{eps}_n   tilde{eps}_p  "
+		  << endl;
+
+	double Jn_minus_2eps_N = 0, Jn_minus_eps_N = 0, Jn_plus_eps_N = 0, Jn_plus_2eps_N  = 0;
+	double Jn_minus_2eps_P = 0, Jn_minus_eps_P = 0, Jn_plus_eps_P  = 0, Jn_plus_2eps_P  = 0;
+	double Jp_minus_2eps_N = 0, Jp_minus_eps_N = 0, Jp_plus_eps_N = 0, Jp_plus_2eps_N  = 0;
+	double Jp_minus_2eps_P = 0, Jp_minus_eps_P = 0, Jp_plus_eps_P = 0, Jp_plus_2eps_P = 0 ;	
+	double J_minus_2eps_N = 0,  J_minus_eps_N = 0,  J_plus_eps_N = 0,  J_plus_2eps_N  = 0;
+	double J_minus_2eps_P = 0,  J_minus_eps_P = 0,  J_plus_eps_P = 0,  J_plus_2eps_P = 0 ;
+ 
+	double tilde_omegan_minus_2eps_N = 0, tilde_omegan_minus_eps_N = 0, tilde_omegan_plus_eps_N = 0, tilde_omegan_plus_2eps_N = 0 ;
+	double tilde_omegan_minus_2eps_P = 0, tilde_omegan_minus_eps_P = 0, tilde_omegan_plus_eps_P = 0, tilde_omegan_plus_2eps_P = 0 ;
+	double tilde_omegap_minus_2eps_N = 0, tilde_omegap_minus_eps_N = 0, tilde_omegap_plus_eps_N = 0, tilde_omegap_plus_2eps_N = 0 ;
+	double tilde_omegap_minus_2eps_P = 0, tilde_omegap_minus_eps_P = 0, tilde_omegap_plus_eps_P = 0, tilde_omegap_plus_2eps_P = 0 ;	
+
+	// loop on the frequencies
+   //-------------------------
 	
-
-	// to converge towards a given gravitational mass by hand 
-   /*
- 	ofstream fich_CV ;
-	fich_CV.open("CV_Mg.d", ios::app);
-	fich_CV.precision(16) ;
-	fich_CV 	<< "# Omega_n[Hz]   Omega_p[Hz]  Hn(c^2)     Hp(c^2)    Mg(Msol)	 Mb(Msol)	 Mbn(Msol)	Mbp(Msol)   GRV2		GRV3		"
-				<< endl ;   
-
-	double star_mass = star.mass_g() / msol ; 
-	double grav_mass_exp = 1.5 ;   		// expected gravitational mass
-   double eps_CV = 1e-9 ;		   			// convergence threshold (relative precision)
+	double freq_si_0 = freq_si ;
+	double freq2_si_0 = freq2_si ;
       
-   double ent2_down =  0.2 ;  // such that star.mass_g() < grav_mass_exp
-   double ent2_up   =  0.3 ;  // such that star.mass_g() > grav_mass_exp
-                    
-   double ent1_down = ent2_down - log( eos.get_m1() / eos.get_m2() ) ;
-   double ent1_up   = ent2_up   - log( eos.get_m1() / eos.get_m2() ) ;    
-                   
-    while ( abs(  star_mass - grav_mass_exp ) > eps_CV ) {
-		  ent2_c = ( ent2_down + ent2_up ) / 2. ;
-		  ent1_c = ent2_c - log( eos.get_m1() / eos.get_m2() ) ;
-	 */
+	for (int i_freq = 1; i_freq <=9; i_freq++){
 
+		freq_si = freq_si_0 ;
+		freq2_si = freq2_si_0 ;	
+	
+	   if (i_freq==1){ freq_si = freq_si_0* (1.+ 2.* eps_freq );}
+	   if (i_freq==2){ freq_si = freq_si_0* (1.+ eps_freq );}
+	   if (i_freq==3){ freq_si = freq_si_0* (1.- eps_freq );}
+	   if (i_freq==4){ freq_si = freq_si_0* (1.- 2.* eps_freq );}
+	   if (i_freq==5){ freq2_si = freq2_si_0* (1.+ 2.* eps_freq );}
+	   if (i_freq==6){ freq2_si = freq2_si_0* (1.+ eps_freq );}
+	   if (i_freq==7){ freq2_si = freq2_si_0* (1.- eps_freq );}
+	   if (i_freq==8){ freq2_si = freq2_si_0* (1.- 2.* eps_freq );}
+	 	 
 
 	 //-----------------------------------------------------------------------
     //		Initialization of the enthalpy field
@@ -464,7 +518,6 @@ int main(){
     cout << "Growing rate of triaxial perturbation: " << vit_triax 
 	      << endl ; 
 
-
     //-----------------------------------------------
     //  General features of the final configuration
     //  saved in a file
@@ -516,7 +569,7 @@ int main(){
     	// total central densities
 /*   	m1 = eos.get_m1();
    	m2 = eos.get_m2();
-    	double rhon_c = m1 * star.get_nbar()()(0,0,0,0);  t
+    	double rhon_c = m1 * star.get_nbar()()(0,0,0,0);  
     	double rhop_c = m2 * star.get_nbar2()()(0,0,0,0);
 */
     	double rhon_c = star.get_nbar()()(0,0,0,0);  
@@ -564,41 +617,117 @@ int main(){
     	fclose(fresu) ;
     
 
+		// Store intermediate results :
 
-		// To converge towards a given gravitational mass (by hand)
-		/*
-		fich_CV 	<< freq_si 		<< "     "
-					<< freq2_si 	<< "     "
-					<< ent1_c 		<< "     "
-	   			<< ent2_c 		<< "     "		
-					<< star.mass_g() /msol 		<< "     " 							
-		     		<< star.mass_b() / msol		<< "     "
-    				<< star.mass_b1()/ msol 	<< "     "
-     				<< star.mass_b2() /msol 	<< "     "
-    				<< star.grv3() 				<< "     "
-    				<< star.grv2() 				<< "     "
- 					<< endl ;
-
- 		
-		star_mass= star.mass_g() / msol ;
-
-		if (star_mass > grav_mass_exp)  
-		{ 
-         ent2_up = ent2_c ; 
-	      ent1_up = ent1_c ;
-      }
-      else
-      {
-         ent2_down = ent2_c ;
-		   ent1_down = ent1_c ;
+		// freq_p = freq2_si_0 (fixed)
+		if (i_freq==1){ // freq_n = freq_si_0 * (1 + 2 * eps_freq) 
+				J_plus_2eps_N 	= star.angu_mom()	; 
+				Jn_plus_2eps_N = star.angu_mom_1() ;
+				Jp_plus_2eps_N = star.angu_mom_2() ;
+				tilde_omegan_plus_2eps_N = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_plus_2eps_N = star.coupling_LT_2()/ star.coupling_mominert_2() ;
 		}
+		if (i_freq==2){ // freq_n = freq_si_0 * (1 + eps_freq) 
+				J_plus_eps_N  = star.angu_mom()	; 
+				Jn_plus_eps_N = star.angu_mom_1() ;
+				Jp_plus_eps_N = star.angu_mom_2() ;
+				tilde_omegan_plus_eps_N = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_plus_eps_N = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}
+		if (i_freq==3){ // freq_n = freq_si_0 * (1 - eps_freq)
+				J_minus_eps_N 	= star.angu_mom()	; 
+				Jn_minus_eps_N = star.angu_mom_1() ;
+				Jp_minus_eps_N = star.angu_mom_2() ;
+				tilde_omegan_minus_eps_N = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_minus_eps_N = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}
+		if (i_freq==4){ // freq_n = freq_si_0 * (1 - 2 * eps_freq)
+				J_minus_2eps_N  = star.angu_mom()	; 
+				Jn_minus_2eps_N = star.angu_mom_1() ;
+				Jp_minus_2eps_N = star.angu_mom_2() ;
+				tilde_omegan_minus_2eps_N = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_minus_2eps_N = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}		
+		// freq_n = freq_si_0 (fixed)
+		if (i_freq==5){ // freq_p = freq2_si_0 * (1 + 2 * eps_freq) 
+				J_plus_2eps_P 	= star.angu_mom()	; 
+				Jn_plus_2eps_P = star.angu_mom_1() ;
+				Jp_plus_2eps_P = star.angu_mom_2() ;
+				tilde_omegan_plus_2eps_P = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_plus_2eps_P = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}
+		if (i_freq==6){ // freq_p = freq2_si_0 * (1 + eps_freq) 
+				J_plus_eps_P  = star.angu_mom()	; 
+				Jn_plus_eps_P = star.angu_mom_1() ;
+				Jp_plus_eps_P = star.angu_mom_2() ;
+				tilde_omegan_plus_eps_P = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_plus_eps_P = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}
+		if (i_freq==7){ // freq_p = freq2_si_0 * (1 - eps_freq) 
+				J_minus_eps_P 	= star.angu_mom()	; 
+				Jn_minus_eps_P = star.angu_mom_1() ;
+				Jp_minus_eps_P = star.angu_mom_2() ;
+				tilde_omegan_minus_eps_P = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_minus_eps_P = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}
+		if (i_freq==8){ // freq_p = freq2_si_0 * (1 - 2 * eps_freq) 
+				J_minus_2eps_P 	= star.angu_mom()	; 
+				Jn_minus_2eps_P = star.angu_mom_1() ;
+				Jp_minus_2eps_P = star.angu_mom_2() ;				
+				tilde_omegan_minus_2eps_P = star.coupling_LT_1()/ star.coupling_mominert_1() ;
+				tilde_omegap_minus_2eps_P = star.coupling_LT_2()/ star.coupling_mominert_2() ;
+		}
+
+	 	if ( (i_freq == 9) || (i_freq == 1) || (i_freq == 2) || (i_freq == 3) || (i_freq == 4) ) { 
+	   fich_der1 		<< freq_si							<< "     " 
+	    	  				<< freq2_si 						<< "     "	
+		  					<< star.mass_b() / msol			<< "     "
+		  					<< star.mass_b1()/ msol 		<< "     "
+		 					<< star.mass_b2() /msol 		<< "     "
+		  					<< star.mass_g() /msol 			<< "     " 
+		  					<< star.grv2() 					<< "     "
+		  					<< star.grv3() 					<< "     "
+      	          	<< star.angu_mom() * rho_unit * pow(r_unit, double(4.))	* v_unit / double(1.e38)				<< "     " 
+      		  			<< star.angu_mom_1()  * rho_unit * pow(r_unit, double(4.))	* v_unit / double(1.e38)			<< "     " // Jn   
+      		  			<< star.angu_mom_2()	 * rho_unit * pow(r_unit, double(4.))	* v_unit / double(1.e38)			<< "     " // Jp  	  
+		  					<< star.coupling_mominert_1()* rho_unit * pow(r_unit, double(5.)) / double(1.e38) 				<< "     " //\tilde{I}_n
+		 					<< star.coupling_mominert_2()	* rho_unit * pow(r_unit, double(5.)) / double(1.e38) 			<< "     " //\tilde{I}_p 
+		  					<< star.coupling_LT_1()/ star.coupling_mominert_1() * f_unit		<< "     " //\tilde{omega}_n  
+		  					<< star.coupling_LT_2()/ star.coupling_mominert_2() * f_unit		<< "     " //\tilde{omega}_p  	
+		  					<< star.coupling_entr()/ star.coupling_mominert_1()					<< "     " //\tilde{eps}_n
+		 					<< star.coupling_entr()/ star.coupling_mominert_2()					<< "     " //\tilde{eps}_p
+		  					<< endl;
+    	}
+    
+      if ( (i_freq== 9) || (i_freq == 5) || (i_freq == 6) || (i_freq == 7) || (i_freq == 8) ) { 
+	   fich_der2 		<< freq_si							<< "     " 
+	    	  				<< freq2_si 						<< "     "	
+		  					<< star.mass_b() / msol			<< "     "
+		  					<< star.mass_b1()/ msol 		<< "     "
+		 					<< star.mass_b2() /msol 		<< "     "
+		  					<< star.mass_g() /msol 			<< "     " 
+		  					<< star.grv2() 					<< "     "
+		  					<< star.grv3() 					<< "     "
+      	          	<< star.angu_mom() * rho_unit * pow(r_unit, double(4.))	* v_unit / double(1.e38)		<< "     " 
+      		  			<< star.angu_mom_1()  * rho_unit * pow(r_unit, double(4.))	* v_unit / double(1.e38)	<< "     " // Jn   
+      		  			<< star.angu_mom_2()	 * rho_unit * pow(r_unit, double(4.))	* v_unit / double(1.e38)	<< "     " // Jp  	  
+		  					<< star.coupling_mominert_1()	* rho_unit * pow(r_unit, double(5.)) / double(1.e38) 	<< "     " //\tilde{I}_n
+		 					<< star.coupling_mominert_2() * rho_unit * pow(r_unit, double(5.)) / double(1.e38) 	<< "     " //\tilde{I}_p 
+		  					<< star.coupling_LT_1()/ star.coupling_mominert_1() * f_unit		<< "     " //\tilde{omega}_n  
+		  					<< star.coupling_LT_2()/ star.coupling_mominert_2() * f_unit		<< "     " //\tilde{omega}_p  	
+		  					<< star.coupling_entr()/ star.coupling_mominert_1() 					<< "     " //\tilde{eps}_n
+		 					<< star.coupling_entr()/ star.coupling_mominert_2() 					<< "     " //\tilde{eps}_p
+		  					<< endl;
+      }
+
 		
-		} // end of while loop
-  	
-		fich_CV.close() ;	
-		*/
+		}  // end of the loop on the frequencies
 
+		
+		fich_der1.close() ;
+	   fich_der2.close() ;
 
+		
     	// Drawings
     	// --------
     	
@@ -613,257 +742,14 @@ int main(){
 	    		unsurc2 = 0.; 
 		}
 
-	
-		// N (lapse)
-		ofstream fichdes("prof_n.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       N(theta=0)	N(theta=pi/2)" << endl ; 
-    	int npd = 300; 
-    	double r_max = 3 ;
-    	double h = r_max/double(npd-1) ;
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto = star.get_nnn()() ;
-			fichdes 	<< rr*10 << "  " 
-						<< toto.val_point(rr,0.,0.) << "   " 
-						<< toto.val_point(rr, M_PI/2.,0.) << endl ; 
-    	}
-    	fichdes.close() ; 
 
-		// omega/Omega_p
-		fichdes.open("prof_omega2.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       omega(theta=0)	  omega(theta=pi/2)" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto2 = star.get_nphi()() ;
-			fichdes 	<< rr*10 << "  "  
-						<< toto2.val_point(rr,0.,0.) / star.get_omega2()   << "   " 
-					   << toto2.val_point(rr, M_PI/2.,0.) /star.get_omega2()  << endl ; 
-    	}
-    	fichdes.close() ; 
-
-		// A (metric coefficient)
-		fichdes.open("prof_a.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       A(theta=0)	  A(theta=pi/2)" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto3 = star.get_a_car() ();
-			fichdes 	<< rr*10 << "  " 
-					<< sqrt( toto3.val_point(rr,0.,0.) ) << "   " 
-					<< sqrt( toto3.val_point(rr, M_PI/2.,0.) ) << endl ; 
-    	}
-    	fichdes.close() ; 
-	
-		// B-A
-    	fichdes.open("prof_bma.d") ;
-    	fichdes.precision(10) ; 
-   	fichdes << "#   r [km]       B-A(theta=0)	  B-A(theta=pi/2)" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto5 = star.get_b_car()();
-			Cmp toto6 = star.get_a_car()();
-			fichdes 	<< rr*10 << "  " 
-						<< sqrt( toto5.val_point(rr,0.,0.) )  - sqrt( toto6.val_point(rr,0.,0.) ) << "   " 
-						<< sqrt( toto5.val_point(rr, M_PI/2.,0.) ) - sqrt( toto6.val_point(rr, M_PI/2.,0.) ) << endl ; 
-    	}
-    	fichdes.close() ; 
-		
-		// Enthalpy profiles
-		fichdes.open("prof_h.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       Hn(theta=0)	  Hn(theta=pi/2)     Hp(theta=0)    Hp(theta=pi/2)" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto8 = star.get_ent()();
-			Cmp toto8bis = star.get_ent2()();
-			fichdes 	<< rr*10 << "  " 
-						<< toto8.val_point(rr,0.,0.) << "   " 
-						<< toto8.val_point(rr, M_PI/2.,0.) << "   " 
-						<< toto8bis.val_point(rr, 0.,0.) << "   " 
-						<< toto8bis.val_point(rr, M_PI/2.,0.) << endl ; 
-    	}
-    	fichdes.close() ;
-    
-		//Pressure profiles
-	   fichdes.open("prof_press.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       press(theta=0)	  press(theta=pi/2)" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto7 = star.get_press()();
-			fichdes 	<< rr*10 << "  " 
-						<< toto7.val_point(rr,0.,0.) << "   " 
-						<< toto7.val_point(rr, M_PI/2.,0.) << endl ; 
-    	}
-    	fichdes.close() ; 
-
-		// Density profiles
-    	fichdes.open("prof_densite.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       nn(theta=0)	  nn(theta=pi/2)          np(theta=0)	  np(theta=pi/2)" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-	  		Cmp toto18 = star.get_nbar()();
-	  		Cmp toto18bis = star.get_nbar2()();
-	   	fichdes 	<< 	rr*10 << "  " 
-	  					<< toto18.val_point(rr,0.,0.) << "   " 
-	  					<< toto18.val_point(rr, M_PI/2.,0.) << "   " 
-	  					<< toto18bis.val_point(rr, 0.,0.) << "   " 
-	  					<< toto18bis.val_point(rr, M_PI/2.,0.) << endl ; 
-    	}
-    	fichdes.close() ; 
-
-		//Velocity profiles
-	   fichdes.open("prof_u.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       U(theta=0)/c	  U(theta=pi/2)/c       Up(theta=0)/c	  Up(theta=pi/2)/c" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto9 = star.get_uuu()();
-			Cmp toto9bis = star.get_uuu2()();
-			fichdes 	<< rr*10 << "  " 
-						<< toto9.val_point(rr,0.,0.) << "   " 
-						<< toto9.val_point(rr, M_PI/2.,0.) <<  "   " 
-						<< toto9bis.val_point(rr, 0.,0.) << "   " 
-						<< toto9bis.val_point(rr, M_PI/2.,0.) << endl ; 
-    		}
-    	fichdes.close() ; 
-
-		// Relative velocity
-    	fichdes.open("prof_vitesserel.d") ;
-    	fichdes.precision(10) ; 
-    	fichdes << "#   r [km]       delta(theta=0)/c	 delta(theta=pi/2)/c" << endl ; 
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
- 			Cmp toto10 = star.get_delta_car()();
-			fichdes 	<< rr*10 << "  " 
-						<< sqrt(toto10.val_point(rr,0.,0.) )<< "   " 
-						<< sqrt(toto10.val_point(rr, M_PI/2.,0.)) <<  endl ; 
-    	}
-    	fichdes.close() ; 
-    
-		// alpha (which characterizes entrainement)
-    	fichdes.open("prof_alpha.d");
-    	fichdes.precision(16) ;
-    	fichdes << "# r [km]		alpha(theta=0)        alpha(theta=pi/2)  " << endl ;	
-    	for (int i=0; i<npd; i++) {
-			double rr = h * i ;
-			Cmp toto_nbar1 = star.get_nbar()();
-			Cmp toto_nbar2 = star.get_nbar2()();
-			Cmp toto_delta_car = star.get_delta_car()();
-			Cmp toto_K12 = star.get_K_np()() ; 
-			double alpha_0   = 0.5 * toto_K12.val_point(rr,0.,0.) * toto_nbar1.val_point(rr,0.,0.)  * 
-											toto_nbar2.val_point(rr,0.,0.) * pow(1. - unsurc2 * toto_delta_car.val_point(rr,0.,0.), -1.5);
-  			double alpha_pi2 = 0.5 * toto_K12.val_point(rr,M_PI/2,0.) * toto_nbar1.val_point(rr, M_PI/2.,0.) * 
-											toto_nbar2.val_point(rr,M_PI/2.,0.) * pow(1. - unsurc2 * toto_delta_car.val_point(rr, M_PI/2.,0.), -1.5);
-			Cmp toto_alpha = star.get_alpha_eos()() ;
-			fichdes 	<< rr*10 	<< "   " 
-						<< alpha_0	<< "   " 
-						<< alpha_pi2 	<< "   " 
-						<< toto_alpha.val_point(rr,0.,0.) 	<< "   " 
-						<< toto_alpha.val_point(rr,M_PI/2,0.) 	<< "   " 
-						<< endl ;
-    	}
-    	fichdes.close() ; 
-
-		   
-      // Same quantities as before, but using collocation points
-    
+	  
       const Map_radial *map_colloc = dynamic_cast<const Map_radial*>(&star.get_mp());
     	const Mg3d* mg_colloc = map_colloc->get_mg() ;	// Multi-grid
     	const Coord& r_colloc = map_colloc->r;
-    
-		//Pressure (collocation points)
-	   fichdes.open("prof_press_colloc.d") ;
-    	fichdes.precision(16) ;
-    	fichdes 	<< "#   r [km](theta=0)  	   r [km](theta=pi/2)     	 press(theta=0)	 	 press(theta=pi/2)" 
-					<< endl ; 
-    	for (int i=0 ; i<nz; i++){
-       	for (int j=0; j< nr[i]; j++){
-    				int pi_2 = mg_colloc->get_nt(i)-1;
-					double position_0 = (+r_colloc)(i,0,0,j)  ;
-					double position_pi_2 = (+r_colloc)(i,0,pi_2,j)  ;
-					Cmp press_colloc = star.get_press()(); 
-    				double press_0_colloc    = press_colloc(i,0,0,j); 
- 					double press_pi2_colloc  = press_colloc(i,0,pi_2,j); 
-    				fichdes 	<< position_0 * 10. 	 	<< "  " 
-								<< position_pi_2 * 10. 	<< "   "
-								<< press_0_colloc 	 	<< "   " 
-								<< press_pi2_colloc	 	
-								<< endl ;
-       	}
-    	}
-    	fichdes.close() ; 
-	
-    	//Density (collocation points) 
-    	fichdes.open("prof_densite_colloc.d") ;
-    	fichdes.precision(16) ;
-    	fichdes 	<< "#   r [km](theta=0)  	   r [km](theta=pi/2)        nn(theta=0)	 	 nn(theta=pi/2)        	  np(theta=0)		  np(theta=pi/2)" 
-					<< endl ;     
-      for (int i=0 ; i<nz; i++){
-       	for (int j=0; j< nr[i]; j++){
-   				int pi_2 = mg_colloc->get_nt(i)-1;
-					double position_0 = (+r_colloc)(i,0,0,j)  ;
-					double position_pi_2 = (+r_colloc)(i,0,pi_2,j)  ;
-        			Cmp nbar1_colloc = star.get_nbar()();
-					Cmp nbar2_colloc = star.get_nbar2()();
-    				double n1_0_colloc 	= nbar1_colloc(i,0,0,j); 
- 					double n1_pi2_colloc 	= nbar1_colloc(i,0,pi_2,j); 
- 					double n2_0_colloc  	= nbar2_colloc(i,0,0,j); 
- 					double n2_pi2_colloc  	= nbar2_colloc(i,0,pi_2,j); 
- 					fichdes 	<< position_0 * 10 		<< "  " 
-								<< position_pi_2 * 10 	<< "   "
-								<< n1_0_colloc 			<< "   " 
-								<< n1_pi2_colloc 			<< "   " 
-								<< n2_0_colloc 			<< "    " 
-								<< n2_pi2_colloc 
-								<< endl ;
-        	}
-    	}
-    	fichdes.close() ; 
-	
-    
-     	//alpha (collocation points)  
-    	fichdes.open("prof_alpha_colloc.d") ;
-    	fichdes.precision(16) ;
-    	fichdes << "# r [km](theta=0)  	   r [km](theta=pi/2) 		alpha(theta=0)           alpha(theta=pi/2)  " << endl ;	
-		for (int i=0 ; i<nz; i++){
-      	for (int j=0; j< nr[i]; j++){
-   				int pi_2 = mg_colloc->get_nt(i)-1;
-					double position_0 = (+r_colloc)(i,0,0,j)  ;
-					double position_pi_2 = (+r_colloc)(i,0,pi_2,j)  ;
-    				Cmp nbar1_colloc = star.get_nbar()();
-					Cmp nbar2_colloc = star.get_nbar2()();
-					Cmp delta_car_colloc = star.get_delta_car()();	
-					Cmp K12_colloc = star.get_K_np()() ; 
-	
-					double delta_car_0_colloc = delta_car_colloc(i,0,0,j); 
- 					double delta_car_pi2_colloc  = delta_car_colloc(i,0,pi_2,j); 
- 					double n1_0_colloc = nbar1_colloc(i,0,0,j); 
- 					double n1_pi2_colloc  = nbar1_colloc(i,0,pi_2,j); 
- 					double n2_0_colloc  = nbar2_colloc(i,0,0,j); 
- 					double n2_pi2_colloc  = nbar2_colloc(i,0,pi_2,j); 
- 					double K12_0_colloc  = K12_colloc(i,0,0,j); 
- 					double K12_pi2_colloc  = K12_colloc(i,0,pi_2,j); 
- 	 		     	double alpha_0_colloc     = 0.5 * K12_0_colloc    * n1_0_colloc    * n2_0_colloc    * pow(1-unsurc2 *delta_car_0_colloc , -1.5);
-    				double alpha_pi2_colloc   = 0.5 * K12_pi2_colloc  * n1_pi2_colloc  * n2_pi2_colloc  * pow(1-unsurc2 *delta_car_pi2_colloc , -1.5);   
- 					Cmp toto_alpha = star.get_alpha_eos()() ;
-	
-					fichdes 	<< position_0 * 10 		<< "  " 
-								<< position_pi_2 * 10 	<< "   "
-								<< alpha_0_colloc 		<< "   " 
-								<< alpha_pi2_colloc 		<< "   " 
-								<< toto_alpha(i,0,0,j) 		<< "   " 
-								<< toto_alpha(i,0,pi_2,j)	
-								<<  endl ;
-	 		}
-    	}
-    	fichdes.close() ; 	
- 	
-    	// Computation of the vorticity profile 
-		// ------------------------------------
+   
+    	// Computation of the vorticity profile (and the mutual friction moment)
+		// ---------------------------------------------------------------------
 		if ( star.get_omega_c() != 0 ) {  	
 		// if omega_n = 0 -> no vorticity
  
@@ -945,7 +831,8 @@ int main(){
  		}
   
 		// to plot the vorticity profiles and make some checks (collocation points)
-		fichdes.open("prof_vorticity.d") ;
+
+		ofstream fichdes("prof_vorticity.d") ;
 		fichdes.precision(16) ; 
 		fichdes 		<< "#  r [km](theta=0)  	   r [km](theta=pi/2)  	 Newtonian_Vorticity	   "
 	   				<< " Vorticity(theta=0)	   	h_perp_2(theta=0)  		Vorticity(theta=pi/2)	   	h_perp_2(theta=pi/2) " 
@@ -957,28 +844,14 @@ int main(){
  						double position_pi_2 =  (+r_colloc)(i,0,pi_2,j) ;
  	 
  						// theta = 0
-//						double g_tt_0			=	g_tt(i,0,0,j); 
-//						double g_tph_0			= 	g_tph(i,0,0,j); 
-//						double g_phph_0		= 	g_phph(i,0,0,j); 
-// 					double p_t_0 			=	p_t(i,0,0,j); 
-//						double p_ph_0 			= 	p_ph(i,0,0,j); 
-// 					double dp_tsdr_0 		= 	dp_tsdr(i,0,0,j); 
-// 					double dp_phsdr_0  	=	dp_phsdr(i,0,0,j); 
-// 					double dp_tsdth_0  	=	dp_tsdth(i,0,0,j); 
-// 					double dp_phsdth_0  	=	dp_phsdth(i,0,0,j); 
-						double vorticity_0	= 	Vorticity(i,0,0,j);
+ 						double vorticity_0	= 	Vorticity(i,0,0,j);
  						double hperp_2_0		= 	h_perp_2(i,0, 0, j) ;
-
 						// theta = pi/2	
-//						double g_tt_pi2		=	g_tt(i,0,pi_2,j); 
-// 					double g_tph_pi2		= 	g_tph(i,0,pi_2,j); 
 	 					double g_phph_pi2		= 	g_phph(i,0,pi_2,j); 
-// 					double p_t_pi2 		=	p_t(i,0,pi_2,j); 
-//						double p_ph_pi2		= 	p_ph(i,0,pi_2,j); 
-						double dp_tsdr_pi2 	= 	dp_tsdr(i,0,pi_2,j); 
-						double dp_phsdr_pi2  =	dp_phsdr(i,0,pi_2,j); 
-						double dp_tsdth_pi2  =	dp_tsdth(i,0,pi_2,j); 
-						double dp_phsdth_pi2 =	dp_phsdth(i,0,pi_2,j); 	
+ 						double dp_tsdr_pi2 	= 	dp_tsdr(i,0,pi_2,j); 
+ 						double dp_phsdr_pi2  =	dp_phsdr(i,0,pi_2,j); 
+ 						double dp_tsdth_pi2  =	dp_tsdth(i,0,pi_2,j); 
+ 						double dp_phsdth_pi2 =	dp_phsdth(i,0,pi_2,j); 	
  						double vorticity_pi2	= 	Vorticity(i,0,pi_2,j);
  						double hperp_2_pi2 	= 	h_perp_2(i,0, pi_2, j) ;
 						double N_metric_pi2 		=	N_metric(i,0, pi_2, j) ;  
@@ -1002,17 +875,128 @@ int main(){
 									<< vorticity_0						<< "   " 
 									<< hperp_2_0						<< "   " 
 									<< vorticity_pi2					<< "   " 
-									<< hperp_2_pi2 					<< "   " 
+									<< hperp_2_pi2 					<< "   " 	
 									<<	endl ;
  		
      			}
      	}
      	fichdes.close() ; 
      
-    	
+
+		/*
+		 * Computation of the partial moments of inertia and 
+		 * every quantity needed to compute the rise time
+		 * Note that the notations are similar to those
+		 * used in Sourie et al., MNRAS 464 (2017)
+		 */
+     
+
+		// the partial moments of inertia are computed from a fourth-order finite difference method
+
+		double Inn = 1./(12. * eps_freq *  star.get_omega_c()) * (Jn_minus_2eps_N - 8.* Jn_minus_eps_N + 8. * Jn_plus_eps_N - Jn_plus_2eps_N );
+	  	double Inp = 1./(12. * eps_freq *  star.get_omega2()) * (Jn_minus_2eps_P - 8.* Jn_minus_eps_P + 8. * Jn_plus_eps_P - Jn_plus_2eps_P );
+	  	double Ipn = 1./(12. * eps_freq *  star.get_omega_c()) * (Jp_minus_2eps_N - 8.* Jp_minus_eps_N + 8. * Jp_plus_eps_N - Jp_plus_2eps_N );
+	  	double Ipp = 1./(12. * eps_freq *  star.get_omega2()) * (Jp_minus_2eps_P - 8.* Jp_minus_eps_P + 8. * Jp_plus_eps_P - Jp_plus_2eps_P );
+	 	double hat_In = 1./(12. * eps_freq *  star.get_omega_c()) * (J_minus_2eps_N - 8.* J_minus_eps_N + 8. * J_plus_eps_N - J_plus_2eps_N ); // = Inn + Inp
+		double hat_Ip = 1./(12. * eps_freq *  star.get_omega2()) * (J_minus_2eps_P - 8.* J_minus_eps_P + 8. * J_plus_eps_P - J_plus_2eps_P ); // = Ipp + Ipn
+		double hat_I = hat_In + hat_Ip ;
+
+		// computation of the mutual friction torque (see Eq. 6 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017) : 
+
+		Cmp dens(mp) ; 
+      dens = Gamman * nbar1 * Vorticity * h_perp_2 * A2_metric * sqrt(B2_metric)  ;
+      dens.std_base_scal();
+      double Gamma_int = dens.integrale() * coeff_B * (omega_p - omega_n)  ; 
+		
+		// computation of the kappa and zeta quantities (see Eqs. 18 and 23 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017 for definition) : 
+
+    	double kappa = dens.integrale() ;
+	  	double zeta = kappa/ ( 2. * hat_In *  star.get_omega_c() ) ; 
+
+		// to compute the theoretical expression of the rise time 
+		// (see Eq. 21 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017 for definition) :
+
+		double tau_r = (Inn * Ipp - Inp * Ipn ) / ( kappa * hat_I * coeff_B ) ;
+
+      
+		// to compute the eps_XY^{LT} quantities 
+		// (see Eq. C9 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017 for definition) :
+		// be careful, these quantities (as the \tilde{I}_n, \tilde{\omega}_n and \tilde{\epsilon}_n
+		// only make sense in the slow-rotation approximation and at first order in the lag.
+	
+		double eps_nn_LT  = 1./(12. * eps_freq * star.get_omega_c()) * (tilde_omegan_minus_2eps_N - 8.* tilde_omegan_minus_eps_N + 8. * tilde_omegan_plus_eps_N - tilde_omegan_plus_2eps_N );
+		double eps_pn_LT 	= 1./(12. * eps_freq * star.get_omega2())  * (tilde_omegan_minus_2eps_P - 8.* tilde_omegan_minus_eps_P + 8. * tilde_omegan_plus_eps_P - tilde_omegan_plus_2eps_P );
+		double eps_np_LT  = 1./(12. * eps_freq * star.get_omega_c()) * (tilde_omegap_minus_2eps_N - 8.* tilde_omegap_minus_eps_N + 8. * tilde_omegap_plus_eps_N - tilde_omegap_plus_2eps_N );
+		double eps_pp_LT  = 1./(12. * eps_freq * star.get_omega2())  * (tilde_omegap_minus_2eps_P - 8.* tilde_omegap_minus_eps_P + 8. * tilde_omegap_plus_eps_P - tilde_omegap_plus_2eps_P );
+
+	
+		// coupling coefficients 
+		// (see Eq. 29 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017 for definition) :
+
+		double hat_eps_n = ( star.coupling_entr()/ star.coupling_mominert_1() - eps_pn_LT ) / (1. -  eps_pn_LT  - eps_nn_LT ) ;
+		double hat_eps_p = ( star.coupling_entr()/ star.coupling_mominert_2() - eps_np_LT ) / (1. -  eps_np_LT  - eps_pp_LT ) ;
+
+		// other expression for the rise time 
+		// (see Eq. 30 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017)
+
+		double tau_r_bis = hat_Ip / hat_I * (1. - hat_eps_n - hat_eps_p) / ( kappa * coeff_B) * hat_In;
+	
+		ofstream fich_glitch ;
+		fich_glitch.open("tau_rise.d", ios:: app); 
+		fich_glitch.precision(12) ;
+		fich_glitch 	<< " Omega_n(Hz)		Omega_p(Hz)		H^n_c(c^2)    H^p_c(c^2) 		"
+							<< " M^B(Msol)			M^B_n(Msol)		M^B_p(Msol)   M_G(Msol)    	"
+						 	<< " Rcirc(km) 		Rcirc2(km) 		Rmean(km) 	  Rmean2(km)      GRV2		    GRV3		"
+  							<< " Inn[10^38 kg m^2]  Inp[10^38 kg m^2]  Ipn[10^38 kg m^2]  Ipp[10^38 kg m^2] 	 "
+							<< " hat_In[10^38 kg m^2]  hat_Ip[10^38 kg m^2]  hat_I[10^38 kg m^2] 		" 
+	 						<< " kappa[10^38 kg m^2 s^-1]	   zeta       tau_r(s) " 
+							<< " tilde{I}_n[10^38 kg m^2]		tilde{I}_p[10^38 kg m^2]    tilde{eps}_n	tilde{eps_p} "
+							<< " eps_nn^LT		eps_pn^LT		eps_np^LT		eps_pp^LT	" 
+							<< " hat_eps_n   hat_eps_p  tau_r_bis(s) " 
+  							<< endl;
+
+      fich_glitch	<< freq_si 							<< "     "
+ 						<< freq2_si 						<< "     "
+ 						<< ent1_c 							<< "     "
+ 						<< ent2_c 							<< "     "
+ 						<< star.mass_b() /msol 			<< "     " 
+		  				<< star.mass_b1()/ msol 		<< "     "
+		 				<< star.mass_b2() /msol 		<< "     "
+ 						<< star.mass_g() / msol			<< "     "
+ 						<< star.r_circ() / km   		<< "     "
+ 						<< star.r_circ2() / km  		<< "     "
+ 						<< star.mean_radius() / km 	<< "     "
+ 						<< star.mean_radius2() / km 	<< "     "
+ 						<< star.grv2() 					<< "     "
+						<< star.grv3() 					<< "     "
+ 						<< Inn * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )			<< "     "
+ 						<< Inp * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )			<< "     "
+ 						<< Ipn * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )		   << "     "
+ 						<< Ipp * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )			<< "     "
+ 						<< hat_In * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )		<< "     "
+ 						<< hat_Ip * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )		<< "     "
+ 						<< hat_I  * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )		<< "     "			
+ 						<< kappa	* rho_unit  * pow(r_unit, double(5.)) / t_unit	/ double(1.e38) 				<< "     " 
+ 						<< zeta 										<< "     "
+ 						<< tau_r* t_unit							<< "     "
+		  				<< star.coupling_mominert_1()* rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )						<< "     " //\tilde{I}_n
+		 				<< star.coupling_mominert_2()* rho_unit * (pow(r_unit, double(5.)) / double(1.e38) )						<< "     " //\tilde{I}_p 
+		  				<< star.coupling_entr()/ star.coupling_mominert_1()		<< "     " //\tilde{eps}_n
+		 				<< star.coupling_entr()/ star.coupling_mominert_2()		<< "     " //\tilde{eps}_p
+						<< eps_nn_LT		<< "    " 
+						<< eps_pn_LT		<< "    " 
+						<< eps_np_LT		<< "    " 
+						<< eps_pp_LT		<< "    " 
+						<< hat_eps_n		<< "    " 
+						<< hat_eps_p		<< "    " 
+						<< tau_r_bis * t_unit 		<< "    " 
+         			<< endl ;
+ 		fich_glitch.close() ;
+
 		} // end of the if condition on Omega_n
 
-  
+
+
 		texec1=difftime(tend1,tbegin1);
     	texec2=difftime(tend2,tbegin2);
    	cout << " Time of computation of the star : " << texec1 << endl;

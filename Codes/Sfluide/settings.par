@@ -1,0 +1,89 @@
+# Equation of state Parameters
+------------------------------
+ident = 	3   				# EOS-type: 1 - (special-)relativistic anal. EoS; 
+								# 2 - Newtonian anal. EoS; 3 - (special-)relativistic tab. EoS
+								# For 1 and 2, the other EoS parameters should be put in "eos_anal.par"
+								# For 3, the other EoS parameters should be put in "eos_tab.par"
+name 	=  "2-fluid EOS"   	
+
+
+# Stellar Parameters
+#-------------------
+relat  	= 	1							# Relativity parameter: 1 = relativistic 0 = Newtonian
+ent1_c 	= 	0.1860184680768721   # central enthalpy of fluid 1 [c^2]
+ent2_c 	=  0.1868514668196439   # central enthalpy of fluid 2 [c^2]   
+freq_si 	=  11.19 					# rotation frequency of fluid 1 [Hz]
+freq2_si = 	11.19						# rotation frequency of fluid 2 [Hz]
+
+     
+# Iteration Parameters
+#---------------------
+mer_max 				= 500   	# maximum number of steps
+precis 				= 1e-9 	# threshold on the enthalpy relative change for ending the computation 
+mer_rot				= 5		# step at which the rotation is switched on 
+freq_ini_si 		= 0    	# initial rotation frequency [Hz] (switched on at mer = mer_rot)
+freq2_ini_si 		= 0 		# initial second rotation frequency [Hz] (switched on at mer = mer_rot)
+mer_change_omega 	= 5   	# step at which f is changed to reach freq_si
+mer_fix_omega 		= 10     # step at which f must have reached freq_si 
+relax 				= 0.5		# relaxation factor in the main iteration
+mermax_poisson 	= 6		# maximum number of steps in Map_et::poisson
+relax_poisson 		= 1.5		# relaxation factor in Map_et::poisson
+graph 				= 0      # 1 = graphical outputs during the computation
+
+
+# Multi-grid parameters
+#-----------------------
+nz 	= 	4		# total number of domains
+nzet 	= 	2		# number of domains inside the star
+nt 	= 	17		# number of points in theta (the same in each domain)
+np 	= 	1 		# number of points in phi   (the same in each domain)
+
+ent_limit0 = 	0.15	# 0.2 enthalpy defining boundary between domains 0 and 1
+
+
+#  Number of radial points <nr> and (initial) inner boundary <rmin> of each domain:
+#----------------------------------------------------------------------------------
+nr0 	= 33 
+rmin0 = 0.
+
+nr1 	= 129
+rmin1 = 1.001
+
+nr2 	= 17
+rmin2 = 1.037
+
+nr3 	= 17  
+rmin3 = 1.5
+
+
+# Adaptive-grid parameters [OPTIONAL]
+#------------------------------------
+nzadapt 			= 0			# Number of domains for adaptive grid
+thres_adapt 	= 0.3     	# threshold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
+precis_adapt 	= 1.e-14   	# precision in Map_et::adapt
+
+
+# Parameters to search for Keplerian rotation rate [OPTIONAL]
+#------------------------------------------------------------
+kepler_fluid		= 0		# Kepler limit for which fluid? 0=none, 1,2; 3 = both
+kepler_wait_steps = 40		# how many steps after mer_fix_omega shall we start?
+kepler_factor		= 1.01 	# factor to increase omega in each step to approach Kepler (>1!)
+
+
+# Parameters for triaxial perturbation [OPTIONAL]
+#------------------------------------------------
+mer_triax	= 2000		# step at which the 3-D perturbation is switched on
+ampli_triax	= 1.e-3		# relative amplitude of the 3-D perturbation
+
+
+# Parameters to converge to a fixed baryon mass for the two fluids [OPTIONAL]
+-----------------------------------------------------------------------------
+mer_mass 		= 6							# step to start converging to given baryon masses (-1 means OFF) --> 30
+mbar1_wanted	= 1.551789692 				# neutron baryon mass 
+mbar2_wanted	= 0							# proton baryon mass (-1 means CV towards total grav. mass; 0 means CV towards total bar. mass)
+aexp_mass 		= 0.4							# exponent for the increase factor of the central enthalpy 0.5
+
+
+# Directory to put results in
+------------------------------
+resdir		= Results

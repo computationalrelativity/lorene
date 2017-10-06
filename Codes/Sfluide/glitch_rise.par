@@ -1,0 +1,12 @@
+# mutual friction parameter 
+----------------------------
+
+B = 1e-4
+
+
+# Parameter for the computation of the partial moments of inertia
+-----------------------------------------------------------------
+
+eps_freq = 1e-4			# relative step in frequency used to compute the 
+								# partial moments of inertia using a fourth-order
+								# finite difference method

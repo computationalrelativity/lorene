@@ -1,0 +1,9 @@
+3						# ident (3 -> relativistic tabulated EoS) 
+DDH					# name
+1.009000285 		# mass1 (mn)		
+1.008160139 		# mass2 (mp + me)
+
+../../Eos_tables/2_fluids/   	# directory in which the EoSs are stored
+
+
+
