@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2017/10/06 12:36:33  a_sourie
+ * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
+ *
  * Revision 1.20  2015/06/26 14:10:08  j_novak
  * Modified comments.
  *
@@ -161,10 +164,11 @@ namespace Lorene {
     
     Tenseur nbar2 ; ///< Baryon density in the fluid frame, for fluid 2
     
-    Tenseur K_nn ;  ///< Coefficient Knn
-    Tenseur K_np ;  ///< Coefficient Knp
-    Tenseur K_pp ;  ///< Coefficient Kpp 
-    
+    Tenseur K_nn ;  ///< Coefficient \f$K_{nn}\f$
+    Tenseur K_np ;  ///< Coefficient \f$K_{np}\f$
+    Tenseur K_pp ;  ///< Coefficient \f$K_{pp}\f$
+    Tenseur alpha_eos ;  ///< Coefficient \f$\alpha\f$ relative to entrainment effects
+
     // Fluid quantities with respect to the Eulerian frame
     // ---------------------------------------------------
     
@@ -181,22 +185,9 @@ namespace Lorene {
      */
     Tenseur j_euler;
     
-    Tenseur j_euler1; ///< To compute Jn
-    Tenseur j_euler2; ///< To compute Jp
+    Tenseur j_euler1; ///< To compute \f$J_n\f$
+    Tenseur j_euler2; ///< To compute \f$J_p\f$
     
-    Tenseur j_euler11_1;  ///< To compute In (1st version)
-    Tenseur j_euler12_1;  ///< To compute Ip (1st version)
-    
-    Tenseur j_euler21_1;// To compute epsN (1st version)
-    Tenseur j_euler22_1;// To compute epsP (1st version)
-
-    Tenseur j_euler11_2;//To compute In (2nd version)
-    Tenseur j_euler12_2;//To compute Ip (2nd version)
-    
-    Tenseur j_euler21_2;// To compute epsN (2nd version)
-    Tenseur j_euler22_2;// To compute epsP (2nd version)
-    
-
     /// the combination \f$E+S_i^i\f$: useful because in the Newtonian limit \f$\rightarrow \rho\f$.
     Tenseur enerps_euler;
     
@@ -248,19 +239,15 @@ namespace Lorene {
     
     mutable double* p_angu_mom_1;	///< Angular momentum of fluid 1
     mutable double* p_angu_mom_2;	///< Angular momentum of fluid 2
-    
-    mutable double* p_angu_mom_1_part1_1;	///< To compute In (1st version)
-    mutable double* p_angu_mom_2_part1_1;	///< To compute Ip (1st version)
-    
-    mutable double* p_angu_mom_1_part2_1;	///< To compute Xn (1st version)
-    mutable double* p_angu_mom_2_part2_1;	///< To compute Xp (1st version)
-    
-    mutable double* p_angu_mom_1_part1_2;	///< To compute In (2nd version)
-    mutable double* p_angu_mom_2_part1_2;	///< To compute Ip (2nd version)
-    
-    mutable double* p_angu_mom_1_part2_2;	///< To compute Xn (2nd version)
-    mutable double* p_angu_mom_2_part2_2;	///< To compute Xp (2nd version)
+   
+    /// Quantities used to describe the different couplings between the fluids
+    mutable double* p_coupling_mominert_1;	///< \f$\tilde{I}_n\f$ 
+    mutable double* p_coupling_mominert_2;	///< \f$\tilde{I}_p\f$    
+    mutable double* p_coupling_entr;		///< \f$\tilde{\varepsilon}_n\tilde{I}_n = \tilde{\varepsilon}_p\tilde{I}_p\f$ 
+    mutable double* p_coupling_LT_1;		///< \f$\tilde{\omega}_n\tilde{I}_n\f$ 
+    mutable double* p_coupling_LT_2;		///< \f$\tilde{\omega}_p\tilde{I}_p\f$ 
 
+    
     // Constructors - Destructor
     // -------------------------
   public:
@@ -340,13 +327,18 @@ namespace Lorene {
     /// Returns the proper baryon density for fluid 2
     const Tenseur& get_nbar2() const {return nbar2 ; } ;
     
-    /// Returns the coefficient Knn
+    /// Returns the coefficient \f$K_{nn}\f$
     const Tenseur& get_K_nn() const {return K_nn ; } ;
-    /// Returns the coefficient Knp
+    
+    /// Returns the coefficient \f$K_{np}\f$
     const Tenseur& get_K_np() const {return K_np ; } ;
-    /// Returns the coefficient Kpp
+    
+    /// Returns the coefficient \f$K_{pp}\f$
     const Tenseur& get_K_pp() const {return K_pp ; } ;
     
+    /// Returns the coefficient \f$\alpha\f$ (entrainment parameter)
+    const Tenseur& get_alpha_eos() const {return alpha_eos ; } ;    
+
     /// Returns the "relative velocity" (squared) \f$\Delta^2\f$ of the two fluids
     const Tenseur& get_delta_car() const {return delta_car ; } ;
     
@@ -482,14 +474,20 @@ namespace Lorene {
     
     virtual double angu_mom_1() const ;	///< Angular momentum of fluid 1
     virtual double angu_mom_2() const ;	///< Angular momentum of fluid 2
-    virtual double angu_mom_1_part1_1() const ;	///< To compute In (1st version)
-    virtual double angu_mom_2_part1_1() const ;	///< To compute Ip (1st version)
-    virtual double angu_mom_1_part2_1() const ;	///< To compute Xn (1st version)
-    virtual double angu_mom_2_part2_1() const ;	///< To compute Xp (1st version)
-    virtual double angu_mom_1_part1_2() const ;	///< To compute In (2nd version)
-    virtual double angu_mom_2_part1_2() const ;	///< To compute Ip (2nd version)
-    virtual double angu_mom_1_part2_2() const ;	///< To compute Xn (2nd version)
-    virtual double angu_mom_2_part2_2() const ;	///< To compute Xp (2nd version)
+    
+    /** Quantities used to study the different fluid couplings:
+     *  \f$\tilde{I}_X\f$, \f$\tilde{\varepsilon}_X\tilde{I}_X\f$ 
+     *  and \f$\tilde{\omega}_X\tilde{I}_X\f$ .
+	  *  These terms are defined in Eqs. (C5) - (C7) of Sourie et al., 
+     *  \a MNRAS \a \b 464 , 4641-4657 (2017). 
+     *  Note that these quantities only make sense in the 
+     *  slow-rotation approximation and to first order in the lag.
+     */    
+    virtual double coupling_mominert_1() const ;
+    virtual double coupling_mominert_2() const ;
+    virtual double coupling_entr() const ;
+    virtual double coupling_LT_1() const ;
+    virtual double coupling_LT_2() const ;
 
     // Computational routines
     // ----------------------
@@ -498,7 +496,7 @@ namespace Lorene {
      *  observer from those in the fluid frame.
      *
      *  The calculation is performed starting from the quantities
-     *  \c ent , \c ent2 , \c ener , \c press , \c K_nn , \c K_np , \c K_pp 
+     *  \c ent , \c ent2 , \c ener , \c press , \c K_nn , \c K_np , \c K_pp
      *  and \c a_car, which are supposed to be up to date. From these,  
      *  the following fields are updated:
      *  \c delta_car , \c gam_euler , \c gam_euler2 , \c ener_euler , 

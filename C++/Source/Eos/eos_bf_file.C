@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2017/10/06 12:36:33  a_sourie
+ * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
+ *
  * Revision 1.12  2016/12/05 16:17:51  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -95,11 +98,11 @@
 
 
 namespace Lorene {
-int Eos_bf_poly::identify() const	{ return 1; }
+int Eos_bf_poly::identify() const	{ return 1; } 		// (Special-)relativistic polytropic EoS
 
-int Eos_bf_poly_newt::identify() const	{ return 2; }
+int Eos_bf_poly_newt::identify() const	{ return 2; } 	// Newtonian polytropic EoS
 
-int Eos_bf_tabul::identify() const	{ return 3; }
+int Eos_bf_tabul::identify() const	{ return 3; } 		// (Special-)relativistic tabulated EoS
 
 		//---------------------------------------------//
 		//    EOS construction from a binary file      //
@@ -187,10 +190,9 @@ Eos_bifluid* Eos_bifluid::eos_from_file(const char *fname) {
 Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& fich) {
     
     int identificator ; 
-    char blabla[80] ;
 
     // EOS identificator : 
-    fich >> identificator ; fich.getline(blabla, 80) ;
+    fich >> identificator ;	fich.ignore(1000, '\n') ;
 
     Eos_bifluid* p_eos ; 
     

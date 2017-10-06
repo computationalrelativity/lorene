@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2017/10/06 12:36:34  a_sourie
+ * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
+ *
  * Revision 1.16  2016/12/05 16:17:53  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -130,21 +133,11 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, const Eos_biflu
   K_nn(mpi),
   K_np(mpi),
   K_pp(mpi),
+  alpha_eos(mpi),
   sphph_euler(mpi),
   j_euler(mpi, 1, CON, mp.get_bvect_cart()), 
-  j_euler1 (mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler2(mpi, 1, CON, mp.get_bvect_cart()),  //Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler11_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler12_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler21_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler22_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  
-  j_euler11_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler12_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler21_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler22_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  
-  
+  j_euler1 (mpi, 1, CON, mp.get_bvect_cart()), 
+  j_euler2(mpi, 1, CON, mp.get_bvect_cart()),  
   enerps_euler(mpi),
   uuu2(mpi),
   gam_euler2(mpi),
@@ -156,20 +149,11 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, const Eos_biflu
   K_nn = 0 ;
   K_np = 0 ;
   K_pp = 0 ; 
+  alpha_eos = 0.;
   sphph_euler = 0;
   j_euler = 0;
-  j_euler1 = 0 ;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler2 = 0;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler11_1 = 0 ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler12_1 = 0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler21_1 = 0 ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler22_1 = 0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler11_2 = 0 ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler12_2 = 0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler21_2 = 0 ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler22_2 = 0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  
-  
+  j_euler1 = 0 ; 
+  j_euler2 = 0; 
   enerps_euler = 0;
   gam_euler.set_std_base() ; 
   
@@ -195,18 +179,11 @@ Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et):
   K_nn(et.K_nn),
   K_np(et.K_np),
   K_pp(et.K_pp),
+  alpha_eos(et.alpha_eos),
   sphph_euler(et.sphph_euler),
   j_euler(et.j_euler),
-  j_euler1(et.j_euler1),//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler2(et.j_euler2),//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler11_1(et.j_euler11_1),//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler12_1(et.j_euler12_1),//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler21_1(et.j_euler21_1),//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler22_1(et.j_euler22_1),//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)*
-  j_euler11_2(et.j_euler11_2),//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler12_2(et.j_euler12_2),//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler21_2(et.j_euler21_2),//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler22_2(et.j_euler22_2),//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
+  j_euler1(et.j_euler1),
+  j_euler2(et.j_euler2), 
   enerps_euler(et.enerps_euler),
   uuu2(et.uuu2),
   gam_euler2(et.gam_euler2),
@@ -229,20 +206,11 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   K_nn(mpi),
   K_np(mpi),
   K_pp(mpi),
+  alpha_eos(mpi),
   sphph_euler(mpi),
   j_euler(mpi, 1, CON, mp.get_bvect_cart()), 
-  j_euler1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler11_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler12_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler21_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler22_1(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler11_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler12_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler21_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler22_2(mpi, 1, CON, mp.get_bvect_cart()), //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  
-  
+  j_euler1(mpi, 1, CON, mp.get_bvect_cart()),  
+  j_euler2(mpi, 1, CON, mp.get_bvect_cart()),  
   enerps_euler(mpi),
   uuu2(mpi),
   gam_euler2(mpi),
@@ -301,18 +269,14 @@ void Et_rot_bifluid::del_deriv() const {
   if (p_aplat2 != 0x0) delete p_aplat2 ; 
   if (p_mass_b1 != 0x0) delete p_mass_b1 ;
   if (p_mass_b2 != 0x0) delete p_mass_b2 ;
-  if (p_angu_mom_1 != 0x0) delete p_angu_mom_1 ;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  if (p_angu_mom_2 != 0x0) delete p_angu_mom_2 ;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  if (p_angu_mom_1_part1_1 != 0x0) delete p_angu_mom_1_part1_1  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  if (p_angu_mom_2_part1_1 != 0x0) delete p_angu_mom_2_part1_1  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  if (p_angu_mom_1_part2_1 != 0x0) delete p_angu_mom_1_part2_1  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  if (p_angu_mom_2_part2_1 != 0x0) delete p_angu_mom_2_part2_1  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  if (p_angu_mom_1_part1_2 != 0x0) delete p_angu_mom_1_part1_2  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  if (p_angu_mom_2_part1_2 != 0x0) delete p_angu_mom_2_part1_2  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  if (p_angu_mom_1_part2_2 != 0x0) delete p_angu_mom_1_part2_2  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  if (p_angu_mom_2_part2_2 != 0x0) delete p_angu_mom_2_part2_2  ;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  
-  
+  if (p_angu_mom_1 != 0x0) delete p_angu_mom_1 ; 
+  if (p_angu_mom_2 != 0x0) delete p_angu_mom_2 ; 
+  if (p_coupling_mominert_1 != 0x0) delete p_coupling_mominert_1 ;
+  if (p_coupling_mominert_2 != 0x0) delete p_coupling_mominert_2 ; 
+  if (p_coupling_entr != 0x0) delete p_coupling_entr ;
+  if (p_coupling_LT_1 != 0x0) delete p_coupling_LT_1 ;
+  if (p_coupling_LT_2 != 0x0) delete p_coupling_LT_2 ;
+   
   set_der_0x0() ; 
 }			    
 
@@ -334,16 +298,14 @@ void Et_rot_bifluid::set_der_0x0() const {
   p_aplat2 = 0x0 ;
   p_mass_b1 = 0x0;
   p_mass_b2 = 0x0;
-  p_angu_mom_1 = 0x0;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  p_angu_mom_2 = 0x0;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  p_angu_mom_1_part1_1 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  p_angu_mom_2_part1_1 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  p_angu_mom_1_part2_1 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  p_angu_mom_2_part2_1 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  p_angu_mom_1_part1_2 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  p_angu_mom_2_part1_2 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  p_angu_mom_1_part2_2 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  p_angu_mom_2_part2_2 = 0x0;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
+  p_angu_mom_1 = 0x0; 
+  p_angu_mom_2 = 0x0; 
+  p_coupling_mominert_1 = 0x0;
+  p_coupling_mominert_2 = 0x0;
+  p_coupling_entr = 0x0;
+  p_coupling_LT_1 = 0x0;
+  p_coupling_LT_2 = 0x0;
+
 }			    
 
 void Et_rot_bifluid::del_hydro_euler() {
@@ -351,23 +313,16 @@ void Et_rot_bifluid::del_hydro_euler() {
   Etoile_rot::del_hydro_euler() ; 
   sphph_euler.set_etat_nondef();
   j_euler.set_etat_nondef();
-  j_euler1.set_etat_nondef();//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler2.set_etat_nondef();//Rajouté pour le calcul des moments cinétiques de chaque fluide
-  j_euler11_1.set_etat_nondef();//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler12_1.set_etat_nondef();//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler21_1.set_etat_nondef(); //Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler22_1.set_etat_nondef();//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-  j_euler11_2.set_etat_nondef();//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler12_2.set_etat_nondef();//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler21_2.set_etat_nondef(); //Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-  j_euler22_2.set_etat_nondef();//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
+  j_euler1.set_etat_nondef(); 
+  j_euler2.set_etat_nondef();  
   enerps_euler.set_etat_nondef();
   uuu2.set_etat_nondef();
   gam_euler2.set_etat_nondef() ; 
   delta_car.set_etat_nondef();
-  K_nn.set_etat_nondef(); //tester avec ou sans ces trois lignes !
+  K_nn.set_etat_nondef(); 
   K_np.set_etat_nondef();
   K_pp.set_etat_nondef();
+  alpha_eos.set_etat_nondef() ;
   del_deriv() ; 
 }			    
 
@@ -408,24 +363,16 @@ void Et_rot_bifluid::operator=(const Et_rot_bifluid& et) {
     K_nn = et.K_nn ;
     K_np = et.K_np ;
     K_pp = et.K_pp ;
+    alpha_eos = et.alpha_eos ;
     sphph_euler = et.sphph_euler;
     j_euler = et.j_euler;
-    j_euler1 = et.j_euler1;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-    j_euler2 = et.j_euler2;//Rajouté pour le calcul des moments cinétiques de chaque fluide
-    j_euler11_1 = et.j_euler11_1;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-    j_euler12_1 = et.j_euler12_1;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-    j_euler21_1 = et.j_euler21_1;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-    j_euler22_1 = et.j_euler22_1;//Rajouté pour le calcul des moments d'inertie de chaque fluide (1ère version)
-    j_euler11_2 = et.j_euler11_2;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-    j_euler12_2 = et.j_euler12_2;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-    j_euler21_2 = et.j_euler21_2;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
-    j_euler22_2 = et.j_euler22_2;//Rajouté pour le calcul des moments d'inertie de chaque fluide (2ème version)
+    j_euler1 = et.j_euler1; 
+    j_euler2 = et.j_euler2; 
     enerps_euler = et.enerps_euler;
     uuu2 = et.uuu2 ;
     gam_euler2 = et.gam_euler2 ;
     delta_car = et.delta_car ;
 
-    
     del_deriv() ;  // Deletes all derived quantities
 
 }	
@@ -459,7 +406,7 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
     ost << endl ; 
     ost << "Bifluid rotating star" << endl ; 
     ost << "-------------" << endl ; 
-    
+    ost << setprecision(16);
     double freq = omega / (2.*M_PI) ;  
     ost << "Omega1 : " << omega * f_unit 
         << " rad/s     f : " << freq * f_unit << " Hz" << endl ; 
@@ -472,7 +419,7 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
     ost << "Rotation period 2: " << 1000. / (freq2 * f_unit) << " ms"
 	    << endl ;
       
-//c----------------------------- angular momentum of fluid 1 and fluid 2 -------------------------------------------------
+
 	ost << "Total angular momentum J :      " 
 	 << angu_mom()/( qpig / (4* M_PI) * msol*msol) << " G M_sol^2 / c"
 	 << endl ; 
@@ -480,11 +427,15 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
 	 << angu_mom()/( qpig / (4* M_PI) * pow(mass_g(), 2.) ) << endl ;   
 	
 	double mom_iner = fabs(angu_mom() / omega2) ;
+	ost <<  "Total moment of inertia I = J/Omega2 :      "  
+	    <<  mom_iner << " Lorene units" 
+	    << endl; 
 	double mom_iner_38si = mom_iner * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 	 
 	ost << "Total moment of inertia I = J/Omega2 :      "  
 	<< mom_iner_38si << " 10^38 kg m^2"
 	    << endl ; 
-	 
+	
+   // partial angular momenta
 	ost << "Angular momentum J of fluid 1 :      " 
 	 << angu_mom_1()/( qpig / (4* M_PI) * msol*msol) << " G M_sol^2 / c"
 	 << endl ; 	
@@ -492,92 +443,52 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
 	 << angu_mom_2()/( qpig / (4* M_PI) * msol*msol) << " G M_sol^2 / c"
 	 << endl ; 
 
-	
-//c----------------------------- momentum of inertia of fluid 1 and fluid 2 FIRST VERSION ----------------------------------------------
-   double mom_iner_1 = 0.;
-   double En_1=0.;
-   double mom_iner2_1 = 0. ;
-   double Ep_1=0.;
-      ost << "First way to define In, Ip, En and Ep :       " << endl;
-      if (omega != __infinity) { 
-	mom_iner_1 = fabs(angu_mom_1_part1_1() / omega) ; 
-	double mom_iner_38si_1 = mom_iner_1 * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
-	ost << "Moment of inertia of fluid 1 :       " << mom_iner_38si_1 << " 10^38 kg m^2"
-	    << endl ; 
-	if (omega != omega2) {
-	En_1 = angu_mom_1_part2_1() / ( (omega2 - omega) * mom_iner_1 ) ; 
-	}
-	ost << "Coupling constante of fluid 1 (En) :       " << En_1 << endl ; 
-    }
-    if (omega2 != __infinity) {
-	mom_iner2_1 = fabs(angu_mom_2_part1_1() / omega2) ; 
-	double mom_iner2_38si_1 = mom_iner2_1 * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
-	ost << "Moment of inertia of fluid 2 :       " << mom_iner2_38si_1 << " 10^38 kg m^2"
-	    << endl;	    
-	    
-	if (omega != omega2) {
-	Ep_1 = angu_mom_2_part2_1() / ( (omega - omega2) * mom_iner2_1 ) ; 
-	}
-	ost << "Coupling constante of fluid 2 (Ep) :       " << Ep_1 << endl ; 
-    }
-   
-    if (mom_iner2_1 * Ep_1 != 0. ) {
-	double X_1 = mom_iner_1 * En_1 / (mom_iner2_1 * Ep_1 );
-	ost << "Ratio X = (InEn)/(IpEp) :       " << X_1 << endl ;
-    }
 
-//c----------------------------- momentum of inertia of fluid 1 and fluid 2 SECOND VERSION ----------------------------------------------
-   double mom_iner_2 = 0.;
-   double En_2=0.;
-   double mom_iner2_2 = 0. ;
-   double Ep_2=0.;
-      ost << "Second way to define In, Ip, En and Ep :       " << endl;
-      if (omega != __infinity) { 
-	mom_iner_2 = fabs(angu_mom_1_part1_2() / omega) ; 
-	double mom_iner_38si_2 = mom_iner_2 * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
-	ost << "Moment of inertia of fluid 1 :       " << mom_iner_38si_2 << " 10^38 kg m^2"
-	    << endl ; 
-	if (omega != omega2) {
-	En_2 = angu_mom_1_part2_2() / ( (omega2 - omega) * mom_iner_2 ) ; 
-	}
-	ost << "Coupling constante of fluid 1 (En) :       " << En_2 << endl ; 
-    }
-    if (omega2 != __infinity) {
-	mom_iner2_2 = fabs(angu_mom_2_part1_2() / omega2) ; 
-	double mom_iner2_38si_2 = mom_iner2_2 * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
-	ost << "Moment of inertia of fluid 2 :       " << mom_iner2_38si_2 << " 10^38 kg m^2"
-	    << endl ; 
-
-	if (omega != omega2) {
-	Ep_2 = angu_mom_2_part2_2() / ( (omega - omega2) * mom_iner2_2 ) ; 
-	}
-	ost << "Coupling constante of fluid 2 (Ep) :       " << Ep_2 << endl ; 
-    }
-   
-    if (mom_iner2_2 * Ep_2 != 0. ) {
-	double X_2 = mom_iner_2 * En_2 / (mom_iner2_2 * Ep_2 );
-	ost << "Ratio X = (InEn)/(IpEp) :       " << X_2 << endl ;
-    }
-
+ 	//	partial moments of inertia defined as Jn/Omega and Jp/Omega
+	// Remark : such definitions only makes sense in corotation
 	ost.precision(16) ;     
-	ost << "TEST ---- Jn + Jp = " <<angu_mom_2() + angu_mom_1() << "    Jtot = " <<  angu_mom() << endl ;
- 	ost << "TEST (vers. 1) ---- In + Ip = " <<mom_iner2_1 + mom_iner_1 << "    I = " <<  mom_iner << endl ;   
- 	ost << "TEST (vers. 2) ---- In + Ip = " <<mom_iner2_2 + mom_iner_2 << "    I = " <<  mom_iner << endl ;     
- 	ost << "TEST (vers. 1) ---- InOmegan + IpOmegap = " <<mom_iner2_1*omega2 + mom_iner_1*omega << "    J = " <<  angu_mom() << endl ;      
- 	ost << "TEST (vers. 2) ---- InOmegan + IpOmegap = " <<mom_iner2_2*omega2 + mom_iner_2*omega << "    J = " <<  angu_mom() << endl ;      
- 	ost << "TEST (vers. 1) ---- InOmegan + EnIn(Omegap-Omegan) = " <<mom_iner_1*omega + mom_iner_1*En_1*(omega2-omega) << "    Jn = " <<  angu_mom_1()  << endl ;        
- 	ost << "TEST (vers. 1) ---- IpOmegap + EpIp(Omegan-Omegap) = " <<mom_iner2_1*omega2 + mom_iner2_1*Ep_1*(omega-omega2) << "    Jp = " <<  angu_mom_2()  << endl ;  
- 	ost << "TEST (vers. 2) ---- InOmegan + EnIn(Omegap-Omegan) = " <<mom_iner_2*omega + mom_iner_2*En_2*(omega2-omega) << "    Jn = " <<  angu_mom_1()  << endl ;  
- 	ost << "TEST (vers. 2) ---- IpOmegap + EpIp(Omegan-Omegap) = " <<mom_iner2_2*omega2 + mom_iner2_2*Ep_2*(omega-omega2) << "    Jp = " <<  angu_mom_2()  << endl ;  	
+	if (omega == omega2) {
+	
+		double mom_iner_1 = 0.; //< In
+		double mom_iner_2 = 0.; //< Ip
+  
+      if (omega != __infinity) { 
+			
+			ost << "Partial moments of inertia (defined in corotation only) :" << endl;	
 
+			mom_iner_1 = fabs(angu_mom_1() / omega) ; 
+			ost 	<< "Moment of inertia of fluid 1 :       " << mom_iner_1 << " Lorene units " << endl ;
+			double mom_iner_1_38si = mom_iner_1 * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
+			ost 	<< "Moment of inertia of fluid 1 :       " << mom_iner_1_38si  << " 10^38 kg m^2"
+	    			<< endl ; 
 
-// pour verifier
+			mom_iner_2 = fabs(angu_mom_2() / omega) ; 
+			ost 	<< "Moment of inertia of fluid 2 :       " << mom_iner_2 << " Lorene units " << endl ;
+			double mom_iner_2_38si = mom_iner_2 * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
+ 			ost 	<< "Moment of inertia of fluid 2 :       " << mom_iner_2_38si << " 10^38 kg m^2"
+	    			<< endl;	    
+	    }
+	} 
 
-//ost << "Verification :       " << "Jn = "<< angu_mom_1() << "  In * ... " << mom_iner * omega + mom_iner * En * (omega2 - omega) << endl ;
-//ost << "Verification :       " << "Jp = "<< angu_mom_2() << "  Ip * ... " << mom_iner2* omega2 + mom_iner2 * Ep * (omega - omega2) << endl ;
+	ost << "***** Fluid coupling quantities *****" << endl;
+	
+	double mominert_1_tilde_si = coupling_mominert_1() * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
+	double mominert_2_tilde_si = coupling_mominert_2() * rho_unit * (pow(r_unit, double(5.)) / double(1.e38) ) ; 
 
-//c------------------------------------------------------------------------------------------------------------------------------------
-
+	ost << "tilde{I}_n : " << coupling_mominert_1() << "    SI: " << mominert_1_tilde_si << " 10^38 kg m^2" 
+	    << endl;
+	ost << "tilde{I}_p : " << coupling_mominert_2() << "    SI: " << mominert_2_tilde_si << " 10^38 kg m^2" 
+	    << endl;	
+	ost << "tilde{varepsilon}_n : " << coupling_entr() / coupling_mominert_1() << endl;
+	ost << "tilde{varepsilon}_p : " << coupling_entr() / coupling_mominert_2() << endl;
+	ost << "tilde{omega}_n : " << coupling_LT_1() / coupling_mominert_1() << endl;
+	ost << "tilde{omega}_p : " << coupling_LT_2() / coupling_mominert_2() << endl;
+	ost << " Verif :  Jn = " << coupling_mominert_1() * omega - coupling_LT_1() +  coupling_entr() * (omega2 - omega) 
+	    << "         Jp = "  << coupling_mominert_2() * omega2 - coupling_LT_2() +  coupling_entr() * (omega - omega2) 
+	    << endl ;
+	ost << " Num :    Jn = " <<  angu_mom_1() << "         Jp = " << angu_mom_2()
+	    << endl;
+	
     double nphi_c = nphi()(0, 0, 0, 0) ;
     if ( (omega==0) && (nphi_c==0) ) {
 	 	ost << "Central N^phi :               " << nphi_c << endl ;
@@ -648,17 +559,10 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
     ost << "j = c J / (G M^2) :  "         
 	<< angu_mom()/( ggrav * pow(mass_g(), 2.) ) << endl ;   
     
-    // Pour vérifier la loi de Laarakkers et Poisson, 1999  
-	ost <<  " Mb (Msol)      Mg (Msol)       omegan=omega (rad/s)        q            q_old            b            j         j2   " << endl;
-	ost <<  mass_b() / msol						<< "     " 
-	    <<  mass_g() / msol						<< "     "
-	    <<  omega * f_unit                                          << "     "
-	    <<  mom_quad() / ( ggrav * ggrav *  pow(mass_g(), 3.) )     << "     "
-	    <<  mom_quad_old() / ( ggrav * ggrav *  pow(mass_g(), 3.) ) << "     "
-	    <<  mom_quad_Bo() /  pow(mass_g(), 2.) 		        << "     "
-	    <<  angu_mom()/( ggrav * pow(mass_g(), 2.) )                << "     "
-	    <<  pow(angu_mom()/( ggrav * pow(mass_g(), 2.) ) , 2.)      << "     " 
-	    << endl ;
+
+    ost << "Baryon mass 1  : " << mass_b1() / msol << "  Msol" <<  endl ;
+    ost << "Baryon mass 2  : " << mass_b2() / msol << "  Msol" <<  endl ;
+
     ost << endl ;    	
 
     return ost ;
@@ -792,21 +696,23 @@ void Et_rot_bifluid::equation_of_state() {
   K_nn.set_etat_qcq() ;
   K_np.set_etat_qcq() ;
   K_pp.set_etat_qcq() ;
-
+  alpha_eos.set_etat_qcq() ;
  
   const Eos_bf_tabul* eos_t = dynamic_cast<const Eos_bf_tabul*>(&eos) ;
   
-  if (eos_t != 0x0) {  // if the equation of state is tabulated
-  eos_t->calcule_interpol(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
-  		   ener.set(), press.set(), K_nn.set(), K_np.set(), K_pp.set(), 
+  if (eos_t != 0x0) {  	// The EoS is tabulated
+  		eos_t->calcule_interpol(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
+  		   ener.set(), press.set(), K_nn.set(), K_np.set(), K_pp.set(), alpha_eos.set(), 
 		   nzet)  ; 
   }
-  else {	 // if the equation of state is not tabulated
-  
-  eos.calcule_tout(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
+  else {	      			// The EoS is analytic
+  		eos.calcule_tout(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
   		   ener.set(), press.set(), nzet)  ; 	  
-  // est-ce que Knn, Knp, et Kpp bien calculée ?
 		   
+ 		K_nn.set() = eos.get_Knn(nbar(), nbar2(), delta_car(), nzet);
+		K_pp.set() = eos.get_Kpp(nbar(), nbar2(), delta_car(), nzet);
+		K_np.set() = eos.get_Knp(nbar(), nbar2(), delta_car(), nzet);
+		alpha_eos.set() = eos.get_Knp(nbar(), nbar2(), delta_car(), nzet) * nbar() * nbar2() * pow(1. - unsurc2 * rel_vel(), -1.5) / 2. ; 
   }
   // Set the bases for spectral expansion 
   nbar.set_std_base() ; 
@@ -816,7 +722,7 @@ void Et_rot_bifluid::equation_of_state() {
   K_pp.set_std_base() ; 
   K_nn.set_std_base() ; 
   K_np.set_std_base() ; 
-  
+  alpha_eos.set_std_base() ;
   // The derived quantities are obsolete
   del_deriv() ; 
   
@@ -918,36 +824,15 @@ void Et_rot_bifluid::hydro_euler(){
     delta_car =  (uuu - uuu2)*(uuu - uuu2) / ( (1 - unsurc2* uuu*uuu2) *(1 - unsurc2* uuu*uuu2 ) ) ;
     delta_car.set_std_base() ;
  
-//------------------------------------------------------------------------------------------------------------------------------
-	Tenseur Ann(ent) ;
-	Tenseur Anp(ent) ;
-  	Tenseur App(ent) ;
+ 	 Tenseur Ann(ent) ;
+	 Tenseur Anp(ent) ;
+  	 Tenseur App(ent) ;
+
+	 Ann = gam_car() * nbar() * nbar() * K_nn() ;   			
+	 Anp = gam_euler() * gam_euler2() * nbar() * nbar2() * K_np();	
+	 App = gam2_car() * nbar2() * nbar2() * K_pp();		
 	
-	if (eos.identify() == 3) {  
-	    
-// 	    Ann = gam_car() * nbar() * nbar() * eos.get_Knn_ent(ent(), ent2(), delta_car(), nzet); 
-//  	    Anp = gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
-//  	    App = gam2_car() * nbar2() * nbar2() * eos.get_Kpp_ent(ent(), ent2(), delta_car(), nzet);
-	    
- 	    Ann = gam_car() * nbar() * nbar() * K_nn() ;   				// OK
- 	    Anp = gam_euler() * gam_euler2() * nbar() * nbar2() * K_np();		//OK
- 	    App = gam2_car() * nbar2() * nbar2() * K_pp();				//OK
-	
-//  	  Ann = gam_car() * K_nn() ;                     // Knn->Knn * nn * nn
-//  	  Anp = gam_euler() * gam_euler2() *  K_np();    // Knn->Knn * nn * nn
-//  	  App = gam2_car() *  K_pp();   			// Knn->Knn * nn * nn
-	}
-
-	else {
-
-	    Ann = gam_car() * nbar() * nbar() * eos.get_Knn(nbar(), nbar2(), delta_car(), nzet);
-    	    Anp = gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
-	    App = gam2_car() * nbar2() * nbar2() * eos.get_Kpp(nbar(), nbar2(), delta_car(), nzet);
-
-
-	}
-
-    
+   
     //  Energy density E with respect to the Eulerian observer
     //------------------------------------
     // use of ener_euler is deprecated, because it's useless in Newtonian limit!
@@ -983,8 +868,8 @@ void Et_rot_bifluid::hydro_euler(){
 
     j_euler.set_etat_qcq();
 
-    j_euler.set(0) = 0;				// r tetrad component
-    j_euler.set(1) = 0;				// theta tetrad component
+    j_euler.set(0) = 0;						// r tetrad component
+    j_euler.set(1) = 0;						// theta tetrad component
     j_euler.set(2) = Jph()/ bbb(); 		// phi tetrad component ... = J^phi r sin(th)
     j_euler.set_triad (mp.get_bvect_spher());
     j_euler.set_std_base();
@@ -995,377 +880,41 @@ void Et_rot_bifluid::hydro_euler(){
     if( (j_euler(0).get_etat() == ETATZERO)&&(j_euler(1).get_etat() == ETATZERO)&&(j_euler(2).get_etat()==ETATZERO))
       j_euler = 0;
 
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
     // the (flat-space) angular-momentum 3-vector j_euler^i for fluid 1 
     //-----------------------------------
-    Tenseur Jph1(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
+    Tenseur Jph1(mp);   // the normalized phi-component of J_n^i: Sqrt[g_phiphi]*J_n^phi
     Jph1 = Ann*uuu + Anp*uuu2 ;
 
     j_euler1.set_etat_qcq();
 
-    j_euler1.set(0) = 0;			// r tetrad component
-    j_euler1.set(1) = 0;			// theta tetrad component
-    j_euler1.set(2) = Jph1()/ bbb(); 		// phi tetrad component ... = J^phi r sin(th)
+    j_euler1.set(0) = 0;					 
+    j_euler1.set(1) = 0;					  
+    j_euler1.set(2) = Jph1()/ bbb(); 	 
     j_euler1.set_triad (mp.get_bvect_spher());
     j_euler1.set_std_base();
 
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler1.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
+    j_euler1.change_triad( mp.get_bvect_cart() ) ;	 
 
     if( (j_euler1(0).get_etat() == ETATZERO)&&(j_euler1(1).get_etat() == ETATZERO)&&(j_euler1(2).get_etat()==ETATZERO))
       j_euler1 = 0;
 
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
     // the (flat-space) angular-momentum 3-vector j_euler^i for fluid 2 
     //-----------------------------------
-    Tenseur Jph2(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
+    Tenseur Jph2(mp);   // the normalized phi-component of J_p^i: Sqrt[g_phiphi]*J_p^phi
     Jph2 = Anp*uuu + App*uuu2 ;
 
     j_euler2.set_etat_qcq();
 
-    j_euler2.set(0) = 0;			// r tetrad component
-    j_euler2.set(1) = 0;			// theta tetrad component
-    j_euler2.set(2) = Jph2()/ bbb(); 		// phi tetrad component ... = J^phi r sin(th)
+    j_euler2.set(0) = 0;			 
+    j_euler2.set(1) = 0;		 
+    j_euler2.set(2) = Jph2()/ bbb(); 		 
     j_euler2.set_triad (mp.get_bvect_spher());
     j_euler2.set_std_base();
 
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler2.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
+     j_euler2.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
 
     if( (j_euler2(0).get_etat() == ETATZERO)&&(j_euler2(1).get_etat() == ETATZERO)&&(j_euler2(2).get_etat()==ETATZERO))
       j_euler2 = 0;
-
-    
-    
-    // Computation of elements used for the first version of the definition of In, Ip, En and Ep...
-    // the (flat-space) first part angular-momentum 3-vector j_euler^i for fluid 1 
-    //-----------------------------------
-    Tenseur Jph11_1(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-   
-    Tenseur A11_1(ent) ;
-
-    if (eos.identify() == 3) {  
- 
-//   	A11_1 = gam_car() * nbar() * nbar() * eos.get_Knn_ent(ent(), ent2(), delta_car(), nzet)   +  
-//  	     gam_car() * nbar() * nbar2() * eos.get_Knp_ent(ent(), ent2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-      
-  	A11_1 = gam_car() * nbar() * nbar() * K_nn() + gam_car() * nbar() * nbar2() * K_np() * pow (1.-delta_car(), -0.5)  ;	// OK
-      
-//  	A11_1 = gam_car() *  K_nn() + gam_car() * K_np() * pow (1.-delta_car(), -0.5)  ;	  // Knn->Knn * nn * nn    
-
- 	//A11_1 = gam_car() * nbar() * eos.get_m1() * exp(ent()); // erreur légèrement augmentée par cette méthode
-	}
-
-    else {
-  
-    	A11_1 = gam_car() * nbar() * nbar() * eos.get_Knn(nbar(), nbar2(), delta_car(), nzet)   +  
-	      gam_car() * nbar() * nbar2() * eos.get_Knp(nbar(), nbar2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-	}
-
-    Jph11_1 = A11_1 * uuu ;
-
-    j_euler11_1.set_etat_qcq();
-
-    j_euler11_1.set(0) = 0;		// r tetrad component
-    j_euler11_1.set(1) = 0;		// theta tetrad component
-    j_euler11_1.set(2) = Jph11_1()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler11_1.set_triad (mp.get_bvect_spher());
-    j_euler11_1.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler11_1.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler11_1(0).get_etat() == ETATZERO)&&(j_euler11_1(1).get_etat() == ETATZERO)&&(j_euler11_1(2).get_etat()==ETATZERO))
-      j_euler11_1 = 0;
-
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
-    // the (flat-space) second part angular-momentum 3-vector j_euler^i for fluid 1 
-    //-----------------------------------
-    Tenseur Jph12_1(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-
-    Tenseur A12_1(ent) ;
-    Tenseur B12_1(ent) ;
-
-    if (eos.identify() == 3) {  
-//     	A12_1 = - gam_car() * nbar() * nbar2() * eos.get_Knp_ent(ent(), ent2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-//  	B12_1 = + gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
- 
- 	A12_1 = - gam_car() * nbar() * nbar2() * K_np() * pow (1.-delta_car(), -0.5)  ;  //OK
-  	B12_1 = + gam_euler() * gam_euler2() * nbar() * nbar2() * K_np();		//OK
-
-//  	A12_1 = - gam_car() *  K_np() * pow (1.-delta_car(), -0.5)  ;   		// Knn->Knn * nn * nn  
-//  	B12_1 = + gam_euler() * gam_euler2() *  K_np();	 			// Knn->Knn * nn * nn  
-	}
-
-    else {
-   	A12_1 = - gam_car() * nbar() * nbar2() * eos.get_Knp(nbar(), nbar2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-	B12_1 = + gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
-	}
-
-	Jph12_1 = A12_1 * uuu + B12_1 * uuu2;    
-
-    j_euler12_1.set_etat_qcq();
-
-    j_euler12_1.set(0) = 0;		// r tetrad component
-    j_euler12_1.set(1) = 0;		// theta tetrad component
-    j_euler12_1.set(2) = Jph12_1()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler12_1.set_triad (mp.get_bvect_spher());
-    j_euler12_1.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler12_1.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler12_1(0).get_etat() == ETATZERO)&&(j_euler12_1(1).get_etat() == ETATZERO)&&(j_euler12_1(2).get_etat()==ETATZERO))
-      j_euler12_1 = 0;
-
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
-    // the (flat-space) first part angular-momentum 3-vector j_euler^i for fluid 2 
-    //-----------------------------------
-    Tenseur Jph21_1(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-    
-    Tenseur A21_1(ent) ;
-
-    if (eos.identify() == 3) {  
- 
-//   	A21_1 = gam2_car() * nbar2() * nbar2() * eos.get_Kpp_ent(ent(), ent2(), delta_car(), nzet) +  
-//  	      gam2_car() * nbar2() * nbar() * eos.get_Knp_ent(ent(), ent2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-
- 	A21_1 = gam2_car() * nbar2() * nbar2() * K_pp() +  gam2_car() * nbar2() * nbar() * K_np() * pow (1.-delta_car(), -0.5)  ;	    //OK  
-
-//       A21_1 = gam2_car() *  K_pp() +   gam2_car() * K_np() * pow (1.-delta_car(), -0.5)  ;	// Knn->Knn * nn * nn  
-      
-      
-//	A21_1 = gam2_car() * nbar2() * eos.get_m2() * exp(ent2()); // erreures légèrement augmentées avec cette méthode     
-	}
-
-    else {
-
-    	A21_1 = gam2_car() * nbar2() * nbar2() * eos.get_Kpp(nbar(), nbar2(), delta_car(), nzet) +  
-	      gam2_car() * nbar2() * nbar() * eos.get_Knp(nbar(), nbar2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-	}
-
-    Jph21_1 = A21_1 * uuu2 ;
-
-    j_euler21_1.set_etat_qcq();
-
-    j_euler21_1.set(0) = 0;		// r tetrad component
-    j_euler21_1.set(1) = 0;		// theta tetrad component
-    j_euler21_1.set(2) = Jph21_1()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler21_1.set_triad (mp.get_bvect_spher());
-    j_euler21_1.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler21_1.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler21_1(0).get_etat() == ETATZERO)&&(j_euler21_1(1).get_etat() == ETATZERO)&&(j_euler21_1(2).get_etat()==ETATZERO))
-      j_euler21_1 = 0;
-
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
-    // the (flat-space) second part angular-momentum 3-vector j_euler^i for fluid 1 
-    //-----------------------------------
-    Tenseur Jph22_1(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-   
-    Tenseur A22_1(ent) ;
-    Tenseur B22_1(ent) ;
-
-    if (eos.identify() == 3) {  
-//      A22_1 = - gam2_car() * nbar2() * nbar() * eos.get_Knp_ent(ent(), ent2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-//  	B22_1 = + gam_euler() * gam_euler2() * nbar()*nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
-
- 	A22_1 = - gam2_car() * nbar2() * nbar() * K_np() * pow (1.-delta_car(), -0.5)  ;	//OK	
-  	B22_1 = + gam_euler() * gam_euler2() * nbar()*nbar2() * K_np();			//OK
-
-//   	A22_1 = - gam2_car() *  K_np() * pow (1.-delta_car(), -0.5)  ;	// Knn->Knn * nn * nn  
-//  	B22_1 = + gam_euler() * gam_euler2() * K_np();			// Knn->Knn * nn * nn  
-	}
-
-    else {
-    // some auxiliary EOS variables
-   	A22_1 = - gam2_car() * nbar2() * nbar() * eos.get_Knp(nbar(), nbar2(), delta_car(), nzet) * pow (1.-delta_car(), -0.5)  ;
-	B22_1 = + gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
-	}
-
-	Jph22_1 = A22_1 * uuu2 + B22_1 * uuu;    
-
-    j_euler22_1.set_etat_qcq();
-
-    j_euler22_1.set(0) = 0;		// r tetrad component
-    j_euler22_1.set(1) = 0;		// theta tetrad component
-    j_euler22_1.set(2) = Jph22_1()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler22_1.set_triad (mp.get_bvect_spher());
-    j_euler22_1.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler22_1.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler22_1(0).get_etat() == ETATZERO)&&(j_euler22_1(1).get_etat() == ETATZERO)&&(j_euler22_1(2).get_etat()==ETATZERO))
-      j_euler22_1 = 0;
-
-
-    
-    // Computation of elements used for the second version of the definition of In, Ip, En and Ep...
-    // the (flat-space) first part angular-momentum 3-vector j_euler^i for fluid 1 
-    //-----------------------------------
-    Tenseur Jph11_2(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-   
-    Tenseur A11_2(ent) ;
-
-    if (eos.identify() == 3) {  
- 
-//   	A11_2 = gam_car() * nbar() * nbar() * eos.get_Knn_ent(ent(), ent2(), delta_car(), nzet)   +  
-//  	      gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(), ent2(), delta_car(), nzet)  ;
- 
-      A11_2 = gam_car() * nbar() * nbar() * K_nn()   +   gam_euler() * gam_euler2() * nbar() * nbar2() * K_np()  ;  //OK
-
-// 	A11_2 = gam_car() * K_nn()   +  gam_euler() * gam_euler2() * K_np()  ; // Knn->Knn * nn * nn        
-	
-    }
-
-    else {
-  
-    	A11_2 = gam_car() * nbar() * nbar() * eos.get_Knn(nbar(), nbar2(), delta_car(), nzet)   +  
-	      gam_euler() * gam_euler2()  * nbar() * nbar2() * eos.get_Knp(nbar(), nbar2(), delta_car(), nzet)  ;
-	}
-
-    Jph11_2 = A11_2 * uuu ;
-
-    j_euler11_2.set_etat_qcq();
-
-    j_euler11_2.set(0) = 0;		// r tetrad component
-    j_euler11_2.set(1) = 0;		// theta tetrad component
-    j_euler11_2.set(2) = Jph11_2()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler11_2.set_triad (mp.get_bvect_spher());
-    j_euler11_2.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler11_2.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler11_2(0).get_etat() == ETATZERO)&&(j_euler11_2(1).get_etat() == ETATZERO)&&(j_euler11_2(2).get_etat()==ETATZERO))
-      j_euler11_2 = 0;
-
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
-    // the (flat-space) second part angular-momentum 3-vector j_euler^i for fluid 1 
-    //-----------------------------------
-    Tenseur Jph12_2(mp);   
-
-    Tenseur A12_2(ent) ;
-    Tenseur B12_2(ent) ;
-
-    if (eos.identify() == 3) {  
-//      A12_2 = - gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
-//  	B12_2 = + gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
-
- 	A12_2 = - gam_euler() * gam_euler2() * nbar() * nbar2() * K_np();  //OK
-  	B12_2 = + gam_euler() * gam_euler2() * nbar() * nbar2() * K_np();  //OK
-
-//     	A12_2 = - gam_euler() * gam_euler2() * K_np();  // Knn --> Knn *nn *nn
-//  	B12_2 = + gam_euler() * gam_euler2() * K_np();  // Knn --> Knn *nn *nn	
-	}
-
-    else {
-   	A12_2 = - gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
-	B12_2 = + gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
-	}
-
-	Jph12_2 = A12_2 * uuu + B12_2 * uuu2;    
-
-    j_euler12_2.set_etat_qcq();
-
-    j_euler12_2.set(0) = 0;		// r tetrad component
-    j_euler12_2.set(1) = 0;		// theta tetrad component
-    j_euler12_2.set(2) = Jph12_2()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler12_2.set_triad (mp.get_bvect_spher());
-    j_euler12_2.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler12_2.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler12_2(0).get_etat() == ETATZERO)&&(j_euler12_2(1).get_etat() == ETATZERO)&&(j_euler12_2(2).get_etat()==ETATZERO))
-      j_euler12_2 = 0;
-
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
-    // the (flat-space) first part angular-momentum 3-vector j_euler^i for fluid 2 
-    //-----------------------------------
-    Tenseur Jph21_2(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-    
-    Tenseur A21_2(ent) ;
-
-    if (eos.identify() == 3) {  
- 
-//  	A21_2 = gam2_car() * nbar2() * nbar2() * eos.get_Kpp_ent(ent(), ent2(), delta_car(), nzet)   +  
-//  	      gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(), ent2(), delta_car(), nzet)  ;
-
- 	A21_2 = gam2_car() * nbar2() * nbar2() * K_pp() + gam_euler() * gam_euler2() * nbar() * nbar2() * K_np()  ;	      //OK
-
-//       	A21_2 = gam2_car() * K_pp() + gam_euler() * gam_euler2() *  K_np()  ;	//Knn--> Knn *nn *nn
-    }
-
-    else {
-
-    	A21_2 = gam2_car() * nbar2() * nbar2() * eos.get_Kpp(nbar(), nbar2(), delta_car(), nzet) +  
-	      gam_euler() * gam_euler2()  * nbar2() * nbar() * eos.get_Knp(nbar(), nbar2(), delta_car(), nzet)  ;
-	}
-
-    Jph21_2 = A21_2 * uuu2 ;
-
-    j_euler21_2.set_etat_qcq();
-
-    j_euler21_2.set(0) = 0;		// r tetrad component
-    j_euler21_2.set(1) = 0;		// theta tetrad component
-    j_euler21_2.set(2) = Jph21_2()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler21_2.set_triad (mp.get_bvect_spher());
-    j_euler21_2.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler21_2.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler21_2(0).get_etat() == ETATZERO)&&(j_euler21_2(1).get_etat() == ETATZERO)&&(j_euler21_2(2).get_etat()==ETATZERO))
-      j_euler21_2 = 0;
-
-    // Rajouté pour le calcul des moments cinétiques de chaque fluide
-    // the (flat-space) second part angular-momentum 3-vector j_euler^i for fluid 1 
-    //-----------------------------------
-    Tenseur Jph22_2(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
-   
-    Tenseur A22_2(ent) ;
-    Tenseur B22_2(ent) ;
-
-    if (eos.identify() == 3) {  
-//      A22_2 =  - gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
-//  	B22_2 = + gam_euler() * gam_euler2() * nbar()*nbar2() * eos.get_Knp_ent(ent(),ent2(),delta_car(),nzet);
-
-	A22_2 =  - gam_euler() * gam_euler2() * nbar() * nbar2() * K_np(); //OK
- 	B22_2 = + gam_euler() * gam_euler2() * nbar()*nbar2() * K_np();  //OK
- 
-//    	A22_2 =  - gam_euler() * gam_euler2() *  K_np(); //Knn --> Knn * nn * nn 
-//  	B22_2 = + gam_euler() * gam_euler2() *  K_np();	//Knn --> Knn * nn * nn 
-	
-	}
-
-    else {
-    // some auxiliary EOS variables
-   	A22_2 = - gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet)  ;
-	B22_2 = + gam_euler() * gam_euler2() * nbar() * nbar2() * eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
-	}
-
-	Jph22_2 = A22_2 * uuu2 + B22_2 * uuu;    
-
-    j_euler22_2.set_etat_qcq();
-
-    j_euler22_2.set(0) = 0;		// r tetrad component
-    j_euler22_2.set(1) = 0;		// theta tetrad component
-    j_euler22_2.set(2) = Jph22_2()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    j_euler22_2.set_triad (mp.get_bvect_spher());
-    j_euler22_2.set_std_base();
-
-    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
-    j_euler22_2.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-
-    if( (j_euler22_2(0).get_etat() == ETATZERO)&&(j_euler22_2(1).get_etat() == ETATZERO)&&(j_euler22_2(2).get_etat()==ETATZERO))
-      j_euler22_2 = 0;    
-    
-    
-    
     
     // The derived quantities are obsolete
     // -----------------------------------

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2017/10/06 12:36:34  a_sourie
+ * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
+ *
  * Revision 1.10  2016/12/05 16:17:54  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -435,10 +438,12 @@ double Etoile_rot::r_circ() const {
       va_r.annule_hard() ;
       Itbl lsurf = l_surf() ;
       Tbl xisurf = xi_surf() ;
+     
       for (int k=0; k<np; k++) {
 	for (int j=0; j<nt; j++) {
 	  int l_star = lsurf(k, j) ;
 	  double xi_star = xisurf(k, j) ;
+	  
 	  va_r.set(0, k, j, 0) = mp_rad->val_r_jk(l_star, xi_star, j, k) ;
 	}
       }

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2017/10/06 12:36:33  a_sourie
+ * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
+ *
  * Revision 1.23  2016/12/05 16:17:51  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -210,13 +213,12 @@ the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
   string aname ;
 
   // EOS identificator : 
-  char blabla[80] ;
   fich >> aname; 
   name = aname ;
-  fich.getline(blabla, 80) ;
+  fich.ignore(1000, '\n') ;
 
-  fich >> m_1 ; fich.getline(blabla, 80) ;
-  fich >> m_2 ; fich.getline(blabla, 80) ;
+  fich >> m_1 ;  fich.ignore(1000, '\n') ;
+  fich >> m_2 ;  fich.ignore(1000, '\n') ;
 }
 
 
@@ -778,133 +780,6 @@ Cmp Eos_bifluid::get_Kpp(const Cmp& nbar1, const Cmp& nbar2, const Cmp&
     
 }
 
-// new functions --> ok ?
-
-// Generic computational routine for get_Kxx_ent
-//----------------------------------------------
-//Rk : nbar1 and nbar2 have been replaced by ent1 and ent2
-void Eos_bifluid::calcule_ent(const Cmp& ent1, const Cmp& ent2, const Cmp&
-		     x2, int nzet, int l_min, double
-		     (Eos_bifluid::*fait)(double, double, double) const, 
-			  Cmp& resu) const {
-    
-    assert(ent1.get_etat() != ETATNONDEF) ; 
-    assert(ent2.get_etat() != ETATNONDEF) ; 
-    assert(x2.get_etat() != ETATNONDEF) ; 
-    
-    const Map* mp = ent1.get_mp() ;	// Mapping
-    assert(mp == ent2.get_mp()) ;    
-    
-    
-    if ((ent1.get_etat() == ETATZERO)&&(ent2.get_etat() == ETATZERO)) {
-	resu.set_etat_zero() ; 
-	return ; 
-    }
-    
-    bool le1 = ent1.get_etat() == ETATQCQ ; 
-    bool le2 = ent2.get_etat() == ETATQCQ ; 
-    bool bx2 = x2.get_etat() == ETATQCQ ; 
-    const Valeur* vent1 = 0x0 ;
-    const Valeur* vent2 = 0x0 ;
-    const Valeur* vx2 = 0x0 ;
-    if (le1) { vent1 = &ent1.va ;
-    vent1->coef_i() ; }
-    if (le2) { vent2 = &ent2.va ;
-    vent2->coef_i() ; }
-    if (bx2) {vx2 = & x2.va ;
-    vx2->coef_i() ; }
-   
-    const Mg3d* mg = mp->get_mg() ;	// Multi-grid
-    
-    int nz = mg->get_nzone() ;		// total number of domains
-    
-    // Preparations for a point by point computation:
-    resu.set_etat_qcq() ;
-    Valeur& vresu = resu.va ; 
-    vresu.set_etat_c_qcq() ;
-    vresu.c->set_etat_qcq() ;
-
-    // Loop on domains where the computation has to be done :
-    for (int l = l_min; l< l_min + nzet; l++) {
-	
-      assert(l>=0) ; 
-      assert(l<nz) ; 
-      
-      Tbl* tent1 = 0x0 ;
-      Tbl* tent2 = 0x0 ;
-      Tbl* tx2 = 0x0 ;
-      
-      if (le1) tent1 = vent1->c->t[l] ;
-      if (le2) tent2 = vent2->c->t[l] ;
-      if (bx2) tx2 = vx2->c->t[l] ;
-      Tbl* tresu = vresu.c->t[l] ; 
-      
-      bool le1b = false ;
-      if (le1) le1b = tent1->get_etat() == ETATQCQ ;
-      bool le2b = false ;
-      if (le2) le2b = tent2->get_etat() == ETATQCQ ;
-      bool bx2b = false ;
-      if (bx2) bx2b = tx2->get_etat() == ETATQCQ ;
-      tresu->set_etat_qcq() ;
-      
-      double H1, H2, xx ;
-      
-      for (int i=0; i<tent1->get_taille(); i++) {
-	
-	H1 = le1b ? tent1->t[i] : 0 ;
-	H2 = le2b ? tent2->t[i] : 0 ;
-	xx = bx2b ? tx2->t[i] : 0 ;
-
-//cout << " LA" << H1 << "   " << H2 << "   " << xx <<  endl;
-	tresu->t[i] = (this->*fait)(xx, H1, H2) ;
-      }  
-      
-    }  // End of the loop on domains where the computation had to be done
-    
-    // resu is set to zero in the other domains :
-
-    if (l_min > 0) {
-      resu.annule(0, l_min-1) ; 
-    }
-    
-    if (l_min + nzet < nz) {
-      resu.annule(l_min + nzet, nz - 1) ; 
-    }
-}
-
-// rajout de ces fonctions
-Cmp Eos_bifluid::get_Knn_ent(const Cmp& ent1, const Cmp& ent2, const Cmp&
-			 delta2, int nzet, int l_min) const {
-    
-    Cmp resu(ent1.get_mp()) ; 
-
-    calcule_ent(ent1, ent2, delta2, nzet, l_min, &Eos_bifluid::get_K11, resu) ;
-
-    return resu ; 
-    
-}
-
-Cmp Eos_bifluid::get_Knp_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& 
-			 delta2, int nzet, int l_min) const {
-    
-    Cmp resu(delta2.get_mp()) ; 
-    
-    calcule_ent(ent1, ent2, delta2, nzet, l_min, &Eos_bifluid::get_K12, resu) ;
-    
-    return resu ; 
-    
-}
-
-Cmp Eos_bifluid::get_Kpp_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& 
-			 delta2, int nzet, int l_min) const {
-    
-    Cmp resu(ent2.get_mp()) ; 
-    
-    calcule_ent(ent1, ent2, delta2, nzet, l_min, &Eos_bifluid::get_K22, resu) ;
-    
-    return resu ; 
-    
-}
 
 }
 

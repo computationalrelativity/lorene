@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2017/10/06 12:36:34  a_sourie
+ * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
+ *
  * Revision 1.21  2016/12/05 16:17:52  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -167,7 +170,7 @@ void Et_rot_bifluid::equilibrium_bi
   int k_b = 0 ; 
     
   // Value of the enthalpies defining the surface of each fluid
-  double ent1_b = ent_limit(nzet-1) ;
+  double ent1_b = ent_limit(nzet-1)  ;
   double ent2_b = ent2_limit(nzet-1) ;
 
   // This value is chosen so that the grid contain both fluids
@@ -873,13 +876,15 @@ void Et_rot_bifluid::equilibrium_bi
     // Convergence towards given baryon masses  (if mer_mass > 0)
     //-----------------------------------------
     
+
+    cout << "DEBUG MODE : mbar1_wanted : " << mbar1_wanted/msol << endl ;
+    cout << "DEBUG MODE : mbar2_wanted : " << mbar2_wanted/msol << endl ; 
+    
     // If we want to impose baryonic masses for both fluids. 
-    //Be careful, the code acts on mu_n and mu_p (at the center)
+    // Be careful, the code acts on mu_n and mu_p (at the center)
     // -> beta equilibrium can be not verified
-    cout << "DEBUG MODE : mbar1_wanted : " << mbar1_wanted << endl ;
-    cout << "DEBUG MODE : mbar2_wanted : " << mbar2_wanted << endl ; 
-    if (mbar2_wanted != 0 )  		
-     		 
+    // CV towards Mbn and Mbp (without beta equilibrium at the center)
+    if (mbar2_wanted > 0 )  		
     {
       if ((mer_mass>0) && (mer > mer_mass)) {
       
@@ -909,16 +914,44 @@ void Et_rot_bifluid::equilibrium_bi
 	cout << "H1c = " << ent_c << "   H2c = " << ent2_c << endl ;
       }
     }
-    
-    else {
-    // If we want to impose Mb_tot and  beta equilibrium
-    // In this case : mbar1_wanted = total baryonic mass wanted
-    //	              mbar2_wanted must be set to -1 and is not used.
+
+    // CV towards a given GRAVITATIONAL mass (with beta-eq at the center)
+    else if (mbar2_wanted/msol == -1. ) {
       
       if ((mer_mass>0) && (mer > mer_mass)) {
       
 	double xx, xprog, ax, fact; 
 
+	// total mass
+	xx = mass_g() / mbar1_wanted - 1. ; // mbar1_wanted = "mgrav_wanted"
+	cout << "Discrep. baryon mass <-> wanted bar. mass : " << xx << endl ; 
+
+	xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
+	xx *= xprog ; 
+	ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
+	fact = pow(ax, aexp_mass) ; 
+	cout << "Fluid1:  xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
+	ent_c *= fact ; 
+	
+	double m1 = eos.get_m1() ; 
+	double m2 = eos.get_m2() ; 
+	cout << "m1 = " << m1 << "    m2 = " << m2 << endl;
+	ent2_c = ent_c + log(m1/m2); // to ensure beta_equilibrium  at the center
+	cout << "DEBUG MODE : ent_c " << ent_c << endl ;
+	cout << "DEBUG MODE : ent2_c " << ent2_c << endl ;	
+	cout << "H1c = " << ent_c << "   H2c = " << ent2_c << endl ;
+      
+      }      
+    }
+    // If we want to impose Mb_tot and beta equilibrium (at the center)
+    // In this case : mbar1_wanted = total baryonic mass wanted
+    //	             mbar2_wanted should be set to 0 and is not used.   
+    else {
+
+      if ((mer_mass>0) && (mer > mer_mass)) {
+      
+	double xx, xprog, ax, fact; 
+	
 	// total mass
 	xx = mass_b() / mbar1_wanted - 1. ; // mbar1_wanted = " mbar_wanted"
 	cout << "Discrep. baryon mass <-> wanted bar. mass : " << xx << endl ; 
@@ -930,9 +963,10 @@ void Et_rot_bifluid::equilibrium_bi
 	cout << "Fluid1:  xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
 	ent_c *= fact ; 
 	
-	double m1 = 1.009000285 ; 
-	double m2 = 1.008160139 ;
-	ent2_c = ent_c + log(m1/m2); // to ensure beta_equilibrium  
+	double m1 = eos.get_m1() ; 
+	double m2 = eos.get_m2() ; 
+	cout << "m1 = " << m1 << "    m2 = " << m2 << endl;
+	ent2_c = ent_c + log(m1/m2); // to ensure beta_equilibrium  at the center
 	cout << "DEBUG MODE : ent_c " << ent_c << endl ;
 	cout << "DEBUG MODE : ent2_c " << ent2_c << endl ;	
 	cout << "H1c = " << ent_c << "   H2c = " << ent2_c << endl ;
@@ -941,9 +975,6 @@ void Et_rot_bifluid::equilibrium_bi
       
     } /* if mer > mer_mass */
 	
-  
-
-
 
     //-------------------------------------------------------------
     //  Relative change in enthalpies with respect to previous step 
