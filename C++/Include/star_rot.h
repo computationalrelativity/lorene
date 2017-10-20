@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2017/10/20 13:55:41  j_novak
+ * Calss Star_rot is now friend of class Star.
+ *
  * Revision 1.7  2017/04/11 10:46:55  m_bejger
  * Star_rot::surf_grav() - surface gravity values along the theta direction
  *
@@ -667,6 +670,7 @@ class Star_rot : public Star {
 			 Tbl& diff, Param* = 0x0) ;
 	
 
+	friend class Star ;
 };
 
 }
