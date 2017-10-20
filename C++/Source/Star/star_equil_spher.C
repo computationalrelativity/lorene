@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2017/10/20 13:54:54  j_novak
+ * Adaptation of the method to be used within nrotstar.
+ *
  * Revision 1.16  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -88,16 +91,14 @@
 
 // Headers Lorene
 #include "tenseur.h"
-#include "star.h"
+#include "star_rot.h"
 #include "param.h"
 #include "graphique.h"
 #include "nbr_spx.h"
 #include "unites.h"	    
 
 namespace Lorene {
-void Star::equilibrium_spher(double ent_c, 
-							 double precis, 
-							 const Tbl* pent_limit){
+void Star::equilibrium_spher(double ent_c, double precis, const Tbl* pent_limit){
     
     // Fundamental constants and units
     // -------------------------------
@@ -377,7 +378,8 @@ void Star::equilibrium_spher(double ent_c,
 
 	// Metric coefficient psi4 update
 	
-	nn = exp( logn ) ; 
+	nn = exp( logn ) ;
+	nn.std_spectral_base() ;
 
 	Scalar qq = exp( lnq ) ;
 	qq.std_spectral_base() ;
@@ -409,7 +411,8 @@ void Star::equilibrium_spher(double ent_c,
     // Sets value to all the Tenseur's of the star
     // -------------------------------------------
     
-    nn = exp( logn ) ; 
+    nn = exp( logn ) ;
+    nn.std_spectral_base() ;
    
     Scalar qq = exp( lnq ) ;
     qq.std_spectral_base() ;
@@ -430,7 +433,15 @@ void Star::equilibrium_spher(double ent_c,
     ener_euler = ener ; 
     s_euler = 3 * press ;
     gam_euler = 1 ;  
-    for(int i=1; i<=3; i++) u_euler.set(i) = 0 ; 
+    for(int i=1; i<=3; i++) u_euler.set(i) = 0 ;
+
+    Star_rot* p_star_rot = dynamic_cast<Star_rot*>(this) ;
+    if ( p_star_rot != 0x0) {
+      p_star_rot->a_car = a_car ;
+      p_star_rot->bbb = qq / nn ;
+      p_star_rot->b_car = p_star_rot->bbb * p_star_rot->bbb ;
+      p_star_rot->dzeta = lnq ;
+    }
     
     // Info printing
     // -------------
