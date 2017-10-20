@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2017/10/20 13:56:20  j_novak
+ * Adapted to be run with nt=1.
+ *
  * Revision 1.15  2017/04/11 12:58:54  m_bejger
  * Updated output file for gyoto
  *
@@ -94,13 +97,6 @@ using namespace Lorene ;
 int main(){
 
     using namespace Unites ; 
-
-    // Identification of all the subroutines called by the code : 
-    
-    system("ident nrotstar > identif.d") ; 
-
-    // For the display : 
-    char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
     //------------------------------------------------------------------
     //	    Parameters of the computation 
@@ -377,8 +373,15 @@ int main(){
 
     Tbl diff(8) ;     
 
-    star.equilibrium(ent_c, omega, fact_omega, nzadapt, ent_limit, icontrol, control,
-    		     mbar_wanted, aexp_mass, diff) ;
+    if (nt > 1) 
+      star.equilibrium(ent_c, omega, fact_omega, nzadapt, ent_limit,
+		       icontrol, control, mbar_wanted, aexp_mass, diff) ;
+    else {
+      cout << "************** Warning ****************" << endl ;
+      cout <<" with nt = 1 some features are not available" << endl ;
+      cout << "(e.g. convergence to a given mass)." << endl ;
+      star.equilibrium_spher(ent_c, precis, &ent_limit) ;
+    }
 
     cout << endl << "Final star : " 
 	 << endl << "==========   " << endl ;
@@ -410,7 +413,8 @@ int main(){
     cout << "GRV2: " << star.grv2() << endl ;
     cout << "GRV3: " << star.grv3() << endl ;
 
-    double vit_triax = diff(7) ;
+    double vit_triax = 0. ;
+    if (nt > 1) vit_triax = diff(7) ;
 
     //-----------------------------------------------
     //  General features of the final configuration
@@ -444,8 +448,9 @@ int main(){
 
     fichfinal << endl <<
     "===================================================================" 
-    << endl ; 
-    fichfinal << "Diff_ent : " << diff(0) << endl ; 
+    << endl ;
+    if (nt > 1) 
+      fichfinal << "Diff_ent : " << diff(0) << endl ; 
     fichfinal << "Relative error on the virial theorem GRV2 : "
 	      << star.grv2() << endl ;   
     fichfinal << "Relative error on the virial theorem GRV3 : "
@@ -469,17 +474,6 @@ int main(){
     "================================================================" << endl ;
     fichfinal.close() ;
     system("cat par_eos.d >> result.txt") ;
-
-    // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("result.txt", ios::app) ; 
-    fichfinal << endl <<
-    "================================================================" << endl ; 
-    fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
-    fichfinal << 
-    "================================================================" << endl ; 
-    fichfinal.close() ; 
-    system("ident nrotstar >> result.txt") ; 
-
 
     // Saveguard of the whole configuration
     // ------------------------------------
