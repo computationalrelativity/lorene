@@ -7,6 +7,7 @@
 
 /*
  *   Copyright (c) 2010 Eric Gourgoulhon
+ *             (c) 2017 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2017/10/20 13:54:20  j_novak
+ * Now calling C++ function integrale2d instead of old FORTRAN routines.
+ *
  * Revision 1.5  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -59,257 +63,164 @@
 
 // Headers Lorene
 #include "star_rot.h"
-#include "proto_f77.h"
+#include "proto.h"
 
 namespace Lorene {
-double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
+  double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 
-	const Map_radial* mprad = dynamic_cast<const Map_radial*>( &sou_m.get_mp() ) ;
-	
-	if (mprad == 0x0) {
-		cout << "Star_rot::lambda_grv2: the mapping of sou_m does not"
-			 << endl << " belong to the class Map_radial !" << endl ;
-		abort() ;
-	} 	
-
-	assert( &sou_q.get_mp() == mprad ) ;
-	
-	sou_q.check_dzpuis(4) ;
-	
-	const Mg3d* mg = mprad->get_mg() ;
-	int nz = mg->get_nzone() ;
-		
-	// Construction of a Map_af which coincides with *mp on the equator
+    const Map_radial* mprad = dynamic_cast<const Map_radial*>( &sou_m.get_mp() ) ;
+    
+    if (mprad == 0x0) {
+      cout << "Star_rot::lambda_grv2: the mapping of sou_m does not"
+	   << endl << " belong to the class Map_radial !" << endl ;
+      abort() ;
+    } 	
+    
+    assert( &sou_q.get_mp() == mprad ) ;
+    
+    sou_q.check_dzpuis(4) ;
+    
+    const Mg3d* mg = mprad->get_mg() ;
+    int nz = mg->get_nzone() ;
+    
+    // Construction of a Map_af which coincides with *mp on the equator
     // ----------------------------------------------------------------
-
+    
     double theta0 = M_PI / 2 ;	    // Equator
     double phi0 = 0 ;
-
+    
     Map_af mpaff(*mprad) ;
-
+    
     for (int l=0 ; l<nz ; l++) {
-		double rmax = mprad->val_r(l, double(1), theta0, phi0) ;
-		switch ( mg->get_type_r(l) ) {
-	    	case RARE:	{
-				double rmin = mprad->val_r(l, double(0), theta0, phi0) ;
-				mpaff.set_alpha(rmax - rmin, l) ;
-				mpaff.set_beta(rmin, l) ;
-				break ;
-	    	}
+      double rmax = mprad->val_r(l, double(1), theta0, phi0) ;
+      switch ( mg->get_type_r(l) ) {
+      case RARE:	{
+	double rmin = mprad->val_r(l, double(0), theta0, phi0) ;
+	mpaff.set_alpha(rmax - rmin, l) ;
+	mpaff.set_beta(rmin, l) ;
+	break ;
+      }
 	
-	    	case FIN:	{
-				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
-				mpaff.set_alpha( double(.5) * (rmax - rmin), l ) ;
-				mpaff.set_beta( double(.5) * (rmax + rmin), l) ;
-				break ;
-	    	}
-
+      case FIN:	{
+	double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
+	mpaff.set_alpha( double(.5) * (rmax - rmin), l ) ;
+	mpaff.set_beta( double(.5) * (rmax + rmin), l) ;
+	break ;
+      }
 	
-	    	case UNSURR: {
-				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
-				double umax = double(1) / rmin ;
-				double umin = double(1) / rmax ;
-				mpaff.set_alpha( double(.5) * (umin - umax),  l) ;
-				mpaff.set_beta( double(.5) * (umin + umax), l) ;
-				break ;
-	    	}
 	
-	    	default: {
-				cout << "Star_rot::lambda_grv2: unknown type_r ! " << endl ;
-				abort () ;
-				break ;
-	    	}
+      case UNSURR: {
+	double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
+	double umax = double(1) / rmin ;
+	double umin = double(1) / rmax ;
+	mpaff.set_alpha( double(.5) * (umin - umax),  l) ;
+	mpaff.set_beta( double(.5) * (umin + umax), l) ;
+	break ;
+      }
 	
-		}
+      default: {
+	cout << "Star_rot::lambda_grv2: unknown type_r ! " << endl ;
+	abort () ;
+	break ;
+      }
+	
+      }
     }
 
 
-	// Reduced Jacobian of
-	// the transformation  (r,theta,phi) <-> (dzeta,theta',phi')
-	// ------------------------------------------------------------
+    // Reduced Jacobian of
+    // the transformation  (r,theta,phi) <-> (dzeta,theta',phi')
+    // ------------------------------------------------------------
+    
+    Mtbl jac = 1 / ( (mprad->xsr) * (mprad->dxdr) ) ;	
+    // R/x dR/dx in the nucleus
+    // R dR/dx   in the shells
+    // - U/(x-1) dU/dx in the ZEC						
+    for (int l=0; l<nz; l++) {
+      switch ( mg->get_type_r(l) ) {
+      case RARE:	{
+	double a1 = mpaff.get_alpha()[l] ;
+	*(jac.t[l]) =  *(jac.t[l]) / (a1*a1) ;
+	break ;
+      }
 	
-	Mtbl jac = 1 / ( (mprad->xsr) * (mprad->dxdr) ) ;	
-								// R/x dR/dx in the nucleus
-								// R dR/dx   in the shells
-								// - U/(x-1) dU/dx in the ZEC						
-	for (int l=0; l<nz; l++) {
-		switch ( mg->get_type_r(l) ) {
-	    	case RARE:	{
-	    		double a1 = mpaff.get_alpha()[l] ;
-				*(jac.t[l]) =  *(jac.t[l]) / (a1*a1) ;
-				break ;
-	    	}
+      case FIN:	{
+	double a1 = mpaff.get_alpha()[l] ;
+	double b1 = mpaff.get_beta()[l] ;
+	assert( jac.t[l]->get_etat() == ETATQCQ ) ;
+	double* tjac = jac.t[l]->t ;
+	double* const xi = mg->get_grille3d(l)->x ;
+	for (int k=0; k<mg->get_np(l); k++) {
+	  for (int j=0; j<mg->get_nt(l); j++) {
+	    for (int i=0; i<mg->get_nr(l); i++) {
+	      *tjac = *tjac /
+		(a1 * (a1 * xi[i] + b1) ) ;
+	      tjac++ ; 	
+	    }
+	  }
+	}				
 	
-	    	case FIN:	{
-				double a1 = mpaff.get_alpha()[l] ;
-				double b1 = mpaff.get_beta()[l] ;
-				assert( jac.t[l]->get_etat() == ETATQCQ ) ;
-				double* tjac = jac.t[l]->t ;
-				double* const xi = mg->get_grille3d(l)->x ;
-				for (int k=0; k<mg->get_np(l); k++) {
-					for (int j=0; j<mg->get_nt(l); j++) {
-						for (int i=0; i<mg->get_nr(l); i++) {
-							*tjac = *tjac /
-									(a1 * (a1 * xi[i] + b1) ) ;
-							tjac++ ; 	
-						}
-					}
-				}				
-				
-				break ;
-	    	}
+	break ;
+      }
+	
+	
+      case UNSURR: {
+	double a1 = mpaff.get_alpha()[l] ;
+	*(jac.t[l]) = - *(jac.t[l]) / (a1*a1) ;
+	break ;
+      }
+	
+      default: {
+	cout << "Star_rot::lambda_grv2: unknown type_r ! " << endl ;
+	abort () ;
+	break ;
+      }
+	
+      }
+      
+    }
 
-	
-	    	case UNSURR: {
-	    		double a1 = mpaff.get_alpha()[l] ;
-				*(jac.t[l]) = - *(jac.t[l]) / (a1*a1) ;
-				break ;
-	    	}
-	
-	    	default: {
-				cout << "Star_rot::lambda_grv2: unknown type_r ! " << endl ;
-				abort () ;
-				break ;
-	    	}
-	
-		}
-	
-	}
 
-
-	// Multiplication of the sources by the reduced Jacobian:
-	// -----------------------------------------------------
-		
-	Mtbl s_m(mg) ;
-	if ( sou_m.get_etat() == ETATZERO ) {
-		s_m = 0 ;
-	}
-	else{
-		assert(sou_m.get_spectral_va().get_etat() == ETATQCQ) ;	
+    // Multiplication of the sources by the reduced Jacobian:
+    // -----------------------------------------------------
+    
+    Mtbl s_m(mg) ;
+    if ( sou_m.get_etat() == ETATZERO ) {
+      s_m = 0 ;
+    }
+    else{
+      assert(sou_m.get_spectral_va().get_etat() == ETATQCQ) ;	
 		sou_m.get_spectral_va().coef_i() ;	
 		s_m = *(sou_m.get_spectral_va().c) ;
     }
-		
-	Mtbl s_q(mg) ;
-	if ( sou_q.get_etat() == ETATZERO ) {
-		s_q = 0 ;
-	}
-	else{
-		assert(sou_q.get_spectral_va().get_etat() == ETATQCQ) ;	
-		sou_q.get_spectral_va().coef_i() ;	
-		s_q = *(sou_q.get_spectral_va().c) ;
+    
+    Mtbl s_q(mg) ;
+    if ( sou_q.get_etat() == ETATZERO ) {
+      s_q = 0 ;
     }
-			
-	s_m *= jac ;
-	s_q *= jac ;
-		
-	
-	// Preparations for the call to the Fortran subroutine
-	// ---------------------------------------------------								
-	
-    int np1 = 1 ;		// Axisymmetry enforced
-    int nt = mg->get_nt(0) ;
-    int nt2 = 2*nt - 1 ;	// Number of points for the theta sampling
-							//  in [0,Pi], instead of [0,Pi/2]
-
-    // Array NDL
-    // ---------
-    int* ndl = new int[nz+4] ;
-    ndl[0] = nz ;
-    for (int l=0; l<nz; l++) {
-		ndl[1+l] = mg->get_nr(l) ;
+    else{
+      assert(sou_q.get_spectral_va().get_etat() == ETATQCQ) ;	
+      sou_q.get_spectral_va().coef_i() ;	
+      s_q = *(sou_q.get_spectral_va().c) ;
     }
-    ndl[1+nz] = nt2 ;
-    ndl[2+nz] = np1 ;
-    ndl[3+nz] = nz ;
-
-	// Parameters NDR, NDT, NDP
-    // ------------------------
-    int nrmax = 0 ;
-    for (int l=0; l<nz ; l++) {
-		nrmax = ( ndl[1+l] > nrmax ) ? ndl[1+l] : nrmax ;
-    }
-    int ndr = nrmax + 5 ;
-    int ndt = nt2 + 2 ;
-    int ndp = np1 + 2 ;
-
-    // Array ERRE
-    // ----------
-
-    double* erre = new double [nz*ndr] ;
-
-    for (int l=0; l<nz; l++) {
-		double a1 = mpaff.get_alpha()[l] ;
-		double b1 = mpaff.get_beta()[l] ;
-		for (int i=0; i<ndl[1+l]; i++) {
-	    	double xi = mg->get_grille3d(l)->x[i] ;
-	    	erre[ ndr*l + i ] = a1 * xi + b1 ;
-		}
-    }
-
-    // Arrays containing the data
-    // --------------------------
-
-    int ndrt = ndr*ndt ;
-    int ndrtp = ndr*ndt*ndp ;
-    int taille = ndrtp*nz ;
-
-    double* tsou_m = new double[ taille ] ;
-    double* tsou_q = new double[ taille ] ;
-
-    // Initialisation to zero :
-    for (int i=0; i<taille; i++) {
-		tsou_m[i] = 0 ;
-		tsou_q[i] = 0 ;
-    }
-
-    // Copy of s_m into tsou_m
-    // -----------------------
-
-    for (int l=0; l<nz; l++) {
-	   for (int k=0; k<np1; k++) {
-			for (int j=0; j<nt; j++) {
-		 		for (int i=0; i<mg->get_nr(l); i++) {
-					double xx = s_m(l, k, j, i) ;
-					tsou_m[ndrtp*l + ndrt*k + ndr*j + i] = xx ;
-					// point symetrique par rapport au plan theta = pi/2 :
-					tsou_m[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = xx ;			
-		   		}
-			}
-	  	}
-    }
-
-    // Copy of s_q into tsou_q
-    // -----------------------
-
-    for (int l=0; l<nz; l++) {
-	   for (int k=0; k<np1; k++) {
-			for (int j=0; j<nt; j++) {
-		 		for (int i=0; i<mg->get_nr(l); i++) {
-					double xx = s_q(l, k, j, i) ;
-					tsou_q[ndrtp*l + ndrt*k + ndr*j + i] = xx ;
-					// point symetrique par rapport au plan theta = pi/2 :
-					tsou_q[ndrtp*l + ndrt*k + ndr*(nt2-1-j) + i] = xx ;			
-		   		}
-			}
-	  	}
-    }
-
-	
+    
+    s_m *= jac ;
+    s_q *= jac ;
+    	
     // Computation of the integrals
     // ----------------------------
+    Scalar af_soum(mpaff) ;
+    af_soum = s_m ;
+    af_soum.std_spectral_base() ;
+    af_soum.set_dzpuis(sou_m.get_dzpuis()) ;
 
-    double int_m, int_q ;
-    F77_integrale2d(ndl, &ndr, &ndt, &ndp, erre, tsou_m, &int_m) ;
-    F77_integrale2d(ndl, &ndr, &ndt, &ndp, erre, tsou_q, &int_q) ;
+    Scalar af_souq(mpaff) ;
+    af_souq = s_q ;
+    af_souq.std_spectral_base() ;
+    af_souq.set_dzpuis(sou_q.get_dzpuis()) ;
 
-    // Cleaning
-    // --------
-
-    delete [] ndl ;
-    delete [] erre ;
-    delete [] tsou_m ;
-    delete [] tsou_q ;
+    double int_m = integrale2d(af_soum) ;
+    double int_q = integrale2d(af_souq) ;
 
     // Computation of lambda
     // ---------------------
@@ -324,5 +235,5 @@ double Star_rot::lambda_grv2(const Scalar& sou_m, const Scalar& sou_q) {
 	
     return lambda ;
 	
-}
+  }
 }
