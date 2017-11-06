@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2017/11/06 11:03:51  m_bejger
+ * Update the gyoto output file: 4-acceleration on the surface
+ *
  * Revision 1.16  2017/10/20 13:56:20  j_novak
  * Adapted to be run with nt=1.
  *
@@ -693,7 +696,7 @@ int main(){
     ns_surf.annule_hard() ;
     for (int k=0; k<np; k++)
       for (int j=0; j<nt; j++)  {
-      ns_surf.set(0, k, j, 0) = mp.val_r_jk(star.l_surf()(k, j), star.xi_surf()(k, j), j, k) ;
+      ns_surf.set(nzet-1, k, j, 0) = mp.val_r_jk(star.l_surf()(k, j), star.xi_surf()(k, j), j, k) ;
       }
 
     // Horizon 
@@ -708,6 +711,21 @@ int main(){
     Vector velo = star.get_u_euler();
     velo.change_triad(mp.get_bvect_spher());
     Vector u_euler = velo.up_down(gamma);
+
+    // 4-acceleration vector 
+    //----------------------
+
+    Scalar loggam = log(star.get_gam_euler()) ; 
+    loggam.std_spectral_base() ; 
+
+    Vector a = (star.get_logn()).derive_cov( mp.flat_met_spher() ) 
+             - loggam.derive_cov( mp.flat_met_spher() ); 
+    a.std_spectral_base() ; 
+
+    for (int i=nzet; i<nz; i++) 
+      a.annule_domain(i); 
+
+    // Scalar g = sqrt(contract( a, 0, a.up_down(gamma), 0 )) ;
 
     // File for GYOTO
     FILE* file_out = fopen("resu_gyoto.d", "w") ;
@@ -728,6 +746,9 @@ int main(){
     // NS surface save 
     ns_surf.get_mg()->sauve(file_out) ;
     ns_surf.sauve(file_out) ;
+
+    // 4-acceleration vector save 
+    a.sauve(file_out) ;   
  
     // Horizon save 
     ah.get_mg()->sauve(file_out) ;
