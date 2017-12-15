@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2017/12/15 15:36:37  j_novak
+ * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
+ *
  * Revision 1.22  2015/08/04 14:41:28  j_novak
  * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
  *
@@ -320,7 +323,8 @@ class Eos {
 	 *  @param resu [output] result of the computation.
 	 */
 	void calcule(const Cmp& thermo, int nzet, int l_min,
-		     double (Eos::*fait)(double, const Param*) const, const Param* par, Cmp& resu) const ;
+		     double (Eos::*fait)(double, const Param*) const,
+		     Param* par, Cmp& resu) const ;
 
 	/**  General computational method for \c Scalar 's
 	 *
@@ -342,7 +346,8 @@ class Eos {
 	
 
 	void calcule(const Scalar& thermo, int nzet, int l_min,
-		     double (Eos::*fait)(double, const Param*) const, const Param* par, Scalar& resu) const ;
+		     double (Eos::*fait)(double, const Param*) const,
+		     Param* par, Scalar& resu) const ;
 
     public:
  	/** Computes the baryon density from the log-enthalpy and extra parameters
@@ -379,7 +384,7 @@ class Eos {
 	 *  @return baryon density [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
 	 *
 	 */
-    	Cmp nbar_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const  ;
+    	Cmp nbar_ent(const Cmp& ent, int nzet, int l_min = 0, Param* par=0x0) const  ;
 
 	/** Computes the baryon density field from the log-enthalpy field and
         * extra parameters
@@ -402,7 +407,7 @@ class Eos {
 	 *
 	 */
 
-    	Scalar nbar_ent(const Scalar& ent, int nzet, int l_min = 0, const Param* par=0x0) const  ;
+    	Scalar nbar_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const  ;
 
 	/** Computes the total energy density from the log-enthalpy and extra parameters
 	 *  (virtual function implemented in the derived classes).
@@ -437,7 +442,7 @@ class Eos {
 	 *  @return energy density [unit: \f$\rho_{\rm nuc} c^2\f$], where
 	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
 	 */
-    	Cmp ener_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+    	Cmp ener_ent(const Cmp& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
  
  	/** Computes the total energy density from the log-enthalpy and extra parameters.
 	 *
@@ -459,7 +464,7 @@ class Eos {
 	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
 	 */
 
-  	Scalar ener_ent(const Scalar& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+  	Scalar ener_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 	/** Computes the pressure from the log-enthalpy and extra parameters
 	 *  (virtual function implemented in the derived classes).
@@ -495,7 +500,7 @@ class Eos {
 	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
 	 *
 	 */
-    	Cmp press_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+    	Cmp press_ent(const Cmp& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 	/** Computes the pressure from the log-enthalpy and extra parameters
 	 *
@@ -517,7 +522,7 @@ class Eos {
 	 *
 	 */
    
-    	Scalar press_ent(const Scalar& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+    	Scalar press_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 	/** Computes the logarithmic derivative \f$d\ln n/d\ln H\f$
 	 *  from the log-enthalpy and extra parameters
@@ -554,7 +559,7 @@ class Eos {
 	 *  @return dln(n)/dln(H)
 	 *
 	 */
-    	Cmp der_nbar_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+    	Cmp der_nbar_ent(const Cmp& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 	/** Computes the logarithmic derivative \f$d\ln n/d\ln H\f$
 	 *  from the log-enthalpy and extra parameters
@@ -578,7 +583,7 @@ class Eos {
 	 *
 	 */
     
-   	Scalar der_nbar_ent(const Scalar& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+   	Scalar der_nbar_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 	/** Computes the logarithmic derivative \f$d\ln e/d\ln H\f$
 	 *  from the log-enthalpy with extra parameters
@@ -615,7 +620,7 @@ class Eos {
 	 *  @return dln(e)/dln(H)
 	 *
 	 */
-    	Cmp der_ener_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+    	Cmp der_ener_ent(const Cmp& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
   
 	/** Computes the logarithmic derivative \f$d\ln e/d\ln H\f$
 	 *  from the log-enthalpy and extra parameters
@@ -639,7 +644,7 @@ class Eos {
 	 *
 	 */
   	
-	Scalar der_ener_ent(const Scalar& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+	Scalar der_ener_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 	/** Computes the logarithmic derivative \f$d\ln p/d\ln H\f$
 	 *  from the log-enthalpy and extra parameters
@@ -676,7 +681,7 @@ class Eos {
 	 *  @return dln(p)/dln(H)
 	 *
 	 */
-    	Cmp der_press_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+    	Cmp der_press_ent(const Cmp& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
  	/** Computes the logarithmic derivative \f$d\ln p/d\ln H\f$
 	 *  from the log-enthalpy and extra parameters
@@ -700,7 +705,7 @@ class Eos {
 	 *
 	 */
  
-  	Scalar der_press_ent(const Scalar& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+  	Scalar der_press_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 };
 ostream& operator<<(ostream& , const Eos& ) ;	

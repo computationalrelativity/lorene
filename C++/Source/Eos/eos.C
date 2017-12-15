@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2017/12/15 15:36:38  j_novak
+ * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
+ *
  * Revision 1.8  2016/12/05 16:17:50  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -99,6 +102,7 @@
 #include "cmp.h"
 #include "scalar.h"
 #include "utilitaires.h"
+#include "param.h"
 
 			//--------------//
 			// Constructors //
@@ -204,7 +208,7 @@ ostream& operator<<(ostream& ost, const Eos& eqetat)  {
 
 
 void Eos::calcule(const Cmp& ent, int nzet, int l_min,  
-		       double (Eos::*fait)(double, const Param*) const, const Param* par, Cmp& resu) const {
+		       double (Eos::*fait)(double, const Param*) const, Param* par, Cmp& resu) const {
     
     assert(ent.get_etat() != ETATNONDEF) ; 
     
@@ -216,7 +220,12 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
 	return ; 
     }
 
-    assert(ent.get_etat() == ETATQCQ) ; 
+    assert(ent.get_etat() == ETATQCQ) ;
+    const MEos* tryMEos = dynamic_cast<const MEos*>(this) ;
+    bool isMEos = (tryMEos != 0x0) ;
+    int l_index = 0 ; // Index of the current domain in case of MEos
+    if (isMEos) par->add_int_mod(l_index) ;
+    
     const Valeur& vent = ent.va ;
     vent.coef_i() ;	// the values in the configuration space are required
    
@@ -235,6 +244,8 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
 	
 	assert(l>=0) ; 
 	assert(l<nz) ;
+
+	l_index = l ; // The domain index is passed to the 'fait' function
 	
 	Tbl* tent = vent.c->t[l] ; 
 	Tbl* tresu = vresu.c->t[l] ; 
@@ -269,7 +280,7 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
 
 
 void Eos::calcule(const Scalar& ent, int nzet, int l_min,  
-		       double (Eos::*fait)(double, const Param*) const, const Param* par, Scalar& resu) const {
+		       double (Eos::*fait)(double, const Param*) const, Param* par, Scalar& resu) const {
     
     assert(ent.get_etat() != ETATNONDEF) ; 
     
@@ -281,7 +292,12 @@ void Eos::calcule(const Scalar& ent, int nzet, int l_min,
 	return ; 
     }
 
-    assert(ent.get_etat() == ETATQCQ) ; 
+    assert(ent.get_etat() == ETATQCQ) ;
+    const MEos* tryMEos = dynamic_cast<const MEos*>(this) ;
+    bool isMEos = (tryMEos != 0x0) ;
+    int l_index = 0 ; // Index of the current domain in case of MEos
+    if (isMEos) par->add_int_mod(l_index) ;
+
     const Valeur& vent = ent.get_spectral_va() ;
     vent.coef_i() ;	// the values in the configuration space are required
    
@@ -300,6 +316,8 @@ void Eos::calcule(const Scalar& ent, int nzet, int l_min,
 	
 	assert(l>=0) ; 
 	assert(l<nz) ;
+
+	l_index = l ;  // The domain index is passed to the 'fait' function
 	
 	Tbl* tent = vent.c->t[l] ; 
 	Tbl* tresu = vresu.c->t[l] ; 
@@ -338,7 +356,7 @@ void Eos::calcule(const Scalar& ent, int nzet, int l_min,
 // Baryon density from enthalpy 
 //------------------------------
 
-Cmp Eos::nbar_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+Cmp Eos::nbar_ent(const Cmp& ent, int nzet, int l_min, Param* par) const {
     
     Cmp resu(ent.get_mp()) ; 
     
@@ -348,7 +366,7 @@ Cmp Eos::nbar_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
     
 }
 
-Scalar Eos::nbar_ent(const Scalar& ent, int nzet, int l_min, const Param* par) const {
+Scalar Eos::nbar_ent(const Scalar& ent, int nzet, int l_min, Param* par) const {
     
     Scalar resu(ent.get_mp()) ; 
     
@@ -363,7 +381,7 @@ Scalar Eos::nbar_ent(const Scalar& ent, int nzet, int l_min, const Param* par) c
 // Energy density from enthalpy 
 //------------------------------
 
-Cmp Eos::ener_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+Cmp Eos::ener_ent(const Cmp& ent, int nzet, int l_min, Param* par) const {
     
     Cmp resu(ent.get_mp()) ; 
     
@@ -373,7 +391,7 @@ Cmp Eos::ener_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
     
 }
 
-Scalar Eos::ener_ent(const Scalar& ent, int nzet, int l_min, const Param* par) const {
+Scalar Eos::ener_ent(const Scalar& ent, int nzet, int l_min, Param* par) const {
     
     Scalar resu(ent.get_mp()) ; 
     
@@ -385,7 +403,7 @@ Scalar Eos::ener_ent(const Scalar& ent, int nzet, int l_min, const Param* par) c
 // Pressure from enthalpy 
 //-----------------------
 
-Cmp Eos::press_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+Cmp Eos::press_ent(const Cmp& ent, int nzet, int l_min, Param* par) const {
     
     Cmp resu(ent.get_mp()) ; 
     
@@ -395,7 +413,7 @@ Cmp Eos::press_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const 
 
 }
 
-Scalar Eos::press_ent(const Scalar& ent, int nzet, int l_min, const Param* par) const {
+Scalar Eos::press_ent(const Scalar& ent, int nzet, int l_min, Param* par) const {
     
     Scalar resu(ent.get_mp()) ; 
     
@@ -407,7 +425,7 @@ Scalar Eos::press_ent(const Scalar& ent, int nzet, int l_min, const Param* par) 
 // Derivative of baryon density from enthalpy
 //-------------------------------------------
 
-Cmp Eos::der_nbar_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+Cmp Eos::der_nbar_ent(const Cmp& ent, int nzet, int l_min, Param* par) const {
 
     Cmp resu(ent.get_mp()) ;
 
@@ -417,7 +435,7 @@ Cmp Eos::der_nbar_ent(const Cmp& ent, int nzet, int l_min, const Param* par) con
 
 }
 
-Scalar Eos::der_nbar_ent(const Scalar& ent, int nzet, int l_min, const Param* par) const {
+Scalar Eos::der_nbar_ent(const Scalar& ent, int nzet, int l_min, Param* par) const {
 
     Scalar resu(ent.get_mp()) ;
 
@@ -430,7 +448,7 @@ Scalar Eos::der_nbar_ent(const Scalar& ent, int nzet, int l_min, const Param* pa
 // Derivative of energy density from enthalpy
 //-------------------------------------------
 
-Cmp Eos::der_ener_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+Cmp Eos::der_ener_ent(const Cmp& ent, int nzet, int l_min, Param* par) const {
 
     Cmp resu(ent.get_mp()) ;
 
@@ -440,7 +458,7 @@ Cmp Eos::der_ener_ent(const Cmp& ent, int nzet, int l_min, const Param* par) con
 
 }
 
-Scalar Eos::der_ener_ent(const Scalar& ent, int nzet, int l_min, const Param* par) const {
+Scalar Eos::der_ener_ent(const Scalar& ent, int nzet, int l_min, Param* par) const {
 
     Scalar resu(ent.get_mp()) ;
 
@@ -452,7 +470,7 @@ Scalar Eos::der_ener_ent(const Scalar& ent, int nzet, int l_min, const Param* pa
 // Derivative of pressure from enthalpy
 //-------------------------------------------
 
-Cmp Eos::der_press_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+Cmp Eos::der_press_ent(const Cmp& ent, int nzet, int l_min, Param* par) const {
 
     Cmp resu(ent.get_mp()) ;
 
@@ -462,7 +480,7 @@ Cmp Eos::der_press_ent(const Cmp& ent, int nzet, int l_min, const Param* par) co
 
 }
 
-Scalar Eos::der_press_ent(const Scalar& ent, int nzet, int l_min, const Param* par) const {
+Scalar Eos::der_press_ent(const Scalar& ent, int nzet, int l_min, Param* par) const {
 
     Scalar resu(ent.get_mp()) ;
 

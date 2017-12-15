@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2017/12/15 15:36:38  j_novak
+ * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
+ *
  * Revision 1.17  2016/12/05 16:17:52  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -229,149 +232,173 @@ void Eos_tabul::sauve(FILE* fich) const {
 void Eos_tabul::read_table() {
 
   using namespace Unites ;
+
+  ifstream is_meos("meos_is_being_built.d") ;
     	
   ifstream fich(tablename.data()) ;
 
-	if (!fich) {
-	  cerr << "Eos_tabul::read_table(): " << endl ;
-	  cerr << "Problem in opening the EOS file!" << endl ;
-	  cerr << "While trying to open " << tablename << endl ; 
-	  cerr << "Aborting..." << endl ;
-	  abort() ;
-	}
+  if (!fich) {
+    cerr << "Eos_tabul::read_table(): " << endl ;
+    cerr << "Problem in opening the EOS file!" << endl ;
+    cerr << "While trying to open " << tablename << endl ; 
+    cerr << "Aborting..." << endl ;
+    abort() ;
+  }
+  
+  fich.ignore(1000, '\n') ;             // Jump over the first header
+  fich.ignore(1) ;
+  getline(fich, authors, '\n') ;
+  for (int i=0; i<3; i++) {		//  jump over the file
+    fich.ignore(1000, '\n') ;             // header
+  }                                       //
+  
+  int nbp ;
+  fich >> nbp ; fich.ignore(1000, '\n') ;   // number of data
+  if (nbp<=0) {
+    cerr << "Eos_tabul::read_table(): " << endl ;
+    cerr << "Wrong value for the number of lines!" << endl ;
+    cerr << "nbp = " << nbp << endl ;
+    cerr << "Aborting..." << endl ;
+    abort() ;
+  }
+  
+  for (int i=0; i<3; i++) {		//  jump over the table
+    fich.ignore(1000, '\n') ;             // description
+  }                                      
+  
+  press = new double[nbp] ;
+  nb    = new double[nbp] ;
+  ro    = new double[nbp] ; 
+  
+  logh = new Tbl(nbp) ;
+  logp = new Tbl(nbp) ;
+  dlpsdlh = new Tbl(nbp) ;
+  lognb = new Tbl(nbp) ;
+  dlpsdlnb = new Tbl(nbp) ;
+  
+  logh->set_etat_qcq() ;
+  logp->set_etat_qcq() ;
+  dlpsdlh->set_etat_qcq() ;
+  lognb->set_etat_qcq() ;
+  dlpsdlnb->set_etat_qcq() ;   	
+  
+  double rhonuc_cgs = rhonuc_si * 1e-3 ;
+  double c2_cgs = c_si * c_si * 1e4 ;    	
+  
+  int no ;
+  double nb_fm3, rho_cgs, p_cgs ;
+  
+  for (int i=0; i<nbp; i++) {
+    
+    fich >> no ;
+    fich >> nb_fm3 ;
+    fich >> rho_cgs ;
+    fich >> p_cgs ; fich.ignore(1000,'\n') ;    		
+    if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
+      cout << "Eos_tabul::read_table(): " << endl ;
+      cout << "Negative value in table!" << endl ;
+      cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
+	", p = " << p_cgs << endl ;
+      cout << "Aborting..." << endl ;
+      abort() ;
+    }
+    
+    press[i] = p_cgs / c2_cgs ;
+    nb[i]    = nb_fm3 ;
+    ro[i]    = rho_cgs ; 
+  }
 
-	fich.ignore(1000, '\n') ;             // Jump over the first header
-	fich.ignore(1) ;
-	getline(fich, authors, '\n') ;
-	for (int i=0; i<3; i++) {		//  jump over the file
-	  fich.ignore(1000, '\n') ;             // header
-    	}                                       //
+  double ww = 0. ;
+  bool store_offset = false ;
+  bool compute_offset = true ;
+  if (is_meos) {
+    string temp ;
+    string ok("ok") ;
+    is_meos >> temp ;
+    if (temp.find(ok) != string::npos) {
+      is_meos >> ww ;
+      compute_offset = false ;
+    }
+    else {
+      is_meos.close() ;
+      store_offset = true ;
+    }
+  }
+  for (int i=0; i<nbp; i++) {
+    double h = log( (ro[i] + press[i]) /
+		    (10 * nb[i] * rhonuc_cgs) ) ;
+    
+    if ((i==0) && compute_offset) { ww = h ; }
+    //    if (ww > 0.2) ww = -0.000655966 ;
+    h = h - ww + 1.e-14 ;    		
+    
+    logh->set(i) = log10( h ) ;
+    logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+    dlpsdlh->set(i) = h * (ro[i] + press[i]) / press[i] ;
+    lognb->set(i) = log10(nb[i]) ;
+  } 
 
-    	int nbp ;
-    	fich >> nbp ; fich.ignore(1000, '\n') ;   // number of data
-	if (nbp<=0) {
-	  cerr << "Eos_tabul::read_table(): " << endl ;
-	  cerr << "Wrong value for the number of lines!" << endl ;
-	  cerr << "nbp = " << nbp << endl ;
-	  cerr << "Aborting..." << endl ;
-	  abort() ;
-	}
-
-	for (int i=0; i<3; i++) {		//  jump over the table
-	  fich.ignore(1000, '\n') ;             // description
-    	}                                      
-
-        press = new double[nbp] ;
-        nb    = new double[nbp] ;
-        ro    = new double[nbp] ; 
- 
-    	logh = new Tbl(nbp) ;
-    	logp = new Tbl(nbp) ;
-    	dlpsdlh = new Tbl(nbp) ;
-	lognb = new Tbl(nbp) ;
-        dlpsdlnb = new Tbl(nbp) ;
-    	
-    	logh->set_etat_qcq() ;
-    	logp->set_etat_qcq() ;
-    	dlpsdlh->set_etat_qcq() ;
-        lognb->set_etat_qcq() ;
-        dlpsdlnb->set_etat_qcq() ;   	
-    	
-	double rhonuc_cgs = rhonuc_si * 1e-3 ;
-	double c2_cgs = c_si * c_si * 1e4 ;    	
-    	
-    	int no ;
-    	double nb_fm3, rho_cgs, p_cgs ;
-    	
-    	for (int i=0; i<nbp; i++) {
-    	
-    		fich >> no ;
-    		fich >> nb_fm3 ;
-    		fich >> rho_cgs ;
-    		fich >> p_cgs ; fich.ignore(1000,'\n') ;    		
-		if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
-		  cout << "Eos_tabul::read_table(): " << endl ;
-		  cout << "Negative value in table!" << endl ;
-		  cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
-		    ", p = " << p_cgs << endl ;
-		  cout << "Aborting..." << endl ;
-		  abort() ;
-		}
-		
-                press[i] = p_cgs / c2_cgs ;
-                nb[i]    = nb_fm3 ;
-                ro[i]    = rho_cgs ; 
-	}
-
-	double ww = 0. ;
-	for (int i=0; i<nbp; i++) {
-	  double h = log( (ro[i] + press[i]) /
-			  (10 * nb[i] * rhonuc_cgs) ) ;
-	  
-	  if (i==0) { ww = h ; }    		
-	  h = h - ww + 1.e-14 ;    		
-	  
-	  logh->set(i) = log10( h ) ;
-	  logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
-	  dlpsdlh->set(i) = h * (ro[i] + press[i]) / press[i] ;
-	  lognb->set(i) = log10(nb[i]) ;
-	} 
-
-        double p0, p1, p2, n0, n1, n2, dpdnb; 
-
-	// special case: i=0
-
-	p0 = log(press[0]);
-	p1 = log(press[1]);
-	p2 = log(press[2]);
-	
-	n0 = log(nb[0]);
-	n1 = log(nb[1]);
-	n2 = log(nb[2]);
-	
-	dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
-	  p1*(n0-n2)/(n1-n0)/(n1-n2) +
-	  p2*(n0-n1)/(n2-n0)/(n2-n1) ;
-
-	dlpsdlnb->set(0) = dpdnb ; 
-	
-	for(int i=1;i<nbp-1;i++) { 
-
-          p0 = log(press[i-1]);
-          p1 = log(press[i]);
-          p2 = log(press[i+1]);
-
-          n0 = log(nb[i-1]);
-          n1 = log(nb[i]);
-          n2 = log(nb[i+1]);
-
-          dpdnb = p0*(n1-n2)/(n0-n1)/(n0-n2) +
-	                 p1*(2*n1-n0-n2)/(n1-n0)/(n1-n2) +
-                         p2*(n1-n0)/(n2-n0)/(n2-n1) ;
-
-	  dlpsdlnb->set(i) = dpdnb ;
-
-        } 
+  if (store_offset == true) {
+    ofstream write_meos("meos_is_being_built.d", ios_base::app) ;
+    write_meos << "ok" << endl ;
+    write_meos << setprecision(16) << ww << endl ;
+  }
+  
+  double p0, p1, p2, n0, n1, n2, dpdnb; 
+  
+  // special case: i=0
+  
+  p0 = log(press[0]);
+  p1 = log(press[1]);
+  p2 = log(press[2]);
+  
+  n0 = log(nb[0]);
+  n1 = log(nb[1]);
+  n2 = log(nb[2]);
+  
+  dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
+    p1*(n0-n2)/(n1-n0)/(n1-n2) +
+    p2*(n0-n1)/(n2-n0)/(n2-n1) ;
+  
+  dlpsdlnb->set(0) = dpdnb ; 
+  
+  for(int i=1;i<nbp-1;i++) { 
+    
+    p0 = log(press[i-1]);
+    p1 = log(press[i]);
+    p2 = log(press[i+1]);
+    
+    n0 = log(nb[i-1]);
+    n1 = log(nb[i]);
+    n2 = log(nb[i+1]);
+    
+    dpdnb = p0*(n1-n2)/(n0-n1)/(n0-n2) +
+      p1*(2*n1-n0-n2)/(n1-n0)/(n1-n2) +
+      p2*(n1-n0)/(n2-n0)/(n2-n1) ;
+    
+    dlpsdlnb->set(i) = dpdnb ;
+    
+  } 
      	
-	// special case: i=nbp-1
+  // special case: i=nbp-1
 
-	p0 = log(press[nbp-3]);
-	p1 = log(press[nbp-2]);
-	p2 = log(press[nbp-1]);
+  p0 = log(press[nbp-3]);
+  p1 = log(press[nbp-2]);
+  p2 = log(press[nbp-1]);
 	
-	n0 = log(nb[nbp-3]);
-	n1 = log(nb[nbp-2]);
-	n2 = log(nb[nbp-1]);
+  n0 = log(nb[nbp-3]);
+  n1 = log(nb[nbp-2]);
+  n2 = log(nb[nbp-1]);
+  
+  dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
+    p1*(n2-n0)/(n1-n0)/(n1-n2) +
+    p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
+  
+  dlpsdlnb->set(nbp-1) = dpdnb ;
+  
+  hmin = pow( double(10), (*logh)(0) ) ;
+  hmax = pow( double(10), (*logh)(nbp-1) ) ;
 	
-	dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
-	  p1*(n2-n0)/(n1-n0)/(n1-n2) +
-	  p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
-	
-	dlpsdlnb->set(nbp-1) = dpdnb ;
-	
-     	hmin = pow( double(10), (*logh)(0) ) ;
-     	hmax = pow( double(10), (*logh)(nbp-1) ) ;
-     	
 //##     	   	
 //     	cout << "logh : " << endl ;
 //     	cout << *logh << endl ;
@@ -387,14 +414,14 @@ void Eos_tabul::read_table() {
 //     	cout << *dlpsdlnb << endl ;
 //
 //     	
-     	cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
+  cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
 //##     	
-     	
-     	fich.close();
- 
-        delete [] press ; 
-        delete [] nb ; 
-        delete [] ro ; 
+
+  fich.close();
+  
+  delete [] press ; 
+  delete [] nb ; 
+  delete [] ro ; 
    	
 }
 

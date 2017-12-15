@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2017/12/15 15:36:38  j_novak
+ * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
+ *
  * Revision 1.7  2016/12/05 16:17:52  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -153,10 +156,15 @@ MEos::MEos(ifstream& fich) : Eos(fich),
     fich >> ndom ; fich.getline(blabla, 80) ;
 
     mono_eos = new const Eos* [ndom] ;
+    ofstream temp("meos_is_being_built.d") ;
+    temp << " " << flush ;
+    temp.close() ;
 
-    for (int l=0; l<ndom; l++) {
-        mono_eos[l] = Eos::eos_from_file(fich) ;
+    for (int l=ndom-1; l>=0; l--) { // Reverse order, to start at lower densities
+      mono_eos[l] = Eos::eos_from_file(fich) ;
     }
+
+    system("rm -f meos_is_being_built.d") ;
 }
 
 
@@ -266,7 +274,7 @@ bool MEos::operator!=(const Eos& eos_i) const {
 
 double MEos::nbar_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int() ;        // index of the domain
+        int l0 = par->get_int_mod() ;        // index of the domain
 
         return mono_eos[l0]->nbar_ent_p(ent) ;
 
@@ -277,7 +285,7 @@ double MEos::nbar_ent_p(double ent, const Param* par) const {
 
 double MEos::ener_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int() ;        // index of the domain
+        int l0 = par->get_int_mod() ;        // index of the domain
 
         return mono_eos[l0]->ener_ent_p(ent) ;
 }
@@ -287,7 +295,7 @@ double MEos::ener_ent_p(double ent, const Param* par) const {
 
 double MEos::press_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int() ;        // index of the domain
+        int l0 = par->get_int_mod() ;        // index of the domain
 
         return mono_eos[l0]->press_ent_p(ent) ;
 }
@@ -297,7 +305,7 @@ double MEos::press_ent_p(double ent, const Param* par) const {
 
 double MEos::der_nbar_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int() ;        // index of the domain
+        int l0 = par->get_int_mod() ;        // index of the domain
 
         return mono_eos[l0]->der_nbar_ent_p(ent) ;
 }
@@ -307,7 +315,7 @@ double MEos::der_nbar_ent_p(double ent, const Param* par) const {
 
 double MEos::der_ener_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int() ;        // index of the domain
+        int l0 = par->get_int_mod() ;        // index of the domain
 
         return mono_eos[l0]->der_ener_ent_p(ent) ;
 }
@@ -317,7 +325,7 @@ double MEos::der_ener_ent_p(double ent, const Param* par) const {
 
 double MEos::der_press_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int() ;        // index of the domain
+        int l0 = par->get_int_mod() ;        // index of the domain
 
         return mono_eos[l0]->der_press_ent_p(ent) ;
 }
