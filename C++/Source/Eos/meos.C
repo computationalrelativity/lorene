@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2017/12/21 16:25:28  j_novak
+ * Building from binary file now possible, too for Meos.
+ *
  * Revision 1.8  2017/12/15 15:36:38  j_novak
  * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
  *
@@ -141,10 +144,15 @@ MEos::MEos(FILE* fich) : Eos(fich), constructed_from_file(true) {
     fread_be(&ndom, sizeof(int), 1, fich) ;
 
     mono_eos = new const Eos* [ndom] ;
+    ofstream temp("meos_is_being_built.d") ;
+    temp << " " << flush ;
+    temp.close() ;
 
-    for (int l=0; l<ndom; l++) {
+    for (int l=ndom-1; l>=0; l--) { // Reverse order, to start at lower densities
         mono_eos[l] = Eos::eos_from_file(fich) ;
     }
+
+    system("rm -f meos_is_being_built.d") ;
 }
 
 //  Constructor from a formatted  file
