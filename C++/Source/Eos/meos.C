@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2017/12/22 09:21:50  j_novak
+ * Corrected the constructor from a binary file
+ *
  * Revision 1.9  2017/12/21 16:25:28  j_novak
  * Building from binary file now possible, too for Meos.
  *
@@ -212,7 +215,7 @@ void MEos::sauve(FILE* fich) const {
 
     fwrite_be(&ndom, sizeof(int), 1, fich) ;
 
-    for (int l=0; l<ndom; l++) {
+    for (int l=ndom-1; l>=0; l--) {
         mono_eos[l]->sauve(fich) ;
     }
 
