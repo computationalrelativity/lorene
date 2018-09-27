@@ -7,7 +7,7 @@
 1.e31   Requested magnetic moment [A.m^2] (effective only if mer_mass > mer_magmom)
 #################### MAGNETIC PARAMETERS ######################################
 0.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]
-21500.	Requested CFA (current function amplitude) [Lorene unit]
+20000.	Requested CFA (current function amplitude) [Lorene unit]
 0.	Initial charge (mer =< mer_mag) [Lorene unit]
 5000.	Initial CFA    (mer =< mer_mag) [Lorene unit]
 5	mer_mag : step at which magnetic quantites are plugged.
