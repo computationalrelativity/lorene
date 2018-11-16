@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.7  2016/12/05 16:18:09  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -332,9 +335,9 @@ Mtbl_cf sol_poisson_compact(const Map_af& mapping, const Mtbl_cf& source,
 	
 	// L'operateur :
 	for (int lig=0 ; lig<nr-1-nbr_cl ; lig++) {
-		for (int col=0 ; col<nr ; col++)
-			systeme.set(lig+ligne_courant,col+column_courant) = (*work)(lig,col) ;
-			sec_membre.set(lig+ligne_courant) = alpha*alpha*source(0, k, j, lig) ;
+	  for (int col=0 ; col<nr ; col++)
+	    systeme.set(lig+ligne_courant,col+column_courant) = (*work)(lig,col) ;
+	  sec_membre.set(lig+ligne_courant) = alpha*alpha*source(0, k, j, lig) ;
 	}
 	
 	delete work ;
@@ -404,13 +407,13 @@ Mtbl_cf sol_poisson_compact(const Map_af& mapping, const Mtbl_cf& source,
 	  Tbl source_aux(nr) ;
 	  source_aux.set_etat_qcq() ;
 	  for (int i=0 ; i<nr ; i++)
-		source_aux.set(i) = source(l,k,j,i)*alpha*alpha ;
-		Tbl xso(source_aux) ;
-		Tbl xxso(source_aux) ;
-		multx_1d(nr, &xso.t, R_CHEB) ;
-		multx_1d(nr, &xxso.t, R_CHEB) ;
-		multx_1d(nr, &xxso.t, R_CHEB) ;
-		source_aux = beta*beta/alpha/alpha*source_aux+2*beta/alpha*xso+xxso ;
+	    source_aux.set(i) = source(l,k,j,i)*alpha*alpha ;
+	  Tbl xso(source_aux) ;
+	  Tbl xxso(source_aux) ;
+	  multx_1d(nr, &xso.t, R_CHEB) ;
+	  multx_1d(nr, &xxso.t, R_CHEB) ;
+	  multx_1d(nr, &xxso.t, R_CHEB) ;
+	  source_aux = beta*beta/alpha/alpha*source_aux+2*beta/alpha*xso+xxso ;
 	  
 	  // L'operateur :
 	  

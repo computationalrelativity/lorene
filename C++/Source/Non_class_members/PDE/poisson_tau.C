@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.11  2016/12/05 16:18:10  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -211,35 +214,35 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
 
 	// L'operateur :
 	for (int lig=0 ; lig<nr-1-nbr_cl ; lig++) {
-	    for (int col=0 ; col<nr ; col++)
-	        systeme.set(lig+ligne_courant,col+column_courant) = (*work)(lig,col) ;
-	        sec_membre.set(lig+ligne_courant) = alpha*alpha*source(0, k, j, lig) ;
+	  for (int col=0 ; col<nr ; col++)
+	    systeme.set(lig+ligne_courant,col+column_courant) = (*work)(lig,col) ;
+	  sec_membre.set(lig+ligne_courant) = alpha*alpha*source(0, k, j, lig) ;
 	}
 	
 	delete work ;
 	ligne_courant += nr-1-nbr_cl ;
-	  
+	
 	// Le raccord :
 	for (int col=0 ; col<nr ; col++) {
-	     if (source.get_mg()->get_type_r(0) == RARE) {
-	     // La fonction
-	     systeme.set(ligne_courant, col+column_courant) = 1 ;
-	     // Sa d�riv�e :
-	     if (l_quant%2==0) {
-	         systeme.set(ligne_courant+1, col+column_courant) = 4*col*col/alpha ;
-	     }
-	     else { 
-	         systeme.set(ligne_courant+1, col+column_courant) = (2*col+1)*(2*col+1)/alpha ;
- 		}
-	      }
-	     else {
-	     // La fonction
-	     systeme.set(ligne_courant, col+column_courant) = 1 ; 
-	     // Sa dérivée :
-	     systeme.set(ligne_courant+1, col+column_courant) = col*(col+3)/double(2)/alpha ;
-	      }
-	     }
-	  
+	  if (source.get_mg()->get_type_r(0) == RARE) {
+	    // La fonction
+	    systeme.set(ligne_courant, col+column_courant) = 1 ;
+	    // Sa d�riv�e :
+	    if (l_quant%2==0) {
+	      systeme.set(ligne_courant+1, col+column_courant) = 4*col*col/alpha ;
+	    }
+	    else { 
+	      systeme.set(ligne_courant+1, col+column_courant) = (2*col+1)*(2*col+1)/alpha ;
+	    }
+	  }
+	  else {
+	    // La fonction
+	    systeme.set(ligne_courant, col+column_courant) = 1 ; 
+	    // Sa dérivée :
+	    systeme.set(ligne_courant+1, col+column_courant) = col*(col+3)/double(2)/alpha ;
+	  }
+	}
+	
 	column_courant += nr ;
 	  
 	  
@@ -288,23 +291,23 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
     	source_aux = beta*beta/alpha/alpha*source_aux+2*beta/alpha*xso+xxso ;
 	  
 	for (int lig=0 ; lig<nr-2 ; lig++) {
-	     for (int col=0 ; col<nr ; col++)
-	         systeme.set(lig+ligne_courant,col+column_courant) = (*work)(lig,col) ;
-	  	 sec_membre.set(lig+ligne_courant) = source_aux(lig) ;
-	  }
-	  
-	  delete work ;
-	  ligne_courant += nr-2 ;
-	  // Matching with the next domain :
-	  for (int col=0 ; col<nr ; col++) {
-	     // La fonction
-	     systeme.set(ligne_courant, col+column_courant) = 1 ;
-	     // Sa d�riv�e :
-	     systeme.set(ligne_courant+1, col+column_courant) = col*col/alpha ;
-	     }
-	     
-	  column_courant += nr ;   
-	  }
+	  for (int col=0 ; col<nr ; col++)
+	    systeme.set(lig+ligne_courant,col+column_courant) = (*work)(lig,col) ;
+	  sec_membre.set(lig+ligne_courant) = source_aux(lig) ;
+	}
+	
+	delete work ;
+	ligne_courant += nr-2 ;
+	// Matching with the next domain :
+	for (int col=0 ; col<nr ; col++) {
+	  // La fonction
+	  systeme.set(ligne_courant, col+column_courant) = 1 ;
+	  // Sa d�riv�e :
+	  systeme.set(ligne_courant+1, col+column_courant) = col*col/alpha ;
+	}
+	
+	column_courant += nr ;   
+	}
 	  
 	  
 		//--------------------------

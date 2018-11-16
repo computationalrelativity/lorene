@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2018/11/16 14:34:35  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.4  2016/12/05 16:17:49  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -85,7 +88,6 @@ HiggsMonopole::HiggsMonopole(Map& mpi, const char* file_name) :
     file.ignore(1000,'\n') ;
 
     const Mg3d* mg = mp.get_mg() ; 
-    double tmp ; 
     int nz = mg->get_nzone() ; 
     cout << "nz : " << nz << endl ; 
     nn.set_etat_qcq() ; // Memory allocation for N

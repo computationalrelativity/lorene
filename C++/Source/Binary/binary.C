@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2018/11/16 14:34:35  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.17  2016/12/05 16:17:47  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -372,98 +375,98 @@ void Binary::fait_decouple () {
 	int nt = star1.get_mp().get_mg()->get_nt (l) ;
 		
 	for (int k=0 ; k<np ; k++)
-	    for (int j=0 ; j<nt ; j++)
-		for (int i=0 ; i<nr ; i++) {
-			    
-		    xabs = xabs_un (l, k, j, i) ;
-		    yabs = yabs_un (l, k, j, i) ;
-		    zabs = zabs_un (l, k, j, i) ;
-			    
-		    // Coordinates of the point
-		    star1.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_un, theta, phi) ;
-		    star2.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_deux, theta, phi) ;
-		
-		    if (air_un <= lim_un)
-			if (air_un < int_un)
-			    decouple_un.set_grid_point(l, k, j, i) = 1 ;
-			else
-			// Close to star 1 :
-			decouple_un.set_grid_point(l, k, j, i) = 
-			    fonction_f_un.val_grid_point(l, k, j, i) ;
-		    else 
-			if (air_deux <= lim_deux)
-			    if (air_deux < int_deux)
-				decouple_un.set_grid_point(l, k, j, i) = 0 ;
-			    else
-			// Close to star 2 :
-				decouple_un.set_grid_point(l, k, j, i) = 
-		fonction_g_deux.val_point (air_deux, theta, phi) ;
-		
-			else
-			    // Far from each star :
-			    decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
-		}
-			    
-		// Case infinity :
-		if (l==nz_un-1)
-		    for (int k=0 ; k<np ; k++)
-			for (int j=0 ; j<nt ; j++)
-			    decouple_un.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
+	  for (int j=0 ; j<nt ; j++)
+	    for (int i=0 ; i<nr ; i++) {
+	      
+	      xabs = xabs_un (l, k, j, i) ;
+	      yabs = yabs_un (l, k, j, i) ;
+	      zabs = zabs_un (l, k, j, i) ;
+	      
+	      // Coordinates of the point
+	      star1.get_mp().convert_absolute 
+		(xabs, yabs, zabs, air_un, theta, phi) ;
+	      star2.get_mp().convert_absolute 
+		(xabs, yabs, zabs, air_deux, theta, phi) ;
+	      
+	      if (air_un <= lim_un)
+		if (air_un < int_un)
+		  decouple_un.set_grid_point(l, k, j, i) = 1 ;
+		else
+		  // Close to star 1 :
+		  decouple_un.set_grid_point(l, k, j, i) = 
+		    fonction_f_un.val_grid_point(l, k, j, i) ;
+	      else 
+		if (air_deux <= lim_deux)
+		  if (air_deux < int_deux)
+		    decouple_un.set_grid_point(l, k, j, i) = 0 ;
+		  else
+		    // Close to star 2 :
+		    decouple_un.set_grid_point(l, k, j, i) = 
+		      fonction_g_deux.val_point (air_deux, theta, phi) ;
+	      
+		else
+		  // Far from each star :
+		  decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
 	    }
+	
+	// Case infinity :
+	if (l==nz_un-1)
+	  for (int k=0 ; k<np ; k++)
+	    for (int j=0 ; j<nt ; j++)
+	      decouple_un.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
+    }
     
     for (int l=0 ; l<nz_deux ; l++) {
-	int nr = star2.get_mp().get_mg()->get_nr (l) ;
-		
-	if (l==nz_deux-1)
-	    nr -- ;
-		
-	int np = star2.get_mp().get_mg()->get_np (l) ;
-	int nt = star2.get_mp().get_mg()->get_nt (l) ;
-		
+      int nr = star2.get_mp().get_mg()->get_nr (l) ;
+      
+      if (l==nz_deux-1)
+	nr -- ;
+      
+      int np = star2.get_mp().get_mg()->get_np (l) ;
+      int nt = star2.get_mp().get_mg()->get_nt (l) ;
+      
+      for (int k=0 ; k<np ; k++)
+	for (int j=0 ; j<nt ; j++)
+	  for (int i=0 ; i<nr ; i++) {
+	    
+	    xabs = xabs_deux (l, k, j, i) ;
+	    yabs = yabs_deux (l, k, j, i) ;
+	    zabs = zabs_deux (l, k, j, i) ;
+	    
+	    // coordinates of the point  :
+	    star1.get_mp().convert_absolute 
+	      (xabs, yabs, zabs, air_un, theta, phi) ;
+	    star2.get_mp().convert_absolute 
+	      (xabs, yabs, zabs, air_deux, theta, phi) ;
+	    
+	    if (air_deux <= lim_deux)
+	      if (air_deux < int_deux)
+		decouple_deux.set_grid_point(l, k, j, i) = 1 ;
+	      else
+		// close to star two :
+		decouple_deux.set_grid_point(l, k, j, i) = 
+		  fonction_f_deux.val_grid_point(l, k, j, i) ;
+	    else 
+	      if (air_un <= lim_un)
+		if (air_un < int_un)
+		  decouple_deux.set_grid_point(l, k, j, i) = 0 ;
+		else
+		  // close to star one :
+		  decouple_deux.set_grid_point(l, k, j, i) = 
+		    fonction_g_un.val_point (air_un, theta, phi) ;
+	    
+	      else
+		// Far from each star :
+		decouple_deux.set_grid_point(l, k, j, i) = 0.5 ;
+	  }
+      
+      // Case infinity :
+      if (l==nz_deux-1)
 	for (int k=0 ; k<np ; k++)
-	    for (int j=0 ; j<nt ; j++)
-		for (int i=0 ; i<nr ; i++) {
-			    
-		    xabs = xabs_deux (l, k, j, i) ;
-		    yabs = yabs_deux (l, k, j, i) ;
-		    zabs = zabs_deux (l, k, j, i) ;
-			    
-		    // coordinates of the point  :
-		    star1.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_un, theta, phi) ;
-		    star2.get_mp().convert_absolute 
-			(xabs, yabs, zabs, air_deux, theta, phi) ;
-		    
-		    if (air_deux <= lim_deux)
-			if (air_deux < int_deux)
-			    decouple_deux.set_grid_point(l, k, j, i) = 1 ;
-			else
-			// close to star two :
-			decouple_deux.set_grid_point(l, k, j, i) = 
-			    fonction_f_deux.val_grid_point(l, k, j, i) ;
-		    else 
-			if (air_un <= lim_un)
-			    if (air_un < int_un)
-				decouple_deux.set_grid_point(l, k, j, i) = 0 ;
-			    else
-			// close to star one :
-				decouple_deux.set_grid_point(l, k, j, i) = 
-			 fonction_g_un.val_point (air_un, theta, phi) ;
-		
-			else
-			    // Far from each star :
-			    decouple_deux.set_grid_point(l, k, j, i) = 0.5 ;
-		}
-			    
-		// Case infinity :
-		if (l==nz_deux-1)
-		    for (int k=0 ; k<np ; k++)
-			for (int j=0 ; j<nt ; j++)
-			 decouple_deux.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
-   }
-   
+	  for (int j=0 ; j<nt ; j++)
+	    decouple_deux.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
+    }
+    
     decouple_un.std_spectral_base() ;
     decouple_deux.std_spectral_base() ;
 

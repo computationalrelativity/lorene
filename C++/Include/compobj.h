@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2018/11/16 14:34:34  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.20  2015/11/05 17:31:21  f_vincent
  * Updated class scalarBH.
  *
@@ -1080,7 +1083,7 @@ namespace Lorene {
     const Scalar& get_ff2() const {return ff2; } ; 
     const Scalar& get_ww() const {return ww; } ; 
     const Scalar& get_sfield() const {return sfield; } ; 
-    const double get_rHor() const {return rHor; } ; 
+    double get_rHor() const {return rHor; } ; 
     
     // Outputs
     // -------

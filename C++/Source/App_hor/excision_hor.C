@@ -144,153 +144,161 @@ const Scalar& Excision_hor::get_BC_conf_fact() const{
 //  Requires a 2d poisson solver for a non-flat metric.
 
 
-const Scalar& Excision_hor::get_BC_bmN(int choice_bmN, double value) const{
-  if (p_get_BC_bmN == 0x0){
+  const Scalar& Excision_hor::get_BC_bmN(int choice_bmN, double value) const{
+    if (p_get_BC_bmN == 0x0){
 
-    switch(choice_bmN){
+      switch(choice_bmN){
 
-    case 0 : {
-
-  Scalar thetaminus = sph.theta_minus();
-      Scalar theta_minus3 (lapse.get_mp()); 
- 
-  theta_minus3.allocate_all();
-  theta_minus3.std_spectral_base();
-
-  int nz = (*lapse.get_mp().get_mg()).get_nzone();
-  int nr = (*lapse.get_mp().get_mg()).get_nr(1);
-  int nt = (*lapse.get_mp().get_mg()).get_nt(1);
-  int np = (*lapse.get_mp().get_mg()).get_np(1);
-
-
-  for (int f= 0; f<nz; f++)
-    for (int k=0; k<np; k++)
-      for (int j=0; j<nt; j++) {
-	for (int l=0; l<nr; l++) {
-		
-	  theta_minus3.set_grid_point(f,k,j,l) = thetaminus.val_grid_point(0,k,j,0);
+      case 0 : {
 	
+	Scalar thetaminus = sph.theta_minus();
+	Scalar theta_minus3 (lapse.get_mp()); 
+	
+	theta_minus3.allocate_all();
+	theta_minus3.std_spectral_base();
+	
+	int nz = (*lapse.get_mp().get_mg()).get_nzone();
+	int nr = (*lapse.get_mp().get_mg()).get_nr(1);
+	int nt = (*lapse.get_mp().get_mg()).get_nt(1);
+	int np = (*lapse.get_mp().get_mg()).get_np(1);
+	
+	
+	for (int f= 0; f<nz; f++)
+	  for (int k=0; k<np; k++)
+	    for (int j=0; j<nt; j++) {
+	      for (int l=0; l<nr; l++) {
+		
+		theta_minus3.set_grid_point(f,k,j,l) = thetaminus.val_grid_point(0,k,j,0);
+	
+	      }
+	    }
+	if (nz >2){
+	  theta_minus3.annule_domain(0);
+	  theta_minus3.annule_domain(nz - 1);
 	}
+
+
+	Scalar bound_bmN(lapse.get_mp()); 
+	bound_bmN = - value*theta_minus3; bound_bmN.std_spectral_base();
+	bound_bmN.set_spectral_va().ylm();
+	p_get_BC_bmN = new Scalar(bound_bmN);
+	break ;
       }
-  if (nz >2){
-     theta_minus3.annule_domain(0);
-    theta_minus3.annule_domain(nz - 1);
-   }
 
+      case 1 : {
 
-    Scalar bound_bmN(lapse.get_mp()); 
-    bound_bmN = - value*theta_minus3; bound_bmN.std_spectral_base();
-    bound_bmN.set_spectral_va().ylm();
-    p_get_BC_bmN = new Scalar(bound_bmN); 
-    }
+	Scalar bound_bmN(lapse.get_mp());
+	bound_bmN.allocate_all();
+	bound_bmN.std_spectral_base();
+	
+	// Radial vector for the full 3-metric.
+	Vector sss = gamij.radial_vect();
+	Vector sss_down = sss.up_down(gamij);
+	Scalar bb = contract (shift,0, sss_down,0);
+	Scalar bmN3 = bb - lapse; bmN3.set_spectral_va().ylm();
+	Scalar bpN3 = bb + lapse; bpN3.set_spectral_va().ylm();  
+	
+	int nt = (*lapse.get_mp().get_mg()).get_nt(1);
+	int np = (*lapse.get_mp().get_mg()).get_np(1);
+	
+	Scalar bmN(sph.get_hsurf().get_mp());
+	bmN.allocate_all();
+	bmN.std_spectral_base();
+	bmN.set_spectral_va().ylm();
+	Scalar bpN(sph.get_hsurf().get_mp());
+	bpN.allocate_all();
+	bpN.std_spectral_base();
+	bpN.set_spectral_va().ylm();
+	
+	for (int k=0; k<np; k++)
+	  for (int j=0; j<nt; j++) {
+	    
+	    bmN.set_grid_point(0,k,j,0) = bmN3.val_grid_point(1,k,j,0);
+	    bpN.set_grid_point(0,k,j,0) = bpN3.val_grid_point(1,k,j,0);
+	  }
+	
+	Scalar bmN_new(bmN.get_mp());
+	bmN_new.allocate_all();
+	bmN_new.std_spectral_base();
+	
+	double diff_ent = 1.; 
+	double precis = 1.e-9;
+	int mer_max = 200;
+	double relax = 0.;
+	for(int mer=0 ;(diff_ent > precis) && (mer<mer_max) ; mer++) {    
+	  
+	  // Calculation of some source terms.
+	  
+	  Scalar hsurf = sph.get_hsurf();
+	  hsurf.set_spectral_va().ylm();
+	  const Metric_flat& fmets = hsurf.get_mp().flat_met_spher() ;
+	  
+	  Scalar shear_up = sph.shear(); shear_up.up_down(sph.get_qab());
+	  
+	  Scalar B_source = 0.5*contract(contract(sph.shear(),0, shear_up, 0),0,1)
+	    + 4.*M_PI*Tij.trace(sph.get_qab()); // Redo the matter terms.
+	  Scalar A_source = 0.5*sph.get_ricci()
+	    - contract(sph.derive_cov2d(sph.get_ll()), 0, 1)
+	    - contract(sph.get_ll(),0, sph.get_ll().up_down(sph.get_qab()),0)
+	    - 8.*M_PI*Tij.trace(sph.get_qab()); // Redo the matter terms.
+	  
+	  Scalar op_bmN_add = - 2.*contract(sph.derive_cov2d(bmN),0, sph.get_ll(),0)
+	    + A_source*bmN;
+	  
+	  Scalar source_bmN = B_source*bpN - op_bmN_add;  
+	  source_bmN.set_spectral_va().ylm();
 
-    case 1 : {
-
-    Scalar bound_bmN(lapse.get_mp());
-    bound_bmN.allocate_all();
-    bound_bmN.std_spectral_base();
-
-// Radial vector for the full 3-metric.
-    Vector sss = gamij.radial_vect();
-    Vector sss_down = sss.up_down(gamij);
-    Scalar bb = contract (shift,0, sss_down,0);
-    Scalar bmN3 = bb - lapse; bmN3.set_spectral_va().ylm();
-    Scalar bpN3 = bb + lapse; bpN3.set_spectral_va().ylm();  
-    
-    int nt = (*lapse.get_mp().get_mg()).get_nt(1);
-    int np = (*lapse.get_mp().get_mg()).get_np(1);
-    
-    Scalar bmN(sph.get_hsurf().get_mp());
-    bmN.allocate_all();
-    bmN.std_spectral_base();
-    bmN.set_spectral_va().ylm();
-     Scalar bpN(sph.get_hsurf().get_mp());
-    bpN.allocate_all();
-    bpN.std_spectral_base();
-    bpN.set_spectral_va().ylm();
-
-    for (int k=0; k<np; k++)
-      for (int j=0; j<nt; j++) {
-
-       	  bmN.set_grid_point(0,k,j,0) = bmN3.val_grid_point(1,k,j,0);
-	  bpN.set_grid_point(0,k,j,0) = bpN3.val_grid_point(1,k,j,0);
+	  Scalar sqrtqh2 = sph.sqrt_q()*hsurf*hsurf;
+	  sqrtqh2.set_spectral_va().ylm();
+	  
+	  source_bmN = sqrtqh2*source_bmN;
+	  
+	  // Conformal decomposition of the 2-metric
+	  
+	  Sym_tensor qab_con = sph.get_qab().con();
+	  qab_con = qab_con/(hsurf*hsurf); // Renormalization due to the triad still not built-in spheroid class
+	  //This is provisory work.
+	  
+	  // h^ab as q^ab = (f^ab + h^ab) / sqrt_q
+	  Sym_tensor hab =(qab_con*sqrtqh2 - fmets.con()) / (hsurf*hsurf) ;
+	  // for the sake of clarity
+	  hab.set(1,1) = 1. ;
+	  hab.set(1,2) = 0. ;
+	  hab.set(1,3) = 0. ;
+	  hab.std_spectral_base() ;
+	  //end
+	  // Complete source for the angular laplacian.
+	  Scalar d_bmN = sph.derive_cov2dflat(bmN);
+	  d_bmN.set_spectral_va().ylm();
+	  Scalar d2_bmN = sph.derive_cov2dflat(d_bmN);
+	  d2_bmN.set_spectral_va().ylm();
+	  
+	  Scalar source_add = - hsurf*hsurf*contract(hab, 0,1, d2_bmN, 0,1)
+	    + sqrtqh2*contract(contract(qab_con,0,1,sph.delta(),1,2),0,d_bmN,0) ;   
+	  source_add.set_spectral_va().ylm();
+	  source_bmN = source_bmN + source_add;
+	  //
+	  
+	  // System inversion
+	  bmN_new = source_bmN.poisson_angu(0.);
+	  
+	  // Actualisation of the principal variable, convergence parameter.
+	  diff_ent = max(maxabs(bmN - bmN_new));
+	  
+	  bmN = relax*bmN + (1. - relax)*bmN_new;   
+	  
 	}
-
-    Scalar bmN_new(bmN.get_mp());
-    bmN_new.allocate_all();
-    bmN_new.std_spectral_base();
-     
-    double diff_ent = 1.; 
-    double precis = 1.e-9;
-    int mer_max = 200;
-    double relax = 0.;
-    for(int mer=0 ;(diff_ent > precis) && (mer<mer_max) ; mer++) {    
-  
-      // Calculation of some source terms.
-     
-      Scalar hsurf = sph.get_hsurf();
-      hsurf.set_spectral_va().ylm();
-      const Metric_flat& fmets = hsurf.get_mp().flat_met_spher() ;
- 
-    Scalar shear_up = sph.shear(); shear_up.up_down(sph.get_qab());
- 
-    Scalar B_source = 0.5*contract(contract(sph.shear(),0, shear_up, 0),0,1) + 4.*M_PI*Tij.trace(sph.get_qab()); // Redo the matter terms.
-    Scalar A_source = 0.5*sph.get_ricci() - contract(sph.derive_cov2d(sph.get_ll()), 0, 1) - contract(sph.get_ll(),0, sph.get_ll().up_down(sph.get_qab()),0) - 8.*M_PI*Tij.trace(sph.get_qab()); // Redo the matter terms.
-   
-    Scalar op_bmN_add = - 2.*contract(sph.derive_cov2d(bmN),0, sph.get_ll(),0) + A_source*bmN;
-
-    Scalar source_bmN = B_source*bpN - op_bmN_add;  
-    source_bmN.set_spectral_va().ylm();
-
-    Scalar sqrtqh2 = sph.sqrt_q()*hsurf*hsurf;
-    sqrtqh2.set_spectral_va().ylm();
-   
-    source_bmN = sqrtqh2*source_bmN;
-     
-     // Conformal decomposition of the 2-metric
-        
-    Sym_tensor qab_con = sph.get_qab().con();
-    qab_con = qab_con/(hsurf*hsurf); // Renormalization due to the triad still not built-in spheroid class
-    //This is provisory work.
-
-    // h^ab as q^ab = (f^ab + h^ab) / sqrt_q
-    Sym_tensor hab =(qab_con*sqrtqh2 - fmets.con()) / (hsurf*hsurf) ;
-    // for the sake of clarity
-    hab.set(1,1) = 1. ;
-    hab.set(1,2) = 0. ;
-    hab.set(1,3) = 0. ;
-    hab.std_spectral_base() ;
-    //end
-    // Complete source for the angular laplacian.
-    Scalar d_bmN = sph.derive_cov2dflat(bmN);
-    d_bmN.set_spectral_va().ylm();
-      Scalar d2_bmN = sph.derive_cov2dflat(d_bmN);
-    d2_bmN.set_spectral_va().ylm();
- 
-    Scalar source_add = - hsurf*hsurf*contract(hab, 0,1, d2_bmN, 0,1) + sqrtqh2*contract(contract(qab_con,0,1,sph.delta(),1,2),0,d_bmN,0) ;   
-    source_add.set_spectral_va().ylm();
-    source_bmN = source_bmN + source_add;
-    //
-    
-    // System inversion
-    bmN_new = source_bmN.poisson_angu(0.);
-    
-    // Actualisation of the principal variable, convergence parameter.
-    diff_ent = max(maxabs(bmN - bmN_new));
-    
-    bmN = relax*bmN + (1. - relax)*bmN_new;   
-     
+	bound_bmN = bmN;
+	bound_bmN.set_spectral_va().ylm();
+	p_get_BC_bmN = new Scalar(bound_bmN);
+	break ;
+      }
+	
+      }
     }
-      bound_bmN = bmN;
-    bound_bmN.set_spectral_va().ylm();
-          p_get_BC_bmN = new Scalar(bound_bmN); 
-    }
-
-}
+    return *p_get_BC_bmN ;
+    
   }
-  return *p_get_BC_bmN ;
-
-}
 
 
 // Case 0:  Arbitrary Dirichlet BC for (b+N), fixed by a parabolic driver towards a constant value.
@@ -330,7 +338,7 @@ const Scalar& Excision_hor::get_BC_bpN(int choice_bpN, double c_bpn_lap, double 
 
         p_get_BC_bpN = new Scalar(bound_bpN); 
     
-
+	break ;
     }
 
     case 1 : {
@@ -404,8 +412,8 @@ const Scalar& Excision_hor::get_BC_bpN(int choice_bpN, double c_bpn_lap, double 
 
         p_get_BC_bpN = new Scalar(bound_bpN); 
     
- 
-}
+	break ;
+    }
 
 }
 }

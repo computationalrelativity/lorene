@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2018/11/16 14:34:37  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.4  2016/12/05 16:18:16  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -67,7 +70,7 @@
 namespace Lorene {
 Cmp raccord_c1(const Cmp& uu, int l1) ;
 
-double Star_bhns::velo_pot_bhns(const double& mass_bh, const double& sepa,
+double Star_bhns::velo_pot_bhns(const double&, const double&,
 				bool kerrschild, int mermax, double precis,
 				double relax) {
 

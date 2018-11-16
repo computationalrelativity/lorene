@@ -23,6 +23,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2018/11/16 14:34:37  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.4  2016/12/05 16:18:14  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -84,12 +87,12 @@ void Param_elliptic::set_poisson_pseudo_1d(Scalar& source) {
 	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
 	  if (operateurs[conte] != 0x0)	    
 	    delete operateurs[conte] ;
-	    source.get_spectral_va().base.give_quant_numbers(l, k, j, m_quant, l_quant, base_r_1d) ;
-	    if ((k!=1) && (l!=nz-1))
-		operateurs[conte] = new Ope_poisson_pseudo_1d (nr, base_r_1d, alpha, beta, l_quant) ;
-	    else
-	      operateurs[conte] = 0x0 ;
-	    conte ++ ;
+	  source.get_spectral_va().base.give_quant_numbers(l, k, j, m_quant, l_quant, base_r_1d) ;
+	  if ((k!=1) && (l!=nz-1))
+	    operateurs[conte] = new Ope_poisson_pseudo_1d (nr, base_r_1d, alpha, beta, l_quant) ;
+	  else
+	    operateurs[conte] = 0x0 ;
+	  conte ++ ;
 	}
     }
   }
@@ -125,10 +128,10 @@ void Param_elliptic::set_helmholtz_minus_pseudo_1d(int zone, double masse, Scala
 	  if (l==zone) {
 	    if (operateurs[conte] != 0x0)	    
 	      delete operateurs[conte] ;
-	      source.get_spectral_va().base.give_quant_numbers 
-		(l, k, j, m_quant, l_quant, base_r_1d) ;
-	      operateurs[conte] = new Ope_helmholtz_minus_pseudo_1d (nr, base_r_1d, 
-								     alpha, beta, l_quant, masse, dzpuis) ;
+	    source.get_spectral_va().base.give_quant_numbers 
+	      (l, k, j, m_quant, l_quant, base_r_1d) ;
+	    operateurs[conte] = new Ope_helmholtz_minus_pseudo_1d (nr, base_r_1d, 
+								   alpha, beta, l_quant, masse, dzpuis) ;
 	  } 
 	  conte ++ ;
 	}

@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.8  2016/12/05 16:18:09  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -115,20 +118,20 @@ void dirichlet_binaire (const Cmp& source_un, const Cmp& source_deux,
     int nz_deux = boundary_deux.get_mg()->get_nzone() ;
     
     // Initialisation valeur limite avant iteration !
-   limite_un = 1 ; //Pour initialiser les tableaux
-   for (int k=0 ; k<nbrep_un ; k++)
-    for (int j=0 ; j<nbret_un ; j++)
+    limite_un = 1 ; //Pour initialiser les tableaux
+    for (int k=0 ; k<nbrep_un ; k++)
+      for (int j=0 ; j<nbret_un ; j++)
 	limite_un.set(num_front, k, j, 0) =
-		sol_un.va.val_point_jk(num_front+1, -1, j, k) ;
+	  sol_un.va.val_point_jk(num_front+1, -1, j, k) ;
     limite_un.set_base (boundary_un.base) ;
-
+    
     limite_deux = 1 ;
     for (int k=0 ; k<nbrep_deux ; k++)
-	for (int j=0 ; j<nbret_deux ; j++)
-	  limite_deux.set(num_front, k, j, 0) =
-	    sol_deux.va.val_point_jk(num_front+1, -1, j, k) ;
+      for (int j=0 ; j<nbret_deux ; j++)
+	limite_deux.set(num_front, k, j, 0) =
+	  sol_deux.va.val_point_jk(num_front+1, -1, j, k) ;
     limite_deux.set_base (boundary_deux.base) ;
-
+    
 
     int conte = 0 ;
     int indic = 1 ;
@@ -259,13 +262,13 @@ void dirichlet_binaire (const Scalar& source_un, const Scalar& source_deux,
     int nz_deux = boundary_deux.get_mg()->get_nzone() ;
     
     // Initialisation valeur limite avant iteration !
-   limite_un = 1 ; //Pour initialiser les tableaux
-   for (int k=0 ; k<nbrep_un ; k++)
-    for (int j=0 ; j<nbret_un ; j++)
+    limite_un = 1 ; //Pour initialiser les tableaux
+    for (int k=0 ; k<nbrep_un ; k++)
+      for (int j=0 ; j<nbret_un ; j++)
 	limite_un.set(num_front, k, j, 0) =
-		sol_un.get_spectral_va().val_point_jk(num_front+1, -1, j, k) ;
+	  sol_un.get_spectral_va().val_point_jk(num_front+1, -1, j, k) ;
     limite_un.set_base (boundary_un.base) ;
-
+    
     limite_deux = 1 ;
     for (int k=0 ; k<nbrep_deux ; k++)
 	for (int j=0 ; j<nbret_deux ; j++)

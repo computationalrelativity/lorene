@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2018/11/16 14:34:37  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.20  2016/12/05 16:18:18  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -200,16 +203,16 @@ void Scalar::filtre_r (int* nn) {
     }
  
     for (int l=0; l<=nz-1; l++)
-	for (int k=0 ; k<np[l]+1 ; k++)
-	    if (k!=1)
-		for (int j=0 ; j<nt[l] ; j++)
-		    for (int i=nr[l]-1; i>nr[l]-1-nn[l] ; i--)
-			va.c_cf->set(l, k, j, i) = 0 ;
-
-	if (va.c != 0x0) {
-	    delete va.c ;
-	    va.c = 0x0 ;
-	}
+      for (int k=0 ; k<np[l]+1 ; k++)
+	if (k!=1)
+	  for (int j=0 ; j<nt[l] ; j++)
+	    for (int i=nr[l]-1; i>nr[l]-1-nn[l] ; i--)
+	      va.c_cf->set(l, k, j, i) = 0 ;
+    
+    if (va.c != 0x0) {
+      delete va.c ;
+      va.c = 0x0 ;
+    }
     
 }
 

@@ -23,6 +23,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.22  2016/12/05 16:18:14  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -247,45 +250,45 @@ Param_elliptic::Param_elliptic(const Scalar& so) : var_F(so.get_mp()), var_G(so.
     
     for (int l=0 ; l<nbr ; l++)
       operateurs[l] = 0x0 ;
-
-      int nr ;
-      int base_r, m_quant, l_quant ;
+    
+    int nr ;
+    int base_r, m_quant, l_quant ;
+    
+    int conte = 0 ;
+    for (int l=0 ; l<nz ; l++) {
       
-      int conte = 0 ;
-      for (int l=0 ; l<nz ; l++) {
-	
-	nr = get_mp().get_mg()->get_nr(l) ;
-	
-	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
-	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
-	    
-	    so.get_spectral_va().base.give_quant_numbers 
-	      (l, k, j, m_quant, l_quant, base_r) ;
- 
-	    switch (type_map) {
-	    case MAP_AFF: 
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  
+	  so.get_spectral_va().base.give_quant_numbers 
+	    (l, k, j, m_quant, l_quant, base_r) ;
+	  
+	  switch (type_map) {
+	  case MAP_AFF: 
+	    operateurs[conte] = new 
+	      Ope_poisson(nr, base_r, get_alpha(l), 
+			  get_beta(l), l_quant, dzpuis) ;
+	    break ;
+	  case MAP_LOG:
+	    if (mp_log->get_type(l) == AFFINE)
 	      operateurs[conte] = new 
 		Ope_poisson(nr, base_r, get_alpha(l), 
 			    get_beta(l), l_quant, dzpuis) ;
-	      break ;
-	    case MAP_LOG:
-	      if (mp_log->get_type(l) == AFFINE)
-		operateurs[conte] = new 
-		  Ope_poisson(nr, base_r, get_alpha(l), 
-			      get_beta(l), l_quant, dzpuis) ;
-	      else 
-		operateurs[conte] = new 
-		  Ope_sec_order (nr, base_r, get_alpha(l), get_beta(l), 
-				 1., 2. , l_quant) ;
-	      break ;
-	    default :
-	      cout << "Unknown mapping in Param_elliptic::Param_elliptic" 
-		   << endl ; 
-	      
-	    }
-	    conte ++ ;
+	    else 
+	      operateurs[conte] = new 
+		Ope_sec_order (nr, base_r, get_alpha(l), get_beta(l), 
+			       1., 2. , l_quant) ;
+	    break ;
+	  default :
+	    cout << "Unknown mapping in Param_elliptic::Param_elliptic" 
+		 << endl ; 
+	    
 	  }
-      }
+	  conte ++ ;
+	}
+    }
   }
   
   // STD VARIABLE CHANGE :

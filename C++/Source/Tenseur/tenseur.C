@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2018/11/16 14:34:37  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.16  2016/12/05 16:18:16  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -1464,7 +1467,7 @@ void Tenseur::fait_derive_cov (const Metrique& metre, int ind) const {
 	      else
 		indices_gamma.set(idx) = indices(idx) ;
 	    
-	      p_derive_cov[ind]->set(indices) -= (*auxi)(indices_gamma) ;
+	    p_derive_cov[ind]->set(indices) -= (*auxi)(indices_gamma) ;
 	  }
 	}   
 	else {

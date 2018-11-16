@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.4  2016/12/05 16:18:10  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -152,52 +155,52 @@ Mtbl_cf sol_poisson_frontiere_double (const Map_af& mapping,
 		// Pour la sp :
 		double somme = 0 ;
 		for (int i=0 ; i<nr ; i++)
-		    if (i%2 == 0)
-			somme += (*sol_part)(i) ;
-		    else
-			somme -= (*sol_part)(i) ;
-		    
-		    facteur = (lim_func(num_zone-1, k, j, 0)-somme)
-				* pow(echelle-1, l_quant+1) ;
-		    
-		    for (int i=0 ; i<nr ; i++)
-			sol_part->set(i) +=
-			    facteur*(*sol_hom)(1, i) ;
-		    
-		    // pour l'autre solution homogene :
-		    facteur = - pow(echelle-1, 2*l_quant+1) ;
-		    for (int i=0 ; i<nr ; i++)
-			sol_hom->set(0, i) +=
-			    facteur*(*sol_hom)(1, i) ;
-		    
-		    // Condition de raccord de type Neumann :
-		    double val_der_solp = 0 ;
-		    for (int i=0 ; i<nr ; i++)
-			if (i%2 == 0)
-			    val_der_solp -= i*i*(*sol_part)(i)/alpha ;
-			else
-			    val_der_solp += i*i*(*sol_part)(i)/alpha ;
-		    
-		    double val_der_solh = 0 ;
-		    for (int i=0 ; i<nr ; i++)
-			if (i%2 == 0)
-			    val_der_solh -= i*i*(*sol_hom)(0, i)/alpha ;
-			else
-			    val_der_solh += i*i*(*sol_hom)(0, i)/alpha ;
-		    
-		    assert (val_der_solh != 0) ;
-		        
-		    facteur = (lim_der(num_zone-1, k, j, 0)-val_der_solp) /
-				val_der_solh ;
-		    
-		    for (int i=0 ; i<nr ; i++)
-			sol_part->set(i) +=
-			    facteur*(*sol_hom)(0, i) ;
-		    
-		    // solp contient le bon truc (normalement ...)
-		    for (int i=0 ; i<nr ; i++)
-			resultat.set(num_zone, k, j, i) = (*sol_part)(i) ;
-		    
+		  if (i%2 == 0)
+		    somme += (*sol_part)(i) ;
+		  else
+		    somme -= (*sol_part)(i) ;
+		
+		facteur = (lim_func(num_zone-1, k, j, 0)-somme)
+		  * pow(echelle-1, l_quant+1) ;
+		
+		for (int i=0 ; i<nr ; i++)
+		  sol_part->set(i) +=
+		    facteur*(*sol_hom)(1, i) ;
+		
+		// pour l'autre solution homogene :
+		facteur = - pow(echelle-1, 2*l_quant+1) ;
+		for (int i=0 ; i<nr ; i++)
+		  sol_hom->set(0, i) +=
+		    facteur*(*sol_hom)(1, i) ;
+		
+		// Condition de raccord de type Neumann :
+		double val_der_solp = 0 ;
+		for (int i=0 ; i<nr ; i++)
+		  if (i%2 == 0)
+		    val_der_solp -= i*i*(*sol_part)(i)/alpha ;
+		  else
+		    val_der_solp += i*i*(*sol_part)(i)/alpha ;
+		
+		double val_der_solh = 0 ;
+		for (int i=0 ; i<nr ; i++)
+		  if (i%2 == 0)
+		    val_der_solh -= i*i*(*sol_hom)(0, i)/alpha ;
+		  else
+		    val_der_solh += i*i*(*sol_hom)(0, i)/alpha ;
+		
+		assert (val_der_solh != 0) ;
+		
+		facteur = (lim_der(num_zone-1, k, j, 0)-val_der_solp) /
+		  val_der_solh ;
+		
+		for (int i=0 ; i<nr ; i++)
+		  sol_part->set(i) +=
+		    facteur*(*sol_hom)(0, i) ;
+		
+		// solp contient le bon truc (normalement ...)
+		for (int i=0 ; i<nr ; i++)
+		  resultat.set(num_zone, k, j, i) = (*sol_part)(i) ;
+		
 		delete operateur ;
 		delete nondege ;
 		delete so ;

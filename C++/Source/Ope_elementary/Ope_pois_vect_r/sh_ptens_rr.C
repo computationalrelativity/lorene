@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.4  2016/12/05 16:18:12  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -174,17 +177,17 @@ Tbl _sh_ptens_rr_cheb (int n, int l, double echelle) {
     // cad celle fractionnelle.
     for (int i=0 ; i<n ; i++)
       coloc[i] = 1/pow(echelle-cos(M_PI*i/(n-1)), double(l+3)) ;
-	
-      cfrcheb(deg, deg, coloc, deg, coloc) ;
-      for (int i=0 ; i<n ;i++)
-	res.set(1, i) = coloc[i] ;	
+    
+    cfrcheb(deg, deg, coloc, deg, coloc) ;
+    for (int i=0 ; i<n ;i++)
+      res.set(1, i) = coloc[i] ;	
     
     delete [] coloc ;
     delete [] deg ;
     tab[nb_dejafait] = new Tbl(res) ;
     nb_dejafait ++ ;
     return res ;
-    }
+   }
     
     else return *tab[indice] ;
 }	
@@ -230,7 +233,7 @@ Tbl _sh_ptens_rr_chebp (int n, int l, double) {
     deg[2] = n ;
     
     assert (l % 2 == 0)  ;
-   if (l==0) {
+    if (l==0) {
       res.set(0) = 1 ;
       for (int i=1 ; i<n ; i++)
 	res.set(i) = 0 ;
@@ -238,12 +241,12 @@ Tbl _sh_ptens_rr_chebp (int n, int l, double) {
     else {
       for (int i=0 ; i<n ; i++)
 	coloc[i] = pow(sin(M_PI*i/2/(n-1)), double(l-2)) ;
-	
-	cfrchebp(deg, deg, coloc, deg, coloc) ;
-	for (int i=0 ; i<n ;i++)
-	    res.set(i) = coloc[i] ;
+      
+      cfrchebp(deg, deg, coloc, deg, coloc) ;
+      for (int i=0 ; i<n ;i++)
+	res.set(i) = coloc[i] ;
     }
-
+    
     delete [] coloc ;
     delete [] deg ;
     tab[nb_dejafait] = new Tbl(res) ;

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2018/11/16 14:34:35  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.5  2016/12/05 16:17:49  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -132,7 +135,7 @@ Kerr_QI::Kerr_QI(const Kerr_QI& other) :
 
 // Constructor from a file
 // -----------------------
-Kerr_QI::Kerr_QI(Map& mpi, FILE* fich) :
+Kerr_QI::Kerr_QI(Map& mpi, FILE*) :
 			 Compobj_QI(mpi)
 {
     // Pointers of derived quantities initialized to zero : 
@@ -195,7 +198,7 @@ void Kerr_QI::operator=(const Kerr_QI& other) {
 
 // Save in a file
 // --------------
-void Kerr_QI::sauve(FILE* fich) const {
+void Kerr_QI::sauve(FILE* ) const {
 
     
 }

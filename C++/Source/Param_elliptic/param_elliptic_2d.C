@@ -23,6 +23,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2018/11/16 14:34:36  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.4  2016/12/05 16:18:14  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -86,16 +89,16 @@ void Param_elliptic::set_poisson_2d(const Scalar& source, bool indic) {
 	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
 	  if (operateurs[conte] != 0x0)	    
 	    delete operateurs[conte] ;
-	    source.get_spectral_va().base.give_quant_numbers(l, k, j, m_quant, l_quant, base_r_1d) ;
-	    if (k!=1)
-	      if ((indic) || ((!indic) && (l_quant !=0)))
-		operateurs[conte] = new Ope_poisson_2d (nr, base_r_1d, alpha, beta, l_quant, dzpuis) ;
-	      else
-		operateurs[conte] = 0x0 ;
+	  source.get_spectral_va().base.give_quant_numbers(l, k, j, m_quant, l_quant, base_r_1d) ;
+	  if (k!=1)
+	    if ((indic) || ((!indic) && (l_quant !=0)))
+	      operateurs[conte] = new Ope_poisson_2d (nr, base_r_1d, alpha, beta, l_quant, dzpuis) ;
 	    else
 	      operateurs[conte] = 0x0 ;
-	    conte ++ ;
-	  }
+	  else
+	    operateurs[conte] = 0x0 ;
+	  conte ++ ;
+	}
     }
   }
 }

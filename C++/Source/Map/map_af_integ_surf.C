@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2018/11/16 14:34:35  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.9  2017/02/24 16:50:27  j_novak
  * *** empty log message ***
  *
@@ -178,6 +181,7 @@ double Map_af::integrale_surface (const Cmp& ci, double rayon) const {
 		    break ;
 		case R_LEGI :
 		    som_r_legi (coef, nr, 1, 1, xi, auxi) ;
+		    break ;
 		default :
 		    som_r_pas_prevu (coef, nr, 1, 1, xi, auxi) ;
 		    break ;

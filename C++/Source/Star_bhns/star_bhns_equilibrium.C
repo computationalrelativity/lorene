@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2018/11/16 14:34:37  j_novak
+ * Changed minor points to avoid some compilation warnings.
+ *
  * Revision 1.5  2016/12/05 16:18:16  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -69,7 +72,7 @@
 namespace Lorene {
 void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 				 const double& sepa, bool kerrschild,
-				 int mer, int mermax_ns, int mermax_potvit,
+				 int, int mermax_ns, int mermax_potvit,
 				 int mermax_poisson, int filter_r,
 				 int filter_r_s, int filter_p_s,
 				 double relax_poisson, double relax_potvit,
