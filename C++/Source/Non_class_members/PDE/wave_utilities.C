@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2018/12/04 16:36:02  j_novak
+ * Changed test on l_q in evolve_outgoing_BC to treat cases l=0 & 1
+ *
  * Revision 1.12  2016/12/05 16:18:10  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -234,21 +237,21 @@ void evolve_outgoing_BC(double dt, int nz_bound, const Scalar& phi, Scalar& sphi
     for (int k=0; k<np2; k++) 
 	for (int j=0; j<nt; j++) {
 	    base.give_quant_numbers(nz_bound, k, j, m_q, l_q, base_r) ;
-	    if (l_q > 1) {
-		l_q += dl ;
-		double fact = 8*Rmax*Rmax + dt*dt*(6+3*l_q*(l_q+1)) + 12*Rmax*dt ;
-		double souphi = -4*dt*dt*l_q*(l_q+1)*
-		    source_xi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
-		double xijp1 = ( 16*Rmax*Rmax*xij(k,j) -
-				 (fact - 24*Rmax*dt)*xijm1(k,j) 
-				 + souphi) / fact  ;
-		ccc.set(k, j) = xijp1 
-		    + sphi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
-		xijm1.set(k,j) = xij(k,j) ;
-		xij.set(k,j) = xijp1 ;
+	    if (l_q + dl > 0) {
+	      l_q += dl ;
+	      double fact = 8*Rmax*Rmax + dt*dt*(6+3*l_q*(l_q+1)) + 12*Rmax*dt ;
+	      double souphi = -4*dt*dt*l_q*(l_q+1)*
+		source_xi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
+	      double xijp1 = ( 16*Rmax*Rmax*xij(k,j) -
+			       (fact - 24*Rmax*dt)*xijm1(k,j) 
+			       + souphi) / fact  ;
+	      ccc.set(k, j) = xijp1 
+		+ sphi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
+	      xijm1.set(k,j) = xij(k,j) ;
+	      xij.set(k,j) = xijp1 ;
 	    }
 	}
-
+    
 }
 
 void Dirichlet_BC_AtB(const Evolution_std<Sym_tensor>& hb_evol, 
