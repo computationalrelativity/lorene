@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.60  2018/12/05 15:43:45  j_novak
+ * New Map_af constructor from a formatted file.
+ *
  * Revision 1.59  2014/10/13 08:52:35  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -2064,6 +2067,7 @@ class Map_af : public Map_radial {
 	Map_af(const Mg3d& mgrille, const Tbl& r_limits) ;	
 	
 	Map_af(const Map_af& ) ;      ///< Copy constructor
+	Map_af(const Mg3d&, const string&) ;///< Constructor from a formatted file
 	Map_af(const Mg3d&, FILE* ) ; ///< Constructor from a file (see \c sauve(FILE*) )
 	
 	/** Constructor from a general mapping.

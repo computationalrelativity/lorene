@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2018/12/05 15:43:45  j_novak
+ * New Map_af constructor from a formatted file.
+ *
  * Revision 1.20  2016/12/05 16:17:56  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -299,6 +302,82 @@ Map_af::Map_af(const Map_af& mp) : Map_radial(mp)
     }
 }
 	
+  // Constructor from a formatted file
+  //-----------------------------------
+  Map_af::Map_af(const Mg3d& mgrille, const string& filename) : Map_radial(mgrille)
+{
+  // Opening of the file
+  //---------------------
+  ifstream parfile(filename.c_str()) ;
+  if (!parfile) {
+    string message = "Unable to open file " ;
+    message += filename ;
+    throw ios_base::failure(message);
+  };
+  
+  string tmp_str = "Definition of the Map_af" ;
+  if (!search_file(parfile, tmp_str)) {
+    string mesg = "No data found to contruct an object Map_af in " ;
+    mesg += filename ;
+    throw invalid_argument(mesg) ;
+  }
+  parfile.ignore(1000, '\n') ;
+
+  // Number of domains
+  //---------------------
+  int nz ;
+  parfile >> nz ; parfile.ignore(1000, '\n') ; // Number of domains
+  if (mg->get_nzone() != nz) {
+    string mesg = "Wrong number of domains for Map_af in " ;
+    mesg += filename ;
+    throw(invalid_argument(mesg)) ;
+  }
+  Tbl bornes(nz) ;
+  bornes.set_etat_qcq() ;
+  for (int i=0; i<nz; i++) {
+    parfile >> bornes.set(i) ;
+    parfile.ignore(1000, '\n') ;
+  }
+
+  set_coord() ; 
+    
+  alpha = new double[nz] ;
+  beta = new double[nz] ;
+
+  for (int l=0 ; l<nz ; l++) {
+    switch (mg->get_type_r(l)) {
+    case RARE:	{
+      alpha[l] = bornes(l+1) - bornes(l) ;
+      beta[l] = bornes(l) ;
+      break ; 
+    }
+	    
+    case FIN:	{
+      alpha[l] = (bornes(l+1) - bornes(l)) * .5 ;
+      beta[l] = (bornes(l+1) + bornes(l)) * .5 ;
+      break ;
+    }
+      
+    case UNSURR: {
+      assert (l==nz-1) ;
+      double umax = 1./bornes(l) ;
+      double umin = 0 ;
+      alpha[l] = (umin - umax) * .5 ;  // u est une fonction decroissante
+      beta[l] = (umin + umax) * .5 ;   //  de l'indice i en r
+      break ;
+    }
+      
+    default:	{
+      cout << "Map_af::Map_af: unkown type_r ! " << endl ;
+      abort () ;
+      break ;
+    }
+      
+    }
+  }	    // Fin de la boucle sur zone
+}
+      
+
 // Constructor from file
 // ---------------------
 Map_af::Map_af(const Mg3d& mgi, FILE* fd) : Map_radial(mgi, fd)
