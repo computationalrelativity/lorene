@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2018/12/05 15:03:20  j_novak
+ * New Mg3d constructor from a formatted file.
+ *
  * Revision 1.19  2016/12/05 16:17:59  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -303,11 +306,126 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp)
 	
 }
 
-
 //=============================================================================
-//    Constructor from a file
+//    Constructors from a file
 //=============================================================================
 
+
+  // From a formatted file...
+  //=========================
+  Mg3d::Mg3d(const string& filename) {
+
+    // Opening of the file
+    //-----------------------------------------------------------------------
+    ifstream parfile(filename.c_str()) ;
+    if (!parfile) {
+      string message = "Unable to open file " ;
+      message += filename ;
+      throw ios_base::failure(message);
+    };
+
+    string tmp_str = "Definition of the Mg3d" ;
+    if (!search_file(parfile, tmp_str)) {
+      string mesg = "No data found to contruct an object Mg3d in " ;
+      mesg += filename ;
+      throw invalid_argument(mesg) ;
+    }
+    //    parfile >> tmp_str ;
+    //cout << tmp_str ;
+     parfile.ignore(1000, '\n') ;
+
+     // Number of domains
+     //---------------------
+     parfile >> nzone ; parfile.ignore(1000, '\n') ; // Number of domains
+     parfile >> tmp_str ;
+     
+     // Theta & phi symmetries + number of grid points
+     //-----------------------------------------------
+     if ( tmp_str.compare("SYM") == 0) {
+       type_t = SYM ;
+     }
+     else if ( tmp_str.compare("NONSYM") == 0)
+       {
+	 type_t = NONSYM ;
+       }
+     else
+       throw
+	 invalid_argument("Mg3d::Mg3d(string): incorrect value for theta symmetry") ;
+     parfile.ignore(1000, '\n') ;
+     
+     parfile >> tmp_str ;
+     if ( tmp_str.compare("SYM") == 0)
+       {
+	 type_p = SYM ;
+       }
+     else if ( tmp_str.compare("NONSYM") == 0)
+       {
+	 type_p = NONSYM ;
+       }
+     else
+       throw
+	 invalid_argument("Mg3d::Mg3d(string): incorrect value for phi symmetry") ;
+     parfile.ignore(1000, '\n') ;
+
+     int nbp ; parfile >> nbp ; parfile.ignore(1000, '\n') ;
+     int nbt ; parfile >> nbt ; parfile.ignore(1000, '\n') ;
+
+     // Radial number of points and sampling type
+     //---------------------------------------------
+     nr = new int[nzone] ;
+     nt = new int[nzone] ;
+     np = new int[nzone] ;
+     type_r = new int[nzone] ;
+  
+     for (int i=0; i<nzone; i++) {
+       parfile >> nr[i] >> tmp_str ;
+       assert (nr[i] > 0) ;
+       if ( tmp_str.compare("nucleus") == 0)
+       {
+	 type_r[i] = RARE ;
+       }
+       else if ( tmp_str.compare("shell") == 0)
+       {
+	 type_r[i] = FIN ;
+       }
+       else if ( tmp_str.compare("ced") == 0)
+       {
+	 type_r[i] = UNSURR ;
+       }
+       else
+	 throw
+	   invalid_argument("Mg3d::Mg3d(string): incorrect value for the type of domain") ;
+       parfile.ignore(1000, '\n') ;
+       nt[i] = nbt ;
+       np[i] = nbp ;
+     } // end of loop on domains
+
+     colloc_r = new int[nzone] ;
+     bool legendre ;
+     parfile >> legendre ;
+     for (int i=0; i<nzone; i++)
+       colloc_r[i] = (legendre ? BASE_LEG : BASE_CHEB) ;
+    
+
+    // Grids
+    // -----------
+    g = new Grille3d*[nzone] ;
+
+    for (int i=0; i<nzone; i++) {
+
+      g[i] = new Grille3d(nr[i], nt[i], np[i], type_r[i], type_t, type_p, 
+			  colloc_r[i]) ;
+      
+    }   // end of loop on domains
+
+    // Pointers on derived grids initiated to 0x0:
+    // -------------------------------------------
+
+    set_deriv_0x0() ;
+	     
+  }
+
+  
 /*
  * Construction a partir d'un fichier.
  * Cette facon de faire est abominable. Cependant je ne vois pas comment

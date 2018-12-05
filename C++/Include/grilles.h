@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2018/12/05 15:03:20  j_novak
+ * New Mg3d constructor from a formatted file.
+ *
  * Revision 1.23  2014/10/13 08:52:35  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -282,7 +285,7 @@ class Mg3d {
 	int* np ;	///< Array (size: \c nzone) of nb. of points in \f$\phi\f$
 	
 	/** Array (size: \c nzone) of type of sampling in \e r (\f$\xi\f$) 
-	 *(\c RARE,\c FIN, c UNSURR)
+	 *(\c RARE,\c FIN, \c UNSURR)
 	 */
 	int* type_r ;	
 
@@ -414,6 +417,12 @@ class Mg3d {
  */
 	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp) ;
 
+
+	/**Constructor from a formatted file, given by its name (string).
+	 * 
+	 */
+	explicit Mg3d(const string& filename) ;
+	
 	/**Constructor from a file (see \c sauve(FILE*)).
 	 * If the boolean flag \c read_base is \c false (default) the 
 	 * spectral basis is not saved, for compatibility with older 

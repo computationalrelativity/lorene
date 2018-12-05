@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2018/12/05 15:03:20  j_novak
+ * New Mg3d constructor from a formatted file.
+ *
  * Revision 1.16  2015/01/09 15:28:52  j_novak
  * New integration function for general non-equally-spaced grids.
  *
@@ -108,8 +111,8 @@
  *
  */
  
-#include "stdio.h"
 #include <cstring>
+#include "headcpp.h"
 
 namespace Lorene {
 class Param ;
@@ -383,7 +386,11 @@ int FS_filelength (FILE *f);
 
 /// Helpful function to say something is not implemented yet 
 void c_est_pas_fait(const char * ) ;
-    
+
+/// A function that searches for a pattern in a file and places the file stream
+/// after the found pattern. It returns 'false' if the pattern is not found.
+ bool search_file(ifstream& infile, const string& pattern) ;
+ 
 /** @} */
     
 }
