@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2019/03/25 14:22:02  j_novak
+ * Deleting pointer on EoS.
+ *
  * Revision 1.3  2016/12/05 16:18:25  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -91,4 +94,8 @@ int main(){
   Scalar d1g11=g_11.dsdr();
 
   cout << "der " << d1g11.val_point(1.,M_PI,0.) << endl;
+
+  delete p_eos ;
+
+  return EXIT_SUCCESS ;
 }
