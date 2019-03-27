@@ -3,7 +3,7 @@
 #  Baldo et al. AA 328 (1997) 274. crust bottom: n=0.0957,rho=1.60E14 
 #  1.E50,1.60E14 
 #
-102  <-- Number of lines
+84  <-- Number of lines
 #
 #        n_B [fm^{-3}]  rho [g/cm^3]   p [dyn/cm^2]
 #
