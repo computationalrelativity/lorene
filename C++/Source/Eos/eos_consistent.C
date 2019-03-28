@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2019/03/28 13:41:02  j_novak
+ * Improved managed of saved EoS (functions sauve and constructor form FILE*)
+ *
  * Revision 1.4  2017/08/11 13:42:04  j_novak
  * Suppression of spurious output
  *
@@ -71,187 +74,199 @@ namespace Lorene {
 // Standard constructor
 // --------------------			
   Eos_consistent::Eos_consistent(const char* file_name)
-    : Eos_CompOSE(file_name)
-{}
-
+    : Eos_CompOSE(file_name) { }
+  
 
 // Constructor from binary file
 // ----------------------------
-Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich) 
-{}
-
+  Eos_consistent::Eos_consistent(FILE* fich) : Eos_CompOSE(fich) {
+    if (format == 0) read_table() ;
+    else read_compose_data() ;
+  }
+  
 
 // Constructor from a formatted file
 // ---------------------------------
-  Eos_consistent::Eos_consistent(ifstream& fich) : Eos_CompOSE(fich) 
-{
-  using namespace Unites ;
-
-  ifstream tfich(tablename.data()) ;
-
-  for (int i=0; i<5; i++) {		//  jump over the file
-    tfich.ignore(1000, '\n') ;             // header
-  }                                       //
-
-  int nbp ;
-  tfich >> nbp ; tfich.ignore(1000, '\n') ;   // number of data
-  if (nbp<=0) {
-    cerr << "Eos_tabul::read_table(): " << endl ;
-    cerr << "Wrong value for the number of lines!" << endl ;
-    cerr << "nbp = " << nbp << endl ;
-    cerr << "Aborting..." << endl ;
-    abort() ;
+  Eos_consistent::Eos_consistent(ifstream& fich) : Eos_CompOSE(fich) {
+    read_table() ; 
   }
   
-  for (int i=0; i<3; i++) {		//  jump over the table
-    tfich.ignore(1000, '\n') ;             // description
-  }
-  
-  press = new double[nbp] ;
-  nb    = new double[nbp] ;
-  ro    = new double[nbp] ; 
-  
-  double rhonuc_cgs = rhonuc_si * 1e-3 ;
-  double c2_cgs = c_si * c_si * 1e4 ;    	
-  
-  int no ;
-  double nb_fm3, rho_cgs, p_cgs ;
-  
-  for (int i=0; i<nbp; i++) {
-    
-    tfich >> no ;
-    tfich >> nb_fm3 ;
-    tfich >> rho_cgs ;
-    tfich >> p_cgs ; tfich.ignore(1000,'\n') ;    		
-    if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
-      cout << "Eos_consistent(ifstream&): " << endl ;
-      cout << "Negative value in table!" << endl ;
-      cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
-	", p = " << p_cgs << endl ;
-      cout << "Aborting..." << endl ;
-      abort() ;
-    }
-    
-    press[i] = p_cgs / c2_cgs ;
-    nb[i]    = nb_fm3 ;
-    ro[i]    = rho_cgs ;
-  }
-
-  Tbl pp(nbp) ; pp.set_etat_qcq() ;
-  Tbl dh(nbp) ; dh.set_etat_qcq() ;
-  for (int i=0; i<nbp; i++) {
-    pp.set(i) = log(press[i] / rhonuc_cgs) ;
-    dh.set(i) = press[i] / (ro[i] + press[i]) ;
-  }
-    
-  Tbl hh  = integ1D(pp, dh) + 1.e-14 ;
-    
-  for (int i=0; i<nbp; i++) {
-    logh->set(i) = log10( hh(i) ) ;
-    logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
-    dlpsdlh->set(i) = hh(i) / dh(i) ;
-    lognb->set(i) = log10(nb[i]) ;
-  }
-
-  hmin = pow( double(10), (*logh)(0) ) ;
-  hmax = pow( double(10), (*logh)(nbp-1) ) ;
- 
-  // Cleaning
-  //---------
-  delete [] press ; 
-  delete [] nb ; 
-  delete [] ro ; 
-
-
-}
-
 
 // Constructor from CompOSE data files
 // ------------------------------------
   Eos_consistent::Eos_consistent(const string& files) : Eos_CompOSE(files) 
-{
-  using namespace Unites ;
-
-  // Files containing data and a test
-  //---------------------------------
-  string file_nb = files + ".nb" ;
-  string file_thermo = files + ".thermo" ;
-
-  ifstream in_nb(file_nb.data()) ;
-
-  // obtaining the size of the tables for memory allocation
-  //-------------------------------------------------------
-  int index1, index2 ;
-  in_nb >> index1 >> index2 ;
-  int nbp = index2 - index1 + 1 ;
-  assert( nbp == logh->get_taille() ) ;
-
-  press = new double[nbp] ;
-  nb    = new double[nbp] ;
-  ro    = new double[nbp] ; 
- 
-  // Variables and conversion
-  //-------------------------
-  double nb_fm3, rho_cgs, p_cgs, p_over_nb_comp, eps_comp ;
-  double dummy_x ;
-  int dummy_n ;
-
-  double rhonuc_cgs = rhonuc_si * 1e-3 ;
-  double c2_cgs = c_si * c_si * 1e4 ;    
-  double m_neutron_MeV, m_proton_MeV ;
+  {
+    read_compose_data() ;
+  }
   
-  ifstream in_p_rho (file_thermo.data()) ;
-  in_p_rho >> m_neutron_MeV >> m_proton_MeV ; //Neutron and proton masses
-  in_p_rho.ignore(1000, '\n') ;
+  void Eos_consistent::read_table() {
+    
+    using namespace Unites ;
 
-  double p_convert = mev_si * 1.e45 * 10. ; // Conversion from MeV/fm^3 to cgs
-  double eps_convert = mev_si * 1.e42 / (c_si*c_si) ; //From meV/fm^3 to g/cm^3
+    cout << "Computing a thermodynamically - consistent table." << endl ;
+    
+    ifstream tfich(tablename.data()) ;
+    
+    for (int i=0; i<5; i++) {		//  jump over the file
+      tfich.ignore(1000, '\n') ;             // header
+    }                                       //
+    
+    int nbp ;
+    tfich >> nbp ; tfich.ignore(1000, '\n') ;   // number of data
+    if (nbp<=0) {
+      cerr << "Eos_consistent::read_table(): " << endl ;
+      cerr << "Wrong value for the number of lines!" << endl ;
+      cerr << "nbp = " << nbp << endl ;
+      cerr << "Aborting..." << endl ;
+      abort() ;
+    }
+    
+    for (int i=0; i<3; i++) {		//  jump over the table
+      tfich.ignore(1000, '\n') ;             // description
+    }
+    
+    press = new double[nbp] ;
+    nb    = new double[nbp] ;
+    ro    = new double[nbp] ; 
+    
+    double rhonuc_cgs = rhonuc_si * 1e-3 ;
+    double c2_cgs = c_si * c_si * 1e4 ;    	
+    
+    int no ;
+    double nb_fm3, rho_cgs, p_cgs ;
+    
+    for (int i=0; i<nbp; i++) {
+      
+      tfich >> no ;
+      tfich >> nb_fm3 ;
+      tfich >> rho_cgs ;
+      tfich >> p_cgs ; tfich.ignore(1000,'\n') ;    		
+      if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
+	cout << "Eos_consistent(ifstream&): " << endl ;
+	cout << "Negative value in table!" << endl ;
+	cout << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
+	  ", p = " << p_cgs << endl ;
+	cout << "Aborting..." << endl ;
+	abort() ;
+      }
+      
+      press[i] = p_cgs / c2_cgs ;
+      nb[i]    = nb_fm3 ;
+      ro[i]    = rho_cgs ;
+    }
+    
+    Tbl pp(nbp) ; pp.set_etat_qcq() ;
+    Tbl dh(nbp) ; dh.set_etat_qcq() ;
+    for (int i=0; i<nbp; i++) {
+      pp.set(i) = log(press[i] / rhonuc_cgs) ;
+      dh.set(i) = press[i] / (ro[i] + press[i]) ;
+    }
+    
+    Tbl hh  = integ1D(pp, dh) + 1.e-14 ;
+    
+    for (int i=0; i<nbp; i++) {
+      logh->set(i) = log10( hh(i) ) ;
+      logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+      dlpsdlh->set(i) = hh(i) / dh(i) ;
+      lognb->set(i) = log10(nb[i]) ;
+    }
+    
+    hmin = pow( double(10), (*logh)(0) ) ;
+    hmax = pow( double(10), (*logh)(nbp-1) ) ;
+    
+    // Cleaning
+    //---------
+    delete [] press ; 
+    delete [] nb ; 
+    delete [] ro ; 
+    
+  }
 
-  // Main loop reading the table
-  //----------------------------
-  for (int i=0; i<nbp; i++) {
-    in_nb >> nb_fm3 ;
-    in_p_rho >> dummy_n >> dummy_n >> dummy_n >> p_over_nb_comp ;
-    in_p_rho >> dummy_x >> dummy_x >> dummy_x >> dummy_x >> dummy_x >> eps_comp ;
+
+  void Eos_consistent::read_compose_data() {
+
+    using namespace Unites ;
+
+    cout << "Computing a thermodynamically - consistent table." << endl ;
+
+    // Files containing data and a test
+    //---------------------------------
+    string file_nb = tablename + ".nb" ;
+    string file_thermo = tablename + ".thermo" ;
+    
+    ifstream in_nb(file_nb.data()) ;
+    
+    // obtaining the size of the tables for memory allocation
+    //-------------------------------------------------------
+    int index1, index2 ;
+    in_nb >> index1 >> index2 ;
+    int nbp = index2 - index1 + 1 ;
+    assert( nbp == logh->get_taille() ) ;
+    
+    press = new double[nbp] ;
+    nb    = new double[nbp] ;
+    ro    = new double[nbp] ; 
+    
+    // Variables and conversion
+    //-------------------------
+    double nb_fm3, rho_cgs, p_cgs, p_over_nb_comp, eps_comp ;
+    double dummy_x ;
+    int dummy_n ;
+    
+    double rhonuc_cgs = rhonuc_si * 1e-3 ;
+    double c2_cgs = c_si * c_si * 1e4 ;    
+    double m_neutron_MeV, m_proton_MeV ;
+    
+    ifstream in_p_rho (file_thermo.data()) ;
+    in_p_rho >> m_neutron_MeV >> m_proton_MeV ; //Neutron and proton masses
     in_p_rho.ignore(1000, '\n') ;
-    p_cgs = p_over_nb_comp * nb_fm3 * p_convert ;
-    rho_cgs = ( eps_comp + 1. ) * m_neutron_MeV * nb_fm3 * eps_convert ;
     
-    press[i] = p_cgs / c2_cgs ; 
-    nb[i]    = nb_fm3 ;
-    ro[i]    = rho_cgs ; 
+    double p_convert = mev_si * 1.e45 * 10. ; // Conversion from MeV/fm^3 to cgs
+    double eps_convert = mev_si * 1.e42 / (c_si*c_si) ; //From meV/fm^3 to g/cm^3
+    
+    // Main loop reading the table
+    //----------------------------
+    for (int i=0; i<nbp; i++) {
+      in_nb >> nb_fm3 ;
+      in_p_rho >> dummy_n >> dummy_n >> dummy_n >> p_over_nb_comp ;
+      in_p_rho >> dummy_x >> dummy_x >> dummy_x >> dummy_x >> dummy_x >> eps_comp ;
+      in_p_rho.ignore(1000, '\n') ;
+      p_cgs = p_over_nb_comp * nb_fm3 * p_convert ;
+      rho_cgs = ( eps_comp + 1. ) * m_neutron_MeV * nb_fm3 * eps_convert ;
+      
+      press[i] = p_cgs / c2_cgs ; 
+      nb[i]    = nb_fm3 ;
+      ro[i]    = rho_cgs ; 
+  }
+    
+    Tbl pp(nbp) ; pp.set_etat_qcq() ;
+    Tbl dh(nbp) ; dh.set_etat_qcq() ;
+    for (int i=0; i<nbp; i++) {
+      pp.set(i) = log(press[i] / rhonuc_cgs) ;
+      dh.set(i) = press[i] / (ro[i] + press[i]) ;
+    }
+    
+    Tbl hh  = integ1D(pp, dh) + 1.e-14 ;
+    
+    for (int i=0; i<nbp; i++) {
+      logh->set(i) = log10( hh(i) ) ;
+      logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
+      dlpsdlh->set(i) = hh(i) / dh(i) ;
+      lognb->set(i) = log10(nb[i]) ;
+    }
+    
+    hmin = pow( double(10), (*logh)(0) ) ;
+    hmax = pow( double(10), (*logh)(nbp-1) ) ;
+    
+    // Cleaning
+    //---------
+    delete [] press ; 
+    delete [] nb ; 
+    delete [] ro ; 
+
   }
 
-  Tbl pp(nbp) ; pp.set_etat_qcq() ;
-  Tbl dh(nbp) ; dh.set_etat_qcq() ;
-  for (int i=0; i<nbp; i++) {
-    pp.set(i) = log(press[i] / rhonuc_cgs) ;
-    dh.set(i) = press[i] / (ro[i] + press[i]) ;
-  }
-    
-  Tbl hh  = integ1D(pp, dh) + 1.e-14 ;
-    
-  for (int i=0; i<nbp; i++) {
-    logh->set(i) = log10( hh(i) ) ;
-    logp->set(i) = log10( press[i] / rhonuc_cgs ) ;
-    dlpsdlh->set(i) = hh(i) / dh(i) ;
-    lognb->set(i) = log10(nb[i]) ;
-  }
-
-  hmin = pow( double(10), (*logh)(0) ) ;
-  hmax = pow( double(10), (*logh)(nbp-1) ) ;
- 
-  // Cleaning
-  //---------
-  delete [] press ; 
-  delete [] nb ; 
-  delete [] ro ; 
-
-
-}
-
-
-
+  
 			//--------------//
 			//  Destructor  //
 			//--------------//

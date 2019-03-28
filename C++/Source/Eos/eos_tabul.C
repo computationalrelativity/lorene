@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2019/03/28 13:41:02  j_novak
+ * Improved managed of saved EoS (functions sauve and constructor form FILE*)
+ *
  * Revision 1.18  2017/12/15 15:36:38  j_novak
  * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
  *
@@ -329,7 +332,6 @@ void Eos_tabul::read_table() {
 		    (10 * nb[i] * rhonuc_cgs) ) ;
     
     if ((i==0) && compute_offset) { ww = h ; }
-    //    if (ww > 0.2) ww = -0.000655966 ;
     h = h - ww + 1.e-14 ;    		
     
     logh->set(i) = log10( h ) ;

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2019/03/28 13:41:01  j_novak
+ * Improved managed of saved EoS (functions sauve and constructor form FILE*)
+ *
  * Revision 1.1  2015/08/04 14:41:28  j_novak
  * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
  *
@@ -76,10 +79,16 @@ Tabulated EoS
  */
 class Eos_CompOSE : public Eos_tabul {
 
-    // Constructors - Destructor
-    // -------------------------
-    public:
-
+  // Data
+  //--------
+  
+ protected:
+  int format ; ///< 0 for standard (old) LORENE format, 1 for CompOSE format
+  
+  // Constructors - Destructor
+  // -------------------------
+ public:
+  
   /** Constructor from CompOSE data.
    *
    * @param files_path Absolute name (including path), but without
@@ -145,6 +154,12 @@ XXX  <-- Number of lines
   // Miscellaneous
   // -------------
   
+ protected: 	
+  /** Reads the files containing the table and initializes
+   *  in the arrays \c  logh , \c  logp  and \c  dlpsdlh (CompOSE format).
+   */
+  virtual void read_compose_data() ;
+
  public :
   /// Comparison operator (egality)
   virtual bool operator==(const Eos& ) const ;
@@ -159,8 +174,12 @@ XXX  <-- Number of lines
   
   // Outputs
   // -------
+ public:
+
+  virtual void sauve(FILE* ) const ;	///< Save in a file
   
  protected:
+  
   virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
   
   
@@ -273,6 +292,17 @@ XXX  <-- Number of lines
    */
   virtual int identify() const ;
   
+ protected: 	
+  /** Reads the file containing the table and initializes
+   *  in the arrays \c  logh , \c  logp  and \c  dlpsdlh .
+   */
+  virtual void read_table() ;
+  
+  /** Reads the files containing the table and initializes
+   *  in the arrays \c  logh , \c  logp  and \c  dlpsdlh (CompOSE format).
+   */
+  virtual void read_compose_data() ;
+
   // Outputs
   // -------
   

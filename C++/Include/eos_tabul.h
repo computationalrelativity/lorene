@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2019/03/28 13:41:01  j_novak
+ * Improved managed of saved EoS (functions sauve and constructor form FILE*)
+ *
  * Revision 1.16  2015/08/04 14:41:28  j_novak
  * Back to previous version for Eos_CompOSE. Enthalpy-consistent EoS can be accessed using Eos_consistent class (derived from Eos_CompOSE).
  *
@@ -256,7 +259,7 @@ class Eos_tabul : public Eos {
     	/** Reads the file containing the table and initializes
     	 *  in the arrays \c  logh , \c  logp  and \c  dlpsdlh .
     	 */
-    	void read_table() ;
+    	virtual void read_table() ;
 
 
     // Outputs
