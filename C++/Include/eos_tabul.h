@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2019/04/09 12:50:22  j_novak
+ * Improved documentation
+ *
  * Revision 1.17  2019/03/28 13:41:01  j_novak
  * Improved managed of saved EoS (functions sauve and constructor form FILE*)
  *
@@ -138,6 +141,24 @@ class Tbl ;
 /**
  * Base class for tabulated equations of state. \ingroup (eos)
  *
+ * EoS data are to be stored in a formatted file in the following format.
+ * The first five lines are comments, preceded by hashes. Then is given the number of 
+ * data lines. After, three other lines of comments, data are given in four columns. 
+ * The first one is just a number, not used by Lorene. Second is the baryon number 
+ * density in \f${\rm fm}^{-3}\f$, then is the total energy density (including rest mass) 
+ * and pressure, both in cgs units. Here is an example from the file \c eos_fps.d:
+ * \verbatim #  Date: Tue, 21 Nov 2000 17:24:31 +0100
+#  From: xxx
+#  FPS e.o.s.:   BPS below n.drip, then FPS. Supplied by N.Stergioulas
+#  (June 1998) crust bottom at n=0.0957 , rho=1.60E14 1.E50,1.60E14
+#
+129  <-- Number of lines
+#
+#            n_B [fm^{-3}]       rho [g/cm^3]        p [dyn/cm^2]
+#  
+   6     0.2722041559E-13    0.4518590000E+02    0.1701030000E+15
+   7     0.1279071657E-12    0.2123260000E+03    0.5817150000E+16  \endverbatim
+ * Note that units used in the table file \b are \b not those of Lorene.
  * The interpolation through the tables is
  * a cubic Hermite interpolation, which is
  * thermodynamically consistent, i.e. preserves the

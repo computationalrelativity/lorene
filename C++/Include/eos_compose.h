@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2019/04/09 12:50:22  j_novak
+ * Improved documentation
+ *
  * Revision 1.2  2019/03/28 13:41:01  j_novak
  * Improved managed of saved EoS (functions sauve and constructor form FILE*)
  *
@@ -72,7 +75,8 @@ class Tbl ;
 Tabulated EoS
 /full/path/to/the/eos/table/name_of_the_table \endverbatim
  * On the second line '0' means that the table has the standard LORENE format
- * for tabulated EoSs. '1' means that the files from the CompOSE database
+ * for tabulated EoSs (see class \c Eos_tabul for details). 
+ * '1' means that the files from the CompOSE database
  * are used and that the 'name_of_the_table' should be without suffix:
  * e.g. \c great_eos would stand for files \c great_eos.nb and 
  * \c great_eos.thermo (see CompOSE documentation).
