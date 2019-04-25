@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2019/04/25 13:52:52  j_novak
+ * Considering also l_q + dl = 0 momenta in evolve_BC.
+ *
  * Revision 1.13  2018/12/04 16:36:02  j_novak
  * Changed test on l_q in evolve_outgoing_BC to treat cases l=0 & 1
  *
@@ -237,7 +240,7 @@ void evolve_outgoing_BC(double dt, int nz_bound, const Scalar& phi, Scalar& sphi
     for (int k=0; k<np2; k++) 
 	for (int j=0; j<nt; j++) {
 	    base.give_quant_numbers(nz_bound, k, j, m_q, l_q, base_r) ;
-	    if (l_q + dl > 0) {
+	    if (l_q + dl >= 0) {
 	      l_q += dl ;
 	      double fact = 8*Rmax*Rmax + dt*dt*(6+3*l_q*(l_q+1)) + 12*Rmax*dt ;
 	      double souphi = -4*dt*dt*l_q*(l_q+1)*
