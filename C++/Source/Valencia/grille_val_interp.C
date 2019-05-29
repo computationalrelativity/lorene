@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2019/05/29 08:56:53  j_novak
+ * New interpolation using monotonic cubic algorithm from Steffen (1980)
+ *
  * Revision 1.14  2016/12/05 16:18:20  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -325,7 +328,7 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
   int narr = rarr.get_dim(0) ;
 
   switch (type_inter) {
-  case 0: {
+  case 0: { // Minization of second derivative using Silvano's routine insmts
     int ndeg[4] ;
     ndeg[0] = ndep ;
     ndeg[1] = narr ;
@@ -346,26 +349,26 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
     delete[] den1 ;
     break ;
   }
-   case 1: {
-     int ip = 0 ;
-     int is = 1 ;
-     assert(ndep > 1);
-     for (int i=0; i<narr; i++) {
-       while(rdep(is) < rarr(i)) is++ ;
-       assert(is<ndep) ;
-       ip = is - 1 ;
-       farr.t[i] = (fdep(is)*(rdep(ip)-rarr(i)) + 
- 				    fdep(ip)*(rarr(i)-rdep(is))) /
- 	     (rdep(ip)-rdep(is)) ;
-     }
-     break ;
-   }
+  case 1: { // Piecewise linear ...
+    int ip = 0 ;
+    int is = 1 ;
+    assert(ndep > 1);
+    for (int i=0; i<narr; i++) {
+      while(rdep(is) < rarr(i)) is++ ;
+      assert(is<ndep) ;
+      ip = is - 1 ;
+      farr.t[i] = (fdep(is)*(rdep(ip)-rarr(i)) + 
+		   fdep(ip)*(rarr(i)-rdep(is))) /
+	(rdep(ip)-rdep(is)) ;
+    }
+    break ;
+  }
     
-   case 2:
-     int i1, i2, i3 ;
-     double xr, x1, x2, x3, y1, y2, y3 ;
-     i2 = 0 ;
-     i3 = 1 ;
+  case 2: { // Piecewise parabolic 
+    int i1, i2, i3 ;
+    double xr, x1, x2, x3, y1, y2, y3 ;
+    i2 = 0 ;
+    i3 = 1 ;
     assert(ndep > 2) ;
     for (int i=0; i<narr; i++) {
       xr = rarr(i) ;
@@ -392,18 +395,80 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
       farr.t[i] = c + b*(xr - x1) + a*(xr - x1)*(xr - x2) ;
     }
     break ;
+  }
+    // Monotone cubic interpolation from M. Steffen A&A vol. 239, pp.443-450 (1980)
+  case 3: {
+    int ndm1 = ndep - 1 ;
+    double ai(0), bi(0), ci(0), di(0) ;
+    Tbl hi(ndep) ; hi.set_etat_qcq() ;
+    Tbl si(ndep) ; si.set_etat_qcq() ;
+    Tbl yprime(ndep) ; yprime.set_etat_qcq() ;
+    Tbl pi(ndep) ; pi.set_etat_qcq() ;
+    hi.set(0) = rdep(1) - rdep(0) ;
+    si.set(0) = (fdep(1) - fdep(0)) / hi(0) ;
+    for (int i=1; i<ndm1; i++) {
+      hi.set(i) = rdep(i+1) - rdep(i) ;
+      si.set(i) = ( fdep(i+1) - fdep(i) ) / hi(i) ;
+      pi.set(i) = (si(i-1)*hi(i) + si(i)*hi(i-1)) / (hi(i-1) + hi(i)) ;
+      if ( si(i-1) * si(i) <= 0) yprime.set(i) = 0. ;
+      else {
+	yprime.set(i) = pi(i) ;
+	double fsi = fabs(si(i)) ;
+	double fsim1 = fabs(si(i-1)) ;
+	if ( (fabs(pi(i)) > 2*fsim1) || (fabs(pi(i)) > 2*fsi) )
+	  { int a = (si(i) > 0 ? 1 : -1 ) ;
+	    yprime.set(i) = 2*a* ( fsim1 < fsi ? fsim1 : fsi ) ;
+	  }
+      }
+    }
+
+    // Special cases at the boundaries
+    pi.set(0) = si(0)* ( 1 + hi(0)/(hi(0) + hi(1)) )
+      - si(1) * ( hi(0) / (hi(0) + hi(1)) ) ;
+    if ( pi(0) * si(0) <= 0 ) yprime.set(0) = 0. ;
+    else {
+      yprime.set(0) = pi(0) ;
+      if ( fabs(pi(0))  > 2*fabs(si(0)) ) yprime.set(0) = 2*si(0) ;
+    }
+    int ndm2 = ndep - 2 ;
+    int ndm3 = ndep - 3 ;
+    pi.set(ndm1) = si(ndm2)* ( 1 + hi(ndm2)/(hi(ndm2) + hi(ndm3)) )
+      - si(ndm3) * ( hi(ndm2) / (hi(ndm2) + hi(ndm3)) ) ;
+    if ( pi(ndm1) * si(ndm2) <= 0 ) yprime.set(ndm1) = 0. ;
+    else {
+      yprime.set(ndm1) = pi(ndm1) ;
+      if ( fabs(pi(ndm1))  > 2*fabs(si(ndm2)) ) yprime.set(ndm1) = 2*si(ndm2) ;
+    }
+
+
+    int ispec = 0 ; // index of spectral point
+    bool still_points = true ;
+    for (int i=0; i<ndm1; i++) {
+      if (still_points) {
+	if ( rarr(ispec) < rdep(i+1) ) {
+	  ai = (yprime(i) + yprime(i+1) - 2*si(i)) / (hi(i)*hi(i)) ;
+	  bi = (3*si(i) - 2*yprime(i) - yprime(i+1)) / hi(i) ;
+	  ci = yprime(i) ;
+	  di = fdep(i) ;
+	}
+	while ( (rarr(ispec) < rdep(i+1)) && still_points ) {
+	double hh = rarr(ispec) - rdep(i) ;
+	farr.t[ispec] = di + hh*(ci + hh*(bi + hh*ai)) ;
+	if (ispec < narr -1) ispec++ ;
+	else still_points = false ;
+	}
+      }
+    }
+    break ;
+  }
     
-  case 3:
-    cout << "Spline interpolation not implemented yet!" << endl ;
+  default: {
+    cout << "Unknown type of interpolation!" << endl ;
     abort() ;
     break ;
-    
-   default:
-     cout << "Unknown type of interpolation!" << endl ;
-     abort() ;
-     break ;
-   }
-   return farr ;
+  }
+  }
+  return farr ;
 }
   
                         //------------------
