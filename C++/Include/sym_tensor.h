@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.50  2019/08/16 08:47:36  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.49  2014/10/13 08:52:36  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -809,14 +812,6 @@ class Sym_tensor_trans: public Sym_tensor {
 
 	// Provisory: just for compilation, to be removed
  	void sol_Dirac_l01_2(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta, Param* par_mat) ;
-
-
-        /** Finds spectral potentials A, B, C of solution of an tensorial TT elliptic equation, 
-	 *  given the source. 
-	 **/
- 
-	void sol_elliptic_ABC(Sym_tensor& source, Scalar aaa, Scalar bbb, Scalar ccc) ;
-
 
 
 	/** Assigns the derived member \c p_tt and computes the trace so that 
