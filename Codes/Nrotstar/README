@@ -5,7 +5,8 @@
 1/ Description of the various codes
    ================================
 
-nrotstar:	Code for rigidly rotating stars in GR (quasi-isotropic gauge) 
+nrotstar:	Code for a model of rigidly rotating star
+nrotseq:	Code for a sequence of rigidly rotating stars
 
 
 2/ Compilation
@@ -13,12 +14,15 @@ nrotstar:	Code for rigidly rotating stars in GR (quasi-isotropic gauge)
 
 Typing
 
-	make 
+	make all
 
-will produce the executable in a non-optimized version for debugging purposes.  
-To get an optimized version for production purposes type instead
+will produce both executables in a non-optimized version for debugging purposes.  
+To get optimized versions for production purposes type instead
 
-	make -f Makefile_O2
+	make -f Makefile_O2 nrotstar
+or
+	make -f Makefile_O2 nrotseq
+
 
 You can clear everything by
 
@@ -33,6 +37,11 @@ The code nrotstar needs two input files:
 par_rot.d :  parameters of the computation
 par_eos.d : description of the equation of state
 
+The code nrotseq needs two input files:
+
+par_seq.d :  parameters of the computation
+par_eos.d : description of the equation of state (same as nrotstar)
+
 Templates files are provided in the directory Parameters ("GR" stands for general 
 relativity and "Newt" for Newtonian gravitation). For instance
   (i) to get the model displayed in Figs. 3.1 to 3.7 of http://arxiv.org/abs/1003.5015, do 
@@ -41,6 +50,9 @@ relativity and "Newt" for Newtonian gravitation). For instance
   (ii)  to compute a relativistic polytropic (gamma=2) star rotating at the Keplerian limit, do
       cp Parameters/GR/Kepler/*.d .
 
+  (iii) to compute a sequence of star models, do (you may change the EoS by using a different par_eos.d file than the one that is in that directory)
+      cp Parameters/Sequence/*.d .
+      
 
 4/ Running
    =======
@@ -48,11 +60,14 @@ relativity and "Newt" for Newtonian gravitation). For instance
 Simply type
 
 	nrotstar
+or
+	nrotseq
 
-Setting the parameter graph to 1 in the file par_rot.d ensures that some graphical outputs are produced at the end of the computation. 
+Setting the parameter graph to 1 in the file par_rot.d/par_seq.d ensures that some graphical outputs are produced at the end of the computation. 
 The main characteristics of the computed star are summarized in the file result.txt (human readable format). 
 The full final configuration is saved in the file resu.d (binary format). 
 The metric part of it is also saved in the file resu_gyoto.d (binary format) in a format readable by 
 the ray-tracing code GYOTO. 
 Some output files like convergence.d or prof_*.d can be visualized via xmgrace.
 Profiles of various fields are in the files prof_X.d where X is the name of the field. 
+The sequence main outputs are gievn in the file outseq.d
