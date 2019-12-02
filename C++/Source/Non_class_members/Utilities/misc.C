@@ -28,6 +28,9 @@ char misc_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2019/12/02 14:51:37  j_novak
+ * Moved piecewise parabolic computation of dpdnb to a separate function.
+ *
  * Revision 1.1  2018/12/05 15:03:20  j_novak
  * New Mg3d constructor from a formatted file.
  *
@@ -39,7 +42,7 @@ char misc_C[] = "$Header$" ;
  */
 
 // Lorene headers
-#include "headcpp.h"
+#include "tbl.h"
 
 
 namespace Lorene {
@@ -54,6 +57,67 @@ namespace Lorene {
 	return true ;
     }
     return false ;
+  }
+
+  // Computes the first derivative of the 2nd Tbl, with respect to the 1st one
+  // using piecewise parabolic scheme.
+  void compute_derivative(const Tbl& xx, const Tbl& yy, Tbl& dydx)
+  {
+    double y0, y1, y2, x0, x1, x2, der; 
+    int np = xx.get_dim(0) ;
+    assert ((yy.get_dim(0) == np) && (dydx.get_dim(0) == np)) ;
+    
+    // special case: i=0
+    
+    y0 = yy(0);
+    y1 = yy(1);
+    y2 = yy(2);
+    
+    x0 = xx(0);
+    x1 = xx(1);
+    x2 = xx(2);
+    
+    der = y0*(2*x0-x1-x2)/(x0-x1)/(x0-x2) +
+      y1*(x0-x2)/(x1-x0)/(x1-x2) +
+      y2*(x0-x1)/(x2-x0)/(x2-x1) ;
+    
+    dydx.set(0) = der ; 
+    
+    for(int i=1;i<np-1;i++) { 
+      
+      y0 = yy(i-1);
+      y1 = yy(i);
+      y2 = yy(i+1);
+      
+      x0 = xx(i-1);
+      x1 = xx(i);
+      x2 = xx(i+1);
+      
+      der = y0*(x1-x2)/(x0-x1)/(x0-x2) +
+	y1*(2*x1-x0-x2)/(x1-x0)/(x1-x2) +
+	y2*(x1-x0)/(x2-x0)/(x2-x1) ;
+      
+      dydx.set(i) = der ;
+      
+    } 
+    
+    // special case: i=np-1
+    
+    y0 = yy(np-3);
+    y1 = yy(np-2);
+    y2 = yy(np-1);
+    
+    x0 = xx(np-3);
+    x1 = xx(np-2);
+    x2 = xx(np-1);
+    
+    der = y0*(x2-x1)/(x0-x1)/(x0-x2) +
+      y1*(x2-x0)/(x1-x0)/(x1-x2) +
+      y2*(2*x2-x0-x1)/(x2-x0)/(x2-x1) ;
+    
+    dydx.set(np-1) = der ;
+
+    return ;
   }
   
 } // End of namespace Lorene

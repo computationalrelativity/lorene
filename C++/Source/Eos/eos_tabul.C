@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2019/12/02 14:51:36  j_novak
+ * Moved piecewise parabolic computation of dpdnb to a separate function.
+ *
  * Revision 1.19  2019/03/28 13:41:02  j_novak
  * Improved managed of saved EoS (functions sauve and constructor form FILE*)
  *
@@ -128,11 +131,14 @@
 
 
 namespace Lorene {
-void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
-		   double&, double& ) ;
+  void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
+		     double&, double& ) ;
+  
+  void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
+  
+  void compute_derivative(const Tbl&, const Tbl&, Tbl&) ;
 
-void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
-
+    
 			//----------------------------//
 			//   	Constructors	      //
 			//----------------------------//
@@ -327,6 +333,7 @@ void Eos_tabul::read_table() {
       store_offset = true ;
     }
   }
+
   for (int i=0; i<nbp; i++) {
     double h = log( (ro[i] + press[i]) /
 		    (10 * nb[i] * rhonuc_cgs) ) ;
@@ -345,79 +352,15 @@ void Eos_tabul::read_table() {
     write_meos << "ok" << endl ;
     write_meos << setprecision(16) << ww << endl ;
   }
-  
-  double p0, p1, p2, n0, n1, n2, dpdnb; 
-  
-  // special case: i=0
-  
-  p0 = log(press[0]);
-  p1 = log(press[1]);
-  p2 = log(press[2]);
-  
-  n0 = log(nb[0]);
-  n1 = log(nb[1]);
-  n2 = log(nb[2]);
-  
-  dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
-    p1*(n0-n2)/(n1-n0)/(n1-n2) +
-    p2*(n0-n1)/(n2-n0)/(n2-n1) ;
-  
-  dlpsdlnb->set(0) = dpdnb ; 
-  
-  for(int i=1;i<nbp-1;i++) { 
-    
-    p0 = log(press[i-1]);
-    p1 = log(press[i]);
-    p2 = log(press[i+1]);
-    
-    n0 = log(nb[i-1]);
-    n1 = log(nb[i]);
-    n2 = log(nb[i+1]);
-    
-    dpdnb = p0*(n1-n2)/(n0-n1)/(n0-n2) +
-      p1*(2*n1-n0-n2)/(n1-n0)/(n1-n2) +
-      p2*(n1-n0)/(n2-n0)/(n2-n1) ;
-    
-    dlpsdlnb->set(i) = dpdnb ;
-    
-  } 
-     	
-  // special case: i=nbp-1
 
-  p0 = log(press[nbp-3]);
-  p1 = log(press[nbp-2]);
-  p2 = log(press[nbp-1]);
-	
-  n0 = log(nb[nbp-3]);
-  n1 = log(nb[nbp-2]);
-  n2 = log(nb[nbp-1]);
-  
-  dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
-    p1*(n2-n0)/(n1-n0)/(n1-n2) +
-    p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
-  
-  dlpsdlnb->set(nbp-1) = dpdnb ;
-  
+  Tbl logn0 = *lognb * log(10.) ;
+  Tbl logp0 = ((*logp) + log10(rhonuc_cgs)) * log(10.) ;
+  compute_derivative(logn0, logp0, *dlpsdlnb) ;
+
   hmin = pow( double(10), (*logh)(0) ) ;
   hmax = pow( double(10), (*logh)(nbp-1) ) ;
 	
-//##     	   	
-//     	cout << "logh : " << endl ;
-//     	cout << *logh << endl ;
-//     	
-//
-//     	cout << "logp : " << endl ;
-//     	cout << *logp << endl ;
-//     	
-//     	cout << "dlpsdlh : " << endl ;
-//     	cout << *dlpsdlh << endl ;
-//
-//     	cout << "dlpsdlnb : " << endl ;
-//     	cout << *dlpsdlnb << endl ;
-//
-//     	
   cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
-//##     	
 
   fich.close();
   
@@ -604,8 +547,6 @@ double Eos_tabul::der_press_nbar_p(double ent, const Param*) const {
 
            interpol_linear(*logh, *dlpsdlnb, logh0, i_near, dlpsdlnb0) ;
  
-//	   cout << "gamma: " << dlpsdlnb0 << " ent: " << ent << endl; 
-
           return dlpsdlnb0 ;
 
     }
