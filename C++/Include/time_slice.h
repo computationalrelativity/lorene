@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2019/12/06 13:56:54  j_novak
+ * Corrected mistake in a comment
+ *
  * Revision 1.32  2014/10/13 08:52:37  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -874,7 +877,7 @@ class Time_slice_conf : public Time_slice {
 	     double relax = 0.8, int methode_poisson = 6) ;
 
 	/** Sets the potentials \e A and \f$\tilde{B}\f$
-         * of the TT part \f$ \hat{A}^{ij}
+         * of the TT part \f$ \hat{A}^{ij} \f$
 	 * (see the documentation of \c Sym_tensor for details).
          * Sets the value at the current time step (\c jtime ).
 	 */
