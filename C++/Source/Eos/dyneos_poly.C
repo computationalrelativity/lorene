@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2019/12/19 13:38:37  e_declerck
+ * Correction pour la formaule de la vitesse du son dans dyneos_poly.C
+ *
  * Revision 1.1  2019/12/06 14:30:50  j_novak
  * New classes Dyn_eos... for cold Eos's with baryon density as input.
  *
@@ -314,7 +317,7 @@ void Dyn_eos_poly::operator=(const Dyn_eos_poly& eosi) {
     if ( nbar > 0. )
       {
 	double ngam = pow(nbar, gam1) ;
-	return sqrt( gam*ngam / ( gam*kapsgam1*ngam + mu_0 ) ) ;
+	return sqrt( kap*gam*ngam / ( gam*kapsgam1*ngam + mu_0 ) ) ;
       }
     else
       return 0. ;
