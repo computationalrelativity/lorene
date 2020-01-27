@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2020/01/27 11:00:19  j_novak
+ * New include <stdexcept> to be compatible with older versions of g++
+ *
  * Revision 1.20  2018/12/05 15:03:20  j_novak
  * New Mg3d constructor from a formatted file.
  *
@@ -140,6 +143,8 @@
  * $Header$
  *
  */
+// C++ Headers
+#include <stdexcept>
 
 // C Headers
 #include <cstdlib>

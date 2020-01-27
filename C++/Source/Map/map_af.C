@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2020/01/27 11:00:19  j_novak
+ * New include <stdexcept> to be compatible with older versions of g++
+ *
  * Revision 1.21  2018/12/05 15:43:45  j_novak
  * New Map_af constructor from a formatted file.
  *
@@ -177,6 +180,9 @@
  * $Header$
  *
  */
+
+// headers C++
+#include <stdexcept>
 
 // headers C
 #include <cmath>
