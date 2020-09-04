@@ -1,6 +1,6 @@
 #################### PHYSICAL PARAMETERS ######################################
 1     Relativity parameter: 1 = relativistic computation , 0 = Newtonian
-0.225   ent_c : central enthalpy [c^2]
+0.227   ent_c : central enthalpy [c^2]
 0.     freq_si : rotation frequency [Hz]
 1.    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
 1.60    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
