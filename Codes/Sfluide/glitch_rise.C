@@ -90,9 +90,6 @@ int main(){
     
     using namespace Unites ; 
   
-    // For the display : 
-    char display_bold[]="x[1m" ; display_bold[0] = 27 ;
-
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
@@ -107,7 +104,7 @@ int main(){
     double thres_adapt = 0.0;
     double precis_adapt = 1.e-14;
 
-    char *parrot = "settings.par"; // config-file (input parameters for the configuration)
+    const char *parrot = "settings.par"; // config-file (input parameters for the configuration)
     int res = 0;
 
     res += read_variable (parrot, "relat", relat);
@@ -267,12 +264,12 @@ int main(){
     
     /* eos-params are read from different parameter files depending on the EoS type ! */
     
-    Eos_bifluid* peos ;
+    Eos_bifluid* peos = 0x0 ;
   
     // Analytical EoSs
     if (id_eos == 1 || id_eos == 2 ) {
 
-		char *fpar_anal = "eos_anal.par"; 
+		const char *fpar_anal = "eos_anal.par"; 
 		peos = Eos_bifluid::eos_from_file(fpar_anal);	
 
     }
@@ -376,7 +373,7 @@ int main(){
     double eps_freq ;		// epsilon parameter used to compute the partial moment of inertia 
 									// using a fourth-order finite difference method
 
-	 char *par_glitch = "glitch_rise.par"; // input parameters for the computation of the glitch rise time
+	const char *par_glitch = "glitch_rise.par"; // input parameters for the computation of the glitch rise time
     int res_gl = 0;
 
     res_gl += read_variable (par_glitch, "B", coeff_B);
@@ -855,7 +852,7 @@ int main(){
  						double vorticity_pi2	= 	Vorticity(i,0,pi_2,j);
  						double hperp_2_pi2 	= 	h_perp_2(i,0, pi_2, j) ;
 						double N_metric_pi2 		=	N_metric(i,0, pi_2, j) ;  
-						double B2_metric_pi2 	= 	B2_metric(i,0, pi_2, j) ;
+						//double B2_metric_pi2 	= 	B2_metric(i,0, pi_2, j) ;
 						double A2_metric_pi2 	=	A2_metric(i,0, pi_2, j) ; 
 						double omega_metric_pi2 =  omega_metric(i,0, pi_2, j) ; 
 		 
@@ -906,7 +903,7 @@ int main(){
 		Cmp dens(mp) ; 
       dens = Gamman * nbar1 * Vorticity * h_perp_2 * A2_metric * sqrt(B2_metric)  ;
       dens.std_base_scal();
-      double Gamma_int = dens.integrale() * coeff_B * (omega_p - omega_n)  ; 
+      //double Gamma_int = dens.integrale() * coeff_B * (omega_p - omega_n)  ; 
 		
 		// computation of the kappa and zeta quantities (see Eqs. 18 and 23 of Sourie, Chamel, Novak & Oertel, MNRAS, 2017 for definition) : 
 
@@ -998,7 +995,7 @@ int main(){
 
 
 		texec1=difftime(tend1,tbegin1);
-    	texec2=difftime(tend2,tbegin2);
+		texec2=difftime(tend2,tbegin2);
    	cout << " Time of computation of the star : " << texec1 << endl;
     	cout << " Time of computation of the drawing : " << texec2 << endl;    
    	//-----------------------------------------------------------------//

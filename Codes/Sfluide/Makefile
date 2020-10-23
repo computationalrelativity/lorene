@@ -16,7 +16,7 @@ OBJ2 = $(SRC2:.C=.o)
 
 CXXFLAGS_G = -g -Wall -m64 -mtune=native -O2 -DNDEBUG -pedantic -Wall -W -Wundef -Wshadow -Wcast-qual \
   -Wcast-align -Wconversion -Winline \
-  -Wabi -Wold-style-cast -Woverloaded-virtual
+  -Wold-style-cast -Woverloaded-virtual
 
 all : $(EXE1) $(EXE2) 
 
