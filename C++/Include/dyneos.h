@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2020/12/17 17:00:27  j_novak
+ * Output of sound speed squared, instead of sound speed.
+ *
  * Revision 1.1  2019/12/06 14:30:50  j_novak
  * New classes Dyn_eos... for cold Eos's with baryon density as input.
  *
@@ -286,7 +289,7 @@ class Dyn_eos {
 	 */
     	Scalar press_nbar(const Scalar& nbar, int nzet, int l_min = 0, Param* par=0x0) const ;
 
-	/** Computes the sound speed \f$ c_s = c \sqrt{d p / d e}\f$
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
 	 *  from the baryon density with extra parameters
 	 *  (virtual function implemented in the derived classes).
 	 *
@@ -294,11 +297,11 @@ class Dyn_eos {
 	 *         baryon density 
          *  @param par possible extra parameters of the EOS
   	 *
-	 *  @return \f$c_s \f$ [unit: \e c]
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 */
-    	virtual double csound_nbar_p(double nbar, const Param* par=0x0) const = 0 ;
+    	virtual double csound_square_nbar_p(double nbar, const Param* par=0x0) const = 0 ;
 
-	/** Computes the sound speed \f$ c_s = c \sqrt{d p / d e}\f$
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
 	 *  from the baryon density with extra parameters
 	 *
 	 *  @param nbar [input, unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
@@ -314,10 +317,10 @@ class Dyn_eos {
 	 *	domains, it is set to zero.
          *  @param par possible extra parameters of the EOS
 	 *
-	 *  @return \f$c_s \f$ [unit: \e c]
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 *
 	 */
-	Scalar csound_nbar(const Scalar& nbar, int nzet, int l_min = 0, Param* par=0x0) const ;
+	Scalar csound_square_nbar(const Scalar& nbar, int nzet, int l_min = 0, Param* par=0x0) const ;
 
 
 };
@@ -575,17 +578,16 @@ class Dyn_eos_poly : public Dyn_eos {
 	 */
     	virtual double press_nbar_p(double nbar, const Param* par=0x0) const ;
 
-	/** Computes the sound speed \f$ c_s = c \sqrt{d p / d e}\f$
-	 *  from the baryon density with extra parameters
-	 *  (virtual function implemented in the derived classes).
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the baryon density with extra parameters.
 	 *
 	 *  @param nbar [input, unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
 	 *         baryon density 
          *  @param par possible extra parameters of the EOS
   	 *
-	 *  @return \f$c_s \f$ [unit: \e c]
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 */
-    	virtual double csound_nbar_p(double nbar, const Param* par=0x0) const ;
+    	virtual double csound_square_nbar_p(double nbar, const Param* par=0x0) const  ;
        
 };
 
@@ -662,8 +664,8 @@ Tabulated EoS
    /// Table of \f$d\log e/d\log n_b\f$
    Tbl* dlesdlnb ;
    
-   /// Table of \f$c_s = c \sqrt{d p / d e}\f$
-   Tbl* c_sound ;
+   /// Table of \f$c_s^2 = c^2 \frac{d p}{d e}\f$
+   Tbl* c_sound2 ;
 
    // Constructors - Destructor
    // -------------------------
@@ -797,17 +799,17 @@ Tabulated EoS
     */
    virtual double press_nbar_p(double nbar, const Param* par=0x0) const ;
    
-   /** Computes the sound speed \f$ c_s = c \sqrt{d p / d e}\f$
-    *  from the baryon density with extra parameters
-    *  (virtual function implemented in the derived classes).
+   /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+    *  from the baryon density with extra parameters.
     *
     *  @param nbar [input, unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
     *         baryon density 
     *  @param par possible extra parameters of the EOS
     *
-    *  @return \f$c_s \f$ [unit: \e c]
+    *  @return \f$c_s^2 \f$ [unit: \e c^2]
     */
-   virtual double csound_nbar_p(double nbar, const Param* par=0x0) const ;
+   virtual double csound_square_nbar_p(double nbar, const Param* par=0x0) const  ;
+       
  };
 
 		    //------------------------------------//

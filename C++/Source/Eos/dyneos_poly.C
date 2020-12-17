@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2020/12/17 17:00:27  j_novak
+ * Output of sound speed squared, instead of sound speed.
+ *
  * Revision 1.2  2019/12/19 13:38:37  e_declerck
  * Correction pour la formaule de la vitesse du son dans dyneos_poly.C
  *
@@ -312,12 +315,12 @@ void Dyn_eos_poly::operator=(const Dyn_eos_poly& eosi) {
 
   // Sound speed from baryon density
   //---------------------------------
-  double Dyn_eos_poly::csound_nbar_p(double nbar, const Param* ) const
+  double Dyn_eos_poly::csound_square_nbar_p(double nbar, const Param* ) const
   {
     if ( nbar > 0. )
       {
 	double ngam = pow(nbar, gam1) ;
-	return sqrt( kap*gam*ngam / ( gam*kapsgam1*ngam + mu_0 ) ) ;
+	return kap*gam*ngam / ( gam*kapsgam1*ngam + mu_0 ) ;
       }
     else
       return 0. ;

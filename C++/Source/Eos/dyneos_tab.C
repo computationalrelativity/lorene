@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2020/12/17 17:00:27  j_novak
+ * Output of sound speed squared, instead of sound speed.
+ *
  * Revision 1.1  2019/12/06 14:30:50  j_novak
  * New classes Dyn_eos... for cold Eos's with baryon density as input.
  *
@@ -66,7 +69,7 @@ namespace Lorene {
   Dyn_eos_tab::Dyn_eos_tab(const string& name_i, const string& tablename_i,
 			   bool compose) : Dyn_eos(name_i), tablename(tablename_i),
 					   compose_format(compose), lognb(0x0),
-					   loge(0x0), dlesdlnb(0x0), c_sound(0x0)
+					   loge(0x0), dlesdlnb(0x0), c_sound2(0x0)
   {
     if (compose_format)
       read_table_compose() ;
@@ -83,7 +86,7 @@ namespace Lorene {
 // Constructor from binary file
 // ----------------------------
   Dyn_eos_tab::Dyn_eos_tab(FILE* fich) : Dyn_eos(fich), lognb(0x0),
-					   loge(0x0), dlesdlnb(0x0), c_sound(0x0)
+					   loge(0x0), dlesdlnb(0x0), c_sound2(0x0)
   {
     const int nc = 160 ;
     char tmp_string[nc] ;
@@ -104,7 +107,7 @@ namespace Lorene {
 // Constructor from a formatted file
 // ---------------------------------
   Dyn_eos_tab::Dyn_eos_tab(ifstream& fich) : Dyn_eos(fich), lognb(0x0),
-					   loge(0x0), dlesdlnb(0x0), c_sound(0x0)
+					   loge(0x0), dlesdlnb(0x0), c_sound2(0x0)
   {  
     fich.seekg(0, fich.beg) ;
     fich.ignore(1000, '\n') ;
@@ -128,7 +131,7 @@ namespace Lorene {
     if (lognb != 0x0) delete lognb ;
     if (loge != 0x0) delete loge ;
     if (dlesdlnb != 0x0) delete dlesdlnb ;
-    if (c_sound != 0x0) delete c_sound ;
+    if (c_sound2 != 0x0) delete c_sound2 ;
   }
 
 			//------------------------//
@@ -265,7 +268,7 @@ namespace Lorene {
     *dlesdlnb = (ro + press) / ro ;        
     Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
     compute_derivative(ro, press, tmp) ;
-    c_sound = new Tbl(sqrt(tmp)) ; // c_s = sqrt(dp/de)
+    c_sound2 = new Tbl(tmp) ; // c_s^2 = dp/de
     
     nbmin = pow( double(10), (*lognb)(0) ) ;
     nbmax = pow( double(10), (*lognb)(nbp-1) ) ;
@@ -369,7 +372,7 @@ namespace Lorene {
     *dlesdlnb = (ro + press) / ro ;    
     Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
     compute_derivative(ro, press, tmp) ;
-    c_sound = new Tbl(sqrt(tmp)) ; // c_s = sqrt(dp/de)
+    c_sound2 = new Tbl(tmp) ; // c_s^2 = dp/de
     
     nbmin = pow( double(10), (*lognb)(0) ) ;
     nbmax = pow( double(10), (*lognb)(nbp-1) ) ;
@@ -457,7 +460,7 @@ namespace Lorene {
   // Sound speed from baryon density 
   //---------------------------------
 
-  double Dyn_eos_tab::csound_nbar_p(double nbar, const Param*) const {
+  double Dyn_eos_tab::csound_square_nbar_p(double nbar, const Param*) const {
 
     static int i_near = lognb->get_taille() / 2 ;
 
@@ -469,13 +472,13 @@ namespace Lorene {
       double lognb0 = log10( nbar ) ;
       double csound0 ;
     
-      interpol_linear(*lognb, *c_sound, lognb0, i_near, csound0) ;
+      interpol_linear(*lognb, *c_sound2, lognb0, i_near, csound0) ;
     
       return csound0 ;
     }
     else
       {
-	return (*c_sound)(0) ; 
+	return (*c_sound2)(0) ; 
       }
   
   

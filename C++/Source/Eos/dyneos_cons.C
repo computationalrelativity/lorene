@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2020/12/17 17:00:27  j_novak
+ * Output of sound speed squared, instead of sound speed.
+ *
  * Revision 1.1  2019/12/06 14:30:50  j_novak
  * New classes Dyn_eos... for cold Eos's with baryon density as input.
  *
@@ -255,7 +258,7 @@ namespace Lorene {
     *dlesdlnb = (ro + press) / ro ;    
     Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
     compute_derivative(ro, press, tmp) ;
-    c_sound = new Tbl(sqrt(tmp)) ; // c_s = sqrt(dp/de)
+    c_sound2 = new Tbl(tmp) ; // c_s^2 = dp/de
     
     nbmin = pow( double(10), (*lognb)(0) ) ;
     nbmax = pow( double(10), (*lognb)(nbp-1) ) ;
@@ -369,7 +372,7 @@ namespace Lorene {
     *dlesdlnb = (ro + press) / ro ;    
     Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
     compute_derivative(ro, press, tmp) ;
-    c_sound = new Tbl(sqrt(tmp)) ; // c_s = sqrt(dp/de)
+    c_sound2 = new Tbl(tmp) ; // c_s^2 = dp/de
     
     nbmin = pow( double(10), (*lognb)(0) ) ;
     nbmax = pow( double(10), (*lognb)(nbp-1) ) ;

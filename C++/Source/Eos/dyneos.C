@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2020/12/17 17:00:27  j_novak
+ * Output of sound speed squared, instead of sound speed.
+ *
  * Revision 1.1  2019/12/06 14:30:50  j_novak
  * New classes Dyn_eos... for cold Eos's with baryon density as input.
  *
@@ -230,11 +233,11 @@ namespace Lorene {
   // Sound speed from baryon density
   //---------------------------------
   
-  Scalar Dyn_eos::csound_nbar(const Scalar& nbar, int nzet, int l_min, Param* par) const
-  {
+  Scalar Dyn_eos::csound_square_nbar(const Scalar& nbar, int nzet,
+				      int l_min, Param* par) const {
     Scalar resu(nbar.get_mp()) ;
     
-    calcule(nbar, nzet, l_min, &Dyn_eos::csound_nbar_p, par, resu) ;
+    calcule(nbar, nzet, l_min, &Dyn_eos::csound_square_nbar_p, par, resu) ;
     
     return resu ;
   }
