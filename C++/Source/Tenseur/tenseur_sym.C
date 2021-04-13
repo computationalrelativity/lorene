@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2021/04/13 11:24:53  j_novak
+ * Corrected a bug in Etoile_rot::fait_shift() which was missing the np=1 case.
+ *
  * Revision 1.9  2016/12/05 16:18:17  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -323,6 +326,10 @@ void Tenseur_sym::operator= (const Tenseur& t) {
 	    break ;
 	    }
     }
+}
+
+void Tenseur_sym::operator= (const Tenseur_sym& t) {
+  operator=(t) ;
 }
 
 void Tenseur_sym::fait_gradient () const {

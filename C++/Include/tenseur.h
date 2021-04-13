@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2021/04/13 11:24:53  j_novak
+ * Corrected a bug in Etoile_rot::fait_shift() which was missing the np=1 case.
+ *
  * Revision 1.19  2016/09/19 15:26:22  j_novak
  * Correction of several bugs preventing the shared library compilation.
  *
@@ -1318,7 +1321,8 @@ class Tenseur_sym : public Tenseur {
 	 * The symmetry is assumed but not checked.
 	 */
 	virtual void operator= (const Tenseur&) ;
-    
+
+        void operator= (const Tenseur_sym&) ;
 
     // Accessors
     // ---------

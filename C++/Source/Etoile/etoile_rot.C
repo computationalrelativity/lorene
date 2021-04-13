@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2021/04/13 11:24:53  j_novak
+ * Corrected a bug in Etoile_rot::fait_shift() which was missing the np=1 case.
+ *
  * Revision 1.8  2016/12/05 16:17:55  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -762,7 +765,11 @@ void Etoile_rot::fait_shift() {
     Tenseur x_d_w = skxk( w_shift.gradient() ) ;
     x_d_w.dec_dzpuis() ;
     
-    double lambda = double(1) / double(3) ; 
+    double lambda = double(1) / double(3) ;
+
+    if ( mp.get_mg()->get_np(0) == 1 ) {
+      lambda = 0 ; 
+    }
 
     // The final computation is done component by component because
     // d_khi and x_d_w are covariant comp. whereas w_shift is

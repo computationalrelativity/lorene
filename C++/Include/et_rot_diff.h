@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2021/04/13 11:24:53  j_novak
+ * Corrected a bug in Etoile_rot::fait_shift() which was missing the np=1 case.
+ *
  * Revision 1.5  2014/10/13 08:52:34  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -227,7 +230,7 @@ class Et_rot_diff : public Etoile_rot {
 	void fait_omega_field(double omeg_min, double omeg_max,
 			      double precis, int nitermax) ;
 	
-	/// Computes the member \c prim_field  from \c omga_field . 
+	/// Computes the member \c prim_field  from \c omega_field . 
 	void fait_prim_field() ;
 	
 	/** Evaluates \f$F(\Omega)\f$, where \e F is the function
