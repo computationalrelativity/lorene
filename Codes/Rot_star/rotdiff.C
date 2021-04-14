@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2021/04/14 16:39:54  j_novak
+ * Added a code to read rotdiff output
+ *
  * Revision 1.9  2016/12/05 16:18:26  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -101,9 +104,6 @@ int main(){
     // Identification of all the subroutines called by the code : 
     
     system("ident rotdiff > identif.d") ; 
-
-    // For the display : 
-    char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
     //------------------------------------------------------------------
     //	    Parameters of the computation 
@@ -484,7 +484,6 @@ int main(){
 	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
 	star.get_mp().sauve(fresu) ;                // writing of the mapping
 	star.get_eos().sauve(fresu) ;  				// writing of the EOS
-	parfrot.sauve(fresu) ;             // writing parameters for rotation function
 	star.sauve(fresu) ;                         // writing of the star
 	
 	fclose(fresu) ;
