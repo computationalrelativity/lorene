@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2021/04/14 16:20:53  j_novak
+ * Corrected uncorrect recent change
+ *
  * Revision 1.10  2021/04/13 11:24:53  j_novak
  * Corrected a bug in Etoile_rot::fait_shift() which was missing the np=1 case.
  *
@@ -329,7 +332,7 @@ void Tenseur_sym::operator= (const Tenseur& t) {
 }
 
 void Tenseur_sym::operator= (const Tenseur_sym& t) {
-  operator=(t) ;
+  Tenseur::operator=(t) ;
 }
 
 void Tenseur_sym::fait_gradient () const {
