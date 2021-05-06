@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2021/05/06 14:33:17  j_novak
+ * New conversion function from Eos to Dyn_eos.
+ *
  * Revision 1.2  2020/12/17 17:00:27  j_novak
  * Output of sound speed squared, instead of sound speed.
  *
@@ -46,6 +49,7 @@
 
 // Headers Lorene
 #include "dyneos.h"
+#include "eos.h"
 #include "scalar.h"
 #include "utilitaires.h"
 #include "param.h"
@@ -107,6 +111,66 @@ namespace Lorene {
   {  
     return name ; 
   }
+
+  
+			//-------------------------//
+			//  Conversion from Eos    //
+			//-------------------------//
+			
+  Dyn_eos* Dyn_eos::convert_from_Eos(const Eos& eos_in) {
+    int eos_type = eos_in.identify() ;
+    Dyn_eos* resu ;
+    switch (eos_type) {
+    case 1: {
+      const Eos_poly* p_poly = dynamic_cast<const Eos_poly*>(&eos_in) ;
+      assert(p_poly != nullptr) ;
+      resu = new Dyn_eos_poly(p_poly->get_gam(), p_poly->get_kap(),
+			      p_poly->get_m_0(), p_poly->get_mu_0() ) ;
+      break ;
+    }
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16: {
+      const Eos_tabul* p_tabul = dynamic_cast<const Eos_tabul*>(&eos_in) ;
+      assert(p_tabul != nullptr) ;
+      string eos_name = p_tabul->get_name() ;
+      resu = new Dyn_eos_tab(eos_name, p_tabul->get_tablename(), false) ;
+      break ;
+    }
+    case 17: {
+      const Eos_CompOSE* p_compose
+	= dynamic_cast<const Eos_CompOSE*>(&eos_in) ;
+      assert(p_compose != nullptr) ;
+      string eos_name = p_compose->get_name() ;
+      resu = new Dyn_eos_tab(eos_name, p_compose->get_tablename(),
+			     p_compose->get_format()) ;
+      break ;
+    }
+    case 20: {
+      const Eos_consistent* p_consistent
+	= dynamic_cast<const Eos_consistent*>(&eos_in) ;
+      assert(p_consistent != nullptr) ;
+      string eos_name = p_consistent->get_name() ;
+      resu = new Dyn_eos_cons(eos_name, p_consistent->get_tablename(),
+			     p_consistent->get_format()) ;
+      break ;
+    }
+    default: {
+      cerr << "Dyn_eos::convert_from_Eos : " ;
+      cerr << "Unknown input Eos!" << endl ;
+      abort() ;
+      break ;
+    }
+    }
+
+    return resu ;
+    
+  }
+  
 			//------------//
 			//  Outputs   //
 			//------------//

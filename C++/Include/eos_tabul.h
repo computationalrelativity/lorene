@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2021/05/06 14:33:17  j_novak
+ * New conversion function from Eos to Dyn_eos.
+ *
  * Revision 1.18  2019/04/09 12:50:22  j_novak
  * Improved documentation
  *
@@ -275,7 +278,9 @@ class Eos_tabul : public Eos {
 
     // Miscellaneous
     // -------------
-
+    public:
+  const string& get_tablename() const { return tablename ; } ;
+  
     protected: 	
     	/** Reads the file containing the table and initializes
     	 *  in the arrays \c  logh , \c  logp  and \c  dlpsdlh .

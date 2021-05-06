@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2021/05/06 14:33:17  j_novak
+ * New conversion function from Eos to Dyn_eos.
+ *
  * Revision 1.23  2017/12/15 15:36:37  j_novak
  * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
  *
@@ -262,11 +265,12 @@ class Eos {
 	 *  - 13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) 
 	 *  - 14 = BBB2 (Baldo, Bombaci \& Burgio 1997) 
 	 *  - 15 = BalbN1H1 (Balberg 2000) 
-     *  - 16 = GlendNH3 (Glendenning 1985, case 3)
-     *  - 17 = Compstar (Tabulated EOS for 2010 CompStar school)
-     *  - 18 = magnetized (tabulated) equation of state
-     *  - 19 = relativistic ideal Fermi gas at zero temperature (class \c Eos_Fermi)
-     *  - 100 = Multi-domain EOS (class \c MEos ) 
+         *  - 16 = GlendNH3 (Glendenning 1985, case 3)
+         *  - 17 = Tabulated EOS in CompOSE format
+	 *  - 18 = magnetized (tabulated) equation of state
+	 *  - 19 = relativistic ideal Fermi gas at zero temperature (class \c Eos_Fermi)
+	 *  - 20 = Tabulated EOS in CompOSE format corrected for thermo. consistency
+	 *  - 100 = Multi-domain EOS (class \c MEos ) 
 	 *  - 110 = Multi-polytropic EOS (class \c Eos_multi_poly ) 
 	 *  - 120 = Fitted SLy4 (Shibata 2004) 
 	 *  - 121 = Fitted FPS (Shibata 2004) 

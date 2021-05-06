@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2021/05/06 14:33:17  j_novak
+ * New conversion function from Eos to Dyn_eos.
+ *
  * Revision 1.3  2019/04/09 12:50:22  j_novak
  * Improved documentation
  *
@@ -154,9 +157,11 @@ XXX  <-- Number of lines
   
  public:
   virtual ~Eos_CompOSE() ;			///< Destructor
-  
+
   // Miscellaneous
   // -------------
+public:
+  int get_format() const {return format ;} ;
   
  protected: 	
   /** Reads the files containing the table and initializes

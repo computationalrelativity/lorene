@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2021/05/06 14:33:17  j_novak
+ * New conversion function from Eos to Dyn_eos.
+ *
  * Revision 1.2  2020/12/17 17:00:27  j_novak
  * Output of sound speed squared, instead of sound speed.
  *
@@ -55,6 +58,7 @@ namespace Lorene {
   class Tbl ;
   class Param ;
   class Scalar ;
+  class Eos ;
 
 		    //------------------------------------//
 		    //	     base class Dyn_eos		  //
@@ -101,9 +105,14 @@ class Dyn_eos {
 	 *  from a formatted file must be done via the function 
 	 *  \c Dyn_eos::eos_from_file(ifstream&) . 
 	 */
-	Dyn_eos(ifstream& ) ; 
-	
-	
+	Dyn_eos(ifstream& ) ;
+
+    public:
+        /** Conversion operator from \c Eos to \c Dyn_eos. 
+	 *  Works only for relativistic polytropes and tabulated EOSs.
+	 */
+  static Dyn_eos* convert_from_Eos(const Eos&) ;
+  
     public:
 	virtual ~Dyn_eos() ;			///< Destructor
 
