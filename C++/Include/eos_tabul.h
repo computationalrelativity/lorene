@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.19  2021/05/06 14:33:17  j_novak
  * New conversion function from Eos to Dyn_eos.
  *
@@ -204,6 +207,9 @@ class Eos_tabul : public Eos {
     	
         /// Table of \f$d\log P/d\log nb\f$
         Tbl* dlpsdlnb ;
+		
+		/// Table of \f$c_s^2 = c^2 \frac{d p}{d e}\f$
+   		Tbl* c_sound2 ;
 
         double* press ; 
         double* nb ; 
@@ -280,6 +286,8 @@ class Eos_tabul : public Eos {
     // -------------
     public:
   const string& get_tablename() const { return tablename ; } ;
+  
+  const Tbl& get_logh() const {return *logh ; } ;
   
     protected: 	
     	/** Reads the file containing the table and initializes
@@ -369,7 +377,18 @@ class Eos_tabul : public Eos {
 	 */
 
     	virtual double der_press_nbar_p(double ent, const Param* par=0x0) const ; 
-
+		
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const ;
 };
 
 		    //------------------------------------//
@@ -454,7 +473,6 @@ class Eos_SLy4 : public Eos_tabul {
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
-
 };
 
 		    //------------------------------------//
@@ -533,7 +551,6 @@ class Eos_FPS : public Eos_tabul {
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
-
 };
 
 		    //------------------------------------//
@@ -610,7 +627,6 @@ class Eos_BPAL12 : public Eos_tabul {
 
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
-
 
 };
 
@@ -698,7 +714,6 @@ class Eos_AkmalPR : public Eos_tabul {
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
-
 };
 
 		    //------------------------------------//
@@ -781,7 +796,6 @@ class Eos_BBB2 : public Eos_tabul {
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
-
 };
 
 
@@ -859,7 +873,6 @@ class Eos_BalbN1H1 : public Eos_tabul {
 
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
-
 
 };
 
@@ -940,8 +953,7 @@ class Eos_GlendNH3 : public Eos_tabul {
 
     protected:
 	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
-
-
+	
 };
 
 }

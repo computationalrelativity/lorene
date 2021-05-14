@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.10  2019/03/28 13:41:02  j_novak
  * Improved managed of saved EoS (functions sauve and constructor form FILE*)
  *
@@ -87,6 +90,8 @@
 // Standard constructor
 // --------------------			
 namespace Lorene {
+  
+  void compute_derivative(const Tbl&, const Tbl&, Tbl&) ;
 
 // Standard constructor with only the name of the file
 //------------------------------------------------------
@@ -162,6 +167,10 @@ namespace Lorene {
     nb    = new double[nbp] ;
     ro    = new double[nbp] ;
     
+    Tbl press_tbl(nbp) ; press_tbl.set_etat_qcq() ;
+    Tbl nb_tbl(nbp)    ; nb_tbl.set_etat_qcq()    ;
+    Tbl ro_tbl(nbp)    ; ro_tbl.set_etat_qcq()    ;
+    
     logh = new Tbl(nbp) ;
     logp = new Tbl(nbp) ;
     dlpsdlh = new Tbl(nbp) ;
@@ -220,6 +229,10 @@ namespace Lorene {
       press[i] = p_cgs / c2_cgs ;
       nb[i]    = nb_fm3 ;
       ro[i]    = rho_cgs ;
+      
+      press_tbl.set(i) = press[i] ;
+      nb_tbl.set(i)    = nb[i] ;
+      ro_tbl.set(i)    = ro[i] ;
     }
     
     double ww = 0. ;
@@ -286,6 +299,20 @@ namespace Lorene {
       p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
     
     dlpsdlnb->set(nbp-1) = dpdnb ;
+    
+    Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
+    compute_derivative(ro_tbl,press_tbl,tmp) ;
+    c_sound2 = new Tbl(tmp) ;// c_s^2 = dp/de
+    // Smoothing tmp
+  // Tbl y(nbp) ; y.set_etat_qcq() ;
+  // y.set(0) = tmp(0) ;
+  // double RC = 1e-3 ; // Space constant, 1/2\piRC is cutoff space freq
+  // double dx = 1e-1    ;
+  // double alpha = dx/(RC+dx) ;
+  // for (int i=1 ; i<nbp ; i++){
+  //   y.set(i) = y(i-1) + alpha*(tmp(i)-y(i-1)) ;
+  // }
+  //   c_sound2 = new Tbl(y) ;// c_s^2 = dp/de
     
     hmin = pow( double(10), (*logh)(0) ) ;
     hmax = pow( double(10), (*logh)(nbp-1) ) ;

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.9  2017/12/15 15:36:38  j_novak
  * Improvement of the MEos class. Implementation of automatic offset computation accross different EoSs/domains.
  *
@@ -489,4 +492,19 @@ Scalar Eos::der_press_ent(const Scalar& ent, int nzet, int l_min, Param* par) co
     return resu ;
 
 }
+
+// Sound speed from enthalpy
+//---------------------------------
+
+Scalar Eos::csound_square_ent(const Scalar& ent, int nzet,
+				      int l_min, Param* par) const {
+    Scalar resu(ent.get_mp()) ;
+    
+    calcule(ent, nzet, l_min, &Eos::csound_square_ent_p, par, resu) ;
+    
+    return resu ;
+  }
+
 }
+
+

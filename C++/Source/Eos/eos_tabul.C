@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.20  2019/12/02 14:51:36  j_novak
  * Moved piecewise parabolic computation of dpdnb to a separate function.
  *
@@ -136,7 +139,10 @@ namespace Lorene {
   
   void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
   
+  void interpol_quad(const Tbl&, const Tbl&, double, int&, double&) ;
+  
   void compute_derivative(const Tbl&, const Tbl&, Tbl&) ;
+  
 
     
 			//----------------------------//
@@ -205,7 +211,7 @@ Eos_tabul::Eos_tabul(const char* name_i, const char* table,
 // ---------------------------------
   Eos_tabul::Eos_tabul(const char* name_i) : Eos(name_i), 
 					     logh(0x0), logp(0x0), dlpsdlh(0x0), 
-					     lognb(0x0), dlpsdlnb(0x0)
+					     lognb(0x0), dlpsdlnb(0x0), c_sound2(0x0)
 {}
 
 
@@ -219,6 +225,7 @@ Eos_tabul::~Eos_tabul(){
   if (dlpsdlh != 0x0) delete dlpsdlh ;
   if (lognb != 0x0) delete lognb ;
   if (dlpsdlnb != 0x0) delete dlpsdlnb ;
+  if (c_sound2 != 0x0) delete c_sound2 ;
 }
 
 			//------------//
@@ -279,6 +286,10 @@ void Eos_tabul::read_table() {
   nb    = new double[nbp] ;
   ro    = new double[nbp] ; 
   
+  Tbl press_tbl(nbp) ; press_tbl.set_etat_qcq() ;
+  Tbl nb_tbl(nbp)    ; nb_tbl.set_etat_qcq()    ;
+  Tbl ro_tbl(nbp)    ; ro_tbl.set_etat_qcq()    ;
+  
   logh = new Tbl(nbp) ;
   logp = new Tbl(nbp) ;
   dlpsdlh = new Tbl(nbp) ;
@@ -315,6 +326,10 @@ void Eos_tabul::read_table() {
     press[i] = p_cgs / c2_cgs ;
     nb[i]    = nb_fm3 ;
     ro[i]    = rho_cgs ; 
+    
+    press_tbl.set(i) = press[i] ;
+    nb_tbl.set(i) = nb[i] ;
+    ro_tbl.set(i) = ro[i] ;
   }
 
   double ww = 0. ;
@@ -360,6 +375,23 @@ void Eos_tabul::read_table() {
   hmin = pow( double(10), (*logh)(0) ) ;
   hmax = pow( double(10), (*logh)(nbp-1) ) ;
 	
+  Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
+  compute_derivative(ro_tbl,press_tbl,tmp) ;
+  c_sound2 = new Tbl(tmp) ;// c_s^2 = dp/de
+  // // Smoothing tmp
+  // Tbl y(nbp) ; y.set_etat_qcq() ;
+  // y.set(0) = tmp(0) ;
+  // double RC = 1e-1 ; // Space constant, 1/2\piRC is cutoff space freq
+  // double dx = (hmax-hmin)/nbp   ;
+  // double alpha = dx/(RC+dx) ;
+  // for (int i=1 ; i<5*nbp/8 ; i++){
+  //   y.set(i) = y(i-1) + alpha*(tmp(i)-y(i-1)) ;
+  // }
+  // for (int i = 5*nbp/8 ; i<nbp ; i++) {
+  //   y.set(i) = tmp(i) ;
+  // }
+  // c_sound2 = new Tbl(y) ;// c_s^2 = dp/de2
+  
   cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
 
   fich.close();
@@ -367,6 +399,7 @@ void Eos_tabul::read_table() {
   delete [] press ; 
   delete [] nb ; 
   delete [] ro ; 
+  
    	
 }
 
@@ -556,7 +589,27 @@ double Eos_tabul::der_press_nbar_p(double ent, const Param*) const {
 	 // return der_press_nbar_p(hmin) ; // to ensure continuity
 
     }
-
-          
 }
+
+double Eos_tabul::csound_square_ent_p(double ent, const Param*) const {
+      static int i_near = lognb->get_taille() / 2 ;
+
+      if ( ent > hmin ) {
+        if (ent > hmax) {
+    cout << "Eos_tabul::press_nbar_p : nbar > nbmax !" << endl ;
+    abort() ;
+        }
+        double logent0 = log10( ent ) ;
+        double csound0 ;
+        
+        
+        interpol_linear(*logh, *c_sound2, logent0, i_near, csound0) ;
+      
+        return csound0 ;
+      }
+      else
+        {
+    return (*c_sound2)(0) ; 
+        }
+	}
 }

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.4  2014/10/13 08:52:33  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -276,7 +279,21 @@ class Eos_mag : public Eos {
 	 *  @return dln(p)/dln(n)
 	 */
     	virtual double der_press_nbar_p(double ent, const Param* par=0x0) const ; 
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 

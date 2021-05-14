@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.23  2017/10/06 12:36:33  a_sourie
  * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
  *
@@ -137,6 +140,7 @@
 
 // Lorene classes
 #include "param.h"
+#include "utilitaires.h"
 namespace Lorene {
 class Tbl ;
 class Param ;
@@ -1829,7 +1833,21 @@ class Eos_bf_tabul : public Eos_bifluid {
 	 *  \c Et_rot_bifluid star and ought not to be used in other situations.
 	 */
 	virtual Eos* trans2Eos() const ;
-       
+    
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double , const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 

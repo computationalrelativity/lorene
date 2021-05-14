@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2021/05/14 15:39:23  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.14  2016/12/05 16:18:11  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -172,6 +175,35 @@ namespace Lorene {
     
   }
   
+  //------------------------
+  // Quadratic interpolation
+  //------------------------
+  void interpol_quad(const Tbl& xtab, const Tbl& ytab, 
+		       double x, int& i, double& y) {
+    
+    assert(ytab.dim == xtab.dim) ;
+    //assert(dytab.dim == xtab.dim) ;	
+    
+    huntm(xtab, x, i) ;
+    
+    int i1 = i - 1 ;
+    int i2 = i + 1 ;
+    
+    double y0=ytab(i1) ;
+    double y1=ytab(i)  ;
+    double y2=ytab(i2) ;
+    
+    double x0=xtab(i1) ;
+    double x1=xtab(i)  ;
+    double x2=xtab(i2) ;
+    double x01=x0-x1 ;
+    double x02=x0-x2 ;
+    double x12=x1-x2 ;
+    
+    y = y0*(x-x1)*(x-x2)/(x01*x02) - y1*(x-x0)*(x-x2)/(x01*x12) + y2*(x-x0)*(x-x1)/(x02*x12) ;
+    
+    }
+    
   //------------------------------------------------------------
   // Cubic Hermite interpolation, returning the first derivative
   //------------------------------------------------------------

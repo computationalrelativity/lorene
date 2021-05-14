@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.10  2016/12/05 16:17:51  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -484,6 +487,21 @@ double Eos_poly::der_press_ent_p(double ent, const Param* ) const {
     else{
 	return gam / gam1 ;	//  to ensure continuity at ent=0
     }
+}
+
+// Sound speed from enthalpy
+//---------------------------------
+double Eos_poly::csound_square_ent_p(double ent, const Param* ) const
+{
+double nbar ;
+nbar = nbar_ent_p(ent) ;
+if ( nbar > 0. )
+	{
+double ngam = pow(nbar, gam1) ;
+return kap*gam*ngam / ( gam*(kap/gam1)*ngam + mu_0 ) ;
+	}
+else
+	return 0. ;
 }
 
 }

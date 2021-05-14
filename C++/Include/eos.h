@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.24  2021/05/06 14:33:17  j_novak
  * New conversion function from Eos to Dyn_eos.
  *
@@ -173,6 +176,7 @@
 
 // Standard C++
 #include "headcpp.h"
+#include "utilitaires.h"
 
 // Headers C
 #include <cstdio>
@@ -237,6 +241,7 @@ class Eos {
     // -----------------
     public:
 	const char* get_name() const ;	///< Returns the EOS name
+	
 
 	/// Sets the EOS name
 	void set_name(const char* name_i) ; 
@@ -527,7 +532,7 @@ class Eos {
 	 */
    
     	Scalar press_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
-
+	
 	/** Computes the logarithmic derivative \f$d\ln n/d\ln H\f$
 	 *  from the log-enthalpy and extra parameters
 	 *  (virtual function implemented in the derived classes).
@@ -710,7 +715,39 @@ class Eos {
 	 */
  
   	Scalar der_press_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param par possible extra parameters of the EOS
+  	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double csound_square_ent_p(double ent, const Param* par=0x0) const = 0 ;
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthalpy with extra parameters
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 *
+	 */
+		Scalar csound_square_ent(const Scalar& ent, int nzet, int l_min = 0, Param* par=0x0) const ;
 };
 ostream& operator<<(ostream& , const Eos& ) ;	
 
@@ -1002,7 +1039,18 @@ class Eos_poly : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
-       
+		
+    /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param par possible extra parameters of the EOS
+  	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double csound_square_ent_p(double ent, const Param* par=0x0) const ;
 };
 
 		    //------------------------------------//
@@ -1195,7 +1243,21 @@ class Eos_poly_newt : public Eos_poly {
 	 *  @return dln(p)/dln(h)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
-       
+    
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 
@@ -1366,7 +1428,21 @@ class Eos_incomp : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 		    //------------------------------------//
@@ -1530,6 +1606,20 @@ class Eos_incomp_newt : public Eos_incomp {
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
        
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 
@@ -1765,7 +1855,21 @@ class Eos_strange : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 
@@ -2076,7 +2180,21 @@ class Eos_strange_cr : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 
@@ -2270,7 +2388,21 @@ class Eos_Fermi : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
-       
+    
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 
@@ -2444,7 +2576,21 @@ class MEos : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 }

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2021/05/14 15:39:22  g_servignat
+ * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
+ *
  * Revision 1.4  2014/10/13 08:52:33  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -204,7 +207,11 @@ class Eos_fitting : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
-
+	
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0 ;
+	} ;
 };
 
 
@@ -272,7 +279,11 @@ class Eos_fit_SLy4 : public Eos_fitting {
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
-
+	
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0 ;
+	} ;
 };
 
 
@@ -340,7 +351,11 @@ class Eos_fit_FPS : public Eos_fitting {
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
-
+	
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 
@@ -408,7 +423,21 @@ class Eos_fit_AkmalPR : public Eos_fitting {
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
-
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const {
+		c_est_pas_fait(__FILE__) ;
+		return 0;
+	} ;
 };
 
 }
