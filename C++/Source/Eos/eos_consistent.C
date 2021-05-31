@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2021/05/31 11:31:23  g_servignat
+ * Added csound_square_ent routine to calculate the sound speed from enthalpy to Eos_consistent and corrected error outputs
+ *
  * Revision 1.5  2019/03/28 13:41:02  j_novak
  * Improved managed of saved EoS (functions sauve and constructor form FILE*)
  *
@@ -65,7 +68,7 @@
 namespace Lorene {
   void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
 		   double&, double& ) ;
-
+  void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
 
 			//----------------------------//
 			//   	Constructors	      //
@@ -412,6 +415,29 @@ double Eos_consistent::press_ent_p(double ent, const Param* ) const {
     return 0 ;
   }
 }
+
+// Square of sound speed from enthalpy
+double Eos_consistent::csound_square_ent_p(double ent, const Param*) const {
+      static int i_near = lognb->get_taille() / 2 ;
+
+      if ( ent > hmin ) {
+        if (ent > hmax) {
+    cout << "Eos_consistent::csound_square_ent_p : ent>hmax !" << endl ;
+    abort() ;
+        }
+        double logent0 = log10( ent ) ;
+        double csound0 ;
+        
+        
+        interpol_linear(*logh, *c_sound2, logent0, i_near, csound0) ;
+      
+        return csound0 ;
+      }
+      else
+        {
+    return (*c_sound2)(0) ; 
+        }
+	}
 
 			//------------//
 			//  Outputs   //

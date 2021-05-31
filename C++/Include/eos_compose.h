@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2021/05/31 11:31:23  g_servignat
+ * Added csound_square_ent routine to calculate the sound speed from enthalpy to Eos_consistent and corrected error outputs
+ *
  * Revision 1.5  2021/05/14 15:39:22  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -362,10 +365,7 @@ XXX  <-- Number of lines
 	 *
 	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 */
-	virtual double csound_square_ent_p(double, const Param*) const {
-		c_est_pas_fait(__FILE__) ;
-		return 0;
-	} ;
+	virtual double csound_square_ent_p(double, const Param*) const ;
 };
 
 

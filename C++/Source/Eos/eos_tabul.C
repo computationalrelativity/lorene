@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2021/05/31 11:31:23  g_servignat
+ * Added csound_square_ent routine to calculate the sound speed from enthalpy to Eos_consistent and corrected error outputs
+ *
  * Revision 1.21  2021/05/14 15:39:22  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -596,7 +599,7 @@ double Eos_tabul::csound_square_ent_p(double ent, const Param*) const {
 
       if ( ent > hmin ) {
         if (ent > hmax) {
-    cout << "Eos_tabul::press_nbar_p : nbar > nbmax !" << endl ;
+    cout << "Eos_tabul::csound_square_ent_p : ent>hmax !" << endl ;
     abort() ;
         }
         double logent0 = log10( ent ) ;
