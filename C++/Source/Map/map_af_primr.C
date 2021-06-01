@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2021/06/01 14:20:51  j_novak
+ * Correction of the case without CED: added a test l<nzm1.
+ *
  * Revision 1.9  2017/02/22 17:11:33  j_novak
  * Addition of new Legendre basis.
  *
@@ -172,8 +175,9 @@ void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
         prim_domain[base_r](cfuu, buu_dom, val_rmin, cfprim, bprim.b[l],
             val_rmax) ; 
             
-        cfprim *= alpha[l] ; 
-        val_rmin = alpha[l] * val_rmax / alpha[l+1] ;  // for next domain
+        cfprim *= alpha[l] ;
+	if (l<nzm1)
+	  val_rmin = alpha[l] * val_rmax / alpha[l+1] ;  // for next domain
     }     
     
     // Special case of compactified external domain (CED)
