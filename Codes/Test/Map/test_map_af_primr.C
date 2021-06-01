@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2021/06/01 14:21:48  j_novak
+ * Updated the arguments of primr()
+ *
  * Revision 1.4  2016/12/05 16:18:28  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -137,10 +140,10 @@ int main(){
     uu_des.dec_dzpuis(2) ; 
     des_meridian(uu_des, 0., ray_des, "U", 10) ; 
     
-    Scalar prim = uu.primr() ; 
+    Scalar prim = uu.primr(false) ; 
     prim.spectral_display("Primitive") ;     // prints the spectral expansions
     
-    des_meridian(prim, 0., ray_des, "Primitive", 11) ; 
+    des_meridian(prim - prim_ana, 0., ray_des, "Primitive", 11) ; 
     
     maxabs(prim - prim_ana, "Absolute error prim - prim_ana") ; 
     
