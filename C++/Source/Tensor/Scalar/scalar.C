@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2021/06/25 12:27:26  j_novak
+ * Added namespace 'std' to the call of 'isnan' function.
+ *
  * Revision 1.41  2016/12/05 16:18:18  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -1031,7 +1034,7 @@ void Scalar::change_triad(const Base_vect& ) {
 	  for (int k=0; k<np; k++) {
 	    for (int j=0; j<nt; j++) {
 	      for (int i=0; i<nr; i++) {
-		if (isnan( (*va.c)(lz, k, j, i) ) ) {
+		if (std::isnan( (*va.c)(lz, k, j, i) ) ) {
 		  resu = true ;
 		  if (verb) {
 		    cout << "NaN found at physical grid point domain = " << lz
@@ -1049,7 +1052,7 @@ void Scalar::change_triad(const Base_vect& ) {
 	  for (int k=0; k<np; k++) {
 	    for (int j=0; j<nt; j++) {
 	      for (int i=0; i<nr; i++) {
-		if (isnan( (*va.c_cf)(lz, k, j, i) ) ) {
+		if (std::isnan( (*va.c_cf)(lz, k, j, i) ) ) {
 		  resu = true ;
 		  if (verb) {
 		    cout << "NaN found at coefficient, domain = " << lz
