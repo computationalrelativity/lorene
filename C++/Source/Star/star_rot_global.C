@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2021/10/06 09:41:28  j_novak
+ * Corrected quadrupole computation from Friedman & Stergioulas book
+ *
  * Revision 1.8  2017/04/13 09:59:34  m_bejger
  * Bug fix (contraction using physical gamma metric in surf_grav - vector a)
  *
@@ -525,6 +528,8 @@ double Star_rot::z_pole() const {
 
 			//----------------------------//
 			//     Quadrupole moment      //
+                        // Uses Eq.(11) of Pappas &   //
+                        // Apostolatos, PRL 108 2012  //
 			//----------------------------//
 
 double Star_rot::mom_quad() const {
@@ -582,10 +587,24 @@ double Star_rot::mom_quad() const {
 	// ----------------------------------
 	source = 0.5 * source - 1.5 * temp ; 
 	
-	// Final result
+	// First part
 	// ------------
 
-	p_mom_quad = new double( source.integrale() / qpig ) ; 	 
+	p_mom_quad = new double( -source.integrale() / qpig ) ;
+
+	// Correction terms from (3.37) of Friedman & Stergioulas' book 
+	if (relativistic) { 
+
+	  Scalar correct(mp) ;
+	  correct = a_car * bbb * nn * press ;
+	  correct.mult_rsint() ;
+	  correct.std_spectral_base() ; 
+
+	  double Bo = -32. * correct.integrale() / qpig ;
+
+	  *p_mom_quad -= 4./3. * (1./4. + Bo/(mass_g() * mass_g()))
+	    * pow(mass_g(), 3) * ggrav * ggrav ;
+	}
 
     }
     
