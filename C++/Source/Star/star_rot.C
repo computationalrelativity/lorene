@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2021/10/08 13:10:14  j_novak
+ * Corrected a bug in Star_rot::fait_shift) in the np=1 case
+ *
  * Revision 1.11  2017/04/11 10:46:55  m_bejger
  * Star_rot::surf_grav() - surface gravity values along the theta direction
  *
@@ -68,10 +71,6 @@
  *
  */
 
-
-// C headers
-#include <cmath>
-#include <cassert>
 
 // Lorene headers
 #include "star_rot.h"
@@ -220,7 +219,9 @@ Star_rot::Star_rot(Map& mpi, const Eos& eos_i, FILE* fich)
     // -----------------
 
     // relativistic is read in the file: 
-    fread(&relativistic, sizeof(bool), 1, fich) ;	//## to be checked !	
+    size_t nread = fread(&relativistic, sizeof(bool), 1, fich) ;
+    if (nread == 0)
+      cerr << "Star_rot::Star_rot(FILE*): Problem reading the data file." << endl ; 
 
     // Parameter 1/c^2 is deduced from relativistic:
     unsurc2 = relativistic ? double(1) : double(0) ; 
@@ -711,7 +712,7 @@ void Star_rot::display_poly(ostream& ost) const {
 void Star_rot::fait_shift() {
 
     Vector d_khi = khi_shift.derive_con( mp.flat_met_cart() ) ; 
-    
+
     d_khi.dec_dzpuis(2) ;   // divide by r^2 in the external compactified domain  
  
     // x_k dW^k/dx_i
@@ -746,7 +747,11 @@ void Star_rot::fait_shift() {
       Vector x_d_w = contract(xk, 0, d_w, 0) ;
       x_d_w.dec_dzpuis() ;
 
-      double lambda = double(1) / double(3) ; 
+      double lambda = double(1) / double(3) ;
+
+          if ( mp.get_mg()->get_np(0) == 1 ) {
+      lambda = 0 ; 
+	  }
 
       beta = - (lambda+2)/2./(lambda+1) * w_shift
 		+ (lambda/2./(lambda+1))  * (d_khi + x_d_w) ;      
