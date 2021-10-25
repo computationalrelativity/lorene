@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2021/10/25 14:30:27  j_novak
+ * The cancelling of the non reevaluated domains is not done if nezt = nz
+ *
  * Revision 1.5  2016/12/05 16:17:58  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -187,8 +190,8 @@ void Map_radial::reevaluate_symy(const Map* mp_prev0, int nzet, Cmp& uu) const {
 
     // In the remaining domains, uu is set to zero:
     // -------------------------------------------
-    
-    uu.annule(nzet, nz - 1) ; 
+    if (nzet < nz) 
+      uu.annule(nzet, nz - 1) ; 
     
     
 }
@@ -321,8 +324,8 @@ void Map_radial::reevaluate_symy(const Map* mp_prev0, int nzet, Scalar& uu) cons
 
     // In the remaining domains, uu is set to zero:
     // -------------------------------------------
-    
-    uu.annule(nzet, nz - 1) ; 
+    if (nzet < nz) 
+      uu.annule(nzet, nz - 1) ; 
     
     
 }
