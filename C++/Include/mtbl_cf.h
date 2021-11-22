@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2021/11/22 15:19:45  j_novak
+ * Addition of new method mult_xm1_shell(int) to multiply by (\xi -1) in a
+ * given shell.
+ *
  * Revision 1.10  2014/10/13 08:52:36  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -530,6 +534,13 @@ class Mtbl_cf {
 	 * \f${1 \over (\xi-1)}\f$ (\e r -sampling = \c UNSURR )
 	 */
 	void sxm1_zec() ;		    
+
+	/** Id (\e r  sampling = \c RARE, UNSURR ) \\
+	 * \f$(\xi-1) \, Id\f$ (\e r -sampling = \c FIN )
+	 * @param i [input] : the index of the domain where the computation
+	 *                    is done.
+	 */
+	void mult_xm1_shell(int i) ;	    
 
 	/** Id (\e r  sampling = \c RARE, FIN ) \\
 	 * \f$(\xi-1) \, Id\f$ (\e r -sampling = \c UNSURR )

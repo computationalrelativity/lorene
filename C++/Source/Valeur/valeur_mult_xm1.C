@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2021/11/22 15:19:45  j_novak
+ * Addition of new method mult_xm1_shell(int) to multiply by (\xi -1) in a
+ * given shell.
+ *
  * Revision 1.4  2016/12/05 16:18:21  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -76,7 +80,53 @@ void _mult_xm1_identite(Tbl*, int&) ;
 void _mult_xm1_cheb(Tbl*, int&) ;
 
 
-void Valeur::mult_xm1_zec() {
+void Valeur::mult_xm1_shell(int lz) {
+
+    // Peut-etre ne rien faire ?
+    if (etat==ETATZERO) {
+	return ; 
+    }
+
+    assert(etat==ETATQCQ) ; 
+
+    // Calcul des coef.
+    coef() ;
+    
+    // Division par (x-1) dans la ZEC 
+    c_cf->mult_xm1_shell(lz) ;
+    set_etat_cf_qcq() ;
+
+    base = c_cf->base ; // On remonte la base de sortie au niveau Valeur
+    
+}
+
+
+/*
+ * Fonction membre de la classe Mtbl_cf pour la multiplication par (x-1) 
+ * dans la zone externe compactifiee applique a this
+ *
+ */
+
+void Mtbl_cf::mult_xm1_shell(int lz)	   
+{
+
+  if (mg->get_type_r(lz) != FIN) {
+    cerr << "Mtbl_cf::mult_xm1_shell() : not called on a shell!" << endl ;
+    abort() ;
+  }
+  
+  // Peut-etre ne rien faire ?
+  if (etat==ETATZERO) {
+    return ; 
+  }
+
+  assert(etat==ETATQCQ) ; 
+
+  _mult_xm1_cheb(t[lz], base.b[lz]) ;
+    
+}
+
+  void Valeur::mult_xm1_zec() {
 
     // Peut-etre ne rien faire ?
     if (etat==ETATZERO) {
@@ -134,4 +184,6 @@ static int nap = 0 ;
     }
     
 }
+
+  
 }
