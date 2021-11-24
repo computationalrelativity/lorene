@@ -25,6 +25,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2021/11/24 13:12:17  g_servignat
+ * Addition of new method mult_xm1_shell(int) to multiply by (\xi +1) in a given shell.
+ *
  * Revision 1.4  2016/12/05 16:18:08  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -72,6 +75,10 @@
  
  // Fichier includes
 #include "tbl.h"
+#include "type_parite.h"
+
+// Prototypage
+#include "proto.h"
 
 
 		//-----------------------------------
@@ -92,6 +99,50 @@ void _mult_xp1_pas_prevu(Tbl * tb, int& base) {
 
 void _mult_xp1_identite(Tbl* , int& ) {
     return ;
+}
+
+            //---------------
+            //-- cas CHEB ---
+            //---------------
+
+void _mult_xp1_cheb(Tbl *tb, int& )
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    int ntnr = nt*nr ; 
+    
+    double* trav = new double[nr] ;
+    
+    int k, j, i ; 
+    for (k=0 ; k<np+1 ; k++) {
+	if (k==1) continue ;	// On ne traite pas le coefficient de sin(0*phi) 
+	for (j=0 ; j<nt ; j++) {
+	
+	    double* cf = tb->t + k*ntnr + j*nr ;
+	    
+	    mult_xp1_1d_cheb(nr, cf, trav) ;	// multiplication par (x+1)
+
+	    for (i=0; i<nr; i++) {
+		cf[i] = trav[i] ; 
+	    }
+	    
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+   delete [] trav ; 
+    
+    // base de developpement
+    // inchangee
 }
 
 			//---------------

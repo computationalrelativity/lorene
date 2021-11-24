@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2021/11/24 13:12:17  g_servignat
+ * Addition of new method mult_xm1_shell(int) to multiply by (\xi +1) in a given shell.
+ *
  * Revision 1.11  2021/11/22 15:19:45  j_novak
  * Addition of new method mult_xm1_shell(int) to multiply by (\xi -1) in a
  * given shell.
@@ -541,6 +544,13 @@ class Mtbl_cf {
 	 *                    is done.
 	 */
 	void mult_xm1_shell(int i) ;	    
+
+	/** Id (\e r  sampling = \c RARE, UNSURR ) \\
+	 * \f$(\xi+1) \, Id\f$ (\e r -sampling = \c FIN )
+	 * @param i [input] : the index of the domain where the computation
+	 *                    is done.
+	 */
+	void mult_xp1_shell(int i) ;	   
 
 	/** Id (\e r  sampling = \c RARE, FIN ) \\
 	 * \f$(\xi-1) \, Id\f$ (\e r -sampling = \c UNSURR )

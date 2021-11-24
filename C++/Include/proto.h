@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.52  2021/11/24 13:12:17  g_servignat
+ * Addition of new method mult_xm1_shell(int) to multiply by (\xi +1) in a given shell.
+ *
  * Revision 1.51  2014/10/13 08:52:36  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -719,6 +722,9 @@ void som_phi_cossin_asymy
 void sxm1_1d_cheb(int, double*) ;
 void mult_xm1_1d_cheb(int, const double*, double*) ;
 void mult2_xm1_1d_cheb(int, const double*, double*) ;
+
+// Multiplication par x+1
+void mult_xp1_1d_cheb(int, const double*, double*) ;
 
 // x * dsdx ...
 void _xdsdx_1d_pas_prevu (int, double*, double*) ;
