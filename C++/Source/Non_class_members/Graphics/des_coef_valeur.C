@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2022/02/10 16:56:57  j_novak
+ * Using C++ strings to avoid warnings
+ *
  * Revision 1.5  2016/12/05 16:18:06  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -108,50 +111,29 @@ void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero,
 	}
     }
 
-    const char* nomx = "i" ; 
+    const char* nomx = "i" ;
 
-    char title1[80] ;
-    char nomy1[80] ;
-    char bslash[2] = {92,  '\0'} ;  // 92 is the ASCII code for the backslash 
-				    // character
-    char nom_l[3] ; 
-    sprintf(nom_l, "%d", l) ; 
-    char nom_k[4] ; 
-    sprintf(nom_k, "%d", k) ; 
-    char nom_j[4] ; 
-    sprintf(nom_j, "%d", j) ; 
-
+    string title1 ;
     if (title == 0x0) {
-	strcpy(title1, bslash ) ; 
-	strcat(title1, "gc coef. for k=" ) ; 
-	strcat(title1, nom_k) ; 
-	strcat(title1, ", j=" ) ; 
-	strcat(title1, nom_j) ; 
-	strcat(title1, " (domain " ) ;
-	strcat(title1, nom_l) ; 
-	strcat(title1, ")" ) ;  
+      ostringstream str_tit1 ;
+      str_tit1 << "\\gc coef. for k=" << k << ", j=" << j << " (domain "
+	       << l << ")" ;// << endl ;
+      title1 = str_tit1.str() ;
+    }
+    else
+      title1 = title ;
+      
+    string nomy1 ;
+    if (nomy == 0x0) {
+      ostringstream str_nomy ;
+      str_nomy << "log| c\\d" << k << ',' << j << ",i\\u |" ;
+      nomy1 = str_nomy.str() ;
     }
     else{
-	strncpy(title1, title, 80) ; 
+      nomy1 = nomy ;
     }
 
-    if (nomy == 0x0) {
-	strcpy(nomy1, "log| c" ) ;
-	strcat(nomy1, bslash ) ; 
-	strcat(nomy1, "d" ) ;
-	strcat(nomy1, nom_k ) ;
-	strcat(nomy1, "," ) ;
-	strcat(nomy1, nom_j ) ;
-	strcat(nomy1, "," ) ;
-	strcat(nomy1, "i" ) ;
-	strcat(nomy1, bslash ) ; 
-	strcat(nomy1, "u |" ) ;	
-    }
-    else{
-	strncpy(nomy1, nomy, 80) ; 	
-    }
-    
-    des_coef(cf, nr, pzero, nomx, nomy1, title1, device, newgraph, 
+    des_coef(cf, nr, pzero, nomx, nomy1.c_str(), title1.c_str(), device, newgraph, 
 	     nxpage, nypage) ;    
     
     delete [] cf ; 
@@ -189,46 +171,27 @@ void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero,
 
     const char* nomx = "j" ; 
 
-    char title1[80] ;
-    char nomy1[80] ;
-    char bslash[2] = {92,  '\0'} ;  // 92 is the ASCII code for the backslash 
-				    // character
-    char nom_l[3] ; 
-    sprintf(nom_l, "%d", l) ; 
-    char nom_k[4] ; 
-    sprintf(nom_k, "%d", k) ; 
-    char nom_i[4] ; 
-    sprintf(nom_i, "%d", i) ; 
-
+    string title1 ;
     if (title == 0x0) {
-	strcpy(title1, bslash ) ; 
-	strcat(title1, "gh coef. for k=" ) ; 
-	strcat(title1, nom_k) ; 
-	strcat(title1, ", i=" ) ; 
-	strcat(title1, nom_i) ; 
-	strcat(title1, " (domain " ) ;
-	strcat(title1, nom_l) ; 
-	strcat(title1, ")" ) ;  
+      ostringstream str_tit1 ;
+      str_tit1 << "\\gh coef. for k=" << k << ", i=" << i << " (domain "
+	       << l << ")" ;// << endl ;
+      title1 = str_tit1.str() ;
+    }
+    else
+      title1 = title ;
+      
+    string nomy1 ;
+    if (nomy == 0x0) {
+      ostringstream str_nomy ;
+      str_nomy << "log| c\\d" << k << ",j," << i << "\\u |" ;
+      nomy1 = str_nomy.str() ;
     }
     else{
-	strncpy(title1, title, 80) ; 
+      nomy1 = nomy ;
     }
 
-    if (nomy == 0x0) {
-	strcpy(nomy1, "log| c" ) ;
-	strcat(nomy1, bslash ) ; 
-	strcat(nomy1, "d" ) ;
-	strcat(nomy1, nom_k ) ;
-	strcat(nomy1, ",j," ) ;
-	strcat(nomy1, nom_i ) ;
-	strcat(nomy1, bslash ) ; 
-	strcat(nomy1, "u |" ) ;	
-    }
-    else{
-	strncpy(nomy1, nomy, 80) ; 	
-    }
-    
-    des_coef(cf, nt, pzero, nomx, nomy1, title1, device, newgraph, 
+    des_coef(cf, nt, pzero, nomx, nomy1.c_str(), title1.c_str(), device, newgraph, 
 	     nxpage, nypage) ;    
     
     delete [] cf ; 
@@ -267,46 +230,27 @@ void des_coef_phi(const Valeur& uu, int l, int j, int i, double pzero,
 
     const char* nomx = "k" ; 
 
-    char title1[80] ;
-    char nomy1[80] ;
-    char bslash[2] = {92,  '\0'} ;  // 92 is the ASCII code for the backslash 
-				    // character
-    char nom_l[3] ; 
-    sprintf(nom_l, "%d", l) ; 
-    char nom_j[4] ; 
-    sprintf(nom_j, "%d", j) ; 
-    char nom_i[4] ; 
-    sprintf(nom_i, "%d", i) ; 
-
+    string title1 ;
     if (title == 0x0) {
-	strcpy(title1, bslash ) ; 
-	strcat(title1, "gf coef. for j=" ) ; 
-	strcat(title1, nom_j) ; 
-	strcat(title1, ", i=" ) ; 
-	strcat(title1, nom_i) ; 
-	strcat(title1, " (domain " ) ;
-	strcat(title1, nom_l) ; 
-	strcat(title1, ")" ) ;  
+      ostringstream str_tit1 ;
+      str_tit1 << "\\gf coef. for j=" << j << ", i=" << i << " (domain "
+	       << l << ")" ;// << endl ;
+      title1 = str_tit1.str() ;
+    }
+    else
+      title1 = title ;
+      
+    string nomy1 ;
+    if (nomy == 0x0) {
+      ostringstream str_nomy ;
+      str_nomy << "log| c\\dk," << j << ',' << i << "\\u |" ;
+      nomy1 = str_nomy.str() ;
     }
     else{
-	strncpy(title1, title, 80) ; 
+      nomy1 = nomy ;
     }
 
-    if (nomy == 0x0) {
-	strcpy(nomy1, "log| c" ) ;
-	strcat(nomy1, bslash ) ; 
-	strcat(nomy1, "dk," ) ;
-	strcat(nomy1, nom_j ) ;
-	strcat(nomy1, "," ) ;
-	strcat(nomy1, nom_i ) ;
-	strcat(nomy1, bslash ) ; 
-	strcat(nomy1, "u |" ) ;	
-    }
-    else{
-	strncpy(nomy1, nomy, 80) ; 	
-    }
-    
-    des_coef(cf, np, pzero, nomx, nomy1, title1, device, newgraph, 
+    des_coef(cf, np, pzero, nomx, nomy1.c_str(), title1.c_str(), device, newgraph, 
 	     nxpage, nypage) ;    
     
     delete [] cf ; 
