@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2022/02/10 16:33:53  j_novak
+ * New drawing functions with logscale in y : des_profile_log, des_meridian_log.
+ *
  * Revision 1.23  2014/10/13 08:52:34  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -236,11 +239,12 @@ template<typename TyT> class Evolution ;
  *      = 0, meaning that the domain boundaries are not drawn)
  *  @param xbound [input] array of size \c nbound containing the abscidia of 
  *          each domain boundary
+ *  @param logscale [input] draw the y values in logscale
  */
 void des_profile(const float* uutab, int nx, float xmin, float xmax, 
 		 const char* nomx, const char* nomy, const char* title, 
                  const char* device = 0x0, int nbound = 0, 
-                 float* xbound = 0x0) ;
+                 float* xbound = 0x0, bool logscale = false) ;
 
 /** Basic routine for drawing a single profile with arbitray x sampling.
  *  A profile is a function y=y(x). 
@@ -294,12 +298,13 @@ void des_profile(const float* uutab, int nx, const float *xtab,
  *      = 0, meaning that the domain boundaries are not drawn)
  *  @param xbound [input] array of size \c nbound containing the abscidia of 
  *          each domain boundary
+ *  @param logscale [input] draw the y values in logscale
  */
 void des_profile_mult(const float* uutab, int nprof, int nx, 
             float xmin, float xmax, const char* nomx, 
             const char* nomy, const char* title, const int* line_style, 
             int ngraph, bool closeit, const char* device = 0x0,
-            int nbound = 0, float* xbound = 0x0) ; 
+		      int nbound = 0, float* xbound = 0x0, bool logscale=false) ; 
 
 
 /** Basic routine for drawing multiple profiles with arbitrary x sampling.
@@ -845,7 +850,6 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
  */
- 
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
         const double* theta, const double* phi, double radial_scale = 1, 
         bool closeit = true,  const char* nomy  = 0x0, 
@@ -938,8 +942,111 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
                   const char* nomy, int ngraph, const char* device = 0x0,
                   bool closeit = false, bool draw_bound = true) ; 
 
+/** Draws the profile of a \c Scalar 's absolute value in log10 scale, along 
+ *  some radial axis determined by a fixed value of \f$(\theta, \phi)\f$, 
+ *  with x-axis labelled with Lorene's unit of length.
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param pzero [input] threshold value for taking the logarithm; all values
+ *      of the field lower than p_zero shall be set to pzero.
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ * 
+ */
+  void des_profile_log(const Scalar& uu, double r_min, double r_max, 
+		       double theta, double phi, double pzero = 1.e-16,
+		       const char* nomy = 0x0, const char* title = 0x0 ,
+		       bool draw_bound = true) ;
 
+/** Draws the profile of \c Scalar 's absolute value in log10 scale, along 
+ * some radial axis determined by a fixed value of \f$(\theta, \phi)\f$. 
+ *
+ *  @param uu [input] Array (size \c nprof ) containing the addresses 
+ *                    of the \c Scalar  to be drawn
+ *  @param nprof [input] Number of \c Scalar 's to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Array (size \c nprof ) of the values of \f$\theta\f$ 
+ *      defining the profile axis for each plot: the line no.\c i  represents
+ *      the scalar \c uu[i]  along the direction \c (theta[i],phi[i]) 
+ *  @param phi [input] Array (size \c nprof ) of the values of \f$\phi\f$ 
+ *      defining the profile axis for each plot: the line no.\c i  represents
+ *      the scalar \c uu[i]  along the direction \c (theta[i],phi[i]) 
+ *  @param pzero [input] threshold value for taking the logarithm; all values
+ *      of the field lower than p_zero shall be set to pzero.
+ *  @param radial_scale [input] factor by which the values of \c r  are to 
+ *      be multiplied to get the abscidia scale 
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened. 
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to "r")
+ *  @param line_style [input] Array (size \c nprof ) defining the line style
+ *      for each plot: the possible values are \c line_style[i] = 1  
+ * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
+ * (dash-dot-dot-dot). The default value = 0x0 corresponds to a cyclic sequence
+ * of the above styles. 
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.    
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ */
+  void des_prof_mult_log(const Scalar** uu, int nprof, double r_min, double r_max, 
+			 const double* theta, const double* phi,
+			 double pzero = 1.e-16, double radial_scale = 1, 
+			 bool closeit = true,  const char* nomy  = 0x0, 
+			 const char* title = 0x0, int ngraph = 0,
+			 const char* nomx  = 0x0,  const int* line_style = 0x0,
+			 const char* device = 0x0, bool draw_bound = true) ;
 
+/** Draws 5 profiles of the absolute value of a scalar field in log10 scale 
+ * along various radial directions.
+ * This is done in two meridional planes \f$\phi=0\f$ and \f$\phi=\pi/4\f$. 
+ * For \f$\phi=0\f$, 3 profiles are drawn, corresponding to 
+ * \f$\theta=0,\ \pi/4,\ \pi/2\f$,
+ * whereas for \f$\phi=\pi/4\f$, 2 profiles are drawn, corresponding to
+ * \f$\theta=0,\ \pi/4\f$.
+ *
+ *  @param uu [input] Scalar field to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened. 
+ *  @param pzero [input] threshold value for taking the logarithm; all values
+ *         of the field lower than p_zero shall be set to pzero.
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.  
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ */
+  void des_meridian_log(const Scalar& uu, double r_min, double r_max,
+			const char* nomy, int ngraph, double pzero = 1.e-16,
+			const char* device = 0x0,
+			bool closeit = false, bool draw_bound = true) ; 
+  
 /** Basic routine for drawing a stellar surface in a plane X=constant.
  * 
  *  X is the Cartesian coordinate relative to the absolute frame.  

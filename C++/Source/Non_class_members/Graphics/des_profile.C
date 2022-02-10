@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2022/02/10 16:33:53  j_novak
+ * New drawing functions with logscale in y : des_profile_log, des_meridian_log.
+ *
  * Revision 1.12  2016/12/05 16:18:06  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -94,7 +97,7 @@ namespace Lorene {
 void des_profile(const float* uutab, int nx, float xmin, float xmax, 
 		 const char* nomx, const char* nomy, 
                  const char* title, const char* device,
-                 int nbound, float* xbound) {
+                 int nbound, float* xbound, bool) {
 		 
     // Search for the extremal values of the field : 
     // -------------------------------------------
@@ -187,7 +190,7 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
             float xmin, float xmax, const char* nomx, const char* nomy, 
 	    const char* title, const int* line_style, 
             int ngraph, bool closeit, const char* device,
-            int nbound, float* xbound) {
+		      int nbound, float* xbound, bool) {
 
     const int ngraph_max = 100 ; 
     static int graph_list[ngraph_max] ; 
