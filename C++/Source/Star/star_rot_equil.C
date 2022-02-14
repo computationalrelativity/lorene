@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2022/02/14 10:50:24  j_novak
+ * Increased the number of digits in outputting files.
+ *
  * Revision 1.7  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -797,10 +800,10 @@ void Star_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 	//-----------------------
 
 	partial_display(cout) ; 
-	fichfreq << "  " << omega / (2*M_PI) * f_unit ; 
-	fichevol << "  " << rap_dent ; 
-	fichevol << "  " << ray_pole() / ray_eq() ; 
-	fichevol << "  " << ent_c ; 
+	fichfreq << "  " << setprecision(16) << omega / (2*M_PI) * f_unit ; 
+	fichevol << "  " << setprecision(16)  << rap_dent ; 
+	fichevol << "  " << setprecision(16)  << ray_pole() / ray_eq() ; 
+	fichevol << "  " << setprecision(16) << ent_c ; 
 
 	//-----------------------------------------
 	// Convergence towards a given baryon mass 
