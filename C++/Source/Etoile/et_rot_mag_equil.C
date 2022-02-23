@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2022/02/23 13:20:10  j_novak
+ * Outputing more digits in fichevol, fichconv, etc
+ *
  * Revision 1.22  2016/12/05 16:17:54  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -847,8 +850,8 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	//-----------------------
 
 	//	partial_display(cout) ; 
-	fichfreq << "  " << omega / (2*M_PI) * f_unit ; 
-	fichevol << "  " << rap_dent ; 
+	fichfreq << "  " << setprecision(16) << omega / (2*M_PI) * f_unit ; 
+	fichevol << "  " << setprecision(16) << rap_dent ; 
 	fichevol << "  " << ray_pole() / ray_eq() ; 
 	fichevol << "  " << ent_c ; 
 
@@ -897,7 +900,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	}
 	diff_ent /= nzet ; 
 	
-	fichconv << "  " << log10( fabs(diff_ent) + 1.e-16 ) ;
+	fichconv << "  " << setprecision(16) << log10( fabs(diff_ent) + 1.e-16 ) ;
 	fichconv << "  " << log10( fabs(err_grv2) + 1.e-16 ) ;
 
 	//------------------------------
@@ -911,9 +914,6 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	fichconv << endl ;
 	fichfreq << endl ;
 	fichevol << endl ;
-	fichconv.flush() ; 
-	fichfreq.flush() ; 
-	fichevol.flush() ; 
 
     } // End of main loop
     
