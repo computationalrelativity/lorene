@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2022/02/25 10:45:21  g_servignat
+ * Added 2D linear interpolation
+ *
  * Revision 1.15  2021/05/14 15:39:23  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -172,6 +175,43 @@ namespace Lorene {
     double b  = (x1*y2-y1*x2)/x12 ;
 	
     y  = x*a+b ; 
+    
+  }
+
+  //---------------------
+  // Linear interpolation 
+  //---------------------
+  void interpol_linear_2d(const Tbl& x1tab, const Tbl& x2tab, const Tbl& ytab, 
+		       double x1, double x2, int& i, int& j, double& y) {
+    
+    assert(ytab.dim.ndim == 2) ;
+    assert(x1tab.dim.ndim == 1) ;
+    assert(x2tab.dim.ndim == 1) ;
+    assert(ytab.dim.dim[0] == x2tab.dim.dim[0]) ;
+    assert(ytab.dim.dim[1] == x1tab.dim.dim[0]) ;
+    
+    huntm(x1tab, x1, i) ;
+    huntm(x2tab, x2, j) ;
+    
+    int i1 = i + 1 ;
+    int j1 = j + 1 ;
+    
+    // double dx  = xtab(i1) - xtab(i) ;
+    double y11  = ytab(j,i) ;
+    double y21  = ytab(j1,i) ;
+    double y12  = ytab(j,i1) ;
+    
+    double x11  = x1tab(i) ;
+    double x12  = x1tab(i1) ;
+    double x21  = x2tab(j) ;
+    double x22  = x2tab(j1) ;
+    double x1diff = x12-x11 ;
+    double x2diff = x22-x21 ;
+    
+    double a  = (y21-y11)/x2diff ;
+    double b  = (y12-y11)/x1diff ;
+	
+    y  = y11 + (x1-x11)*b + (x2-x21)*a ; 
     
   }
   
