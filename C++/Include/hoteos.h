@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2022/02/25 10:44:50  g_servignat
+ * Added Ye_eos_tabul derived class to Hot_eos class for tabulated 2D equations of state with H and Y_e as parameters
+ *
  * Revision 1.3  2015/12/08 10:52:17  j_novak
  * New class Hoteos_tabul for tabulated temperature-dependent EoSs.
  *
@@ -60,7 +63,7 @@ class Eos ;
 		    //------------------------------------//
 
   /**
-   * Base class for temperature-dependent equations of state (abstract class).
+   * Base class for 2-parameters equations of state (abstract class).
    * \ingroup(eos)
    * 
    */
@@ -196,14 +199,14 @@ class Eos ;
 		 double (Hot_eos::*fait)(double, double) const, Scalar& resu) const ;
 
   public:
-    /** Computes the baryon density from the log-enthalpy and entropy per baryon
+    /** Computes the baryon density from the log-enthalpy and electronic fraction
      *  (virtual function implemented in the derived classes).
      *
      *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
      *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} (to be modified) \right) \f$,
      *    where \e e  is the (total) energy density, \e p the pressure,
      *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
-     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *  @param sb [input,  unit: \f$k_B\f$] electronic fraction \f$s_b\f$
      *
      *  @return baryon density [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
      *
@@ -337,12 +340,45 @@ class Eos ;
      */
     Scalar temp_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const  ;
 
+    
+    /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double csound_square_Hs_p(double ent, const double ye) const = 0 ;
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 *
+	 */
+		Scalar csound_square_Hs(const Scalar& ent, const Scalar& Y_e, int nzet, int l_min = 0) const ;
   };
   ostream& operator<<(ostream& , const Hot_eos& ) ;	
 
-                    //------------------------------------//
-		    //		class Ideal_gas		  //
-		    //------------------------------------//
+        //------------------------------------//
+		    //	      	class Ideal_gas	     	   //
+		    //----------------------------------//
 
   /**
    * Ideal-gas (temperature-dependent) equation of state, with mass-term 
@@ -535,8 +571,8 @@ class Eos ;
 
 };
 
-                    //------------------------------------//
-		    //	      class Hoteos_tabul	  //
+        //------------------------------------//
+		    //	      class Hoteos_tabul	        //
 		    //------------------------------------//
 
   /**
@@ -718,6 +754,337 @@ class Eos ;
      *
      */
     virtual double temp_Hs_p(double ent, double sb) const ;
+
+};
+
+        //------------------------------------//
+		    //	      class Ye_eos_tabul	        //
+		    //------------------------------------//
+
+  /**
+   * Out of beta-equilibrium tabulated equation of state, read from a file. 
+   * 
+   *
+   *\ingroup (eos) 
+   *
+   */
+  class Ye_eos_tabul : public Hot_eos {
+    
+    // Data :
+    //-------
+    
+  protected:
+    /// Name of the file containing the tabulated data
+    string tablename ;
+    
+    string authors ; ///<Authors - reference for the table
+
+    /// Lower boundary of the enthalpy interval
+    double hmin ;
+    	
+    /// Upper boundary of the enthalpy interval
+    double hmax ;
+    
+    /// Lower boundary of the electronic fraction interval
+    double yemin ;
+    	
+    /// Upper boundary of the electronic fraction interval
+    double yemax ;
+    
+    /// Table of \f$H = \log ( e + P ) / n_B\f$
+    Tbl* hhh ;
+    
+    /// Table of \f$Y_e\f$, electronic fraction (dimensionless).
+    Tbl* Y_e ;
+
+    /// Table of \f$c_s^2\f$, sound speed squared (units of c^2).
+    Tbl* c_sound2 ;
+
+    /// Table of \f$\chi^2\f$, an adiabatic coefficient (units of c^2).
+    Tbl* chi2 ;
+
+    /// Table of \f$\mu_e\f$, the electronic chemical potential (MeV)
+    Tbl* mu_e ;
+    
+    /// Table of pressure $P$
+    Tbl* ppp ;
+    
+    /// Table of \f$\partial P/\partial H\f$
+    Tbl* dpdh ;
+    
+    /// Table of \f$\partial P/\partial Y_e\f$
+    Tbl* dpdye ;
+    
+    /// Table of \f$\partial^2 P/\partial Y_e \partial H\f$
+    Tbl* d2p ;
+    
+    // Constructors - Destructor
+    // -------------------------
+  public:
+    
+    /** Standard constructor from a filename.
+     */
+    Ye_eos_tabul(const string& filename) ;
+
+    Ye_eos_tabul(const Ye_eos_tabul& ) ;	///< Copy constructor
+	
+    protected:
+    /** Constructor from a binary file (created by the function
+     *  \c sauve(FILE*) ).
+     *  This constructor is protected because any hot EOS construction
+     *  from a binary file must be done via the function 
+     *  \c Hot_eos::eos_from_file(FILE*) .
+     */
+    Ye_eos_tabul(FILE* ) ;
+
+    /** Constructor from a formatted file.
+     *  This constructor is protected because any EOS construction
+     *  from a formatted file must be done via the function
+     *  \c Hot_eos::hoteos_from_file(ifstream&) . 
+     */
+    Ye_eos_tabul(ifstream& ) ;
+
+    /// The construction functions from a file
+    friend Hot_eos* Hot_eos::hoteos_from_file(FILE* ) ;
+    friend Hot_eos* Hot_eos::hoteos_from_file(ifstream& ) ; 
+
+  public:
+    virtual ~Ye_eos_tabul() ;			///< Destructor
+
+    /// Assignment to another \c Ye_eos_tabul 
+    void operator=(const Ye_eos_tabul& ) ;
+
+    // Miscellaneous
+    // -------------
+
+  protected: 	
+    /** Reads the file containing the table and initializes
+     *  in the arrays \c hhh , \c s_B, \c ppp, ...
+     */
+    void read_table() ;
+
+    /// Sets all the arrays to the null pointer.
+    void set_arrays_0x0() ;
+    
+  public :
+    /// Comparison operator (egality)
+    virtual bool operator==(const Hot_eos& ) const ;
+    
+    /// Comparison operator (difference)
+    virtual bool operator!=(const Hot_eos& ) const ;
+    
+    /** Returns a number to identify the sub-classe of \c Hot_eos the
+     *  object belongs to.
+     */
+    virtual int identify() const ; 
+    
+    virtual const Eos& new_cold_Eos() const ;
+
+    // Outputs
+    // -------
+
+  public:
+    virtual void sauve(FILE* ) const ;	///< Save in a file
+
+  protected:
+    virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+    // Computational functions
+    // -----------------------
+  protected:
+    /**  General computational method for \c Scalar 's
+     *
+     *  @param thermo1 [input] first thermodynamical quantity (for instance the
+     *	    enthalpy field) from which the thermodynamical quantity \c resu  
+     *      is to be computed.
+     *  @param thermo2 [input] second thermodynamical quantity (for instance the
+     *	    entropy field) from which the thermodynamical quantity \c resu  
+     *      is to be computed.
+     *  @param nzet  [input] number of domains where \c resu  is to be
+     *	    computed.
+     *  @param l_min [input] index of the innermost domain is which \c resu 
+     *	    is to be computed [default value: 0]; \c resu  is computed only in 
+     *      domains whose indices are in \c [l_min,l_min+nzet-1] . In the other
+     *	    domains, it is set to zero.
+     *  @param fait [input] pointer on the member function of class
+     *	    \c Hot_eos which performs the pointwise calculation.
+     *  @param resu [output] result of the computation.
+     */
+    void calcule(const Scalar& thermo1, const Scalar& thermo2, int nzet, int l_min,
+		 double (Hot_eos::*fait)(double, double) const, Scalar& resu) const ;
+  
+  public:
+    /** Computes the baryon density from the log-enthalpy and electronic fraction
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} (to be modified) \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+     *
+     *  @return baryon density [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+     *
+     */
+    virtual double nbar_Hs_p(double ent, double ye) const ;
+
+    /** Computes the baryon density field from the log-enthalpy field and
+     * entropy per baryon.
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *  @param nzet  number of domains where the baryon density is to be
+     *	  computed.
+     *  @param l_min  index of the innermost domain is which the baryon
+     *	density is
+     *	to be computed [default value: 0]; the baryon density is
+     *	computed only in domains whose indices are in
+     *      \c [l_min,l_min+nzet-1] . In the other
+     *	domains, it is set to zero.
+     *
+     *  @return baryon density [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+     *
+     */
+    Scalar nbar_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const  ;
+
+    /** Computes the total energy density from the log-enthalpy and electronic fraction
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+     *
+     *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     */
+    virtual double ener_Hs_p(double ent, double ye) const ;
+
+    /** Computes the total energy density from the log-enthalpy and entropy per baryon.
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *  @param nzet  number of domains where the energy density is to be
+     *	computed.
+     *  @param l_min  index of the innermost domain is which the energy
+     *	density is
+     *	to be computed [default value: 0]; the energy density is
+     *	computed only in domains whose indices are in
+     *      \c [l_min,l_min+nzet-1] . In the other
+     *	domains, it is set to zero.
+     *
+     *  @return energy density [unit: \f$\rho_{\rm nuc} c^2\f$], where
+     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     */
+    Scalar ener_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const ;
+ 
+    /** Computes the pressure from the log-enthalpy and electronic fraction
+     *  (virtual function implemented in the derived classes).
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+     *
+     *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
+     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     */
+    virtual double press_Hs_p(double ent, double ye) const ;
+
+    /** Computes the pressure from the log-enthalpy and entropy per baryon.
+     *
+     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    where \e e  is the (total) energy density, \e p the pressure,
+     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
+     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
+     *  @param nzet  number of domains where the pressure is to be
+     *	computed.
+     *  @param l_min  index of the innermost domain is which the pressure is
+     *	  to be computed [default value: 0]; the pressure is computed
+     *    only in domains whose indices are in \c [l_min,l_min+nzet-1] . 
+     *    In the other domains, it is set to zero.
+     *
+     *  @return pressure [unit: \f$\rho_{\rm nuc} c^2\f$], where
+     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     *
+     */
+    Scalar press_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const ;
+
+  /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double csound_square_Hs_p(double ent, const double ye) const ;
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 *
+	 */
+		Scalar csound_square_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
+  
+  /** Computes the chi^2 coefficient
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double chi2_Hs_p(double ent, const double ye) const ;
+	
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 *
+	 */
+		Scalar chi2_ent(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
 
 };
 
