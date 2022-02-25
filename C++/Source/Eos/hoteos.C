@@ -287,5 +287,40 @@ ostream& operator<<(ostream& ost, const Hot_eos& eqetat)  {
     return resu ;
     
   }
+
+  // Sound speed from enthalpy and electronic fraction
+  //---------------------------------
+
+  Scalar Ye_eos_tabul::csound_square_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
+                int l_min) const {
+      Scalar resu(ent.get_mp()) ;
+      
+      calcule(ent, Ye, nzet, l_min, &Hot_eos::csound_square_Hs_p, resu) ;
+      
+      return resu ;
+    }
   
+  // Chi^2 from enthalpy and electronic fraction
+  //--------------------------------------------
+
+  Scalar Ye_eos_tabul::chi2_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
+                int l_min) const {
+      Scalar resu(ent.get_mp()) ;
+      
+      calcule(ent, Ye, nzet, l_min, &Hot_eos::chi2_Hs_p, resu) ;
+      
+      return resu ;
+    }
+  
+  // Chemical potential from enthalpy and electronic fraction
+  //---------------------------------------------------------
+
+  Scalar Ye_eos_tabul::mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
+                int l_min) const {
+      Scalar resu(ent.get_mp()) ;
+      
+      calcule(ent, Ye, nzet, l_min, &Hot_eos::mue_Hs_p, resu) ;
+      
+      return resu ;
+    }
 }

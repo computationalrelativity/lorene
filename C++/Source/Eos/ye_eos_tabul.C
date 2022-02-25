@@ -34,7 +34,6 @@
 // Headers Lorene
 #include "hoteos.h"
 #include "eos.h"
-#include "template_class_ye.h"
 #include "utilitaires.h"
 #include "unites.h"
 
@@ -193,13 +192,13 @@ namespace Lorene {
     d2p->set_etat_qcq() ;
     
     double c2 = c_si * c_si ;
-    double dummy, nb_fm3, rho_cgs, p_cgs, ent, ye, mue, der2, cs2, chi2 ;	
+    double nb_fm3, rho_cgs, p_cgs, ent, ye, mue, der2, cs2, chi2_d ;	
     double ww = 0. ;
     int no;
 
     for (int j=0; j<nbp2; j++) {
       for (int i=0; i<nbp1; i++) {
-	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> chi2 >> mue >> der2 ;
+	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> chi2_d >> mue >> der2 ;
 
 	fich.ignore(1000,'\n') ;
 	if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
@@ -222,7 +221,7 @@ namespace Lorene {
 	hhh->set(j, i) = h_new ;
 	Y_e->set(j, i) = ye ;
   c_sound2->set(j, i) = cs2 ;
-  chi2->set(j, i) = chi2 ;
+  chi2->set(j, i) = chi2_d ;
   mu_e->set(j, i) = mue ;
 	dpdh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
 	dpdye->set(j, i) = -mue*nb_fm3*mevpfm3 ; 
@@ -323,17 +322,6 @@ double Ye_eos_tabul::nbar_Hs_p(double ent, double ye) const {
   }
 }
 
-// nbar from enthalpy and electronic fraction
-//---------------------------------
-
-Scalar Ye_eos_tabul::nbar_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
-				      int l_min) const {
-    Scalar resu(ent.get_mp()) ;
-    
-    calcule(ent, Ye, nzet, l_min, &Eos::nbar_Hs_p, resu) ;
-    
-    return resu ;
-  }
 
 // Energy density from enthalpy and electronic fraction
 //-----------------------------------------
@@ -373,55 +361,8 @@ double Ye_eos_tabul::ener_Hs_p(double ent, double ye) const {
   }
 }
 
-// energy density from enthalpy and electronic fractioon
-//---------------------------------
 
-Scalar Ye_eos_tabul::ener_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
-				      int l_min) const {
-    Scalar resu(ent.get_mp()) ;
-    
-    calcule(ent, Ye, nzet, l_min, &Eos::ener_Hs_p, resu) ;
-    
-    return resu ;
-  }
-
-// Pressure from enthalpy and electronic fraction
-//-----------------------------------
-
-double Ye_eos_tabul::press_Hs_p(double ent, double ye) const {
-
-  if ((ent > hmin - 1.e-12) && (ent < hmin))
-    ent = hmin ;
-
-  if (ye < yemin) ye = yemin ;
-
-  if ( ent >= hmin ) {
-    if (ent > hmax) {
-      cout << "Ye_eos_tabul::press_Hs_p : ent > hmax !" << endl ;
-      abort() ;
-    }
-
-    if (ye > yemax) {
-      cerr << "Ye_eos_tabul::press_Hs_p : Y_e not in the tabulated interval !" 
-	   << endl ;
-      cerr << "Y_e = " << ye << ", yemin = " << yemin << ", yemax = " << yemax 
-	   << endl ;
-      abort() ;
-    }
-
-    double p_int, dpdye_int, dpdh_int ;
-    interpol_herm_2d(*Y_e, *hhh, *ppp, *dpdye, *dpdh, *d2p, ye, ent, p_int,
-		     dpdye_int, dpdh_int) ;
-
-    return p_int ;
-    }
-    else{
-      return 0 ;
-    }
-}
-
-
-double Ye_eos_tabul::csound_square_Hs_p(double ent, const Param*) const {
+double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
       static int i_near = hhh->get_taille() / 2 ;
       static int j_near = Y_e->get_taille() / 2 ;
 
@@ -443,7 +384,7 @@ double Ye_eos_tabul::csound_square_Hs_p(double ent, const Param*) const {
         }
 	}
 
-double Ye_eos_tabul::chi2_Hs_p(double ent, const Param*) const {
+double Ye_eos_tabul::chi2_Hs_p(double ent, double ye) const {
       static int i_near = hhh->get_taille() / 2 ;
       static int j_near = Y_e->get_taille() / 2 ;
 
@@ -465,7 +406,7 @@ double Ye_eos_tabul::chi2_Hs_p(double ent, const Param*) const {
         }
 	}
 
-double Ye_eos_tabul::mue_Hs_p(double ent, const Param*) const {
+double Ye_eos_tabul::mue_Hs_p(double ent, double ye) const {
       static int i_near = hhh->get_taille() / 2 ;
       static int j_near = Y_e->get_taille() / 2 ;
 
@@ -486,41 +427,5 @@ double Ye_eos_tabul::mue_Hs_p(double ent, const Param*) const {
     return (*mu_e)(0) ; 
         }
 	}
-
-// Sound speed from enthalpy and electronic fraction
-//---------------------------------
-
-Scalar Ye_eos_tabul::csound_square_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
-				      int l_min) const {
-    Scalar resu(ent.get_mp()) ;
-    
-    calcule(ent, Ye, nzet, l_min, &Eos::csound_square_Hs_p, resu) ;
-    
-    return resu ;
-  }
-
-// Chi^2 from enthalpy and electronic fraction
-//--------------------------------------------
-
-Scalar Ye_eos_tabul::chi2_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
-				      int l_min) const {
-    Scalar resu(ent.get_mp()) ;
-    
-    calcule(ent, Ye, nzet, l_min, &Eos::chi2_Hs_p, resu) ;
-    
-    return resu ;
-  }
-
-// Chemical potential from enthalpy and electronic fraction
-//---------------------------------------------------------
-
-Scalar Ye_eos_tabul::mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
-				      int l_min) const {
-    Scalar resu(ent.get_mp()) ;
-    
-    calcule(ent, Ye, nzet, l_min, &Eos::mue_Hs_p, resu) ;
-    
-    return resu ;
-  }
 
 } //End of namespace Lorene

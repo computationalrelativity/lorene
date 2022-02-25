@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2022/02/25 11:59:43  g_servignat
+ * Compilation error corrections (correctly using class inheritance)
+ *
  * Revision 1.4  2022/02/25 10:44:50  g_servignat
  * Added Ye_eos_tabul derived class to Hot_eos class for tabulated 2D equations of state with H and Y_e as parameters
  *
@@ -351,7 +354,73 @@ class Eos ;
   	 *
 	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 */
-    	virtual double csound_square_Hs_p(double ent, const double ye) const = 0 ;
+    	virtual double csound_square_Hs_p(double ent, const double ye) const ;
+  
+  /** Computes the chi^2 coefficient
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double chi2_Hs_p(double ent, const double ye) const ;
+  
+  /** Computes the chi^2 coefficient
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
+	 *
+	 */
+		Scalar chi2_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
+  
+  /** Computes the electronic chemical potential
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 */
+    	virtual double mue_Hs_p(double ent, const double ye) const ;
+  
+  /** Computes the electronic chemical potential
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 *
+	 */
+		Scalar mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
 	
 	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
 	 *  from the enthalpy with ye
@@ -1061,11 +1130,11 @@ class Eos ;
 	 *         enthalpy 
          *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
   	 *
-	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
 	 */
     	virtual double chi2_Hs_p(double ent, const double ye) const ;
 	
-	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	/** Computes the chi^2 coefficient
 	 *  from the enthalpy with ye
 	 *
 	 *  @param ent [input, unit: \e c^2]
@@ -1081,10 +1150,43 @@ class Eos ;
 	 *	domains, it is set to zero.
          *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
 	 *
-	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
 	 *
 	 */
-		Scalar chi2_ent(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
+		Scalar chi2_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
+
+  /** Computes the electronic chemical potential
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 */
+    	virtual double mue_Hs_p(double ent, const double ye) const ;
+	
+	/** Computes the electronic chemical potential
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 *
+	 */
+		Scalar mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
 
 };
 
