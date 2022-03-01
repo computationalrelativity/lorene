@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2022/03/01 10:03:06  g_servignat
+ * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
+ *
  * Revision 1.3  2016/12/05 16:17:52  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -61,6 +64,8 @@ namespace Lorene {
   int Ideal_gas::identify() const		{ return 1; }
   
   int Hoteos_tabul::identify() const	        { return 2; }
+  
+  int Ye_eos_tabul::identify() const {return 3;}
 
 
 		//-------------------------------------------------//

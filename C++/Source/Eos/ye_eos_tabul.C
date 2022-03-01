@@ -42,6 +42,8 @@ namespace Lorene {
   void interpol_herm_2d(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, 
 			const Tbl&, double, double, double&, double&, double&) ;
   void interpol_linear_2d(const Tbl&, const Tbl&, const Tbl&, double, double, int&, int&, double&) ;
+  void huntm(const Tbl& xx, double& x, int& i_low) ;
+  Tbl extract_entha(const Tbl&, const Tbl&, double) ;
 
 
 			//----------------------------//
@@ -49,9 +51,9 @@ namespace Lorene {
 			//----------------------------//
 
   // Standard constructor
-  // --------------------	
+  // --------------------	 
   Ye_eos_tabul::Ye_eos_tabul(const string& filename): 
-    Hot_eos("Tabulated hot EoS"), tablename(filename), authors("Unknown"), 
+    Hot_eos("Tabulated Y_e EoS"), tablename(filename), authors("Unknown"), 
     hmin(0.), hmax(1.), yemin(0.), yemax(1.)
   {
     set_arrays_0x0() ;
@@ -215,7 +217,7 @@ namespace Lorene {
 	
 	double h_read = ent ;
 	if ( (i==0) && (j==0) ) ww = h_read ;
-	double h_new = h_read - ww ;
+	double h_new = h_read - ww + 1e-14;
 	
 	ppp->set(j, i) = psc2/rhonuc_si ; 
 	hhh->set(j, i) = h_new ;
@@ -256,6 +258,8 @@ namespace Lorene {
     
     return *p_cold_eos ;
   }
+  
+  
 
 
 
@@ -311,6 +315,7 @@ double Ye_eos_tabul::nbar_Hs_p(double ent, double ye) const {
     }
 
     double p_int, dpdye_int, dpdh_int ;
+
     interpol_herm_2d(*Y_e, *hhh, *ppp, *dpdye, *dpdh, *d2p, ye, ent, p_int,
 		     dpdye_int, dpdh_int) ;
 
@@ -361,6 +366,37 @@ double Ye_eos_tabul::ener_Hs_p(double ent, double ye) const {
   }
 }
 
+double Ye_eos_tabul::press_Hs_p(double ent, double ye) const {
+
+  if ((ent > hmin - 1.e-12) && (ent < hmin))
+    ent = hmin ;
+
+  if (ye < yemin) ye = yemin ;
+
+  if ( ent >= hmin ) {
+    if (ent > hmax) {
+      cout << "Ye_eos_tabul::ener_Hs_p : ent > hmax !" << endl ;
+      abort() ;
+    }
+
+    if (ye > yemax) {
+      cerr << "Ye_eos_tabul::ener_Hs_p : Y_e not in the tabulated interval !" 
+	   << endl ;
+      cerr << "Y_e = " << ye << ", yemin = " << yemin << ", yemax = " << yemax 
+	   << endl ;
+      abort() ;
+    }
+
+    double p_int, dpdye_int, dpdh_int ;
+    interpol_herm_2d(*Y_e, *hhh, *ppp, *dpdye, *dpdh, *d2p, ye, ent, p_int,
+		     dpdye_int, dpdh_int) ;
+
+    return p_int ;
+  }
+  else{
+    return 0 ;
+  }
+}
 
 double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
       static int i_near = hhh->get_taille() / 2 ;
@@ -373,14 +409,20 @@ double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
         }
         double csound0 ;
         
+        Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+        for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+          ye_1D.set(i) = (*Y_e)(i,0) ;
+        }
+        Tbl enthalpy = extract_entha(*hhh,ye_1D,ye) ;
+            
         
-        interpol_linear_2d(*hhh, *Y_e, *c_sound2, ent, ye, i_near, j_near, csound0) ;
+        interpol_linear_2d(enthalpy, ye_1D, *c_sound2, ent, ye, i_near, j_near, csound0) ;
       
         return csound0 ;
       }
       else
         {
-    return (*c_sound2)(0) ; 
+    return (*c_sound2)(0,0) ; 
         }
 	}
 
@@ -394,15 +436,20 @@ double Ye_eos_tabul::chi2_Hs_p(double ent, double ye) const {
     abort() ;
         }
         double chi20 ;
+        Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+        for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+          ye_1D.set(i) = (*Y_e)(i,0) ;
+        }
+        Tbl enthalpy = extract_entha(*hhh,ye_1D,ye) ;
         
         
-        interpol_linear_2d(*hhh, *Y_e, *chi2, ent, ye, i_near, j_near, chi20) ;
+        interpol_linear_2d(enthalpy, ye_1D, *chi2, ent, ye, i_near, j_near, chi20) ;
       
         return chi20 ;
       }
       else
         {
-    return (*chi2)(0) ; 
+    return (*chi2)(0,0) ; 
         }
 	}
 
@@ -416,16 +463,30 @@ double Ye_eos_tabul::mue_Hs_p(double ent, double ye) const {
     abort() ;
         }
         double mue0 ;
+        Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+        for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+          ye_1D.set(i) = (*Y_e)(i,0) ;
+        }
+        Tbl enthalpy = extract_entha(*hhh,ye_1D,ye) ;
         
-        
-        interpol_linear_2d(*hhh, *Y_e, *mu_e, ent, ye, i_near, j_near, mue0) ;
+        interpol_linear_2d(enthalpy, ye_1D, *mu_e, ent, ye, i_near, j_near, mue0) ;
       
         return mue0 ;
       }
       else
         {
-    return (*mu_e)(0) ; 
+    return (*mu_e)(0,0) ; 
         }
 	}
-
+  
+  double Ye_eos_tabul::temp_Hs_p(double ent, double sb) const {
+    
+    cerr << "Warning : (H,Y_e) EoS does not use T as a parameter ; Ye_eos_tabul::temps_Hs_p :function not implemented." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
 } //End of namespace Lorene
+
+

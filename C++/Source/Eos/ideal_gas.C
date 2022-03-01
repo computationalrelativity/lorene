@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2022/03/01 10:03:07  g_servignat
+ * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
+ *
  * Revision 1.4  2016/12/05 16:17:52  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -305,6 +308,30 @@ namespace Lorene {
       //else {
       //return 0 ;
       //}
+  }
+  
+  double Ideal_gas::csound_square_Hs_p(double ent, double sb) const  {
+    cerr << "Ideal_gas::csound_square_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+  
+  double Ideal_gas::chi2_Hs_p(double ent, double sb) const  {
+    cerr << "Ideal_gas::chi2_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+  
+  double Ideal_gas::mue_Hs_p(double ent, double sb) const  {
+    cerr << "Ideal_gas::mue_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
   }
 
 }

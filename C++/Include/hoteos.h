@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2022/03/01 10:03:07  g_servignat
+ * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
+ *
  * Revision 1.5  2022/02/25 11:59:43  g_servignat
  * Compilation error corrections (correctly using class inheritance)
  *
@@ -176,6 +179,7 @@ class Eos ;
     /// Returns the corresponding cold \c Eos.
     virtual const Eos& new_cold_Eos() const = 0 ; 
 
+    // virtual const string fetch_
 
     // Computational functions
     // -----------------------
@@ -354,7 +358,7 @@ class Eos ;
   	 *
 	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 */
-    	virtual double csound_square_Hs_p(double ent, const double ye) const ;
+    	virtual double csound_square_Hs_p(double ent, const double ye) const = 0;
   
   /** Computes the chi^2 coefficient
 	 *  from the enthapy with electronic fraction
@@ -366,7 +370,7 @@ class Eos ;
   	 *
 	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
 	 */
-    	virtual double chi2_Hs_p(double ent, const double ye) const ;
+    	virtual double chi2_Hs_p(double ent, const double ye) const = 0;
   
   /** Computes the chi^2 coefficient
 	 *  from the enthalpy with ye
@@ -399,7 +403,7 @@ class Eos ;
   	 *
 	 *  @return \f$\mu_e \f$ [unit: \e m_n]
 	 */
-    	virtual double mue_Hs_p(double ent, const double ye) const ;
+    	virtual double mue_Hs_p(double ent, const double ye) const = 0;
   
   /** Computes the electronic chemical potential
 	 *  from the enthalpy with ye
@@ -637,6 +641,42 @@ class Eos ;
      *
      */
     virtual double temp_Hs_p(double ent, double sb) const ;
+    
+    /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+   *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+   *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double csound_square_Hs_p(double ent, const double ye) const ;
+      
+  /** Computes the chi^2 coefficient
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double chi2_Hs_p(double ent, const double ye) const ;
+      
+  /** Computes the electronic chemical potential
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 */
+    	virtual double mue_Hs_p(double ent, const double ye) const ;
 
 };
 
@@ -823,6 +863,42 @@ class Eos ;
      *
      */
     virtual double temp_Hs_p(double ent, double sb) const ;
+    
+    /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double csound_square_Hs_p(double ent, const double ye) const ;
+      
+  /** Computes the chi^2 coefficient
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
+	 */
+    	virtual double chi2_Hs_p(double ent, const double ye) const ;
+      
+  /** Computes the electronic chemical potential
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+  	 *
+	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 */
+    	virtual double mue_Hs_p(double ent, const double ye) const ;
 
 };
 
@@ -919,6 +995,8 @@ class Eos ;
 
   public:
     virtual ~Ye_eos_tabul() ;			///< Destructor
+    
+    const string get_tablename() const { return tablename ;} ;
 
     /// Assignment to another \c Ye_eos_tabul 
     void operator=(const Ye_eos_tabul& ) ;
@@ -962,26 +1040,6 @@ class Eos ;
     // Computational functions
     // -----------------------
   protected:
-    /**  General computational method for \c Scalar 's
-     *
-     *  @param thermo1 [input] first thermodynamical quantity (for instance the
-     *	    enthalpy field) from which the thermodynamical quantity \c resu  
-     *      is to be computed.
-     *  @param thermo2 [input] second thermodynamical quantity (for instance the
-     *	    entropy field) from which the thermodynamical quantity \c resu  
-     *      is to be computed.
-     *  @param nzet  [input] number of domains where \c resu  is to be
-     *	    computed.
-     *  @param l_min [input] index of the innermost domain is which \c resu 
-     *	    is to be computed [default value: 0]; \c resu  is computed only in 
-     *      domains whose indices are in \c [l_min,l_min+nzet-1] . In the other
-     *	    domains, it is set to zero.
-     *  @param fait [input] pointer on the member function of class
-     *	    \c Hot_eos which performs the pointwise calculation.
-     *  @param resu [output] result of the computation.
-     */
-    void calcule(const Scalar& thermo1, const Scalar& thermo2, int nzet, int l_min,
-		 double (Hot_eos::*fait)(double, double) const, Scalar& resu) const ;
   
   public:
     /** Computes the baryon density from the log-enthalpy and electronic fraction
@@ -998,27 +1056,7 @@ class Eos ;
      */
     virtual double nbar_Hs_p(double ent, double ye) const ;
 
-    /** Computes the baryon density field from the log-enthalpy field and
-     * entropy per baryon.
-     *
-     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
-     *    where \e e  is the (total) energy density, \e p the pressure,
-     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
-     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
-     *  @param nzet  number of domains where the baryon density is to be
-     *	  computed.
-     *  @param l_min  index of the innermost domain is which the baryon
-     *	density is
-     *	to be computed [default value: 0]; the baryon density is
-     *	computed only in domains whose indices are in
-     *      \c [l_min,l_min+nzet-1] . In the other
-     *	domains, it is set to zero.
-     *
-     *  @return baryon density [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
-     *
-     */
-    Scalar nbar_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const  ;
+
 
     /** Computes the total energy density from the log-enthalpy and electronic fraction
      *  (virtual function implemented in the derived classes).
@@ -1033,27 +1071,6 @@ class Eos ;
      *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
      */
     virtual double ener_Hs_p(double ent, double ye) const ;
-
-    /** Computes the total energy density from the log-enthalpy and entropy per baryon.
-     *
-     *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
-     *    where \e e  is the (total) energy density, \e p the pressure,
-     *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
-     *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
-     *  @param nzet  number of domains where the energy density is to be
-     *	computed.
-     *  @param l_min  index of the innermost domain is which the energy
-     *	density is
-     *	to be computed [default value: 0]; the energy density is
-     *	computed only in domains whose indices are in
-     *      \c [l_min,l_min+nzet-1] . In the other
-     *	domains, it is set to zero.
-     *
-     *  @return energy density [unit: \f$\rho_{\rm nuc} c^2\f$], where
-     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
-     */
-    Scalar ener_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const ;
  
     /** Computes the pressure from the log-enthalpy and electronic fraction
      *  (virtual function implemented in the derived classes).
@@ -1067,27 +1084,22 @@ class Eos ;
      *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
      *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
      */
-    virtual double press_Hs_p(double ent, double ye) const ;
-
-    /** Computes the pressure from the log-enthalpy and entropy per baryon.
+    virtual double press_Hs_p(double ent, double ye) const ; 
+    
+    /** Computes the temperature from the log-enthalpy and entropy per baryon
+     *  (virtual function implemented in the derived classes).
      *
      *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  defined by
-     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) \f$,
+     *    \f$H = c^2 \ln\left( {e+p \over m_B c^2 n} (to be modified) \right) \f$,
      *    where \e e  is the (total) energy density, \e p the pressure,
      *    \e n  the baryon density, and \f$m_B\f$ the baryon mass
      *  @param sb [input,  unit: \f$k_B\f$] entropy per baryon \f$s_b\f$
-     *  @param nzet  number of domains where the pressure is to be
-     *	computed.
-     *  @param l_min  index of the innermost domain is which the pressure is
-     *	  to be computed [default value: 0]; the pressure is computed
-     *    only in domains whose indices are in \c [l_min,l_min+nzet-1] . 
-     *    In the other domains, it is set to zero.
      *
-     *  @return pressure [unit: \f$\rho_{\rm nuc} c^2\f$], where
-     *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+     *  @return temperature [unit: MeV]
      *
      */
-    Scalar press_Hs(const Scalar& ent, const Scalar& sb, int nzet, int l_min = 0) const ;
+    virtual double temp_Hs_p(double ent, double sb) const ;
+
 
   /** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
 	 *  from the enthapy with electronic fraction
@@ -1101,26 +1113,6 @@ class Eos ;
 	 */
     	virtual double csound_square_Hs_p(double ent, const double ye) const ;
 	
-	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
-	 *  from the enthalpy with ye
-	 *
-	 *  @param ent [input, unit: \e c^2]
-	 *         enthalpy 
-	 *  @param nzet  number of domains where the derivative
-	 *	dln(e)/dln(H) is to be computed.
-	 *  @param l_min  index of the innermost domain is which the
-	 *	   coefficient dln(n)/dln(H) is
-	 *	to be computed [default value: 0]; the derivative
-	 *	dln(e)/dln(H) is
-	 *	computed only in domains whose indices are in
-	 *      \c [l_min,l_min+nzet-1] . In the other
-	 *	domains, it is set to zero.
-         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
-	 *
-	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
-	 *
-	 */
-		Scalar csound_square_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
   
   /** Computes the chi^2 coefficient
 	 *  from the enthapy with electronic fraction
@@ -1134,26 +1126,6 @@ class Eos ;
 	 */
     	virtual double chi2_Hs_p(double ent, const double ye) const ;
 	
-	/** Computes the chi^2 coefficient
-	 *  from the enthalpy with ye
-	 *
-	 *  @param ent [input, unit: \e c^2]
-	 *         enthalpy 
-	 *  @param nzet  number of domains where the derivative
-	 *	dln(e)/dln(H) is to be computed.
-	 *  @param l_min  index of the innermost domain is which the
-	 *	   coefficient dln(n)/dln(H) is
-	 *	to be computed [default value: 0]; the derivative
-	 *	dln(e)/dln(H) is
-	 *	computed only in domains whose indices are in
-	 *      \c [l_min,l_min+nzet-1] . In the other
-	 *	domains, it is set to zero.
-         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
-	 *
-	 *  @return \f$\chi^2 \f$ [unit: \e c^2]
-	 *
-	 */
-		Scalar chi2_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
 
   /** Computes the electronic chemical potential
 	 *  from the enthapy with electronic fraction
@@ -1166,27 +1138,6 @@ class Eos ;
 	 *  @return \f$\mu_e \f$ [unit: \e m_n]
 	 */
     	virtual double mue_Hs_p(double ent, const double ye) const ;
-	
-	/** Computes the electronic chemical potential
-	 *  from the enthalpy with ye
-	 *
-	 *  @param ent [input, unit: \e c^2]
-	 *         enthalpy 
-	 *  @param nzet  number of domains where the derivative
-	 *	dln(e)/dln(H) is to be computed.
-	 *  @param l_min  index of the innermost domain is which the
-	 *	   coefficient dln(n)/dln(H) is
-	 *	to be computed [default value: 0]; the derivative
-	 *	dln(e)/dln(H) is
-	 *	computed only in domains whose indices are in
-	 *      \c [l_min,l_min+nzet-1] . In the other
-	 *	domains, it is set to zero.
-         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
-	 *
-	 *  @return \f$\mu_e \f$ [unit: \e m_n]
-	 *
-	 */
-		Scalar mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
 
 };
 

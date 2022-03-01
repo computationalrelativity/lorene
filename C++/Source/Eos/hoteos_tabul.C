@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2022/03/01 10:03:06  g_servignat
+ * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
+ *
  * Revision 1.4  2017/06/06 15:36:42  j_novak
  * Reads a number as first column of tabulated EoS
  *
@@ -444,5 +447,30 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
       return 0 ;
     }
   }
+  
+  double Hoteos_tabul::csound_square_Hs_p(double ent, double sb) const  {
+    cerr << "Hoteos_tabul::csound_square_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+  
+  double Hoteos_tabul::chi2_Hs_p(double ent, double sb) const  {
+    cerr << "Hoteos_tabul::chi2_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+  
+  double Hoteos_tabul::mue_Hs_p(double ent, double sb) const  {
+    cerr << "Hoteos_tabul::mue__Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+  
 
 } //End of namespace Lorene
