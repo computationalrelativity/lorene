@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2022/03/01 10:03:38  g_servignat
+ * Added subtbl extraction for interpol_linear_2D purposes
+ *
  * Revision 1.16  2022/02/25 10:45:21  g_servignat
  * Added 2D linear interpolation
  *
@@ -187,8 +190,8 @@ namespace Lorene {
     assert(ytab.dim.ndim == 2) ;
     assert(x1tab.dim.ndim == 1) ;
     assert(x2tab.dim.ndim == 1) ;
-    assert(ytab.dim.dim[0] == x2tab.dim.dim[0]) ;
-    assert(ytab.dim.dim[1] == x1tab.dim.dim[0]) ;
+    assert(ytab.dim.dim[1] == x2tab.dim.dim[0]) ;
+    assert(ytab.dim.dim[0] == x1tab.dim.dim[0]) ;
     
     huntm(x1tab, x1, i) ;
     huntm(x2tab, x2, j) ;
@@ -556,7 +559,7 @@ namespace Lorene {
   //--------------------------------------------------------------------
   void interpol_herm_2nd_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 			     const Tbl& d2ytab, double x, int& i, double& y, 
-			     double& dy) {
+			     double& dy, double& d2y) {
     
     assert(ytab.dim == xtab.dim) ;
     assert(dytab.dim == xtab.dim) ;	
@@ -593,7 +596,29 @@ namespace Lorene {
       + dytab(i1) * ( -15.*v4 + 32.*v3 - 18.*v2 + 1. ) 
       + d2ytab(i) * dx * ( -2.5*u4 + 6.*u3 -4.5*u2 + u ) 
       - d2ytab(i1) * dx * ( -2.5*v4 + 6.*v3 -4.5*v2 + v ) ;    
+    
+    d2y = 60.*(ytab(i)/(dx*dx) * (-2.*u3 + 3*u2 - u)
+              +ytab(i1)/(dx*dx) *(-2.*v3 + 3*v2 - v))
+      + 12.*dytab(i)/dx  *(-5.*u3 + 8.*u2 - 3.*u)
+      - 12.*dytab(i1)/dx *(-5.*v3 + 8.*v2 - 3.*v)
+      +    d2ytab(i)  *(-10.*u3 + 18.*u2 - 9.*u + 1.)
+      +    d2ytab(i1) *(-10.*v3 + 18.*v2 - 9.*v + 1.) ;
   }
-
+  
+  
+  ///------------------------------------------------------------
+  /// Extraction of column of a Tbl 
+  ///------------------------------------------------------------
+  Tbl extract_entha(const Tbl& entha, const Tbl& Y_e, double ye){
+    int i_low = Y_e.get_taille()/2;
+    huntm(Y_e,ye,i_low) ;
+    int n_h = entha.get_dim(0) ;
+    Tbl resu(n_h) ; resu.set_etat_qcq() ;
+    for (int i=0 ; i<n_h ; i++){
+      resu.set(i) = entha(i_low,i) ;
+    }
+    return resu;
+  }
+  
 } // End of namespace Lorene
 
