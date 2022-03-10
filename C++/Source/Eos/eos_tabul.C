@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2022/03/10 16:38:39  j_novak
+ * log(cs^2) is tabulated instead of cs^2.
+ *
  * Revision 1.22  2021/05/31 11:31:23  g_servignat
  * Added csound_square_ent routine to calculate the sound speed from enthalpy to Eos_consistent and corrected error outputs
  *
@@ -214,7 +217,7 @@ Eos_tabul::Eos_tabul(const char* name_i, const char* table,
 // ---------------------------------
   Eos_tabul::Eos_tabul(const char* name_i) : Eos(name_i), 
 					     logh(0x0), logp(0x0), dlpsdlh(0x0), 
-					     lognb(0x0), dlpsdlnb(0x0), c_sound2(0x0)
+					     lognb(0x0), dlpsdlnb(0x0), log_cs2(0x0)
 {}
 
 
@@ -228,7 +231,7 @@ Eos_tabul::~Eos_tabul(){
   if (dlpsdlh != 0x0) delete dlpsdlh ;
   if (lognb != 0x0) delete lognb ;
   if (dlpsdlnb != 0x0) delete dlpsdlnb ;
-  if (c_sound2 != 0x0) delete c_sound2 ;
+  if (log_cs2 != 0x0) delete log_cs2 ;
 }
 
 			//------------//
@@ -355,7 +358,7 @@ void Eos_tabul::read_table() {
   for (int i=0; i<nbp; i++) {
     double h = log( (ro[i] + press[i]) /
 		    (10 * nb[i] * rhonuc_cgs) ) ;
-    
+
     if ((i==0) && compute_offset) { ww = h ; }
     h = h - ww + 1.e-14 ;    		
     
@@ -371,30 +374,25 @@ void Eos_tabul::read_table() {
     write_meos << setprecision(16) << ww << endl ;
   }
 
+  // Computation of dpdnb
+  //---------------------
   Tbl logn0 = *lognb * log(10.) ;
   Tbl logp0 = ((*logp) + log10(rhonuc_cgs)) * log(10.) ;
   compute_derivative(logn0, logp0, *dlpsdlnb) ;
 
-  hmin = pow( double(10), (*logh)(0) ) ;
-  hmax = pow( double(10), (*logh)(nbp-1) ) ;
-	
+  // Computation of the sound speed
+  //-------------------------------
   Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
-  compute_derivative(ro_tbl,press_tbl,tmp) ;
-  c_sound2 = new Tbl(tmp) ;// c_s^2 = dp/de
-  // // Smoothing tmp
-  // Tbl y(nbp) ; y.set_etat_qcq() ;
-  // y.set(0) = tmp(0) ;
-  // double RC = 1e-1 ; // Space constant, 1/2\piRC is cutoff space freq
-  // double dx = (hmax-hmin)/nbp   ;
-  // double alpha = dx/(RC+dx) ;
-  // for (int i=1 ; i<5*nbp/8 ; i++){
-  //   y.set(i) = y(i-1) + alpha*(tmp(i)-y(i-1)) ;
-  // }
-  // for (int i = 5*nbp/8 ; i<nbp ; i++) {
-  //   y.set(i) = tmp(i) ;
-  // }
-  // c_sound2 = new Tbl(y) ;// c_s^2 = dp/de2
-  
+  compute_derivative(ro_tbl,press_tbl,tmp) ; // tmp = c_s^2 = dp/de
+  for (int i=0; i<nbp; i++) {
+    if (tmp(i) < 0.) {
+      tmp.set(i) = - tmp(i) ;
+    }
+  }
+  log_cs2 = new Tbl(log10(tmp)) ;
+
+  hmin = pow( double(10), (*logh)(0) ) ;
+  hmax = pow( double(10), (*logh)(nbp-1) ) ;	
   cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
 
   fich.close();
@@ -595,24 +593,23 @@ double Eos_tabul::der_press_nbar_p(double ent, const Param*) const {
 }
 
 double Eos_tabul::csound_square_ent_p(double ent, const Param*) const {
-      static int i_near = lognb->get_taille() / 2 ;
-
-      if ( ent > hmin ) {
-        if (ent > hmax) {
-    cout << "Eos_tabul::csound_square_ent_p : ent>hmax !" << endl ;
-    abort() ;
-        }
-        double logent0 = log10( ent ) ;
-        double csound0 ;
-        
-        
-        interpol_linear(*logh, *c_sound2, logent0, i_near, csound0) ;
-      
-        return csound0 ;
-      }
-      else
-        {
-    return (*c_sound2)(0) ; 
-        }
-	}
+  static int i_near = lognb->get_taille() / 2 ;
+  
+  if ( ent > hmin ) {
+    if (ent > hmax) {
+      cout << "Eos_tabul::csound_square_ent_p : ent>hmax !" << endl ;
+      abort() ;
+    }
+    double log_ent0 = log10( ent ) ;
+    double log_csound0 ;
+    
+    interpol_linear(*logh, *log_cs2, log_ent0, i_near, log_csound0) ;
+    
+    return pow(10., log_csound0) ;
+  }
+  else
+    {
+      return pow(10., (*log_cs2)(0)) ; 
+    }
+}
 }

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2022/03/10 16:38:39  j_novak
+ * log(cs^2) is tabulated instead of cs^2.
+ *
  * Revision 1.20  2021/05/14 15:39:22  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -208,8 +211,8 @@ class Eos_tabul : public Eos {
         /// Table of \f$d\log P/d\log nb\f$
         Tbl* dlpsdlnb ;
 		
-		/// Table of \f$c_s^2 = c^2 \frac{d p}{d e}\f$
-   		Tbl* c_sound2 ;
+	/// Table of \f$\log c_s^2 = \log \left( c^2 \frac{d p}{d e} \right) \f$
+	Tbl* log_cs2 ;
 
         double* press ; 
         double* nb ; 

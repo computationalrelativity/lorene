@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2022/03/10 16:38:39  j_novak
+ * log(cs^2) is tabulated instead of cs^2.
+ *
  * Revision 1.6  2021/05/31 11:31:23  g_servignat
  * Added csound_square_ent routine to calculate the sound speed from enthalpy to Eos_consistent and corrected error outputs
  *
@@ -418,26 +421,25 @@ double Eos_consistent::press_ent_p(double ent, const Param* ) const {
 
 // Square of sound speed from enthalpy
 double Eos_consistent::csound_square_ent_p(double ent, const Param*) const {
-      static int i_near = lognb->get_taille() / 2 ;
-
-      if ( ent > hmin ) {
-        if (ent > hmax) {
-    cout << "Eos_consistent::csound_square_ent_p : ent>hmax !" << endl ;
-    abort() ;
-        }
-        double logent0 = log10( ent ) ;
-        double csound0 ;
+  static int i_near = lognb->get_taille() / 2 ;
+  
+  if ( ent > hmin ) {
+    if (ent > hmax) {
+      cout << "Eos_consistent::csound_square_ent_p : ent>hmax !" << endl ;
+      abort() ;
+    }
+    double log_ent0 = log10( ent ) ;
+    double log_csound0 ;
         
-        
-        interpol_linear(*logh, *c_sound2, logent0, i_near, csound0) ;
+    interpol_linear(*logh, *log_cs2, log_ent0, i_near, log_csound0) ;
       
-        return csound0 ;
-      }
-      else
-        {
-    return (*c_sound2)(0) ; 
-        }
-	}
+    return pow(10., log_csound0) ;
+  }
+  else
+    {
+      return pow(10., (*log_cs2)(0)) ; 
+    }
+}
 
 			//------------//
 			//  Outputs   //

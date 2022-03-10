@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2022/03/10 16:38:39  j_novak
+ * log(cs^2) is tabulated instead of cs^2.
+ *
  * Revision 1.11  2021/05/14 15:39:22  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -250,72 +253,24 @@ namespace Lorene {
     
     // Computation of dpdnb
     //---------------------
-    double p0, p1, p2, n0, n1, n2, dpdnb;
-    
-    // special case: i=0
-    p0 = log(press[0]);
-    p1 = log(press[1]);
-    p2 = log(press[2]);
-    
-    n0 = log(nb[0]);
-    n1 = log(nb[1]);
-    n2 = log(nb[2]);
-    
-    dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
-      p1*(n0-n2)/(n1-n0)/(n1-n2) +
-      p2*(n0-n1)/(n2-n0)/(n2-n1) ;
-    
-    dlpsdlnb->set(0) = dpdnb ;
-    
-    for(int i=1;i<nbp-1;i++) {
-      
-      p0 = log(press[i-1]);
-      p1 = log(press[i]);
-      p2 = log(press[i+1]);
-      
-      n0 = log(nb[i-1]);
-      n1 = log(nb[i]);
-      n2 = log(nb[i+1]);
-      
-      dpdnb = p0*(n1-n2)/(n0-n1)/(n0-n2) +
-	p1*(2*n1-n0-n2)/(n1-n0)/(n1-n2) +
-	p2*(n1-n0)/(n2-n0)/(n2-n1) ;
-      
-      dlpsdlnb->set(i) = dpdnb ;
-      
-    }
+    Tbl logn0 = *lognb * log(10.) ;
+    Tbl logp0 = ((*logp) + log10(rhonuc_cgs)) * log(10.) ;
+    compute_derivative(logn0, logp0, *dlpsdlnb) ;
 
-    // special case: i=nbp-1
-    p0 = log(press[nbp-3]);
-    p1 = log(press[nbp-2]);
-    p2 = log(press[nbp-1]);
-    
-    n0 = log(nb[nbp-3]);
-    n1 = log(nb[nbp-2]);
-    n2 = log(nb[nbp-1]);
-    
-    dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
-      p1*(n2-n0)/(n1-n0)/(n1-n2) +
-      p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
-    
-    dlpsdlnb->set(nbp-1) = dpdnb ;
-    
+    // Computation of the sound speed
+    //-------------------------------
     Tbl tmp(nbp) ; tmp.set_etat_qcq() ;
     compute_derivative(ro_tbl,press_tbl,tmp) ;
-    c_sound2 = new Tbl(tmp) ;// c_s^2 = dp/de
-    // Smoothing tmp
-  // Tbl y(nbp) ; y.set_etat_qcq() ;
-  // y.set(0) = tmp(0) ;
-  // double RC = 1e-3 ; // Space constant, 1/2\piRC is cutoff space freq
-  // double dx = 1e-1    ;
-  // double alpha = dx/(RC+dx) ;
-  // for (int i=1 ; i<nbp ; i++){
-  //   y.set(i) = y(i-1) + alpha*(tmp(i)-y(i-1)) ;
-  // }
-  //   c_sound2 = new Tbl(y) ;// c_s^2 = dp/de
-    
+    for (int i=0; i<nbp; i++) {
+      if (tmp(i) < 0.) {
+	tmp.set(i) = - tmp(i) ;
+      }
+    }
+    log_cs2 = new Tbl(log10(tmp)) ;
+
     hmin = pow( double(10), (*logh)(0) ) ;
     hmax = pow( double(10), (*logh)(nbp-1) ) ;
+    cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
     
     // Cleaning
     //---------
