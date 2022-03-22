@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2022/03/22 13:36:00  j_novak
+ * Added declaration of compute_derivative to utilitaires.h
+ *
  * Revision 1.17  2018/12/05 15:03:20  j_novak
  * New Mg3d constructor from a formatted file.
  *
@@ -240,7 +243,7 @@ void zero_list( double (*f)(double, const Param&), const Param& par,
 		Tbl*& az, Tbl*& bz ) ;  
 		
 /** Integrates a function defined on an unequally-spaced grid, approximating
- * it by piece parabolae.
+ * it by piecewise parabolae.
  *
  * This function performs the numerical integration of a function given by its
  * values on a unequally-spaced grid, by means of local parabolic approximation.
@@ -253,6 +256,21 @@ void zero_list( double (*f)(double, const Param&), const Param& par,
  *                points, such that it is zero at the first grid point.
  */
  Tbl integ1D(const Tbl& xx, const Tbl& ff) ;
+
+/** Derives a function defined on an unequally-spaced grid, approximating
+ * it by piecewise parabolae.
+ *
+ * This function performs the numerical derivative of a function given by its
+ * values on a unequally-spaced grid, by means of local parabolic approximation.
+ *      @param xx [input] \c Tbl containing the grid abscissas
+ *      @param ff [input] \c Tbl containing the values of the function to be 
+ *                derived, on the grid points
+ *      @param dfdx [output] \c Tbl with the values of the derivative of \c ff at the grid
+ *                points.
+ */
+  void compute_derivative(const Tbl& xx, const Tbl& ff, Tbl& dfdx) ;
+
+  
 
 /** Writes integer(s) into a binary file according to the
  *  big endian convention.

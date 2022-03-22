@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2022/03/22 13:36:00  j_novak
+ * Added declaration of compute_derivative to utilitaires.h
+ *
  * Revision 1.12  2022/03/10 16:38:39  j_novak
  * log(cs^2) is tabulated instead of cs^2.
  *
@@ -94,8 +97,6 @@
 // --------------------			
 namespace Lorene {
   
-  void compute_derivative(const Tbl&, const Tbl&, Tbl&) ;
-
 // Standard constructor with only the name of the file
 //------------------------------------------------------
   Eos_CompOSE::Eos_CompOSE(const char* file_name)

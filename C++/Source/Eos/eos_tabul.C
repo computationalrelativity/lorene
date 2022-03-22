@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2022/03/22 13:36:00  j_novak
+ * Added declaration of compute_derivative to utilitaires.h
+ *
  * Revision 1.24  2022/03/22 13:18:47  g_servignat
  * Corrected treatment for h<hmin
  *
@@ -149,8 +152,6 @@ namespace Lorene {
   void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
   
   void interpol_quad(const Tbl&, const Tbl&, double, int&, double&) ;
-  
-  void compute_derivative(const Tbl&, const Tbl&, Tbl&) ;
   
 
     

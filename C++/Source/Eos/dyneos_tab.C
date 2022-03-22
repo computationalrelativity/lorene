@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2022/03/22 13:36:00  j_novak
+ * Added declaration of compute_derivative to utilitaires.h
+ *
  * Revision 1.2  2020/12/17 17:00:27  j_novak
  * Output of sound speed squared, instead of sound speed.
  *
@@ -57,7 +60,6 @@ namespace Lorene {
   
   void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
   
-  void compute_derivative(const Tbl&, const Tbl&, Tbl&) ;
 
     
 			//----------------------------//
