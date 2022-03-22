@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2022/03/22 13:18:47  g_servignat
+ * Corrected treatment for h<hmin
+ *
  * Revision 1.23  2022/03/10 16:38:39  j_novak
  * log(cs^2) is tabulated instead of cs^2.
  *
@@ -360,7 +363,7 @@ void Eos_tabul::read_table() {
 		    (10 * nb[i] * rhonuc_cgs) ) ;
 
     if ((i==0) && compute_offset) { ww = h ; }
-    h = h - ww + 1.e-14 ;    		
+    h = h - ww + 1.e-14 ;
     
     logh->set(i) = log10( h ) ;
     logp->set(i) = log10( press[i] / rhonuc_cgs ) ;

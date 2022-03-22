@@ -211,7 +211,7 @@ ostream& operator<<(ostream& ost, const Hot_eos& eqetat)  {
 	}
 	  
 	for (int i=0; i<tent->get_taille(); i++) {
-	  
+
 	  tresu->t[i] = (this->*fait)( tent->t[i], tsb->t[i] ) ;
 	}  
 	    
