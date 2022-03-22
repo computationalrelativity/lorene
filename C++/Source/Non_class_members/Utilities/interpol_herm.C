@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2022/03/22 13:19:53  g_servignat
+ * Modified row and column extraction of 2D Tbl's
+ *
  * Revision 1.17  2022/03/01 10:03:38  g_servignat
  * Added subtbl extraction for interpol_linear_2D purposes
  *
@@ -607,18 +610,37 @@ namespace Lorene {
   
   
   ///------------------------------------------------------------
-  /// Extraction of column of a Tbl 
+  /// Extraction of a column of a 2D Tbl 
   ///------------------------------------------------------------
-  Tbl extract_entha(const Tbl& entha, const Tbl& Y_e, double ye){
-    int i_low = Y_e.get_taille()/2;
-    huntm(Y_e,ye,i_low) ;
-    int n_h = entha.get_dim(0) ;
+  Tbl extract_column(const Tbl& xytab, const Tbl& ytab, double yy){
+    assert(xytab.get_ndim() == 2) ;
+    assert(ytab.get_ndim() == 1) ;
+    int i_low = ytab.get_taille()/2;
+    huntm(ytab,yy,i_low) ;
+    int n_h = xytab.get_dim(0) ;
     Tbl resu(n_h) ; resu.set_etat_qcq() ;
     for (int i=0 ; i<n_h ; i++){
-      resu.set(i) = entha(i_low,i) ;
+      resu.set(i) = xytab(i_low,i) ;
     }
     return resu;
   }
+  
+  ///------------------------------------------------------------
+  /// Extraction of a row of a 2D Tbl 
+  ///------------------------------------------------------------
+  Tbl extract_row(const Tbl& xytab, const Tbl& xtab, double xx){
+    assert(xytab.get_ndim() == 2) ;
+    assert(xtab.get_ndim() == 1) ;
+    int i_low = xtab.get_taille()/2;
+    huntm(xtab,xx,i_low) ;
+    int n_h = xytab.get_dim(1) ;
+    Tbl resu(n_h) ; resu.set_etat_qcq() ;
+    for (int i=0 ; i<n_h ; i++){
+      resu.set(i) = xytab(i,i_low) ;
+    }
+    return resu;
+  }
+  
   
 } // End of namespace Lorene
 
