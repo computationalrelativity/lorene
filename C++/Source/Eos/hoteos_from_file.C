@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2022/04/06 12:38:26  g_servignat
+ * Added Ye_eos_tabul identificator
+ *
  * Revision 1.4  2022/03/01 10:03:06  g_servignat
  * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
  *
@@ -89,6 +92,11 @@ namespace Lorene {
 	
     case 2 : {
       p_eos = new Hoteos_tabul(fich) ; 
+      break ; 
+    }
+
+    case 3 : {
+      p_eos = new Ye_eos_tabul(fich) ;
       break ; 
     }
 	
