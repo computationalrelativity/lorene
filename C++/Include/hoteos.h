@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2022/04/06 12:38:06  g_servignat
+ * Added source computation routine and source reading in table for electronic fraction advection equation
+ *
  * Revision 1.6  2022/03/01 10:03:07  g_servignat
  * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
  *
@@ -401,9 +404,9 @@ class Eos ;
 	 *         enthalpy 
          *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
   	 *
-	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 *  @return \f$\mu_l \f$ [unit: \e m_n]
 	 */
-    	virtual double mue_Hs_p(double ent, const double ye) const = 0;
+    	virtual double mul_Hs_p(double ent, const double ye) const = 0;
   
   /** Computes the electronic chemical potential
 	 *  from the enthalpy with ye
@@ -421,10 +424,10 @@ class Eos ;
 	 *	domains, it is set to zero.
          *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
 	 *
-	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 *  @return \f$\mu_l \f$ [unit: \e m_n]
 	 *
 	 */
-		Scalar mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
+		Scalar mul_Hs(const Scalar& ent, const Scalar& Ye, int nzet, int l_min = 0) const ;
 	
 	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
 	 *  from the enthalpy with ye
@@ -446,6 +449,39 @@ class Eos ;
 	 *
 	 */
 		Scalar csound_square_Hs(const Scalar& ent, const Scalar& Y_e, int nzet, int l_min = 0) const ;
+  
+  /** Computes the source terms for electronic fraction advection equation
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+   *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+   *
+	 *  @return \f$\Sigma \f$ [unit: \e 1/t_unit]
+	 */
+    	virtual double sigma_Hs_p(double ent, const double ye) const = 0 ;
+  
+  /** Computes the source terms for electronic fraction advection equation
+	 *  from the enthalpy with ye
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
+	 *	   coefficient dln(n)/dln(H) is
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
+	 *      \c [l_min,l_min+nzet-1] . In the other
+	 *	domains, it is set to zero.
+         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$ 
+	 *
+	 *  @return \f$\Sigma \f$ [unit: \e 1/t_unit]
+	 *
+	 */
+		Scalar sigma_Hs(const Scalar& ent, const Scalar& Y_e, int nzet, int l_min = 0) const ;
   };
   ostream& operator<<(ostream& , const Hot_eos& ) ;	
 
@@ -674,9 +710,21 @@ class Eos ;
 	 *         enthalpy 
          *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
   	 *
-	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 *  @return \f$\mu_l \f$ [unit: \e m_n]
 	 */
-    	virtual double mue_Hs_p(double ent, const double ye) const ;
+    	virtual double mul_Hs_p(double ent, const double ye) const ;
+
+  /** Computes the source terms for electronic fraction advection equation
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+   *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+   *
+	 *  @return \f$\Sigma \f$ [unit: \e 1/t_unit]
+	 */
+    	virtual double sigma_Hs_p(double ent, const double ye) const ;
 
 };
 
@@ -731,6 +779,7 @@ class Eos ;
     
     /// Table of \f$\partial^2 P/\partial s_B \partial H\f$
     Tbl* d2p ;
+
     
     // Constructors - Destructor
     // -------------------------
@@ -896,9 +945,21 @@ class Eos ;
 	 *         enthalpy 
          *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
   	 *
-	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+	 *  @return \f$\mu_l \f$ [unit: \e m_n]
 	 */
-    	virtual double mue_Hs_p(double ent, const double ye) const ;
+    	virtual double mul_Hs_p(double ent, const double ye) const ;
+  
+  /** Computes the source terms for electronic fraction advection equation
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+   *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+   *
+	 *  @return \f$\Sigma \f$ [unit: \e 1/t_unit]
+	 */
+    	virtual double sigma_Hs_p(double ent, const double ye) const ;
 
 };
 
@@ -948,8 +1009,8 @@ class Eos ;
     /// Table of \f$\chi^2\f$, an adiabatic coefficient (units of c^2).
     Tbl* chi2 ;
 
-    /// Table of \f$\mu_e\f$, the electronic chemical potential (MeV)
-    Tbl* mu_e ;
+    /// Table of \f$\mu_l\f$, the electronic chemical potential (MeV)
+    Tbl* mu_l ;
     
     /// Table of pressure $P$
     Tbl* ppp ;
@@ -962,6 +1023,9 @@ class Eos ;
     
     /// Table of \f$\partial^2 P/\partial Y_e \partial H\f$
     Tbl* d2p ;
+
+    /// Table of electronic fraction source
+    Tbl* Sourcetbl ;
     
     // Constructors - Destructor
     // -------------------------
@@ -1133,12 +1197,23 @@ class Eos ;
 	 *
 	 *  @param ent [input, unit: \e c^2]
 	 *         enthalpy 
-         *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
-  	 *
-	 *  @return \f$\mu_e \f$ [unit: \e m_n]
+   *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+   *
+	 *  @return \f$\mu_l \f$ [unit: \e m_n]
 	 */
-    	virtual double mue_Hs_p(double ent, const double ye) const ;
+    	virtual double mul_Hs_p(double ent, const double ye) const ;
 
+  /** Computes the source terms for electronic fraction advection equation
+	 *  from the enthapy with electronic fraction
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+   *  @param ye [input,  unit: \f$dimensionless\f$] electronic fraction \f$Y_e\f$
+   *
+	 *  @return \f$\Sigma \f$ [unit: \e 1/t_unit]
+	 */
+    	virtual double sigma_Hs_p(double ent, const double ye) const ;
 };
 
 }

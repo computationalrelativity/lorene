@@ -88,7 +88,7 @@ namespace Lorene {
     Y_e = 0x0 ;
     c_sound2 = 0x0 ;
     chi2 = 0x0 ;
-    mu_e = 0x0 ;
+    mu_l = 0x0 ;
     ppp = 0x0 ;
     dpdh = 0x0 ;
     dpdye = 0x0 ;
@@ -176,31 +176,33 @@ namespace Lorene {
     ppp = new Tbl(nbp2, nbp1) ;
     hhh = new Tbl(nbp2, nbp1) ;
     Y_e = new Tbl(nbp2, nbp1) ;
-    mu_e = new Tbl(nbp2, nbp1) ;
+    mu_l = new Tbl(nbp2, nbp1) ;
     chi2 = new Tbl(nbp2, nbp1) ;
     c_sound2 = new Tbl(nbp2, nbp1) ;
     dpdh = new Tbl(nbp2, nbp1) ;
     dpdye = new Tbl(nbp2, nbp1) ;
     d2p = new Tbl(nbp2, nbp1) ;
+    Sourcetbl = new Tbl(nbp2, nbp1) ; 
     
     ppp->set_etat_qcq() ;
     hhh->set_etat_qcq() ;
     Y_e->set_etat_qcq() ;
-    mu_e->set_etat_qcq() ;
+    mu_l->set_etat_qcq() ;
     chi2->set_etat_qcq() ;
     c_sound2->set_etat_qcq() ;
     dpdh->set_etat_qcq() ;
     dpdye->set_etat_qcq() ;
     d2p->set_etat_qcq() ;
+    Sourcetbl->set_etat_qcq() ;
     
     double c2 = c_si * c_si ;
-    double nb_fm3, rho_cgs, p_cgs, ent, ye, mue, der2, cs2, chi2_d ;	
+    double nb_fm3, rho_cgs, p_cgs, ent, ye, mul, der2, cs2, chi2_d, source_d ;	
     double ww = 0. ;
     int no;
 
     for (int j=0; j<nbp2; j++) {
       for (int i=0; i<nbp1; i++) {
-	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> chi2_d >> mue >> der2 ;
+	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> chi2_d >> mul >> der2 >> source_d ;
 
 	fich.ignore(1000,'\n') ;
 	if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
@@ -224,10 +226,11 @@ namespace Lorene {
 	Y_e->set(j, i) = ye ;
   c_sound2->set(j, i) = cs2 ;
   chi2->set(j, i) = chi2_d ;
-  mu_e->set(j, i) = mue*mev_si*1e44/(rhonuc_si*c2) ;
-	dpdh->set(j, i) = (rho_si + psc2)/rhonuc_si ; 
-	dpdye->set(j, i) = -mue*nb_fm3*mevpfm3 ; 
+  mu_l->set(j, i) = mul*mev_si*1e44/(rhonuc_si*c2) ;
+	dpdh->set(j, i) = (rho_si + psc2)/rhonuc_si ;
+	dpdye->set(j, i) = -mul*nb_fm3*mevpfm3 ; 
 	d2p->set(j, i) = 0.1*der2/(c2*rhonuc_si) ;	// Bien revérifier l'expression !!
+  Sourcetbl->set(j, i) = source_d*t_unit ; 
       }
     }
 
@@ -428,6 +431,7 @@ double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
             
         
         interpol_linear_2d(enthalpy, ye_1D, *c_sound2, ent, ye, i_near, j_near, csound0) ;
+
       
         return csound0 ;
       }
@@ -481,7 +485,7 @@ double Ye_eos_tabul::chi2_Hs_p(double ent, double ye) const {
         }
 	}
 
-double Ye_eos_tabul::mue_Hs_p(double ent, double ye) const {
+double Ye_eos_tabul::mul_Hs_p(double ent, double ye) const {
       static int i_near = hhh->get_dim(0) / 2 ;
       static int j_near = Y_e->get_dim(1) / 2 ;
       
@@ -498,29 +502,72 @@ double Ye_eos_tabul::mue_Hs_p(double ent, double ye) const {
       
       if ( ent > hmin ) {
         if (ent > hmax) {
-    cout << "Eos_tabul::mue_Hs_p : ent>hmax !" << endl ;
+    cout << "Eos_tabul::mul_Hs_p : ent>hmax !" << endl ;
     abort() ;
         }
         
         if (ye > yemax) {
-          cerr << "Ye_eos_tabul::mue_Hs_p : Y_e not in the tabulated interval !" 
+          cerr << "Ye_eos_tabul::mul_Hs_p : Y_e not in the tabulated interval !" 
         << endl ;
           cerr << "Y_e = " << ye << ", yemin = " << yemin << ", yemax = " << yemax 
         << endl ;
           abort() ;
         }
         
-        double mue0 ;
+        double mul0 ;
 
-        interpol_linear_2d(enthalpy, ye_1D, *mu_e, ent, ye, i_near, j_near, mue0) ;
+        interpol_linear_2d(enthalpy, ye_1D, *mu_l, ent, ye, i_near, j_near, mul0) ;
       
-        return mue0 ;
+        return mul0 ;
       }
       else
         {
-          double mue0 ;
-          interpol_linear_2d(enthalpy, ye_1D, *mu_e, hmin, ye, i_near, j_near, mue0) ;
-    return mue0 ; 
+          double mul0 ;
+          interpol_linear_2d(enthalpy, ye_1D, *mu_l, hmin, ye, i_near, j_near, mul0) ;
+    return mul0 ; 
+        }
+	}
+
+  double Ye_eos_tabul::sigma_Hs_p(double ent, double ye) const {
+      static int i_near = hhh->get_dim(0) / 2 ;
+      static int j_near = Y_e->get_dim(1) / 2 ;
+      
+      if ((ent > hmin - 1.e-12) && (ent < hmin))
+        ent = hmin ;
+
+      if (ye < yemin) ye = yemin ;
+      
+      Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+      for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+        ye_1D.set(i) = (*Y_e)(i,0) ;
+      }
+      Tbl enthalpy = extract_column(*hhh,ye_1D,ye) ;
+      
+      if ( ent > hmin ) {
+        if (ent > hmax) {
+    cout << "Eos_tabul::sigma_Hs_p : ent>hmax !" << endl ;
+    abort() ;
+        }
+        
+        if (ye > yemax) {
+          cerr << "Ye_eos_tabul::sigma_Hs_p : Y_e not in the tabulated interval !" 
+        << endl ;
+          cerr << "Y_e = " << ye << ", yemin = " << yemin << ", yemax = " << yemax 
+        << endl ;
+          abort() ;
+        }
+        
+        double sigma0 ;
+
+        interpol_linear_2d(enthalpy, ye_1D, *Sourcetbl, ent, ye, i_near, j_near, sigma0) ;
+      
+        return sigma0 ;
+      }
+      else
+        {
+          double sigma0 ;
+          interpol_linear_2d(enthalpy, ye_1D, *Sourcetbl, hmin, ye, i_near, j_near, sigma0) ;
+    return sigma0 ; 
         }
 	}
   

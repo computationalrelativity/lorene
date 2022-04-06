@@ -315,11 +315,23 @@ ostream& operator<<(ostream& ost, const Hot_eos& eqetat)  {
   // Chemical potential from enthalpy and electronic fraction
   //---------------------------------------------------------
 
-  Scalar Hot_eos::mue_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
+  Scalar Hot_eos::mul_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
                 int l_min) const {
       Scalar resu(ent.get_mp()) ;
       
-      calcule(ent, Ye, nzet, l_min, &Hot_eos::mue_Hs_p, resu) ;
+      calcule(ent, Ye, nzet, l_min, &Hot_eos::mul_Hs_p, resu) ;
+      
+      return resu ;
+    }
+  
+  // Electronic fraction source from enthalpy and electronic fraction
+  //-----------------------------------------------------------------
+
+  Scalar Hot_eos::sigma_Hs(const Scalar& ent, const Scalar& Ye, int nzet,
+                int l_min) const {
+      Scalar resu(ent.get_mp()) ;
+      
+      calcule(ent, Ye, nzet, l_min, &Hot_eos::sigma_Hs_p, resu) ;
       
       return resu ;
     }

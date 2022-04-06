@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2022/04/06 12:38:05  g_servignat
+ * Added source computation routine and source reading in table for electronic fraction advection equation
+ *
  * Revision 1.5  2022/03/01 10:03:07  g_servignat
  * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
  *
@@ -326,8 +329,16 @@ namespace Lorene {
     return 0. ;
   }
   
-  double Ideal_gas::mue_Hs_p(double ent, double sb) const  {
-    cerr << "Ideal_gas::mue_Hs_p : function not implemented (yet !) ..." << endl;
+  double Ideal_gas::mul_Hs_p(double ent, double sb) const  {
+    cerr << "Ideal_gas::mul_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+
+  double Ideal_gas::sigma_Hs_p(double ent, double sb) const  {
+    cerr << "Ideal_gas::sigma_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
     

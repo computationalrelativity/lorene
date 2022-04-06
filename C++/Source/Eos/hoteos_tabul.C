@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2022/04/06 12:38:05  g_servignat
+ * Added source computation routine and source reading in table for electronic fraction advection equation
+ *
  * Revision 1.5  2022/03/01 10:03:06  g_servignat
  * Corrected all pure virtual interference between Hot_eos derived classes ; amended use of interpol_linear_2D
  *
@@ -464,8 +467,16 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
     return 0. ;
   }
   
-  double Hoteos_tabul::mue_Hs_p(double ent, double sb) const  {
-    cerr << "Hoteos_tabul::mue__Hs_p : function not implemented (yet !) ..." << endl;
+  double Hoteos_tabul::mul_Hs_p(double ent, double sb) const  {
+    cerr << "Hoteos_tabul::mul_Hs_p : function not implemented (yet !) ..." << endl;
+    cerr << "Aborting ..." << endl;
+    abort() ;
+    
+    return 0. ;
+  }
+
+  double Hoteos_tabul::sigma_Hs_p(double ent, double sb) const  {
+    cerr << "Hoteos_tabul::sigma_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
     
