@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2022/04/15 13:39:24  j_novak
+ * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
+ *
  * Revision 1.17  2016/12/05 16:17:51  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -120,6 +123,7 @@
 #include "headcpp.h"
 #include "eos.h"
 #include "eos_multi_poly.h"
+#include "eos_compose_fit.h"
 #include "eos_fitting.h"
 #include "utilitaires.h"
 
@@ -140,6 +144,8 @@ int Eos_incomp_newt::identify() const	{ return 4; }
 int Eos_strange::identify() const	{ return 5; }
 
 int Eos_strange_cr::identify() const	{ return 6; }
+
+int Eos_compose_fit::identify() const	{ return 7; }
 
 int Eos_SLy4::identify() const		{ return 10; }
 
@@ -214,6 +220,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 	
 	case 6 : {
 	    p_eos = new Eos_strange_cr(fich) ;
+	    break ;
+	}
+	
+	case 7 : {
+	    p_eos = new Eos_compose_fit(fich) ;
 	    break ;
 	}
 	
@@ -352,6 +363,11 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	
 	case 6 : {
 	    p_eos = new Eos_strange_cr(fich) ;
+	    break ;
+	}
+	
+	case 7 : {
+	    p_eos = new Eos_compose_fit(fich) ;
 	    break ;
 	}
 	

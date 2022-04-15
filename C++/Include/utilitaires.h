@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2022/04/15 13:39:24  j_novak
+ * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
+ *
  * Revision 1.18  2022/03/22 13:36:00  j_novak
  * Added declaration of compute_derivative to utilitaires.h
  *
@@ -270,7 +273,10 @@ void zero_list( double (*f)(double, const Param&), const Param& par,
  */
   void compute_derivative(const Tbl& xx, const Tbl& ff, Tbl& dfdx) ;
 
-  
+/// Polynomial regression, giving Chebyshev coefficients
+  Tbl poly_regression(const Tbl&, const Tbl&, int) ;
+
+ 
 
 /** Writes integer(s) into a binary file according to the
  *  big endian convention.
