@@ -220,7 +220,7 @@ namespace Lorene {
 	double rho_si = rho_cgs*1000. ; // in kg m^-3
 	
 	double h_read = ent ;
-	if ( (i==0) && (j==0)) ww = h_read ;
+  if ( (i==0) ) ww = h_read ;
 	double h_new = h_read - ww + 1e-14;
 	
 	ppp->set(j, i) = psc2/rhonuc_si ; 
@@ -324,7 +324,7 @@ double Ye_eos_tabul::nbar_Hs_p(double ent, double ye) const {
     interpol_herm_2d(*Y_e, *hhh, *ppp, *dpdye, *dpdh, *d2p, ye, ent, p_int,
 		     dpdye_int, dpdh_int) ;
 
-    double nbar_int = dpdh_int * exp(-ent) ; //if (nbar_int<0.){ cout << "ye : " << ye << " enthalpie : " << ent << " nbar interpolé : " << nbar_int << endl ; abort() ;}
+    double nbar_int = dpdh_int * exp(-ent) ;
     return nbar_int ;
   }
   else{
