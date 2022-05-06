@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2022/05/06 09:51:29  g_servignat
+ * Removed chi2 computation function from Ye EoS representation
+ *
  * Revision 1.7  2022/04/06 12:38:06  g_servignat
  * Added source computation routine and source reading in table for electronic fraction advection equation
  *
@@ -1005,9 +1008,6 @@ class Eos ;
 
     /// Table of \f$c_s^2\f$, sound speed squared (units of c^2).
     Tbl* c_sound2 ;
-
-    /// Table of \f$\chi^2\f$, an adiabatic coefficient (units of c^2).
-    Tbl* chi2 ;
 
     /// Table of \f$\mu_l\f$, the electronic chemical potential (MeV)
     Tbl* mu_l ;

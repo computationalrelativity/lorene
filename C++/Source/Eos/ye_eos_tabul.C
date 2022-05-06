@@ -87,7 +87,6 @@ namespace Lorene {
     hhh = 0x0 ;
     Y_e = 0x0 ;
     c_sound2 = 0x0 ;
-    chi2 = 0x0 ;
     mu_l = 0x0 ;
     ppp = 0x0 ;
     dpdh = 0x0 ;
@@ -179,7 +178,6 @@ namespace Lorene {
     hhh = new Tbl(nbp2, nbp1) ;
     Y_e = new Tbl(nbp2, nbp1) ;
     mu_l = new Tbl(nbp2, nbp1) ;
-    chi2 = new Tbl(nbp2, nbp1) ;
     c_sound2 = new Tbl(nbp2, nbp1) ;
     dpdh = new Tbl(nbp2, nbp1) ;
     dpdye = new Tbl(nbp2, nbp1) ;
@@ -190,7 +188,6 @@ namespace Lorene {
     hhh->set_etat_qcq() ;
     Y_e->set_etat_qcq() ;
     mu_l->set_etat_qcq() ;
-    chi2->set_etat_qcq() ;
     c_sound2->set_etat_qcq() ;
     dpdh->set_etat_qcq() ;
     dpdye->set_etat_qcq() ;
@@ -198,13 +195,13 @@ namespace Lorene {
     Sourcetbl->set_etat_qcq() ;
     
     double c2 = c_si * c_si ;
-    double nb_fm3, rho_cgs, p_cgs, ent, ye, mul, der2, cs2, chi2_d, source_d ;	
+    double nb_fm3, rho_cgs, p_cgs, ent, ye, mul, der2, cs2, source_d ;	
     double ww = 0. ;
     int no;
 
     for (int j=0; j<nbp2; j++) {
       for (int i=0; i<nbp1; i++) {
-	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> chi2_d >> mul >> der2 >> source_d ;
+	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> mul >> der2 >> source_d ;
 
 	fich.ignore(1000,'\n') ;
 	if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
@@ -227,7 +224,6 @@ namespace Lorene {
 	hhh->set(j, i) = h_new ;
 	Y_e->set(j, i) = ye ;
   c_sound2->set(j, i) = cs2 ;
-  chi2->set(j, i) = chi2_d ;
   mu_l->set(j, i) = mul*mev_si*1e44/(rhonuc_si*c2) ;
 	dpdh->set(j, i) = (rho_si + psc2)/rhonuc_si ;
 	dpdye->set(j, i) = -mul*nb_fm3*mevpfm3 ; 
@@ -446,45 +442,12 @@ double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
 	}
 
 double Ye_eos_tabul::chi2_Hs_p(double ent, double ye) const {
-      static int i_near = hhh->get_dim(0) / 2 ;
-      static int j_near = Y_e->get_dim(1) / 2 ;
-      
-      if ((ent > hmin - 1.e-12) && (ent < hmin))
-        ent = hmin ;
-
-      if (ye < yemin) ye = yemin ;
-      
-      Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
-      for (int i=0 ; i<Y_e->get_dim(1) ; i++){
-        ye_1D.set(i) = (*Y_e)(i,0) ;
-      }
-      Tbl enthalpy = extract_column(*hhh,ye_1D,ye) ;
-      if ( ent > hmin ) {
-        if (ent > hmax) {
-    cout << "Eos_tabul::chi2_Hs_p : ent>hmax !" << endl ;
+    
+    cerr << "Warning : (H,Y_e) EoS have no contribution from chi^2 ; Ye_eos_tabul::chi2_Hs_p :function not implemented." << endl;
+    cerr << "Aborting ..." << endl;
     abort() ;
-        }
-        
-        if (ye > yemax) {
-          cerr << "Ye_eos_tabul::chi2_Hs_p : Y_e not in the tabulated interval !" 
-        << endl ;
-          cerr << "Y_e = " << ye << ", yemin = " << yemin << ", yemax = " << yemax 
-        << endl ;
-          abort() ;
-        }
-        
-        double chi20 ;
-        
-        interpol_linear_2d(enthalpy, ye_1D, *chi2, ent, ye, i_near, j_near, chi20) ;
-      
-        return chi20 ;
-      }
-      else
-        {
-          double chi20 ;
-          interpol_linear_2d(enthalpy, ye_1D, *chi2, hmin, ye, i_near, j_near, chi20) ;
-    return chi20 ; 
-        }
+    
+    return 0. ;
 	}
 
 double Ye_eos_tabul::mul_Hs_p(double ent, double ye) const {
@@ -575,7 +538,7 @@ double Ye_eos_tabul::mul_Hs_p(double ent, double ye) const {
   
   double Ye_eos_tabul::temp_Hs_p(double ent, double sb) const {
     
-    cerr << "Warning : (H,Y_e) EoS does not use T as a parameter ; Ye_eos_tabul::temps_Hs_p :function not implemented." << endl;
+    cerr << "Warning : (H,Y_e) EoS does not use T as a parameter ; Ye_eos_tabul::temp_Hs_p :function not implemented." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
     
