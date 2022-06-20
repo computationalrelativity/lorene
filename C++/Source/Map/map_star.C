@@ -49,37 +49,39 @@
 // Constructor from a grid
 // -----------------------
 namespace Lorene {
-Map_star::Map_star(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille),alpha(mgrille.get_angu())
+Map_star::Map_star(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille),alpha(mgrille.get_angu()),beta(mgrille.get_angu())
 {
     c_est_pas_fait("Map_star::Map_star(const Mg3d&,  const double*)") ;
 }
 
 // Constructor from a grid
 // -----------------------
-Map_star::Map_star(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille),alpha(mgrille.get_angu())
+Map_star::Map_star(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille),alpha(mgrille.get_angu()),beta(mgrille.get_angu())
 {
     // Les coordonnees et les derivees du changement de variable
     set_coord() ; 
 
     // Allocate memory
     alpha.annule_hard() ;
+    beta.annule_hard() ;
     
     // Les bornes
     int nzone = mg->get_nzone() ;
-    assert(nzone==1) ; // To be  changed ; nucleus only at the moment
+    // assert(nzone==1) ; // To be  changed ; nucleus only at the moment
 
     for (int l=0 ; l<nzone ; l++) {
         for (int k=0 ; k<mg->get_np(l); k++){
             for (int j=0; j<mg->get_nt(l); j++){
 	switch (mg->get_type_r(l)) {
 	    case RARE:	{
-		alpha.set(l,k,j,0) = bornes(l+1,k,j) - bornes(l,k,j) ;
+		alpha.set(l,k,j,0) = bornes(l+1,k,j) ;
+        beta.set(l) = 0 ;
 		break ; 
 	    }
 	    
 	    case FIN:	{
-		cout << "Warning ! No shell allowed !" << endl;
-        abort() ;
+		alpha.set(l,k,j,0) = 0.5*(bornes(l+1,k,j) - bornes(l,k,j)) ;
+        beta.set(l,k,j,0) = 0.5*(bornes(l+1,k,j) + bornes(l,k,j)) ;
 		break ;
 	    }
 	    
@@ -96,6 +98,7 @@ Map_star::Map_star(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille)
 	    }
 	}
     alpha.std_base_scal() ;
+    beta.std_base_scal() ;
     }
     }
     }	    // Fin de la boucle sur zone
@@ -103,7 +106,7 @@ Map_star::Map_star(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille)
 
 // Copy constructor 
 // ----------------
-Map_star::Map_star(const Map_star& mp) : Map_radial(mp),alpha(mp.alpha)
+Map_star::Map_star(const Map_star& mp) : Map_radial(mp),alpha(mp.alpha),beta(mp.beta)
 {
     // Les coordonnees et les derivees du changement de variable
     set_coord() ; 
@@ -112,7 +115,7 @@ Map_star::Map_star(const Map_star& mp) : Map_radial(mp),alpha(mp.alpha)
 
 // Constructor from file
 // ---------------------
-Map_star::Map_star(const Mg3d& mgi, FILE* fd) : Map_radial(mgi, fd),alpha(mgi.get_angu())
+Map_star::Map_star(const Mg3d& mgi, FILE* fd) : Map_radial(mgi, fd),alpha(mgi.get_angu()),beta(mgi.get_angu())
 {
     c_est_pas_fait("Map_star constructor from a file") ;
 }
@@ -141,6 +144,7 @@ void Map_star::operator=(const Map_star & mpi) {
     set_rot_phi( mpi.rot_phi ) ; 
 
 	alpha = mpi.alpha ; 
+    beta = mpi.beta ;
 
     reset_coord() ;      
 }
@@ -232,6 +236,9 @@ bool Map_star::operator==(const Map& mpi) const {
 const Valeur& Map_star::get_alpha() const {
     return alpha ; 
 }
+const Valeur& Map_star::get_beta() const {
+    return beta ; 
+}
 
 			//------------//
 			// Sauvegarde //
@@ -242,6 +249,7 @@ void Map_star::sauve(FILE* fd) const {
     Map_radial::sauve(fd) ; 
 
     alpha.sauve(fd) ; //May not be enough to save everything...	
+    beta.sauve(fd) ;
     
 }
 
@@ -258,7 +266,9 @@ ostream & Map_star::operator>>(ostream & ost) const {
     for (int l=0; l<nz; l++) {
         for (int k=0 ; k<mg->get_np(l); k++){
             for (int j=0; j<mg->get_nt(l); j++){
-	            ost << "     Domain #" << l << " grid point index in theta : " << j << " phi : " << k << '\n' << " : alpha(l,k,j) = " << alpha(l,k,j,0) << endl ;
+	            ost << "     Domain #" << l << " grid point index in theta : " << j << " phi : " << k << '\n' << " : alpha(l,k,j) = " << alpha(l,k,j,0)
+                << '\n' << " : beta(l,k,j) = " << beta(l,k,j,0)
+                << endl ;
             }
         }
     }
@@ -301,12 +311,30 @@ void Map_star::set_alpha(const Tbl& alpha0, int l) {
     int Nt = mg->get_nt(l) ;
     int Np = mg->get_np(l) ;
     for (int k=0; k<Np; k++)
-        for (int j=0; j<Nt; j++)
-            alpha.set(l, k, j, 0) = alpha0(k,j) ; 
+        for (int j=0; j<Nt; j++){
+           alpha.set(l, k, j, 0) = alpha0(k,j) ; // alpha0 must represent the values of the radius. 
+    }
+    
     
     reset_coord() ; 
     
 }
+
+void Map_star::set_beta(const Tbl& beta0, int l) {
+    
+    assert(l>=0) ; 
+    assert(l<mg->get_nzone()) ; 
+    
+    int Nt = mg->get_nt(l) ;
+    int Np = mg->get_np(l) ;
+    for (int k=0; k<Np; k++)
+        for (int j=0; j<Nt; j++){
+           beta.set(l, k, j, 0) = beta0(k,j) ;  // beta0 must represent the values of the radius. 
+    }
+    reset_coord() ; 
+    
+}
+
 
 
 }

@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.62  2022/06/20 14:21:55  g_servignat
+ * Implemented shells in Map_star
+ *
  * Revision 1.61  2022/05/30 12:39:53  g_servignat
  * New Map_star class for general adaptive domain to star boundaries
  *
@@ -3908,6 +3911,7 @@ class Map_star : public Map_radial{
     private:
 	/// Array (size: \c mg->nzone*Nt*Np ) of the values of \f$\alpha\f$ in each domain
 	Valeur alpha ;	 
+	Valeur beta  ;
 
 
 	// Constructors, destructor : 
@@ -3967,10 +3971,12 @@ class Map_star : public Map_radial{
     public:
 	/// Returns the reference on the Tbl \c alpha 
 	const Valeur& get_alpha() const ; 
+	const Valeur& get_beta() const ;
 	
 	
 	/// Modifies the value of \f$\alpha\f$ in domain no. \e l 
 	void set_alpha(const Tbl& alpha0, int l) ;
+	void set_beta(const Tbl& beta0, int l) ;
 
 	/**
 	 *  Returns the value of the radial coordinate \e r  for a given

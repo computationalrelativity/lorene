@@ -53,6 +53,7 @@ Mtbl* map_star_fait_r(const Map* cvi) {
     
     // Pour le confort
     const Valeur& alpha = cv->get_alpha() ;
+	const Valeur& beta = cv->get_beta() ;
     
     int i, j, k ;
     for (int l=0 ; l<nz ; l++) {
@@ -65,22 +66,22 @@ Mtbl* map_star_fait_r(const Map* cvi) {
 	double* p_r = tb->t ;
 	
 	switch(mg->get_type_r(l)) {
-	    case RARE:
+	    case RARE: case FIN:
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
 		    for (i=0 ; i<ir ; i++) {
-			*p_r = alpha(l,k,j,0)  * (g->x)[i] ;//+ beta[l] ;
+			*p_r = alpha(l,k,j,0)  * (g->x)[i] + beta(l,k,j,0) ;
 			p_r++ ;
 		    }	    // Fin de boucle sur r
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ;
 
-		case FIN:{
-		cout << "map_star_fait_r: Shells not implemented yet..." << endl;
-		abort() ; 
-		break ;
-		}
+		// case FIN:{
+		// cout << "map_star_fait_r: Shells not implemented yet..." << endl;
+		// abort() ; 
+		// break ;
+		// }
 	    
 	    case UNSURR:
 	    for (k=0 ; k<ip ; k++) {
@@ -474,13 +475,14 @@ Mtbl* map_star_fait_xsr(const Map* cvi) {
         
     // Pour le confort
     const Valeur& alpha = cv->get_alpha() ;
+	const Valeur& beta = cv->get_beta() ;
     
     int i, j, k ;
     for (int l=0 ; l<nz ; l++) {
 	int ir = mg->get_nr(l);
 	int it = mg->get_nt(l) ;
 	int ip = mg->get_np(l) ;
-	
+	const Grille3d* g = mg->get_grille3d(l) ;
 	Tbl* tb = (mti->t)[l] ;
 	tb->set_etat_qcq() ;
 	double* p_r = tb->t ;
@@ -488,6 +490,7 @@ Mtbl* map_star_fait_xsr(const Map* cvi) {
 	switch(mg->get_type_r(l)) {
 	
 	    case RARE:
+		assert(beta(l).get_etat()==ETATZERO) ;
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
 		    for (i=0 ; i<ir ; i++) {
@@ -501,17 +504,15 @@ Mtbl* map_star_fait_xsr(const Map* cvi) {
 	    case FIN: 
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
-			cout << "map_star_fait_xsr: Shells not implemented yet..." << endl;
-			abort() ;
-		    // if (ir == 1) { //Some hack for angular grid case...
-			// *p_r = 1. / beta[l] ;
-			// p_r++ ;
-		    // }
-		    // else 
-			// for (i=0 ; i<ir ; i++) {
-			//     *p_r = 1. / ( alpha(l,k,j,0) * (g->x)[i] + beta[l] ) ;
-			//     p_r++ ;
-			// }	    // Fin de boucle sur r
+		    if (ir == 1) { //Some hack for angular grid case...
+			*p_r = 1. / beta(l,k,j,0) ;
+			p_r++ ;
+		    }
+		    else 
+			for (i=0 ; i<ir ; i++) {
+			    *p_r = 1. / ( alpha(l,k,j,0) * (g->x)[i] + beta(l,k,j,0) ) ;
+			    p_r++ ;
+			}	    // Fin de boucle sur r
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ;
@@ -564,7 +565,7 @@ Mtbl* map_star_fait_dxdr(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 	
-	    case RARE:
+	    case RARE: case FIN:
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
 		    for (i=0 ; i<ir ; i++) {
@@ -575,11 +576,11 @@ Mtbl* map_star_fait_dxdr(const Map* cvi) {
 	    }	    // Fin de boucle sur phi
 	    break ; 
 
-		case FIN:{
-		cout << "map_star_fait_dxdr: Shells not implemented yet..." << endl;
-		abort() ; 
-		break ;
-		}
+		// case FIN:{
+		// cout << "map_star_fait_dxdr: Shells not implemented yet..." << endl;
+		// abort() ; 
+		// break ;
+		// }
 		    
 	    case UNSURR:
 	    cout << "map_star_fait_dxdr: Compactified domain not allowed !" << endl;
@@ -617,6 +618,8 @@ Mtbl* map_star_fait_drdt(const Map* cvi) {
     // Pour le confort
     const Valeur& alpha = cv->get_alpha() ;
 	const Valeur& dalphadt = alpha.dsdt() ;
+	const Valeur& beta = cv->get_beta() ;
+	const Valeur& dbetadt = beta.dsdt() ;
 
     
     for (int l=0 ; l<nz ; l++) {
@@ -632,22 +635,22 @@ Mtbl* map_star_fait_drdt(const Map* cvi) {
 	switch(mg->get_type_r(l)) {
 	
 		    
-	    case RARE :  {
+	    case RARE: case FIN:  {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
-			*p_r = dalphadt(l,k,j,0) * (g->x)[i] ;
+			*p_r = dalphadt(l,k,j,0) * (g->x)[i] + dbetadt(l,k,j,0) ;
 			p_r++ ;
 		    }	    // Fin de boucle sur r
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ;
 	    }
-		case FIN:{
-		cout << "map_star_fait_drdt: Shells not implemented yet..." << endl;
-		abort() ; 
-		break ;
-		}
+		// case FIN:{
+		// cout << "map_star_fait_drdt: Shells not implemented yet..." << endl;
+		// abort() ; 
+		// break ;
+		// }
 
 	    case UNSURR: {
 	    cout << "map_star_fait_drdt: Compactified domain not allowed !" << endl;
@@ -687,6 +690,8 @@ Mtbl* map_star_fait_stdrdp(const Map* cvi) {
     // Pour le confort
     const Valeur& alpha = cv->get_alpha() ;
 	const Valeur& stalphadp = alpha.stdsdp() ;
+	const Valeur& beta = cv->get_beta() ;
+	const Valeur& stbetadp = beta.stdsdp() ;
 
     
     for (int l=0 ; l<nz ; l++) {
@@ -702,11 +707,11 @@ Mtbl* map_star_fait_stdrdp(const Map* cvi) {
 	switch(mg->get_type_r(l)) {
 	
 		    
-	    case RARE : {
+	    case RARE: case FIN: {
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
-			*p_r = stalphadp(l,k,j,0) * (g->x)[i] ;
+			*p_r = stalphadp(l,k,j,0) * (g->x)[i] + stbetadp(l,k,j,0) ;
 			p_r++ ;
 		    }	    // Fin de boucle sur r
 		}	// Fin de boucle sur theta
@@ -714,11 +719,11 @@ Mtbl* map_star_fait_stdrdp(const Map* cvi) {
 	    break ;
 	    }
 
-		case FIN:{
-		cout << "map_star_fait_stdrdp: Shells not implemented yet..." << endl;
-		abort() ; 
-		break ;
-		}
+		// case FIN:{
+		// cout << "map_star_fait_stdrdp: Shells not implemented yet..." << endl;
+		// abort() ; 
+		// break ;
+		// }
 
 	    case UNSURR: {
 	    cout << "map_star_fait_stdrdp: Compactified domain not allowed !" << endl;
@@ -758,6 +763,8 @@ Mtbl* map_star_fait_srdrdt(const Map* cvi) {
     // Pour le confort
     const Valeur& alpha = cv->get_alpha() ;
 	const Valeur& dalphadt = alpha.dsdt() ;
+	const Valeur& beta = cv->get_beta() ;
+	const Valeur& dbetadt = beta.dsdt() ;
 
     
     for (int l=0 ; l<nz ; l++) {
@@ -765,7 +772,7 @@ Mtbl* map_star_fait_srdrdt(const Map* cvi) {
 	int nr = mg->get_nr(l);
 	int nt = mg->get_nt(l) ;
 	int np = mg->get_np(l) ;
-
+	const Grille3d* g = mg->get_grille3d(l) ;
 	Tbl* tb = (mti->t)[l] ;
 	tb->set_etat_qcq() ;
 	double* p_r = tb->t ;
@@ -786,8 +793,14 @@ Mtbl* map_star_fait_srdrdt(const Map* cvi) {
 	    }
 
 		case FIN:{
-		cout << "map_star_fait_srdrdt: Shells not implemented yet..." << endl;
-		abort() ; 
+		for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = (dalphadt(l,k,j,0)*(g->x)[i] + dbetadt(l,k,j,0)) / (alpha(l,k,j,0)*(g->x)[i] + beta(l,k,j,0)) ;
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
 		break ;
 		}
 
@@ -829,6 +842,8 @@ Mtbl* map_star_fait_srstdrdp(const Map* cvi) {
     // Pour le confort
     const Valeur& alpha = cv->get_alpha() ;
 	const Valeur& stalphadp = alpha.stdsdp() ;
+	const Valeur& beta = cv->get_beta() ;
+	const Valeur& stbetadp = beta.stdsdp() ;
 
     
     for (int l=0 ; l<nz ; l++) {
@@ -836,7 +851,7 @@ Mtbl* map_star_fait_srstdrdp(const Map* cvi) {
 	int nr = mg->get_nr(l);
 	int nt = mg->get_nt(l) ;
 	int np = mg->get_np(l) ;
-	
+	const Grille3d* g = mg->get_grille3d(l) ;
 	Tbl* tb = (mti->t)[l] ;
 	tb->set_etat_qcq() ;
 	double* p_r = tb->t ;
@@ -857,8 +872,14 @@ Mtbl* map_star_fait_srstdrdp(const Map* cvi) {
 	    }
 
 		case FIN:{
-		cout << "map_star_fait_srstdrdp: Shells not implemented yet..." << endl;
-		abort() ; 
+		for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = (stalphadp(l,k,j,0)*(g->x)[i] + stbetadp(l,k,j,0)) / (alpha(l,k,j,0)*(g->x)[i] + beta(l,k,j,0)) ;
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
 		break ;
 		}
 
