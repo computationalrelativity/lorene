@@ -55,8 +55,7 @@ double Map_star::val_r(int l, double xi, double theta, double pphi) const {
 	}
     
     case FIN: {
-	    cout << "Map_star::val_r : Shells not implemented !" << endl;
-        abort() ;
+	    resu = alpha.val_point(l, xi, theta, pphi)*xi + beta.val_point(l, xi, theta, pphi) ;
 	    break ;
 	}
 
@@ -94,9 +93,11 @@ void Map_star::val_lx(double rr, double theta, double pphi, int& lz, double& xi)
         rmin = 0. ;
         rmax = alpha.val_point(l,1.,theta,pphi) ;
     }
-	// if (mg->get_type_r(l) == FIN) {
-	//     To be implemented ;
-	// }
+	if (mg->get_type_r(l) == FIN) {
+		// cout << "BONJOUR" << endl;
+	    rmin = beta.val_point(l,1.,theta,pphi) - alpha.val_point(l,1,theta,pphi) ;
+		rmax = beta.val_point(l,1.,theta,pphi) + alpha.val_point(l,1,theta,pphi) ;
+	}
 	// if (mg->get_type_r(l) == UNSURR) {
 	//     rmin = double(1)/rmin ; 
 	//     rmax = double(1)/rmax ; 
@@ -136,8 +137,7 @@ void Map_star::val_lx(double rr, double theta, double pphi, int& lz, double& xi)
 	}
 	
 	case FIN: {
-	    cout << "Map_star::val_lx : Shells not implemented !" << endl;
-        abort() ;
+	    xi = (rr-beta.val_point(lz,1.,theta,pphi))/alpha.val_point(lz,1.,theta,pphi) ;
 	    break ;
 	}
 
