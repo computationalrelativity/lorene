@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2022/06/30 16:24:16  j_novak
+ * Corrected a bug in the matching of A_t potential in the case np>1 (loops were not correctly set).
+ *
  * Revision 1.18  2016/12/05 16:17:54  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -129,6 +132,7 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
      *  Assertion that all zones have same number of points in theta
      ****************************************************************/
     int nt = mp.get_mg()->get_nt(nzet-1) ; 
+    int np = mp.get_mg()->get_np(nzet-1) ; 
     for (int l=0; l<Z; l++) assert(mp.get_mg()->get_nt(l) == nt) ;
 
     Tbl Rsurf(nt) ;
@@ -188,14 +192,16 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     }
     else {
       j_t.allocate_all() ;
-      for (int j=0; j<nt; j++) 
-	for (int l=0; l<nzet; l++) 
-	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
-	    j_t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
-				 0. : tmp(l,0,j,i) ) ;
+      for (int k=0; k<np; k++) 
+	for (int j=0; j<nt; j++) 
+	  for (int l=0; l<nzet; l++) 
+	    for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	      j_t.set(l,k,j,i) = ( (*mp.r.c)(l,k,j,i) > Rsurf(j) ?
+				   0. : tmp(l,k,j,i) ) ;
       j_t.annule(nzet,Z-1) ;
     }
     j_t.std_base_scal() ;
+
 
     // Calcul du courant j_phi
     j_phi = omega * j_t + (ener() + press())*f_j(A_phi, a_j) ;
@@ -274,6 +280,7 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
 
     Cmp A_1t(mp);
     A_1t = 0 ;
+
     source_A_1t.poisson(par_poisson_At, A_1t) ;
 
     int L = mp.get_mg()->get_nt(0) ;
@@ -301,7 +308,7 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     for (int i=0; i<L; i++)
       VEC3.set(i) = 1. / double(i+1) ;
 
-    for (int p=0; p<mp.get_mg()->get_np(0); p++) {
+    for (int p=0; p<np; p++) {
 	// leg[k,l] : legendre_l(cos(theta_k))
 	// Construction par recurrence de degre 2
 	for(int k=0;k<L;k++){
@@ -380,15 +387,16 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     else {
       tmp = A_0t ;
       A_0t.allocate_all() ;
-      for (int j=0; j<nt; j++) 
-	for (int l=0; l<Z; l++) 
-	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
-	    A_0t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
-				  A_1t(l,0,j,i) + psi(l,0,j,i) : tmp(l,0,j,i) ) ;
+      for (int k=0; k<np; k++)
+	for (int j=0; j<nt; j++) 
+	  for (int l=0; l<Z; l++) 
+	    for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	      A_0t.set(l,k,j,i) = ( (*mp.r.c)(l,k,j,i) > Rsurf(j) ?
+				  A_1t(l,k,j,i) + psi(l,k,j,i) : tmp(l,k,j,i) ) ;
     } 
     A_0t.std_base_scal() ;
 
-    if (mag_filter == 1) {
+   if (mag_filter == 1) {
       Scalar tmp_filter = A_0t ;
       tmp_filter.exponential_filter_r(0, 2, 1) ;
       tmp_filter.exponential_filter_ylm(0, 2, 1) ;
@@ -430,12 +438,13 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     }
     else {
       A_t_n.allocate_all() ;
-      for (int j=0; j<nt; j++) 
-	for (int l=0; l<Z; l++) 
-	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) {
-	    A_t_n.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
-				   A_0t(l,0,j,i) + C*psi2(l,0,j,i) : 
-				   A_0t(l,0,j,i) + C ) ;    
+      for (int k=0; k<np; k++)
+	for (int j=0; j<nt; j++) 
+	  for (int l=0; l<Z; l++) 
+	    for (int i=0; i<mp.get_mg()->get_nr(l); i++) {
+	      A_t_n.set(l,k,j,i) = ( (*mp.r.c)(l,k,j,i) > Rsurf(j) ?
+				   A_0t(l,k,j,i) + C*psi2(l,k,j,i) : 
+				   A_0t(l,k,j,i) + C ) ;    
 	  }
     }
     A_t_n.std_base_scal() ;
