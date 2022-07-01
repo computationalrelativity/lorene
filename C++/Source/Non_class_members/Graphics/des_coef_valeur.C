@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2022/07/01 08:10:19  j_novak
+ * Added a missing 'include'
+ *
  * Revision 1.6  2022/02/10 16:56:57  j_novak
  * Using C++ strings to avoid warnings
  *
@@ -76,6 +79,9 @@
 // Header C
 #include <cstdlib>
 #include <cstring>
+
+// Header C++
+#include <sstream>
 
 // Header Lorene
 #include "valeur.h"
