@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2022/07/20 12:59:43  j_novak
+ * Added methods for saving into files and constructor from a file
+ *
  * Revision 1.1  2022/04/15 13:39:24  j_novak
  * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
  *
@@ -188,7 +191,7 @@ protected:
   virtual void sauve(FILE* ) const ;	///< Save in a file
 
   /// Save into a table in Lorene format
-  void write_lorene_table(const string&) const ; 
+  void write_lorene_table(const string&, int nlines = 200) const ; 
   
  protected:
   

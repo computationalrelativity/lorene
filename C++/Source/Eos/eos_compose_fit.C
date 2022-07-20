@@ -32,8 +32,8 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2022/04/15 13:39:24  j_novak
- * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
+ * Revision 1.2  2022/07/20 12:59:43  j_novak
+ * Added methods for saving into files and constructor from a file
  *
  *
  * $Header$
@@ -76,7 +76,19 @@ Eos_compose_fit::Eos_compose_fit(const string& par_file_name) :
   fread(tmp_string, sizeof(char), 160, fich) ;
   tablename = tmp_string ;
   
-  //### to be done...
+  fread_be(&n_coefs, sizeof(int), 1, fich) ;
+  fread_be(&nb_min, sizeof(double), 1, fich) ;
+  fread_be(&nb_max, sizeof(double), 1, fich) ;
+  fread_be(&hmin, sizeof(double), 1, fich) ;
+  fread_be(&hmax, sizeof(double), 1, fich) ;
+  
+  mg = new Mg3d(fich) ;
+  mp = new Map_af(*mg, fich) ;
+
+  log_p = new Scalar(*mp, *mg, fich) ;
+  log_e = new Scalar(*mp, *mg, fich) ;
+  log_nb = new Scalar(*mp, *mg, fich) ;
+  log_cs2 = new Scalar(*mp, *mg, fich) ;
 
 }
 
@@ -138,10 +150,20 @@ void Eos_compose_fit::sauve(FILE* fich) const {
   char tmp_string[160] ;
   strcpy(tmp_string, tablename.c_str()) ;
   fwrite(tmp_string, sizeof(char), 160, fich) ;
-
+  fwrite_be(&n_coefs, sizeof(int), 1, fich) ;
+  fwrite_be(&nb_min, sizeof(double), 1, fich) ;
+  fwrite_be(&nb_max, sizeof(double), 1, fich) ;
+  fwrite_be(&hmin, sizeof(double), 1, fich) ;
+  fwrite_be(&hmax, sizeof(double), 1, fich) ;
+  
   mg->sauve(fich) ;
+  mp->sauve(fich) ;
 
-  //### to be done...
+  log_p->sauve(fich) ;
+  log_e->sauve(fich) ;
+  log_nb->sauve(fich) ;
+  log_cs2->sauve(fich) ;
+  
 }
 
   ostream& Eos_compose_fit::operator>>(ostream & ost) const {
@@ -210,8 +232,78 @@ void Eos_compose_fit::read_and_compute(ifstream& para_file) {
 
   adiabatic_index_fit(i_min, i_max, *logh_read, *logp_read, *loge_read, *lognb_read,
     		      *dlpsdlnb) ;
-  
+
+  // Cleaning
+  if (logh_read != nullptr) delete logh_read ;
+  if (logp_read != nullptr) delete logp_read ;
+  if (loge_read != nullptr) delete loge_read ;
+  if (lognb_read != nullptr) delete lognb_read ;
+  if (dlpsdlnb != nullptr) delete dlpsdlnb ;  
 }
+
+void Eos_compose_fit::write_lorene_table(const string& name_file, int nlines)
+  const {
+
+  cout << "Writing the Eos_compose_fit object into a Lorene-format file ("
+       << name_file << ") ..." << flush ;
+  if (nlines < 10) {
+    cerr << "Eos_compose_fit::write_lorene_table" << endl ;
+    cerr << "The number of lines to be outputted is too small!" << endl ;
+    cerr << " nlines = " << nlines << endl ;
+    cerr << "Aborting..." << endl ;
+    abort() ;
+  }
+  double rhonuc_cgs = Unites::rhonuc_si * 1.e-3 ;
+  double c2_cgs = Unites::c_si * Unites::c_si * 1.e-4 ;
+
+  ofstream lorene_file(name_file) ;
+  Scalar press = exp(*log_p) * c2_cgs * rhonuc_cgs ;
+  Scalar ener = exp(*log_e) * rhonuc_cgs ;
+  Scalar nbar = exp(*log_nb) * 10. ;
+
+  lorene_file << "#" << endl ;
+  lorene_file << "# Built from Eos_compose_fit object" << endl ;
+  lorene_file << "# From the table: " << tablename << endl ;
+  lorene_file << "#\n#" << endl ;
+  lorene_file << nlines << "\t Number of lines" << endl ;
+  lorene_file << "#\n#\t  n_B [fm^{-3}]  rho [g/cm^3]   p [dyn/cm^2]" << endl ;
+  lorene_file << "#" << endl ;
+
+  const Coord& xx = mp->r ;
+  int nz = mg->get_nzone() ;
+  assert (nz > 1) ;
+  double xmin0 = (+xx)(0, 0, 0, 0) ;
+  double xmax0 = (+xx)(1, 0, 0, 0) ;
+  int nlines0 = nlines / 10 ;
+  double dx = (xmax0 - xmin0)/double(nlines0-1) ;
+  double logh = xmin0 ;
+  for (int i=0; i<nlines0; i++) {
+    lorene_file << setprecision(16) ;
+    lorene_file << i << '\t' << exp(log_nb->val_point(logh, 0., 0.))*10.
+		<< '\t' << exp(log_e->val_point(logh, 0. ,0.))*rhonuc_cgs / c2_cgs 
+		<< '\t' << exp(log_p->val_point(logh, 0., 0.)) *c2_cgs * rhonuc_cgs
+		<< endl ;
+    logh += dx ;
+  }
+  logh -= dx ;
+  xmin0 = xmax0 ;
+  int nr = mg->get_nr(nz-1) ;
+  xmax0 = (+xx)(nz-1, 0, 0, nr-1) ;
+  dx = (xmax0 - xmin0) / double(nlines - nlines0-1) ;
+  for (int i=nlines0; i<nlines; i++) {
+    lorene_file << setprecision(16) ;
+    lorene_file << i << '\t' << exp(log_nb->val_point(logh, 0., 0.))*10.
+		<< '\t' << exp(log_e->val_point(logh, 0. ,0.))*rhonuc_cgs / c2_cgs 
+		<< '\t' << exp(log_p->val_point(logh, 0., 0.)) *c2_cgs * rhonuc_cgs
+		<< endl ;
+    logh += dx ;    
+  }
+  lorene_file.close() ;
+  cout << " done!" << endl ;
+}
+
+
+
 
 			//------------------------------//
 			//    Computational routines    //
@@ -224,7 +316,7 @@ double Eos_compose_fit::nbar_ent_p(double ent, const Param* ) const {
 
   if ( ent > hmin ) {
     if (ent > hmax) {
-      cout << "Eos_compose_fit::nbar_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_compose_fit::nbar_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     double logh0 = log( ent ) ;
@@ -242,7 +334,7 @@ double Eos_compose_fit::ener_ent_p(double ent, const Param* ) const {
   
   if ( ent > hmin ) {
     if (ent > hmax) {
-      cout << "Eos_compose_fit::ener_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_compose_fit::ener_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     double logh0 = log( ent ) ;
@@ -260,7 +352,7 @@ double Eos_compose_fit::press_ent_p(double ent, const Param* ) const {
   
     if ( ent > hmin ) {
       if (ent > hmax) {
-	cout << "Eos_compose_fit::press_ent_p : ent > hmax !" << endl ;
+	cerr << "Eos_compose_fit::press_ent_p : ent > hmax !" << endl ;
 	abort() ;
       }
       
@@ -279,7 +371,7 @@ double Eos_compose_fit::der_nbar_ent_p(double ent, const Param* ) const {
 
   if ( ent > hmin ) {
     if (ent > hmax) {
-      cout << "Eos_compose_fit::der_nbar_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_compose_fit::der_nbar_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     
@@ -298,7 +390,7 @@ double Eos_compose_fit::der_ener_ent_p(double ent, const Param* ) const {
 
   if ( ent > hmin ) {
     if (ent > hmax) {
-      cout << "Eos_compose_fit::der_ener_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_compose_fit::der_ener_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     double logh0 = log(ent) ;
@@ -316,7 +408,7 @@ double Eos_compose_fit::der_press_ent_p(double ent, const Param* ) const {
 
   if ( ent > hmin ) {
     if (ent > hmax) {
-      cout << "Eos_compose_fit::der_press_ent_p : ent > hmax !" << endl ;
+      cerr << "Eos_compose_fit::der_press_ent_p : ent > hmax !" << endl ;
       abort() ;
     }
     double logh0 = log(ent) ;
@@ -343,7 +435,7 @@ double Eos_compose_fit::csound_square_ent_p(double ent, const Param*) const {
   
   if ( ent > hmin ) {
     if (ent > hmax) {
-      cout << "Eos_compose_fit::csound_square_ent_p : ent>hmax !" << endl ;
+      cerr << "Eos_compose_fit::csound_square_ent_p : ent>hmax !" << endl ;
       abort() ;
     }
     double logh0 = log(ent) ;    
