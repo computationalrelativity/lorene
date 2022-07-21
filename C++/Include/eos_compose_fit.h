@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2022/07/21 12:33:51  j_novak
+ * Improved comments
+ *
  * Revision 1.2  2022/07/20 12:59:43  j_novak
  * Added methods for saving into files and constructor from a file
  *
@@ -58,21 +61,25 @@ namespace Lorene {
 
 /**
  * Equation of state for fitting the 1-parameter EoSs from 
- * the <a href="http://compose.obspm.fr">CompOSE</a> database. 
+ * the <a href="http://compose.obspm.fr">CompOSE</a> database. \ingroup(eos)
  *
- * General tabulated EOS, reading a table passed as an argument to the 
- * constructor. When built with \c Eos::eos_from_file(), the file must 
- * be composed of the following lines:
- * \verbatim 17	Type of the EOS 
-1	0: standard format	1: CompOSE format 
-Tabulated EoS
-/full/path/to/the/eos/table/name_of_the_table \endverbatim
- * On the second line '0' means that the table has the standard LORENE format
- * for tabulated EoSs (see class \c Eos_tabul for details). 
- * '1' means that the files from the CompOSE database
- * are used and that the 'name_of_the_table' should be without suffix:
- * e.g. \c great_eos would stand for files \c great_eos.nb and 
- * \c great_eos.thermo (see CompOSE documentation).
+ * A polynomial fit is done ont the adidabatic index for the highest densities. 
+ * At the lowest ones, a simple polytrope is fitted. In between, a linear 
+ * interpolation is done in terms of adiabatic index. When built with 
+ * \c Eos::eos_from_file(), the file must be composed of the following lines:
+ * \verbatim 7	Type of the EOS
+EoS fitted from CompOSE data
+/full/path/to/the/eos/table/
+0.01   1.e-9  # limiting density values
+6             # polynomial degree for the regression
+33            # number of Chebyshev point sin each domain \endverbatim
+ * On the second line the name is just for output. The path to 
+ * the directory containing CompOSE EoS (third line), does not contain 
+ * the name of the tables, it is assumed to be called \c eos.nb and 
+ * \c eos.thermo (see CompOSE documentation).
+ * The fourth line gives limit values in density for the fit: above the first 
+ * value, the polynomial regression is done. Below the second value, 
+ * a polytrope is fitted. 
  */
 class Eos_compose_fit : public Eos {
 
@@ -97,6 +104,7 @@ class Eos_compose_fit : public Eos {
    */
   double nb_max ;
 
+  /// Lower and higher values of enthalpy in the table
   double hmin, hmax ;
 
   /// Multi-grid defining the number of domains and spectral coefficients
@@ -175,11 +183,16 @@ class Eos_compose_fit : public Eos {
 
 protected:
 
+  /// Reads the Compose data and makes the fit.
   void read_and_compute(ifstream&) ;
 
+  /// Reads Compose data and stores the values of thermodynamic quantities. 
   void read_compose_data(int& nbp, Tbl*& logh, Tbl*& logp, Tbl*& loge,
 			 Tbl*& lognb, Tbl*& gam1) ;
 
+  /** From the read values, makes the fit on the adiabatic index and deduces 
+   *  the other quantities from thermodynamic relations and definitions.
+   */
   void adiabatic_index_fit(int i_min, int i_max, const Tbl& logh_read,
 			   const Tbl& logp_read, const Tbl& loge_read,
 			   const Tbl& lognb_read, const Tbl& gam1_read) ;
@@ -188,9 +201,9 @@ protected:
   // -------
  public:
 
-  virtual void sauve(FILE* ) const ;	///< Save in a file
+  virtual void sauve(FILE* ) const ;	///< Save in a file.
 
-  /// Save into a table in Lorene format
+  /// Save into a table in Lorene format.
   void write_lorene_table(const string&, int nlines = 200) const ; 
   
  protected:
@@ -200,10 +213,11 @@ protected:
   // Accessors
   //-------------
 
+  /// Returns the name (given in the parameter file, see the introduction of the class).
   const string& get_tablename() const {return tablename ;} ;
 
-  double get_nbmin() const { return nb_min ;} ;
-  double get_nbmax() const { return nb_max ;} ;
+  double get_nbmin() const { return nb_min ;} ;  ///< Lower bound in density
+  double get_nbmax() const { return nb_max ;} ;  ///< Higher bound in density
   
     // Computational functions
     // -----------------------
