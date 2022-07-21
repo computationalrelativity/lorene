@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2022/07/21 12:34:18  j_novak
+ * Corrected units
+ *
  * Revision 1.1  2022/04/15 13:39:24  j_novak
  * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
  *
@@ -99,6 +102,7 @@ void Eos_compose_fit::read_compose_data(int& nbp, Tbl*& logh_read, Tbl*& logp_re
   double dummy_x ;
   int dummy_n ;
 
+  //# Dealing with units could be optimized...
   double rhonuc_cgs = Unites::rhonuc_si * 1e-3 ;
   double c2_cgs = Unites::c_si * Unites::c_si * 1e4 ;
   double m_neutron_MeV, m_proton_MeV ;
@@ -148,9 +152,9 @@ void Eos_compose_fit::read_compose_data(int& nbp, Tbl*& logh_read, Tbl*& logp_re
     ener.set(i)    = rho_cgs ;
 
     // log-quantities in cgs units
-    logp_read->set(i) = log( press(i) ) ;
-    loge_read->set(i) = log( ener(i) ) ; 
-    lognb_read->set(i) = log( nb(i) ) ;
+    logp_read->set(i) = log( press(i) / rhonuc_cgs ) ;
+    loge_read->set(i) = log( ener(i) / rhonuc_cgs ) ; 
+    lognb_read->set(i) = log( 10.* nb(i) ) ;
   }
   cout << " done." << endl ;  
   // -----------------------------------------
@@ -186,8 +190,6 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
 			 const Tbl& loge_read, const Tbl& lognb_read,
 			 const Tbl& gam1_read) {
 
-  double rhonuc_cgs = Unites::rhonuc_si * 1e-3 ;
-  
   int nbp = logh_read.get_dim(0) ;
   double p_bound = exp(logp_read(nbp-1)) ;
   double e_bound = exp(loge_read(nbp-1)) ;
@@ -325,7 +327,7 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
 
 
   // Baryon density
-  Scalar spec_nbar = spec_press / (YYY * expexpx) / (10.*rhonuc_cgs)  ;
+  Scalar spec_nbar = spec_press / (YYY * expexpx) ; 
   cout << "Relative difference in baryon density at the last point" << endl ;
   cout << "(fitted computed / original tabulated)  : "
            << fabs(1. - spec_nbar.val_grid_point(nz-1, 0, 0, nr-1) / nb_bound)
@@ -352,7 +354,7 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
 
   for (int i=0; i<nr; i++) {
     double h0 = exp((+xx)(0, 0, 0, i)) ;
-    double n0gamm1 = (exp(h0)*10.*rhonuc_cgs - mu_0)*(mean_gam - 1.) / (kappa*mean_gam) ;
+    double n0gamm1 = (exp(h0) - mu_0)*(mean_gam - 1.) / (kappa*mean_gam) ;
     double n0 = pow(n0gamm1, 1./(mean_gam-1.)) ;
     double p0 = kappa*n0gamm1*n0 ;
     double e0 = mu_0*n0 + p0/(mean_gam - 1.) ;

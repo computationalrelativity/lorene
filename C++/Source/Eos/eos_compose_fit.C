@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2022/07/21 12:34:18  j_novak
+ * Corrected units
+ *
  * Revision 1.2  2022/07/20 12:59:43  j_novak
  * Added methods for saving into files and constructor from a file
  *
@@ -254,7 +257,7 @@ void Eos_compose_fit::write_lorene_table(const string& name_file, int nlines)
     abort() ;
   }
   double rhonuc_cgs = Unites::rhonuc_si * 1.e-3 ;
-  double c2_cgs = Unites::c_si * Unites::c_si * 1.e-4 ;
+  double c2_cgs = Unites::c_si * Unites::c_si * 1.e4 ;
 
   ofstream lorene_file(name_file) ;
   Scalar press = exp(*log_p) * c2_cgs * rhonuc_cgs ;
@@ -279,7 +282,7 @@ void Eos_compose_fit::write_lorene_table(const string& name_file, int nlines)
   double logh = xmin0 ;
   for (int i=0; i<nlines0; i++) {
     lorene_file << setprecision(16) ;
-    lorene_file << i << '\t' << exp(log_nb->val_point(logh, 0., 0.))*10.
+    lorene_file << i << '\t' << exp(log_nb->val_point(logh, 0., 0.))/10.
 		<< '\t' << exp(log_e->val_point(logh, 0. ,0.))*rhonuc_cgs / c2_cgs 
 		<< '\t' << exp(log_p->val_point(logh, 0., 0.)) *c2_cgs * rhonuc_cgs
 		<< endl ;
@@ -292,11 +295,13 @@ void Eos_compose_fit::write_lorene_table(const string& name_file, int nlines)
   dx = (xmax0 - xmin0) / double(nlines - nlines0-1) ;
   for (int i=nlines0; i<nlines; i++) {
     lorene_file << setprecision(16) ;
-    lorene_file << i << '\t' << exp(log_nb->val_point(logh, 0., 0.))*10.
-		<< '\t' << exp(log_e->val_point(logh, 0. ,0.))*rhonuc_cgs / c2_cgs 
+    lorene_file << i << '\t' << exp(log_nb->val_point(logh, 0., 0.))/10.
+		<< '\t' << exp(log_e->val_point(logh, 0. ,0.))*rhonuc_cgs  
 		<< '\t' << exp(log_p->val_point(logh, 0., 0.)) *c2_cgs * rhonuc_cgs
 		<< endl ;
-    logh += dx ;    
+    if (logh >= xmax0) break ;
+    logh += dx ;
+    if (logh > xmax0) logh = xmax0 ;
   }
   lorene_file.close() ;
   cout << " done!" << endl ;
