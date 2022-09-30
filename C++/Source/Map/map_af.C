@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2022/09/30 14:44:03  j_novak
+ * Improved treatment of outer boundary in constructor from a file
+ *
  * Revision 1.22  2020/01/27 11:00:19  j_novak
  * New include <stdexcept> to be compatible with older versions of g++
  *
@@ -189,6 +192,7 @@
 
 // headers Lorene
 #include "cmp.h"
+#include "nbr_spx.h"
 #include "utilitaires.h"
 #include "proto.h"
 #include "unites.h"
@@ -338,13 +342,44 @@ Map_af::Map_af(const Map_af& mp) : Map_radial(mp)
     mesg += filename ;
     throw(invalid_argument(mesg)) ;
   }
-  Tbl bornes(nz) ;
+  Tbl bornes(nz+1) ;
   bornes.set_etat_qcq() ;
   for (int i=0; i<nz; i++) {
     parfile >> bornes.set(i) ;
     parfile.ignore(1000, '\n') ;
   }
 
+  string last_boundary ;
+  parfile >> last_boundary ;
+
+  if (last_boundary.compare("infinity") == 0) {
+    bornes.set(nz) = __infinity ;
+    if (mgrille.get_type_r(nz-1) != UNSURR) {
+      string mesg = filename
+	+ ": infinite outer boundary can be set only in the ced case." ;
+      throw(invalid_argument(mesg)) ;
+    }
+  }
+  else {
+    double rout = 0. ;
+    try {
+      rout = stod(last_boundary) ;
+    }
+    catch(invalid_argument& ia) {
+      cerr << "Map_af constructor from a file, invalid argument in file\n"
+	   << last_boundary << endl ;
+      abort() ;
+    }
+    bornes.set(nz) = rout ;
+    if (mgrille.get_type_r(nz-1) == UNSURR) {
+      string mesg = filename
+	+ ": the ced grid type cannot accept a finite outer radius." ;
+      throw(invalid_argument(mesg)) ;
+    }
+  }
+
+  cout << bornes ;
+  int op ; cin >> op ;
   set_coord() ; 
     
   alpha = new double[nz] ;
