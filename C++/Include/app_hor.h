@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2022/09/30 14:41:38  j_novak
+ * Corrected comments.
+ *
  * Revision 1.6  2014/10/13 08:52:31  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -63,7 +66,7 @@
 
 namespace Lorene {
 /**
- * Class for apparent horizon (under heavy development)
+ * Apparent horizon linked functions.
  * 
  */
 
