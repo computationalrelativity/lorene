@@ -115,9 +115,10 @@ Map_star::Map_star(const Map_star& mp) : Map_radial(mp),alpha(mp.alpha),beta(mp.
 
 // Constructor from file
 // ---------------------
-Map_star::Map_star(const Mg3d& mgi, FILE* fd) : Map_radial(mgi, fd),alpha(mgi.get_angu()),beta(mgi.get_angu())
+Map_star::Map_star(const Mg3d& mgi, FILE* fd) : Map_radial(mgi, fd),alpha(*mgi.get_angu(), fd),beta(*mgi.get_angu(), fd)
 {
-    c_est_pas_fait("Map_star constructor from a file") ;
+    // Les coordonnees et les derivees du changement de variable
+    set_coord() ;
 }
 
 			//--------------//
@@ -250,7 +251,7 @@ void Map_star::sauve(FILE* fd) const {
 
     alpha.sauve(fd) ; //May not be enough to save everything...	
     beta.sauve(fd) ;
-    
+
 }
 
 			//------------//
