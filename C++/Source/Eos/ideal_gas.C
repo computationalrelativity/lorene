@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2022/12/15 14:38:27  j_novak
+ * Change in the call to fread, to avoid compilation warnings
+ *
  * Revision 1.6  2022/04/06 12:38:05  g_servignat
  * Added source computation routine and source reading in table for electronic fraction advection equation
  *
@@ -313,7 +316,7 @@ namespace Lorene {
       //}
   }
   
-  double Ideal_gas::csound_square_Hs_p(double ent, double sb) const  {
+  double Ideal_gas::csound_square_Hs_p(double, double) const  {
     cerr << "Ideal_gas::csound_square_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
@@ -321,7 +324,7 @@ namespace Lorene {
     return 0. ;
   }
   
-  double Ideal_gas::chi2_Hs_p(double ent, double sb) const  {
+  double Ideal_gas::chi2_Hs_p(double, double) const  {
     cerr << "Ideal_gas::chi2_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
@@ -329,7 +332,7 @@ namespace Lorene {
     return 0. ;
   }
   
-  double Ideal_gas::mul_Hs_p(double ent, double sb) const  {
+  double Ideal_gas::mul_Hs_p(double, double) const  {
     cerr << "Ideal_gas::mul_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
@@ -337,7 +340,7 @@ namespace Lorene {
     return 0. ;
   }
 
-  double Ideal_gas::sigma_Hs_p(double ent, double sb) const  {
+  double Ideal_gas::sigma_Hs_p(double, double) const  {
     cerr << "Ideal_gas::sigma_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;

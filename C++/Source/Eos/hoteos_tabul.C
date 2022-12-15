@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2022/12/15 14:38:27  j_novak
+ * Change in the call to fread, to avoid compilation warnings
+ *
  * Revision 1.6  2022/04/06 12:38:05  g_servignat
  * Added source computation routine and source reading in table for electronic fraction advection equation
  *
@@ -92,9 +95,17 @@ namespace Lorene {
   // ----------------------------
   Hoteos_tabul::Hoteos_tabul(FILE* fich) : Hot_eos(fich) {
     
-    char tmp_string[160] ;
-    fread(tmp_string, sizeof(char), 160, fich) ;
-    tablename = tmp_string ;
+    const int nc = 160 ;
+    char tmp_string[nc] ;
+    size_t ret = fread(tmp_string, sizeof(char), nc, fich) ;
+    if (int(ret) == nc)
+      tablename = tmp_string ;
+    else {
+      cerr << "Hoteos_tabul: constructor from a binary file:" << endl ;
+      cerr << "Problems in reading the table name." << endl ;
+      cerr << "Aborting..." << endl ;
+      abort() ;
+    }
     set_arrays_0x0() ;
     read_table() ;  
   }
@@ -451,7 +462,7 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
     }
   }
   
-  double Hoteos_tabul::csound_square_Hs_p(double ent, double sb) const  {
+  double Hoteos_tabul::csound_square_Hs_p(double, double) const  {
     cerr << "Hoteos_tabul::csound_square_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
@@ -459,7 +470,7 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
     return 0. ;
   }
   
-  double Hoteos_tabul::chi2_Hs_p(double ent, double sb) const  {
+  double Hoteos_tabul::chi2_Hs_p(double, double) const  {
     cerr << "Hoteos_tabul::chi2_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
@@ -467,7 +478,7 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
     return 0. ;
   }
   
-  double Hoteos_tabul::mul_Hs_p(double ent, double sb) const  {
+  double Hoteos_tabul::mul_Hs_p(double, double) const  {
     cerr << "Hoteos_tabul::mul_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;
@@ -475,7 +486,7 @@ double Hoteos_tabul::press_Hs_p(double ent, double sb) const {
     return 0. ;
   }
 
-  double Hoteos_tabul::sigma_Hs_p(double ent, double sb) const  {
+  double Hoteos_tabul::sigma_Hs_p(double, double) const  {
     cerr << "Hoteos_tabul::sigma_Hs_p : function not implemented (yet !) ..." << endl;
     cerr << "Aborting ..." << endl;
     abort() ;

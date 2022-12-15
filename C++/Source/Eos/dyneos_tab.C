@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2022/12/15 14:38:27  j_novak
+ * Change in the call to fread, to avoid compilation warnings
+ *
  * Revision 1.3  2022/03/22 13:36:00  j_novak
  * Added declaration of compute_derivative to utilitaires.h
  *
@@ -95,6 +98,12 @@ namespace Lorene {
     size_t ret = fread(tmp_string, sizeof(char), nc, fich) ;
     if (int(ret) == nc)
       tablename = tmp_string ;
+    else {
+      cerr << "Dyn_eos_tab: constructor from a binary file:" << endl ;
+      cerr << "Problems in reading the table name." << endl ;
+      cerr << "Aborting..." << endl ;
+      abort() ;
+    }
     int comp ;
     fread_be(&comp, sizeof(int), 1, fich) ;
     compose_format = comp ;
