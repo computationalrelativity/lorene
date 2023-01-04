@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2023/01/04 10:23:37  j_novak
+ * Removed spurious output.
+ *
  * Revision 1.23  2022/09/30 14:44:03  j_novak
  * Improved treatment of outer boundary in constructor from a file
  *
@@ -378,8 +381,6 @@ Map_af::Map_af(const Map_af& mp) : Map_radial(mp)
     }
   }
 
-  cout << bornes ;
-  int op ; cin >> op ;
   set_coord() ; 
     
   alpha = new double[nz] ;
