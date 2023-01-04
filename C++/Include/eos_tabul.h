@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2023/01/04 10:24:16  j_novak
+ * Added access to hmin and hmax
+ *
  * Revision 1.21  2022/03/10 16:38:39  j_novak
  * log(cs^2) is tabulated instead of cs^2.
  *
@@ -282,15 +285,21 @@ class Eos_tabul : public Eos {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_tabul() ;			///< Destructor
+  virtual ~Eos_tabul() ;			///< Destructor
 
 
     // Miscellaneous
     // -------------
-    public:
+public:
   const string& get_tablename() const { return tablename ; } ;
   
   const Tbl& get_logh() const {return *logh ; } ;
+  
+  /// Returns minimal value of log-enthalpy in the table
+  double get_hmin() const {return hmin ; } ;
+  
+  /// Returns maximal value of log-enthalpy in the table
+  double get_hmax() const {return hmax ; } ;
   
     protected: 	
     	/** Reads the file containing the table and initializes
