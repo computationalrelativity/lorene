@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2023/01/10 15:46:11  j_novak
+ * Improvement computation of derivatives, including sound speed.
+ *
  * Revision 1.11  2021/05/14 15:39:22  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -425,16 +428,17 @@ double Eos_poly::der_nbar_ent_p(double ent, const Param* ) const {
 
     if ( ent > ent_0 ) {
 
-//## To be adapted
-        if ( ent < 1.e-13  + ent_0 ) {
-	    return ( double(1) + ent/double(2) + ent*ent/double(12) ) / gam1 ;
-	}
-	else {
-	    return ent / (double(1) - rel_mu_0 * exp(-ent)) / gam1 ;
+      double xx = ent - ent_0 ;
+
+      if ( xx < 1.e-13 ) {
+	return ( double(1) + xx/double(2) + xx*xx/double(12) ) / gam1 ;
+      }
+      else {
+	return ent / (double(1) - exp(-xx)) / gam1 ;
 	}
     }
     else{
-	return double(1) / gam1 ;	//  to ensure continuity at ent=0
+      return double(1) / gam1 ;	//  to ensure continuity at ent=0
     }
 }
 
@@ -445,27 +449,26 @@ double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 
     if ( ent > ent_0 ) {
 
-
-	double nn = pow( gam1sgamkap * ( exp(ent) - rel_mu_0 ),
+      double xx = ent = ent_0 ;
+      double nn = pow( gam1sgamkap * ( exp(ent) - rel_mu_0 ),
 				     unsgam1 ) ;
 
-	double pp = kap * pow( nn, gam ) ;
+      double pp = kap * pow( nn, gam ) ;
+      
+      double ee =  unsgam1 * pp + mu_0 * nn ;
 
-	double ee =  unsgam1 * pp + mu_0 * nn ;
 
-
-	if ( ent < ent_0 + 1.e-13 ) {
-	    return ( double(1) + ent/double(2) + ent*ent/double(12) ) / gam1
-		* ( double(1) + pp / ee) ;
-	}
-	else {
-	    return ent / (double(1) - rel_mu_0 * exp(-ent)) / gam1
-		* ( double(1) + pp / ee) ;
-	}
-
+      if ( xx < 1.e-13 ) {
+	return ( double(1) + xx/double(2) + xx*xx/double(12) ) / gam1
+	  * ( double(1) + pp / ee) ;
+      }
+      else {
+	return ent / (double(1) - exp(-xx)) / gam1
+	  * ( double(1) + pp / ee) ;
+      }
     }
     else{
-	return double(1) / gam1 ;   //  to ensure continuity at ent=0
+      return double(1) / gam1 ;   //  to ensure continuity at ent=0
     }
 }
 
@@ -474,34 +477,33 @@ double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::der_press_ent_p(double ent, const Param* ) const {
     
-    if ( ent > double(0) ) {
+    if ( ent > ent_0 ) {
 
-	if ( ent < ent_0 + 1.e-13 ) {
-	    return gam * ( double(1) + ent/double(2) + ent*ent/double(12) ) 
-		    / gam1 ;
+      double xx = ent - ent_0 ;
+	if ( xx < 1.e-13 ) {
+	  return gam * ( double(1) + xx/double(2) + xx*xx/double(12) ) 
+	    / gam1 ;
 	}
 	else{
-	    return gam * ent / (double(1) - rel_mu_0 * exp(-ent)) / gam1 ;
+	  return gam * ent / (double(1) - exp(-xx)) / gam1 ;
 	}
     }
     else{
-	return gam / gam1 ;	//  to ensure continuity at ent=0
+      return gam / gam1 ;	//  to ensure continuity at ent=0
     }
 }
 
 // Sound speed from enthalpy
 //---------------------------------
-double Eos_poly::csound_square_ent_p(double ent, const Param* ) const
-{
-double nbar ;
-nbar = nbar_ent_p(ent) ;
-if ( nbar > 0. )
-	{
-double ngam = pow(nbar, gam1) ;
-return kap*gam*ngam / ( gam*(kap/gam1)*ngam + mu_0 ) ;
-	}
-else
-	return 0. ;
+double Eos_poly::csound_square_ent_p(double ent, const Param* ) const {
+
+  if ( ent > ent_0 ) {
+    double xx = ent - ent_0 ;
+
+    return gam1*( 1. - exp(-xx) ) ;
+  }
+  else
+    return 0. ;
 }
 
 }
