@@ -28,6 +28,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2023/01/17 15:01:25  j_novak
+ * Update of the value of g_si from CODATA 2018. New definition of rhonuc_si
+ * as 0.1 unified atomic mass unit per Fermi^3. Note that results with Lorene
+ * may change because of these updates.
+ *
  * Revision 1.9  2016/12/05 15:28:52  j_novak
  * Suppressed the use of 'pow' to avoid compilation warnings.
  *
@@ -76,16 +81,26 @@ namespace Lorene {
    *
    * These are the units used in LORENE for space, time and mass. They
    * are mainly designed to study compact objects like neutron stars 
-   * and black holes.\ingroup (unites)
+   * and black holes. Last update to comply with CODATA 2018.\ingroup (unites)
    */
   namespace Unites {
-    const double g_si = 6.6738E-11 ;	 ///< Newton gravitational constant [SI]
+
+    //*** G constant and density unit before January 2023 ***
+    // To reproduce pre-2023 results, please change the difinitions of
+    // g_si and rhonuc_si by uncommenting these two lines and commenting
+    // the new corresponding ones.
+    //const double g_si = 6.6738E-11 ;	 ///< Newton gravitational constant [SI]
+    //const double rhonuc_si = 1.66E+17 ; ///< Nuclear density [kg/m3]
+    
+    const double g_si = 6.6743E-11 ;	 ///< Newton gravitational constant [SI]
     const double c_si = 2.99792458E+8 ;	 ///< Velocity of light [m/s]
-    const double kB_si = 1.3806488E-23 ; ///< Boltzmann constant [J/K]
-    const double rhonuc_si = 1.66E+17 ;	 ///< Nuclear density [kg/m3] (arbitrary)
+    const double kB_si = 1.380649E-23 ; ///< Boltzmann constant [J/K]
+    const double m_u_si = 1.6605390666E-27 ;  ///< atomic mass unit [kg]
+    const double mev_si = 1.602176634E-13 ;   ///< One MeV [J]
+    /// Nuclear density [kg/m3] := 0.1 atomic  mass / Fermi^3 (arbitrary)
+    const double rhonuc_si = m_u_si * 1.e44 ;
     const double km_si = 1.E+3 ;	 ///< One kilometer [m]
     const double msol_si = 1.9885E+30 ;	 ///< Solar mass [kg]
-    const double mev_si = 1.602176565E-13 ;   ///< One MeV [J]
     
     const double r_unit = 1.e4 ;  ///< Lorene's unit of length = 10 km
     const double v_unit = c_si ; ///< Lorene's unit of velocity = c 
@@ -102,7 +117,7 @@ namespace Lorene {
     /// 1 MeV/fm3 in Lorene's units
     const double mevpfm3 = mev_si/( rho_unit * v_unit *v_unit) *1.e45 ;  
     /// Atomic mass conversion from Lorene's units to MeV
-    const double m_u_mev = rho_unit / 1.e44 *c_si*c_si / mev_si ;
+    const double m_u_mev = m_u_si *c_si*c_si / mev_si ;
   }
   
   
