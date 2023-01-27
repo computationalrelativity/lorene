@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2023/01/27 16:10:35  j_novak
+ * A polytrope (class Eos_poly) is used for low and high enthalpies.
+ *
  * Revision 1.3  2022/07/21 12:33:51  j_novak
  * Improved comments
  *
@@ -99,13 +102,22 @@ class Eos_compose_fit : public Eos {
   /// Lower bound in baryon density, below which the EoS is assumed to be a polytrope.
   double nb_min ;
 
-  /** Higher bound in baryon density, above which which the EoS is determined 
+  /** Middle bound in baryon density, above which which the EoS is determined 
    *  from the polynomial fit to the adiabatic index.
    */
+  double nb_mid ;
+
+  /// Higher bound on the density, above which the EoS is assumed to be a polytrope.
   double nb_max ;
 
-  /// Lower and higher values of enthalpy in the table
+  /// Values of enthalpy corresponding to nb_min and nb_max
   double hmin, hmax ;
+
+  /// Pointer on a polytropic EoS for the description of low densities (nb<nb_min)
+  const Eos_poly* p_eos_low ;
+
+  /// Pointer on a polytropic EoS for the description of high densities (nb>nb_max)
+  const Eos_poly* p_eos_high ;
 
   /// Multi-grid defining the number of domains and spectral coefficients
   const Mg3d* mg ;
@@ -296,7 +308,7 @@ protected:
 	 *
 	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
 	 */
-	virtual double csound_square_ent_p(double, const Param*) const ;
+	virtual double csound_square_ent_p(double, const Param* par=0x0) const ;
   
 };
 

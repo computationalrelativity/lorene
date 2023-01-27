@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2023/01/27 16:10:35  j_novak
+ * A polytrope (class Eos_poly) is used for low and high enthalpies.
+ *
  * Revision 1.2  2022/07/21 12:34:18  j_novak
  * Corrected units
  *
@@ -48,6 +51,7 @@
 #include "scalar.h"
 #include "utilitaires.h"
 #include "unites.h"
+#include "graphique.h"
 
 namespace Lorene {
 void Eos_compose_fit::read_compose_data(int& nbp, Tbl*& logh_read, Tbl*& logp_read,
@@ -156,6 +160,7 @@ void Eos_compose_fit::read_compose_data(int& nbp, Tbl*& logh_read, Tbl*& logp_re
     loge_read->set(i) = log( ener(i) / rhonuc_cgs ) ; 
     lognb_read->set(i) = log( 10.* nb(i) ) ;
   }
+  nb_max = nb(nbp-1) ;
   cout << " done." << endl ;  
   // -----------------------------------------
   // End of the reading of the CompOSE tables
@@ -185,33 +190,32 @@ void Eos_compose_fit::read_compose_data(int& nbp, Tbl*& logh_read, Tbl*& logp_re
 }
 
 
-void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
+void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_mid,
 			 const Tbl& logh_read, const Tbl& logp_read,
 			 const Tbl& loge_read, const Tbl& lognb_read,
 			 const Tbl& gam1_read) {
 
   int nbp = logh_read.get_dim(0) ;
-  double p_bound = exp(logp_read(nbp-1)) ;
-  double e_bound = exp(loge_read(nbp-1)) ;
-  double nb_bound = exp(lognb_read(nbp-1)) ;
+  double p_max = exp(logp_read(nbp-1)) ;
+  double e_max = exp(loge_read(nbp-1)) ;
+  double nb0_max = exp(lognb_read(nbp-1)) ;
+  double p_min = exp(logp_read(i_min)) ;
+  double e_min = exp(loge_read(i_min)) ;
 
   assert((mp != nullptr) && (mg != nullptr)) ;
   const Map_af& mpd = *mp ;
   int nz = mg->get_nzone() ;
+  assert(nz == 2) ;
   int nr = mg->get_nr(0) ;
 #ifndef NDEBUG 
     for (int l=1; l<nz; l++)
       assert(mg->get_nr(l) == nr) ;
 #endif
   const Coord& xx = mpd.r ; // xx = log(h) = log(log(e+p/m_B n_B))
-  double x_end = (+xx)(nz-1, 0, 0, nr-1) ;
-  double x_lim_max = (+xx)(nz-2, 0, 0, nr-1) ;
-  double x_lim_min = (+xx)(1, 0, 0, 0) ;
-  double x_0 = (+xx)(0, 0, 0, 0) ;
+  double x_max = (+xx)(nz-1, 0, 0, nr-1) ;
+  double x_mid = (+xx)(1, 0, 0, 0) ;
+  double x_min = (+xx)(0, 0, 0, 0) ;
 
-  hmin = exp(x_0) ;
-  hmax = exp(x_end) ;
-  
   if (log_p != nullptr) delete log_p ;
   if (log_e != nullptr) delete log_e ;
   if (log_nb != nullptr) delete log_nb ;
@@ -237,13 +241,13 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
 
     // High density part : polynomial fit (polynomial regression)
   //--------------------------------------------------------------
-  int ndata = nbp - i_max ;
+  int ndata = nbp - i_mid ;
   Tbl xdata(ndata) ; xdata.set_etat_qcq() ;
   Tbl ydata(ndata) ; ydata.set_etat_qcq() ;
-  for (int i=i_max; i<nbp; i++) {
-    xdata.set(i-i_max) = 2.*(logh_read(i) - x_lim_max)
-      / (x_end - x_lim_max) - 1. ;
-    ydata.set(i-i_max) = gam1_read(i) ;
+  for (int i=i_mid; i<nbp; i++) {
+    xdata.set(i-i_mid) = 2.*(logh_read(i) - x_mid)
+      / (x_max - x_mid) - 1. ;
+    ydata.set(i-i_mid) = gam1_read(i) ;
   }
 
   Tbl tcoefs = poly_regression(xdata, ydata, n_coefs) ;
@@ -251,7 +255,7 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
   // Putting coefficients to the 'Scalar' object 
   gam1_spec.set_spectral_va().coef() ;
   for (int i=0; i<=n_coefs; i++) {
-    (*gam1_spec.set_spectral_va().c_cf).set(nz-1, 0, 0, i) = tcoefs(i) ;
+    (*gam1_spec.set_spectral_va().c_cf).set(1, 0, 0, i) = tcoefs(i) ;
   }
   
   // Not nice, but only simple way to update values on grid points
@@ -263,15 +267,15 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
 
   // Intermediate part : linear interpolation
   //------------------------------------------
-  cout << "gam1_spec at lower boundary of fit = "
-       << gam1_spec.val_grid_point(nz-1, 0, 0, 0) << endl ;
+  cout << "gam1_spec at lower boundary of fit = " //### check nz and add rules for high densities
+       << gam1_spec.val_grid_point(1, 0, 0, 0) << endl ;
   Scalar interm(mpd) ;
   // Linear formula
   interm = mean_gam
-    + (gam1_spec.val_grid_point(nz-1, 0, 0, 0) - mean_gam)
-    * (xx - x_lim_min) / (x_lim_max - x_lim_min) ;
+    + (gam1_spec.val_grid_point(1, 0, 0, 0) - mean_gam)
+    * (xx - x_min) / (x_mid - x_min) ;
   
-  gam1_spec.set_domain(nz-2) = interm.domain(nz-2) ;
+  gam1_spec.set_domain(0) = interm.domain(0) ;
 
   // Solution of the differential equations to compute pressure, energy, etc
   //--------------------------------------------------------------------------
@@ -292,16 +296,16 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
   Scalar FFF = fff.primr() ;
   FFF.std_spectral_base() ;
   // Integration constant
-  double Y0 = p_bound / (e_bound + p_bound) ;
-  double A0 = Y0*expexpx.val_grid_point(nz-1, 0, 0, nr-1)
+  double Y_max = p_max / (e_max + p_max) ;
+  double Y_min = p_min / (e_min + p_min) ;
+  double A_max = expexpx.val_grid_point(nz-1, 0, 0, nr-1)*Y_max
     - FFF.val_grid_point(nz-1, 0, 0, nr-1) ;
-  // # the parameter '1.e-4' below is to avoid negative values for Y
-  // # baryon density depends on it at low densities
-  double diff = (1.+1.e-4)*(A0 + FFF.val_grid_point(0, 0, 0, 0)) ;
-  A0 -= diff ;
+  double A_min = expexpx.val_grid_point(0, 0, 0, 0)*Y_min
+    - FFF.val_grid_point(0, 0, 0, 0) ;
+  cout << "Amax = " << A_max << ", Amin = " << A_min << endl ;
 
   // Y is solution of Y' + Y e^x = f 
-  Scalar YYY = (A0 + FFF)/expexpx ;
+  Scalar YYY = (A_min + FFF)/expexpx ;
 
   // log(cs^2)
   log_cs2 = new Scalar(log(YYY*gam1_spec)) ;
@@ -313,57 +317,62 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_max,
   Scalar Pidot = expx / YYY ;
   log_p = new Scalar(Pidot.primr()) ; // log_p_spec = log(p)
   // Integration constant
-  double lnp0 = log(p_bound) -  log_p->val_grid_point(nz-1, 0, 0, nr-1) ;
+  double lnp0 = log(p_max) -  log_p->val_grid_point(nz-1, 0, 0, nr-1) ;
   (*log_p) = (*log_p) + lnp0 ; 
   
   // Pressure
   Scalar spec_press = exp((*log_p)) ;
   spec_press.std_spectral_base( );
+  // des_coef_xi(log_p->get_spectral_va(), 0, 0, 0) ;
+  // des_coef_xi(log_p->get_spectral_va(), 1, 0, 0) ;
+
 
   // Energy density 
   Scalar spec_ener = spec_press*(1./YYY - 1.) ; spec_ener.std_spectral_base() ;
   log_e = new Scalar(log(spec_ener)) ;
   log_e->std_spectral_base() ; 
 
-
   // Baryon density
   Scalar spec_nbar = spec_press / (YYY * expexpx) ; 
   cout << "Relative difference in baryon density at the last point" << endl ;
   cout << "(fitted computed / original tabulated)  : "
-           << fabs(1. - spec_nbar.val_grid_point(nz-1, 0, 0, nr-1) / nb_bound)
+           << fabs(1. - spec_nbar.val_grid_point(nz-1, 0, 0, nr-1) / nb0_max)
        << endl ;
   log_nb = new Scalar(log(spec_nbar)) ;
   log_nb->std_spectral_base() ; // log_nb_spec = log(n_B)
+
+  log_p->set_spectral_va().coef_i() ;
+  log_e->set_spectral_va().coef_i() ;
+  log_nb->set_spectral_va().coef_i() ;
+  spec_nbar.set_spectral_va().coef_i() ;
+  log_cs2->set_spectral_va().coef_i() ;
 
   // Matching to the low-density part polytrope
   //--------------------------------------------
 
   // Determining kappa and mu_0 constants 
-  double kappa = spec_press.val_grid_point(nz-2, 0, 0, 0)
-    / pow(spec_nbar.val_grid_point(nz-2, 0, 0, 0), mean_gam) ;
+  double kappa_low = spec_press.val_grid_point(0, 0, 0, 0)
+    / pow(spec_nbar.val_grid_point(0, 0, 0, 0), mean_gam) ;
 
-  double mu_0 = (spec_ener.val_grid_point(nz-2, 0, 0, 0)
-		 - kappa/(mean_gam - 1.)
-		 * pow(spec_nbar.val_grid_point(nz-2, 0, 0, 0), mean_gam))
-    / spec_nbar.val_grid_point(nz-2, 0, 0, 0);
+  double mu_low = (spec_ener.val_grid_point(0, 0, 0, 0)
+		 - kappa_low/(mean_gam - 1.)
+		 * pow(spec_nbar.val_grid_point(0, 0, 0, 0), mean_gam))
+    / spec_nbar.val_grid_point(0, 0, 0, 0);
 
-  log_p->set_spectral_va().coef_i() ;
-  log_e->set_spectral_va().coef_i() ;
-  log_nb->set_spectral_va().coef_i() ;
-  log_cs2->set_spectral_va().coef_i() ;
+  if (p_eos_low != nullptr) delete p_eos_low ;
+  p_eos_low = new Eos_poly(mean_gam, kappa_low, mu_low, mu_low) ;
 
-  for (int i=0; i<nr; i++) {
-    double h0 = exp((+xx)(0, 0, 0, i)) ;
-    double n0gamm1 = (exp(h0) - mu_0)*(mean_gam - 1.) / (kappa*mean_gam) ;
-    double n0 = pow(n0gamm1, 1./(mean_gam-1.)) ;
-    double p0 = kappa*n0gamm1*n0 ;
-    double e0 = mu_0*n0 + p0/(mean_gam - 1.) ;
-    double cs2_0 = mean_gam*p0 / (p0*mean_gam/(mean_gam - 1.) + mu_0*n0 ) ;
-    log_p->set_grid_point(0, 0, 0, i) = log(p0) ;
-    log_e->set_grid_point(0, 0, 0, i) = log(e0) ;
-    log_nb->set_grid_point(0, 0, 0, i) = log(n0) ;
-    log_cs2->set_grid_point(0, 0, 0, i) = log(cs2_0) ;
-  }
+  double gam_high = gam1_spec.val_grid_point(1, 0, 0, nr-1) ;
+  double kappa_high = spec_press.val_grid_point(1, 0, 0, nr-1)
+    / pow(spec_nbar.val_grid_point(1, 0, 0, nr-1), gam_high) ;
+
+  double mu_high = (spec_ener.val_grid_point(1, 0, 0, nr-1)
+		 - kappa_high/(gam_high - 1.)
+		 * pow(spec_nbar.val_grid_point(1, 0, 0, nr-1), gam_high))
+    / spec_nbar.val_grid_point(1, 0, 0, nr-1);
+
+  if (p_eos_high != nullptr) delete p_eos_high ;
+  p_eos_high = new Eos_poly(gam_high, kappa_high, mu_high, mu_high) ;
 
   cout << "... done (analytic representation)" << endl ;
 
