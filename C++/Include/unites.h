@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2023/01/27 16:09:41  j_novak
+ * Comments.
+ *
  * Revision 1.10  2023/01/17 15:01:25  j_novak
  * Update of the value of g_si from CODATA 2018. New definition of rhonuc_si
  * as 0.1 unified atomic mass unit per Fermi^3. Note that results with Lorene
@@ -87,8 +90,8 @@ namespace Lorene {
 
     //*** G constant and density unit before January 2023 ***
     // To reproduce pre-2023 results, please change the difinitions of
-    // g_si and rhonuc_si by uncommenting these two lines and commenting
-    // the new corresponding ones.
+    // g_si and rhonuc_si by uncommenting the following two lines and commenting
+    // the new corresponding ones:
     //const double g_si = 6.6738E-11 ;	 ///< Newton gravitational constant [SI]
     //const double rhonuc_si = 1.66E+17 ; ///< Nuclear density [kg/m3]
     
