@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2023/03/13 15:48:46  j_novak
+ * Use of function expm1.
+ *
  * Revision 1.13  2023/01/11 15:30:00  j_novak
  * Change the computation at low enthalpies for better accuracy.
  *
@@ -382,14 +385,7 @@ double Eos_poly::nbar_ent_p(double ent, const Param* ) const {
     if ( ent > ent_0 ) {
 
       double xx = ent - ent_0 ;
-      double diff_exp = 0. ;
-      if (xx < 1.e-8) {
-	diff_exp = xx + 0.5*xx*xx + (xx*xx*xx)/6. ;
-      }
-      else {
-	diff_exp = exp(xx) - 1. ;
-      }
-      return pow( gam1sgamkap * rel_mu_0 * diff_exp, unsgam1 ) ;
+      return pow( gam1sgamkap * rel_mu_0 * expm1(xx), unsgam1 ) ;
     }
     else{
 	return 0 ;
@@ -424,17 +420,11 @@ double Eos_poly::press_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::der_nbar_ent_p(double ent, const Param* ) const {
 
-    if ( ent > ent_0 ) {
-
-      double xx = ent - ent_0 ;
-
-      if ( xx < 1.e-8 ) {
-	return ( double(1) + xx/double(2) + xx*xx/double(12) ) / gam1 ;
+    if ( ent > ent_0 )
+      {
+	double xx = ent - ent_0 ;
+	return ent / (- expm1(-xx)) / gam1 ;
       }
-      else {
-	return ent / (double(1) - exp(-xx)) / gam1 ;
-	}
-    }
     else{
       return double(1) / gam1 ;	//  to ensure continuity at ent=0
     }
@@ -445,28 +435,18 @@ double Eos_poly::der_nbar_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 
-    if ( ent > ent_0 ) {
+  if ( ent > ent_0 ) {
+    
+    double nn = nbar_ent_p(ent) ;
+    double pp = kap * pow( nn, gam ) ;
+    double ee =  unsgam1 * pp + mu_0 * nn ;
 
-      double nn = nbar_ent_p(ent) ;
-
-      double pp = kap * pow( nn, gam ) ;
-      
-      double ee =  unsgam1 * pp + mu_0 * nn ;
-
-
-      double xx = ent - ent_0 ;
-      if ( xx < 1.e-8 ) {
-	return ( double(1) + xx/double(2) + xx*xx/double(12) ) / gam1
-	  * ( double(1) + pp / ee) ;
-      }
-      else {
-	return ent / (double(1) - exp(-xx)) / gam1
-	  * ( double(1) + pp / ee) ;
-      }
-    }
-    else{
-      return double(1) / gam1 ;   //  to ensure continuity at ent=0
-    }
+    double xx = ent - ent_0 ;
+    return ent / (- expm1(-xx)) / gam1 * ( double(1) + pp / ee) ;
+  }
+  else{
+    return double(1) / gam1 ;   //  to ensure continuity at ent=0
+  }
 }
 
 // dln(p)/ln(H) from enthalpy
@@ -474,34 +454,23 @@ double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::der_press_ent_p(double ent, const Param* ) const {
     
-    if ( ent > ent_0 ) {
-
-      double xx = ent - ent_0 ;
-	if ( xx < 1.e-8 ) {
-	  return gam * ( double(1) + xx/double(2) + xx*xx/double(12) ) 
-	    / gam1 ;
-	}
-	else{
-	  return gam * ent / (double(1) - exp(-xx)) / gam1 ;
-	}
-    }
+    if ( ent > ent_0 )
+      {
+	double xx = ent - ent_0 ;
+	return gam * ent / (- expm1(-xx)) / gam1 ;
+      }
     else{
       return gam / gam1 ;	//  to ensure continuity at ent=0
     }
 }
-
+  
 // Sound speed from enthalpy
 //---------------------------------
 double Eos_poly::csound_square_ent_p(double ent, const Param* ) const {
 
   if ( ent > ent_0 ) {
     double xx = ent - ent_0 ;
-
-    if (xx < 1.e-8) {
-      return gam1*(xx - 0.5*xx*xx + (xx*xx*xx)/6.) ;
-    }
-    else
-      return gam1*( 1. - exp(-xx) ) ;
+    return gam1*( - expm1(-xx) ) ;
   }
   else
     return 0. ;
