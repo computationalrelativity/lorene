@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2023/03/13 11:18:41  j_novak
+ * Added new plots of themro quantities (H, e, nB) + minor changes.
+ *
  * Revision 1.12  2016/12/05 16:18:26  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -89,10 +92,8 @@
 #include "unites.h"
 
 namespace Lorene {
-
-// Local prototype (for drawings only)
-Cmp raccord_c1(const Cmp& uu, int l1) ; 
-
+  // Local prototype (for drawings only)
+  Cmp raccord_c1(const Cmp& uu, int l1) ; 
 }
 
 //******************************************************************************
@@ -103,57 +104,59 @@ int main(){
 
   using namespace Unites ; 
 
-    //------------------------------------------------------------------
-    //	    Parameters of the computation 
-    //------------------------------------------------------------------
+  //------------------------------------------------------------------
+  //	    Parameters of the computation 
+  //------------------------------------------------------------------
 
-    char blabla[120] ;
-
-    int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
-	delta_mer_kep, mer_mass, graph, nz, nzet, nzadapt,
-	nt, np, filter_order, mer_hij ; 
-    double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
-	   aexp_mass, relax ;  
+  int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
+    delta_mer_kep, mer_mass, graph, nz, nzet, nzadapt,
+    nt, np, filter_order, mer_hij ; 
+  double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
+    aexp_mass, relax ;  
     
-    ifstream fich("parrot.d") ;
-    if ( !fich.good() ) {
-      cerr << "Problem in opening the file parrot.d ! " << endl ;
-      abort() ;
-    }
-    fich.getline(blabla, 120) ; fich.getline(blabla, 120) ;
-    fich >> ent_c ; fich.getline(blabla, 120) ;
-    fich >> freq_si ; fich.getline(blabla, 120) ;
-    fich >> fact_omega ; fich.getline(blabla, 120) ;
-    fich >> mbar_wanted ; fich.getline(blabla, 120) ;
+  ifstream fich("parrot.d") ;
+  if ( !fich.good() ) {
+    cerr << "Problem in opening the file parrot.d ! " << endl ;
+    abort() ;
+  }
+  // Number of characters to gnore at the end of parameter file lines
+  int n_ignore = 120 ;
+  
+  fich.ignore(n_ignore, '\n') ;
+  fich.ignore(n_ignore, '\n') ;
+  fich >> ent_c ; fich.ignore(n_ignore, '\n') ;
+    fich >> freq_si ; fich.ignore(n_ignore, '\n') ;
+    fich >> fact_omega ; fich.ignore(n_ignore, '\n') ;
+    fich >> mbar_wanted ; fich.ignore(n_ignore, '\n') ;
     mbar_wanted *= msol ; 
-    fich.getline(blabla, 120) ;
-    fich >> mer_max ; fich.getline(blabla, 120) ;
-    fich >> precis ; fich.getline(blabla, 120) ;
-    fich >> mer_rot ; fich.getline(blabla, 120) ;
-    fich >> freq_ini_si ; fich.getline(blabla, 120) ;
-    fich >> mer_change_omega ; fich.getline(blabla, 120) ;
-    fich >> mer_fix_omega ; fich.getline(blabla, 200) ;
-    fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
-    fich >> mer_mass ; fich.getline(blabla, 120) ;
-    fich >> aexp_mass ; fich.getline(blabla, 120) ;
-    fich >> relax ; fich.getline(blabla, 120) ;
-    fich >> graph ; fich.getline(blabla, 120) ;
-    fich.getline(blabla, 120) ;
-    fich >> nz ; fich.getline(blabla, 120) ;
-    fich >> nzet; fich.getline(blabla, 120) ;
-    fich >> nzadapt; fich.getline(blabla, 120) ;
-    fich >> nt; fich.getline(blabla, 120) ;
-    fich >> np; fich.getline(blabla, 120) ;
+    fich.ignore(n_ignore, '\n') ;
+    fich >> mer_max ; fich.ignore(n_ignore, '\n') ;
+    fich >> precis ; fich.ignore(n_ignore, '\n') ;
+    fich >> mer_rot ; fich.ignore(n_ignore, '\n') ;
+    fich >> freq_ini_si ; fich.ignore(n_ignore, '\n') ;
+    fich >> mer_change_omega ; fich.ignore(n_ignore, '\n') ;
+    fich >> mer_fix_omega ; fich.ignore(n_ignore, '\n') ;
+    fich >> delta_mer_kep ; fich.ignore(n_ignore, '\n') ;
+    fich >> mer_mass ; fich.ignore(n_ignore, '\n') ;
+    fich >> aexp_mass ; fich.ignore(n_ignore, '\n') ;
+    fich >> relax ; fich.ignore(n_ignore, '\n') ;
+    fich >> graph ; fich.ignore(n_ignore, '\n') ;
+    fich.ignore(n_ignore, '\n') ;
+    fich >> nz ; fich.ignore(n_ignore, '\n') ;
+    fich >> nzet; fich.ignore(n_ignore, '\n') ;
+    fich >> nzadapt; fich.ignore(n_ignore, '\n') ;
+    fich >> nt; fich.ignore(n_ignore, '\n') ;
+    fich >> np; fich.ignore(n_ignore, '\n') ;
 
     int* nr = new int[nz];
     int* nt_tab = new int[nz];
     int* np_tab = new int[nz];
     double* bornes = new double[nz+1];
      
-    fich.getline(blabla, 120);
+    fich.ignore(n_ignore, '\n');
     for (int l=0; l<nz; l++) {
 	fich >> nr[l]; 
-	fich >> bornes[l]; fich.getline(blabla, 120) ;
+	fich >> bornes[l]; fich.ignore(n_ignore, '\n') ;
 	np_tab[l] = np ; 
 	nt_tab[l] = nt ; 
     }
@@ -163,10 +166,10 @@ int main(){
     ent_limit.set_etat_qcq() ;
     ent_limit.set(nzet-1) = 0 ; 	// enthalpy at the stellar surface
     for (int l=0; l<nzet-1; l++) {
-    	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
+    	fich >> ent_limit.set(l) ; fich.ignore(n_ignore, '\n') ;
     }
-    fich >> filter_order ; fich.getline(blabla, 120) ;
-    fich >> mer_hij ;fich.getline(blabla, 120) ;
+    fich >> filter_order ; fich.ignore(n_ignore, '\n') ;
+    fich >> mer_hij ;fich.ignore(n_ignore, '\n') ;
 
     fich.close();
 
@@ -375,11 +378,7 @@ int main(){
     fichfinal.precision(10) ; 
     
     
-    fichfinal << star.get_eos() << endl ;
-    
-    fichfinal << endl << "Total CPU time  : " << endl ;
-    fichfinal << "Memory size : " << endl << endl ; 
-
+    fichfinal << star.get_eos() << endl ;    
     fichfinal << endl << endl ; 
     fichfinal << "Grid : " << endl ; 
     fichfinal << "------ " << endl ; 
@@ -389,7 +388,6 @@ int main(){
     fichfinal << star << endl ;
     fichfinal << "Growing rate of triaxial perturbation: " << vit_triax 
 	      << endl ; 
-
     fichfinal << endl <<
     "===================================================================" 
     << endl ; 
@@ -418,62 +416,65 @@ int main(){
 
     // Saveguard of the whole configuration
     // ------------------------------------
-
-	FILE* fresu = fopen("resu.d", "w") ;
-
-	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
-	star.get_mp().sauve(fresu) ;                // writing of the mapping
-	star.get_eos().sauve(fresu) ;  				// writing of the EOS
-	star.sauve(fresu) ;                         // writing of the star
-	
-	fclose(fresu) ;
-
- 	Sym_tensor hat_aij = star.get_psi4()*star.get_psi2()*star.get_aa() ;
-	const Metric_flat& mets = mp.flat_met_spher() ;
-	cout << "Looking at \\hat{A}^{ij} and \\hat{A}^{ij}_{TT}: " << endl ;
- 	Vector wwws = hat_aij.divergence(mets) ;
-	wwws.inc_dzpuis() ;
-	Vector www = wwws.poisson(1./3., 6) ;
- 	Sym_tensor prueba = hat_aij - www.ope_killing_conf(mets) ;
-	Tbl maxa = maxabs(hat_aij, "Max \\hat{A}^ij") ;
- 	Tbl maxb = maxabs(prueba, "Max. \\hat{A}^{ij}_{TT}: ") ;
- 	Tbl maxh = maxabs(star.get_hh(), "Max. h^ij: ") ;
-	cout << "Max(A_TT)/Max(A): " << max(maxb)/max(maxa) <<endl ;
-	cout << "Max(h): " << max(maxh) <<endl ;
-
-
+    
+    FILE* fresu = fopen("resu.d", "w") ;
+    
+    star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
+    star.get_mp().sauve(fresu) ;                // writing of the mapping
+    star.get_eos().sauve(fresu) ;  				// writing of the EOS
+    star.sauve(fresu) ;                         // writing of the star
+    
+    fclose(fresu) ;
+    
+    Sym_tensor hat_aij = star.get_psi4()*star.get_psi2()*star.get_aa() ;
+    const Metric_flat& mets = mp.flat_met_spher() ;
+    cout << "Looking at \\hat{A}^{ij} and \\hat{A}^{ij}_{TT}: " << endl ;
+    Vector wwws = hat_aij.divergence(mets) ;
+    wwws.inc_dzpuis() ;
+    Vector www = wwws.poisson(1./3., 6) ;
+    Sym_tensor prueba = hat_aij - www.ope_killing_conf(mets) ;
+    Tbl maxa = maxabs(hat_aij, "Max \\hat{A}^ij") ;
+    Tbl maxb = maxabs(prueba, "Max. \\hat{A}^{ij}_{TT}: ") ;
+    Tbl maxh = maxabs(star.get_hh(), "Max. h^ij: ") ;
+    if (max(maxa) > 0.0)
+      cout << "Max(A_TT)/Max(A): " << max(maxb)/max(maxa) <<endl ;
+    cout << "Max(h): " << max(maxh) <<endl ;
+    
+    
     // Drawings
     // --------
     
-	if (graph == 1) {
-
-// 	for (int i=1; i<=3; i++) 
-// 	    for (int j=i; j<=3; j++) {
-// 		des_profile(star.get_hh()(i,j), 0., 3*rr, 1, 1) ;
-// 	    }
-
-	// Cmp defining the surface of the star (via the enthalpy field)
-	Cmp surf(star.get_ent()) ; 
-	Cmp surf_ext(mp) ; 
-	surf_ext = - 0.2 * surf(0, 0, 0, 0) ; 
-	surf_ext.annule(0, star.get_nzet()-1) ; 
-	surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
-	surf = surf + surf_ext ;
-	surf = raccord_c1(surf, star.get_nzet()) ; 
-
-	int nzdes = star.get_nzet() ; 
-
-	des_coupe_y(star.get_ent(), 0., nzdes, "Enthalpy", &surf) ; 
-
- 	des_coupe_y(star.get_logn(), 0., nzdes, "Gravitational potential \\gn", &surf) ; 
- 	des_coupe_y(star.get_beta()(3), 0., nzdes, "Azimuthal shift \\gb\\u\\gf", 
-		    &surf) ; 
- 	des_coupe_y(star.get_lnq(), 0., nzdes, "Potential ln(Q)", &surf) ; 
-	
- 	des_coupe_y(star.get_hh()(1,1), 0., nzdes, "Metric potential h\\urr", &surf) ; 
-	
-	}
-
+    if (graph == 1) {
+      
+      double rr = star.ray_eq() ; 
+      des_meridian_log(star.get_ent(), 0., rr, "H", 1) ; 
+      des_meridian_log(star.get_ener(), 0., rr, "e", 2) ; 
+      des_meridian_log(star.get_nbar(), 0., rr, "n\\dB\\u", 3) ;
+      cout << "Type <RETURN> for next page:" << endl ;
+      cin.get() ;
+      
+      // Cmp defining the surface of the star (via the enthalpy field)
+      Cmp surf(star.get_ent()) ; 
+      Cmp surf_ext(mp) ; 
+      surf_ext = - 0.2 * surf(0, 0, 0, 0) ; 
+      surf_ext.annule(0, star.get_nzet()-1) ; 
+      surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
+      surf = surf + surf_ext ;
+      surf = raccord_c1(surf, star.get_nzet()) ; 
+      
+      int nzdes = star.get_nzet() ; 
+      
+      des_coupe_y(star.get_ent(), 0., nzdes, "Enthalpy", &surf) ; 
+      
+      des_coupe_y(star.get_logn(), 0., nzdes, "Gravitational potential \\gn", &surf) ; 
+      des_coupe_y(star.get_beta()(3), 0., nzdes, "Azimuthal shift \\gb\\u\\gf", 
+		  &surf) ; 
+      des_coupe_y(star.get_lnq(), 0., nzdes, "Potential ln(Q)", &surf) ; 
+      
+      des_coupe_y(star.get_hh()(1,1), 0., nzdes, "Metric potential h\\urr", &surf) ; 
+      
+    }
+    
  
     // Cleaning
     // --------
