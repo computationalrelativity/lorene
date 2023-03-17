@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2023/03/17 16:10:46  j_novak
+ * Better computation of gamma_low, to avoid jumps in sound speed.
+ *
  * Revision 1.3  2023/01/27 16:10:35  j_novak
  * A polytrope (class Eos_poly) is used for low and high enthalpies.
  *
@@ -350,17 +353,20 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_mid,
   // Matching to the low-density part polytrope
   //--------------------------------------------
 
-  // Determining kappa and mu_0 constants 
+  // Determining kappa and mu_0 constants
+  double gamma_low = exp(log_cs2->val_grid_point(0, 0, 0, 0))
+    / (-expm1(-hmin)) + 1. ;
+
   double kappa_low = spec_press.val_grid_point(0, 0, 0, 0)
-    / pow(spec_nbar.val_grid_point(0, 0, 0, 0), mean_gam) ;
+    / pow(spec_nbar.val_grid_point(0, 0, 0, 0), gamma_low) ;
 
   double mu_low = (spec_ener.val_grid_point(0, 0, 0, 0)
-		 - kappa_low/(mean_gam - 1.)
-		 * pow(spec_nbar.val_grid_point(0, 0, 0, 0), mean_gam))
+		 - kappa_low/(gamma_low - 1.)
+		 * pow(spec_nbar.val_grid_point(0, 0, 0, 0), gamma_low))
     / spec_nbar.val_grid_point(0, 0, 0, 0);
 
   if (p_eos_low != nullptr) delete p_eos_low ;
-  p_eos_low = new Eos_poly(mean_gam, kappa_low, mu_low, mu_low) ;
+  p_eos_low = new Eos_poly(gamma_low, kappa_low, mu_low, mu_low) ;
 
   double gam_high = gam1_spec.val_grid_point(1, 0, 0, nr-1) ;
   double kappa_high = spec_press.val_grid_point(1, 0, 0, nr-1)
