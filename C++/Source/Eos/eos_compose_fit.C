@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2023/03/17 08:36:59  j_novak
+ * Output of "middle" enthalpy (boundary between domains).
+ *
  * Revision 1.4  2023/01/27 16:10:35  j_novak
  * A polytrope (class Eos_poly) is used for low and high enthalpies.
  *
@@ -217,11 +220,11 @@ void Eos_compose_fit::sauve(FILE* fich) const {
 	<< n_coefs << endl ;
     ost << "nb_min = " << nb_min << ", nb_mid = " << nb_mid
     	<< ", nb_max = " << nb_max << " [fm^-3]" << endl ;
-    ost << "hmin = " << hmin << ", hmax = " << hmax << endl ;
+    ost << "hmin = " << hmin << ", hmid = " << exp(mp->val_r_jk(0, 1., 0, 0))
+	<< ", hmax = " << hmax << endl ;
     ost << "EoS for low density part: " << *p_eos_low ;
     ost << "EoS for high density part: " << *p_eos_high ;
     ost << *mg << endl ;
-    ost << *mp << endl ;
     return ost ;
 
 }
@@ -321,8 +324,10 @@ void Eos_compose_fit::write_lorene_table(const string& name_file, int nlines)
   lorene_file << "#" << endl ;
 
   //  const Coord& xx = mp->r ;
+#ifndef NDEBUG
   int nz = mg->get_nzone() ;
   assert (nz > 1) ;
+#endif
   double xmin0 = log(1.e-14) ;
   double xmax0 = log(hmin) ;
   int nlines0 = nlines / 10 ;
