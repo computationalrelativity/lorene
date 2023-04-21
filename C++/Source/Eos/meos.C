@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2023/04/21 09:21:45  j_novak
+ * Added some asserts.
+ *
  * Revision 1.10  2017/12/22 09:21:50  j_novak
  * Corrected the constructor from a binary file
  *
@@ -68,6 +71,7 @@
 
 // C headers
 #include <cstdlib>
+#include <cassert>
 
 // Lorene headers
 #include "headcpp.h"
@@ -285,9 +289,11 @@ bool MEos::operator!=(const Eos& eos_i) const {
 
 double MEos::nbar_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int_mod() ;        // index of the domain
+    assert(par != 0x0) ;
 
-        return mono_eos[l0]->nbar_ent_p(ent) ;
+    int l0 = par->get_int_mod() ;        // index of the domain
+    
+    return mono_eos[l0]->nbar_ent_p(ent) ;
 
 }
 
@@ -296,9 +302,11 @@ double MEos::nbar_ent_p(double ent, const Param* par) const {
 
 double MEos::ener_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int_mod() ;        // index of the domain
+    assert(par != 0x0) ;
 
-        return mono_eos[l0]->ener_ent_p(ent) ;
+    int l0 = par->get_int_mod() ;        // index of the domain
+    
+    return mono_eos[l0]->ener_ent_p(ent) ;
 }
 
 // Pressure from enthalpy
@@ -306,9 +314,10 @@ double MEos::ener_ent_p(double ent, const Param* par) const {
 
 double MEos::press_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int_mod() ;        // index of the domain
-
-        return mono_eos[l0]->press_ent_p(ent) ;
+  assert(par != 0x0) ;
+  int l0 = par->get_int_mod() ;        // index of the domain
+  
+  return mono_eos[l0]->press_ent_p(ent) ;
 }
 
 // dln(n)/ln(H) from enthalpy
@@ -316,9 +325,10 @@ double MEos::press_ent_p(double ent, const Param* par) const {
 
 double MEos::der_nbar_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int_mod() ;        // index of the domain
-
-        return mono_eos[l0]->der_nbar_ent_p(ent) ;
+  assert(par != 0x0) ;
+  int l0 = par->get_int_mod() ;        // index of the domain
+  
+  return mono_eos[l0]->der_nbar_ent_p(ent) ;
 }
 
 // dln(e)/ln(H) from enthalpy
@@ -326,9 +336,10 @@ double MEos::der_nbar_ent_p(double ent, const Param* par) const {
 
 double MEos::der_ener_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int_mod() ;        // index of the domain
+  assert(par != 0x0) ;
+  int l0 = par->get_int_mod() ;        // index of the domain
 
-        return mono_eos[l0]->der_ener_ent_p(ent) ;
+  return mono_eos[l0]->der_ener_ent_p(ent) ;
 }
 
 // dln(p)/ln(H) from enthalpy
@@ -336,9 +347,11 @@ double MEos::der_ener_ent_p(double ent, const Param* par) const {
 
 double MEos::der_press_ent_p(double ent, const Param* par) const {
 
-        int l0 = par->get_int_mod() ;        // index of the domain
-
-        return mono_eos[l0]->der_press_ent_p(ent) ;
+  assert(par != 0x0) ;
+  
+  int l0 = par->get_int_mod() ;        // index of the domain
+  
+  return mono_eos[l0]->der_press_ent_p(ent) ;
 }
 
 
