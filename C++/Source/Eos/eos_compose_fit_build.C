@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2023/04/21 14:51:51  j_novak
+ * The analytic part for low densities has been changed to a new model with one parameter more than the polytrope, allowing for a smooth transition of all quantities (p, e, nB AND cs2). More checks need to be done...
+ *
  * Revision 1.4  2023/03/17 16:10:46  j_novak
  * Better computation of gamma_low, to avoid jumps in sound speed.
  *
@@ -55,6 +58,8 @@
 #include "utilitaires.h"
 #include "unites.h"
 #include "graphique.h"
+
+double compute_alpha(double, double) ;
 
 namespace Lorene {
 void Eos_compose_fit::read_compose_data(int& nbp, Tbl*& logh_read, Tbl*& logp_read,
@@ -350,38 +355,58 @@ void Eos_compose_fit::adiabatic_index_fit(int i_min, int i_mid,
   spec_nbar.set_spectral_va().coef_i() ;
   log_cs2->set_spectral_va().coef_i() ;
 
-  // Matching to the low-density part polytrope
-  //--------------------------------------------
+  // Matching to the low-density part
+  //----------------------------------
 
-  // Determining kappa and mu_0 constants
-  double gamma_low = exp(log_cs2->val_grid_point(0, 0, 0, 0))
-    / (-expm1(-hmin)) + 1. ;
-
-  double kappa_low = spec_press.val_grid_point(0, 0, 0, 0)
-    / pow(spec_nbar.val_grid_point(0, 0, 0, 0), gamma_low) ;
-
-  double mu_low = (spec_ener.val_grid_point(0, 0, 0, 0)
-		 - kappa_low/(gamma_low - 1.)
-		 * pow(spec_nbar.val_grid_point(0, 0, 0, 0), gamma_low))
-    / spec_nbar.val_grid_point(0, 0, 0, 0);
-
-  if (p_eos_low != nullptr) delete p_eos_low ;
-  p_eos_low = new Eos_poly(gamma_low, kappa_low, mu_low, mu_low) ;
+  double pp0 = spec_press.val_grid_point(0, 0, 0, 0) ;
+  double ee0 = spec_ener.val_grid_point(0, 0, 0, 0) ;
+  double yy0 = pp0 / (ee0 + pp0) ;
+  double gam0 = gam1_spec.val_grid_point(0, 0, 0, 0) ;
+  double dd0 = yy0*gam0 / (gam0-1 - yy0*gam0) ;
+  alpha_low = compute_alpha(hmin, dd0) ;
+  cout << "alpha = " << setprecision(16) << alpha_low << endl ;
+  c_low = yy0 / -expm1(-alpha_low*hmin) ;
+  double ppp = pow(fabs(expm1(alpha_low*hmin)), 1./(alpha_low*c_low)) ;
+  k_low = pp0 / ppp ;
 
   double gam_high = gam1_spec.val_grid_point(1, 0, 0, nr-1) ;
   double kappa_high = spec_press.val_grid_point(1, 0, 0, nr-1)
     / pow(spec_nbar.val_grid_point(1, 0, 0, nr-1), gam_high) ;
-
+  
   double mu_high = (spec_ener.val_grid_point(1, 0, 0, nr-1)
-		 - kappa_high/(gam_high - 1.)
-		 * pow(spec_nbar.val_grid_point(1, 0, 0, nr-1), gam_high))
+		    - kappa_high/(gam_high - 1.)
+		    * pow(spec_nbar.val_grid_point(1, 0, 0, nr-1), gam_high))
     / spec_nbar.val_grid_point(1, 0, 0, nr-1);
-
+  
   if (p_eos_high != nullptr) delete p_eos_high ;
   p_eos_high = new Eos_poly(gam_high, kappa_high, mu_high, mu_high) ;
-
+  
   cout << "... done (analytic representation)" << endl ;
 
 }
 
+}
+
+double compute_alpha(double H0, double D0) {
+
+  double thres = 1.e-15 ;
+  int nitermax = 200 ;
+  int iter = 0 ;
+  double x0 = 2.*(D0-H0)/(H0*H0) ;
+  double x0_new = x0 ;
+  do {
+    iter++ ;
+    x0 = x0_new ;
+    double f0 = expm1(x0*H0) - x0*D0;
+    double der0 = H0*exp(x0*H0) - D0 ;
+    x0_new = x0 - f0 / der0 ;
+    //cout << "f0 = " << f0 << ", df0 = " << der0 << ", x0_new = " << x0_new << endl ;
+  } while ((fabs((x0 - x0_new)/x0) > thres)&&(iter < nitermax)) ;
+  if (iter == nitermax) {
+    cerr << "(Eos_compose_fit_build) compute_alpha() :"
+	 << " max. number of iterations reached!" << endl ;
+    cerr << "Aborting..." << endl ;
+    abort() ;
+  }
+  return x0_new ;
 }

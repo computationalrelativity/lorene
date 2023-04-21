@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2023/04/21 14:51:51  j_novak
+ * The analytic part for low densities has been changed to a new model with one parameter more than the polytrope, allowing for a smooth transition of all quantities (p, e, nB AND cs2). More checks need to be done...
+ *
  * Revision 1.4  2023/01/27 16:10:35  j_novak
  * A polytrope (class Eos_poly) is used for low and high enthalpies.
  *
@@ -113,8 +116,8 @@ class Eos_compose_fit : public Eos {
   /// Values of enthalpy corresponding to nb_min and nb_max
   double hmin, hmax ;
 
-  /// Pointer on a polytropic EoS for the description of low densities (nb<nb_min)
-  const Eos_poly* p_eos_low ;
+  /// Parameters for the low density EoS.
+  double k_low, c_low, alpha_low ;
 
   /// Pointer on a polytropic EoS for the description of high densities (nb>nb_max)
   const Eos_poly* p_eos_high ;
