@@ -37,6 +37,9 @@
  /*
  * $Id$
  * $Log$
+ * Revision 1.6  2023/05/22 15:44:21  g_servignat
+ * Added regularisation in division by \xi in a nucleus according to J. Nicoules' thesis
+ *
  * Revision 1.5  2016/12/05 16:18:08  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -149,8 +152,17 @@ void _sx_r_chebp(Tbl* tb, int& base)
 
 	    double som ;
 	    int sgn = 1 ;
+		
+	    // Regularisation (cf Jordan Nicoules thesis)
+		double val_ori = 0 ;
+		for (int i=0 ; i<nr ; ++i) {
+			val_ori += sgn*xci[i] ;
+			sgn = -sgn ;
+		}
+		xci[nr-1] += sgn*val_ori ;
+		sgn = 1 ;
 	    
-	    xco[nr-1] = 0 ;
+		xco[nr-1] = 0 ;
 	    som = 2 * sgn * xci[nr-1] ;
 	    xco[nr-2] = som ;
 	    for (int i = nr-3 ; i >= 0 ; i-- ) {
