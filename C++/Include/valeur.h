@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2023/05/24 09:52:02  g_servignat
+ * Added multiplication by \xi in a given shell, and dealiasing product in angular direction only
+ *
  * Revision 1.22  2021/11/24 13:12:17  g_servignat
  * Addition of new method mult_xm1_shell(int) to multiply by (\xi +1) in a given shell.
  *
@@ -611,7 +614,15 @@ class Valeur {
 	 * @param index [input] Index of the domain where computation
 	 *                      is performed.
 	 */
-	void mult_xp1_shell(int index) ;	
+	void mult_xp1_shell(int index) ;
+	
+	/** Applies the following operator to \c *this : \\
+	 * Id (\e r  sampling = \c RARE, UNSURR ) \\
+	 * \f$\xi \, Id\f$ (\e r -sampling = \c FIN ) \\
+	 * @param index [input] Index of the domain where computation
+	 *                      is performed.
+	 */
+	void mult_x_shell(int index) ;	
   
 	/** Applies the following operator to \c *this : \\
 	 * Id (\e r  sampling = \c RARE, FIN ) \\
@@ -877,6 +888,9 @@ Valeur operator*(const Valeur&, const Valeur& ) ; ///< Valeur * Valeur
 
 /// Valeur * Valeur with desaliasing
 Valeur operator%(const Valeur&, const Valeur& ) ; 
+
+/// Valeur * Valeur with desaliasing only in \e \theta and \e \phi direction
+Valeur operator&(const Valeur&, const Valeur& ) ;
 
 /// Valeur * Valeur with desaliasing only in \e r direction
 Valeur operator|(const Valeur&, const Valeur& ) ; 

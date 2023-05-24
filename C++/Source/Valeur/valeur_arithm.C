@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2023/05/24 09:52:02  g_servignat
+ * Added multiplication by \xi in a given shell, and dealiasing product in angular direction only
+ *
  * Revision 1.8  2016/12/05 16:18:20  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -1177,7 +1180,7 @@ Valeur operator%(const Valeur& t1, const Valeur& t2)
     
     tt1.coef() ; 
     
-    tt1.ylm() ; 
+    // tt1.ylm() ; 
     
     const Mtbl_cf& cr2 = *(tt1.c_cf) ; 
     
@@ -1226,8 +1229,227 @@ Valeur operator%(const Valeur& t1, const Valeur& t2)
 
     resu = cr ; 
     
-    resu.ylm_i() ; 
+    // resu.ylm_i() ; 
     
+    return resu ;
+}
+
+			//------------------------------------------//
+		    //	Multiplication with angular dealiasing  //
+		    //------------------------------------------//
+
+Valeur operator&(const Valeur& t1, const Valeur& t2)	   
+{
+    // Protections
+    assert(t1.get_etat() != ETATNONDEF) ;
+    assert(t2.get_etat() != ETATNONDEF) ;
+    assert(t1.get_mg() == t2.get_mg()) ;
+    
+    // Cas particuliers
+    if (t1.get_etat() == ETATZERO) {
+    	return t1 ;
+    }
+    if (t2.get_etat() == ETATZERO) {
+    	return t2 ;
+    }
+    assert(t1.get_etat() == ETATQCQ) ;  // sinon...
+    assert(t2.get_etat() == ETATQCQ) ;  // sinon...
+
+    // Grid
+    const Mg3d& mg = *(t1.get_mg()) ; 
+
+    // Grid with twice the number of points in each dimension:
+    const Mg3d& mg2 = *(mg.plus_half_angu()) ;  
+    
+    // The coefficients are required
+    if (t1.c_cf == 0x0) {
+	t1.coef() ; 
+    }
+    if (t2.c_cf == 0x0) {
+	t2.coef() ; 
+    }
+
+    const Mtbl_cf& c1 = *(t1.c_cf) ; 
+    const Mtbl_cf& c2 = *(t2.c_cf) ; 
+
+    assert( c1.get_etat() == ETATQCQ ) ; 
+    assert( c2.get_etat() == ETATQCQ ) ; 
+
+    // The number of coefficients is increased by 50% in the angular direction
+	// and the additionnal coefficients are set to zero
+    // -----------------------------------------------------------------
+    
+    Mtbl_cf cc1( mg2, c1.base ) ;
+    Mtbl_cf cc2( mg2, c2.base ) ; 
+    
+    cc1.set_etat_qcq() ; 
+    cc2.set_etat_qcq() ; 
+    
+    for (int l=0; l<mg.get_nzone(); l++) {
+
+	int nr = mg.get_nr(l) ; 
+	int nt = mg.get_nt(l) ; 
+	int np = mg.get_np(l) ; 
+	int nr2 = mg2.get_nr(l) ; 
+	int nt2 = mg2.get_nt(l) ; 
+	int np2 = mg2.get_np(l) ; 
+
+	// Copy of the coefficients of t1
+	// ------------------------------
+
+	if ( c1.t[l]->get_etat() == ETATZERO ) {
+	    cc1.t[l]->set_etat_zero() ; 
+	}
+	else {
+
+	    assert( c1.t[l]->get_etat() == ETATQCQ ) ; 
+	    cc1.t[l]->set_etat_qcq() ; 
+
+	    // Copy of the coefficients of t1 
+	    for (int k=0; k<np+1; k++) {
+		for (int j=0; j<nt; j++) {
+		    for (int i=0; i<nr; i++) {
+			cc1.t[l]->set(k, j, i) = (*(c1.t[l]))(k, j, i) ; 
+		    }
+		}
+	    }
+
+	    // The extra phi coefficients are set to zero
+	    for (int k=np+1; k<np2+2; k++) {
+		for (int j=0; j<nt2; j++) {
+		    for (int i=0; i<nr2; i++) {
+			cc1.t[l]->set(k, j, i) = 0 ; 
+		    }
+		}
+	    }
+
+	    // The extra theta coefficients are set to zero
+	    for (int k=0; k<np+1; k++) {
+		for (int j=nt; j<nt2; j++) {
+		    for (int i=0; i<nr2; i++) {
+			cc1.t[l]->set(k, j, i) = 0 ; 
+		    }
+		}
+	    }
+
+	    // The extra r coefficients are set to zero
+	    for (int k=0; k<np+1; k++) {
+		for (int j=0; j<nt; j++) {
+		    for (int i=nr; i<nr2; i++) {
+			cc1.t[l]->set(k, j, i) = 0 ; 
+		    }
+		}
+	    }
+	    
+	}
+
+	// Copy of the coefficients of t2
+	// ------------------------------
+
+	if ( c2.t[l]->get_etat() == ETATZERO ) {
+	    cc2.t[l]->set_etat_zero() ; 
+	}
+	else {
+	
+	    assert( c2.t[l]->get_etat() == ETATQCQ ) ; 
+	    cc2.t[l]->set_etat_qcq() ; 
+
+	    // Copy of the coefficients of t2 
+	    for (int k=0; k<np+1; k++) {
+		for (int j=0; j<nt; j++) {
+		    for (int i=0; i<nr; i++) {
+			cc2.t[l]->set(k, j, i) = (*(c2.t[l]))(k, j, i) ; 
+		    }
+		}
+	    }
+
+	    // The extra phi coefficients are set to zero
+	    for (int k=np+1; k<np2+2; k++) {
+		for (int j=0; j<nt2; j++) {
+		    for (int i=0; i<nr2; i++) {
+			cc2.t[l]->set(k, j, i) = 0 ; 
+		    }
+		}
+	    }
+
+	    // The extra theta coefficients are set to zero
+	    for (int k=0; k<np+1; k++) {
+		for (int j=nt; j<nt2; j++) {
+		    for (int i=0; i<nr2; i++) {
+			cc2.t[l]->set(k, j, i) = 0 ; 
+		    }
+		}
+	    }
+	    
+	}
+
+    }  // End of loop on the domains
+    
+    
+    Valeur tt1( mg2 ) ; 
+    Valeur tt2( mg2 ) ; 
+    
+    tt1 = cc1 ; 
+    tt2 = cc2 ; 
+    
+
+    // Multiplication (in the configuration space) on the large grids
+    // --------------------------------------------------------------
+    
+    tt1 = tt1 * tt2 ; 
+    
+    // Coefficients of the result
+    // --------------------------
+    
+    tt1.coef() ; 
+        
+    const Mtbl_cf& cr2 = *(tt1.c_cf) ; 
+    
+    Mtbl_cf cr(mg, cr2.base ) ; 
+    
+    cr.set_etat_qcq() ; 
+    
+    for (int l=0; l<mg.get_nzone(); l++) {
+
+	if ( cr2.t[l]->get_etat() == ETATZERO ) {
+	    
+	    cr.t[l]->set_etat_zero() ; 
+	    
+	}
+	else {
+    
+	    assert( cr2.t[l]->get_etat() == ETATQCQ ) ; 
+	    
+	    cr.t[l]->set_etat_qcq() ; 
+
+	    int nr = mg.get_nr(l) ; 
+	    int nt = mg.get_nt(l) ; 
+	    int np = mg.get_np(l) ; 
+
+	    // Copy of the coefficients of cr2
+	    for (int k=0; k<np+1; k++) {
+		for (int j=0; j<nt; j++) {
+		    for (int i=0; i<nr; i++) {
+			cr.t[l]->set(k, j, i) = (*(cr2.t[l]))(k, j, i) ; 
+		    }
+		}
+	    }
+    
+	    // The last coefficient in phi is set to zero
+	    for (int j=0; j<nt; j++) {
+		for (int i=0; i<nr; i++) {
+		    cr.t[l]->set(np+1, j, i) = 0 ; 
+		}
+	    }
+	
+	}
+    
+    }  // End of loop on the domains
+        
+    Valeur resu( mg ) ; 
+
+    resu = cr ; 
+        
     return resu ;
 }
 

@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2023/05/24 09:52:02  g_servignat
+ * Added multiplication by \xi in a given shell, and dealiasing product in angular direction only
+ *
  * Revision 1.7  2016/12/05 16:18:21  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -97,6 +100,7 @@ void _mult_x_r_chebpi_i(Tbl *, int &) ;
 void _mult_x_r_jaco02(Tbl *, int &) ;
 void _mult_x_r_legp(Tbl *, int &) ;
 void _mult_x_r_legi(Tbl *, int &) ;
+void _mult_x_r_cheb(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -184,4 +188,50 @@ static int nap = 0 ;
 	_mult_x[base_r](t[l], base.b[l]) ;
     }
 }
+
+void Valeur::mult_x_shell(int lz) {
+
+    // Peut-etre ne rien faire ?
+    if (etat==ETATZERO) {
+	return ; 
+    }
+
+    assert(etat==ETATQCQ) ; 
+
+    // Calcul des coef.
+    coef() ;
+	
+	// La multiplication
+    c_cf->mult_x_shell(lz) ;
+    set_etat_cf_qcq() ;
+
+    base = c_cf->base ; // On remonte la base de sortie au niveau Valeur
+    
+}
+
+/*
+ * Fonction membre de la classe Mtbl_cf pour la multiplication par x
+ * dans une coquille applique a this
+ *
+ */
+
+void Mtbl_cf::mult_x_shell(int lz)	   
+{
+
+  if (mg->get_type_r(lz) != FIN) {
+    cerr << "Mtbl_cf::mult_xp1_shell() : not called on a shell!" << endl ;
+    abort() ;
+  }
+  
+  // Peut-etre ne rien faire ?
+  if (etat==ETATZERO) {
+    return ; 
+  }
+
+  assert(etat==ETATQCQ) ; 
+
+  _mult_x_r_cheb(t[lz], base.b[lz]) ;
+    
+}
+
 }
