@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2023/05/24 09:48:50  g_servignat
+ * Added plus_half grid in angular direction for dealiasing
+ *
  * Revision 1.21  2020/01/27 11:00:19  j_novak
  * New include <stdexcept> to be compatible with older versions of g++
  *
@@ -575,6 +578,7 @@ void Mg3d::del_deriv() const {
     if (g_radial != 0x0) delete g_radial ;
     if (g_twice != 0x0) delete g_twice ;
     if (g_plus_half != 0x0) delete g_plus_half ;
+    if (g_plus_half_angu != 0x0) delete g_plus_half_angu ;
     if (g_non_axi != 0x0) delete g_non_axi ;
 
     set_deriv_0x0() ;
@@ -588,6 +592,7 @@ void Mg3d::set_deriv_0x0() const {
     g_radial = 0x0 ;
     g_twice = 0x0 ;
     g_plus_half = 0x0 ;
+    g_plus_half_angu = 0x0 ;
     g_non_axi = 0x0 ;
 }
 
@@ -731,6 +736,44 @@ const Mg3d* Mg3d::plus_half() const {
   }
 
   return g_plus_half ;
+
+}
+
+      //-------------------------------------------//
+		  // Grid with 50% additional points in angles //
+		  //-------------------------------------------//
+
+const Mg3d* Mg3d::plus_half_angu() const {
+
+  if (g_plus_half_angu == 0x0) {	  // The construction is required
+
+    int* nbt = new int[nzone] ;
+    int* nbp = new int[nzone] ;
+    
+    for (int l=0; l<nzone; l++) {
+      if (nt[l] == 1) 
+	nbt[l] = 1 ;
+      else {
+  int nt_bis = (3*(nt[l]))/2;
+  if (nt_bis % 2 == 0) nt_bis += 1 ;
+	nbt[l] = nt_bis ;        
+      }
+      
+      if (np[l] == 1) 
+	nbp[l] = 1 ;
+      else 
+	nbp[l] = 3*np[l]/2 ;
+    }
+    
+    g_plus_half_angu = new Mg3d(nzone, nr, type_r, nbt, type_t, nbp, type_p, colloc_r) ;
+
+    delete [] nbt ;
+    delete [] nbp ;
+
+
+  }
+
+  return g_plus_half_angu ;
 
 }
 	

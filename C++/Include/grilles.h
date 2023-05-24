@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2023/05/24 09:48:50  g_servignat
+ * Added plus_half grid in angular direction for dealiasing
+ *
  * Revision 1.24  2018/12/05 15:03:20  j_novak
  * New Mg3d constructor from a formatted file.
  *
@@ -318,6 +321,11 @@ class Mg3d {
 	 *  \e r dimension (for desaliasing).
 	 */
 	mutable Mg3d* g_plus_half ; 
+	
+	/** Pointer on the grid which has 50% more points in
+	 *  \e \theta and \e \phi dimension (for desaliasing).
+	 */
+	mutable Mg3d* g_plus_half_angu ; 
 
 	/** Pointer on the grid which has at least 4 points in
 	 *  the \f$\phi\f$ direction and at least 5 in the \f$\theta\f$ 
@@ -542,6 +550,11 @@ class Mg3d {
 	 *  \e r dimension (for desaliasing).
 	 */
 	const Mg3d* plus_half() const ;
+	
+	/** Returns the pointer on the grid which has 50% more points in
+	 *  \e \theta and \e \phi dimension (for desaliasing).
+	 */
+	const Mg3d* plus_half_angu() const ;
 
 	/** Returns the pointer on the grid which has at least 4 points in
 	 *  the \f$\phi\f$ direction and at least 5 in the \f$\theta\f$ 
