@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2023/05/26 15:41:17  g_servignat
+ * Implemented case P_COSSIN_P to Map_et::adapt() (to be tested)
+ *
  * Revision 1.17  2016/12/05 16:17:57  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -277,7 +280,7 @@ Map_et::Map_et(const Mg3d& grille, const double* r_lim, const Tbl& S_0) :
   double * coloc_even ;
 
   switch (base_p) {
-  case P_COSSIN:
+  case P_COSSIN: {
      cfpcossin (deg,dim,cf) ;
 
      // Separation des harmoniques paires et impaires :
@@ -323,10 +326,27 @@ Map_et::Map_et(const Mg3d& grille, const double* r_lim, const Tbl& S_0) :
      delete [] cf ;
      
      break;
-  default:
+  }
+  case P_COSSIN_P: {
+    
+    for (int k=0 ; k<np ; k++)
+    for (int j=0 ; j<nt ; j++) {
+    gg_nucleus.set(k,j) = S_0(k,j) - S_0(0,0) ;
+    ff_nucleus.set(k,j) = 0. ;
+    }
+    
+    delete[] dim ;
+    delete [] deg ;
+    delete [] cf ;
+     
+     
+    break;
+  }
+  default:{
     cout << "Base_p != P_COSSIN not implemented in Map_et constructor" << 
       endl ;
     abort() ;
+  }
   }
 
   double mu_nucleus = - min(gg_nucleus) ;
