@@ -106,6 +106,10 @@ void Map_star::poisson_tau (const Cmp&, Param&, Cmp&) const {
   pas_fait_star() ;
 }
 
+ void Map_star::poisson_angu (const Cmp&, Param&, Cmp&, double) const {
+  pas_fait_star() ;
+}
+
  Param* Map_star::donne_para_poisson_vect (Param&, int) const {
   pas_fait_star() ;
   return 0x0 ;

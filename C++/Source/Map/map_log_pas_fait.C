@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2023/05/26 15:42:30  g_servignat
+ * Added c_est_pas_fait() to poisson_angu(Cmp)
+ *
  * Revision 1.12  2016/12/05 16:17:58  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -168,6 +171,10 @@ void Map_log::poisson_tau (const Cmp&, Param&, Cmp&) const {
 }
 
  void Map_log::poisson_angu (const Scalar&, Param&, Scalar&, double) const {
+  pas_fait() ;
+}
+
+ void Map_log::poisson_angu (const Cmp&, Param&, Cmp&, double) const {
   pas_fait() ;
 }
 

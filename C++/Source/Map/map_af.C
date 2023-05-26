@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2023/05/26 15:39:31  g_servignat
+ * Added c_est_pas_fait() to poisson_angu(Cmp)
+ *
  * Revision 1.24  2023/01/04 10:23:37  j_novak
  * Removed spurious output.
  *
@@ -798,6 +801,11 @@ void Map_af::adapt(const Cmp&, const Param&, int) {
     const char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
+
+void Map_af::poisson_angu(const Cmp& source, Param& par, 
+					Cmp& uu, double lambda) const {
+                        c_est_pas_fait("Map_af::poisson_angu(Cmp)") ;
+                    }
 
 
 
