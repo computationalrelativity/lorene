@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2023/06/14 15:52:09  g_servignat
+ * Files that implement the analytical formulae for the Pseudo-polytrope and Generalised Piecewise-polytrope (not fully working yet)
+ *
  * Revision 1.25  2021/05/14 15:39:22  g_servignat
  * Added sound speed computation from enthalpy to Eos class and tabulated+polytropic derived classes
  *
@@ -1260,6 +1263,354 @@ class Eos_poly_newt : public Eos_poly {
 	} ;
 };
 
+			//------------------------------------//
+			//		class Pseudo_polytrope_1D	  //
+			//------------------------------------//
+
+/*
+	Pseudo-polytropic fit of cold EoS
+	[Doc to be written]
+*/
+class Pseudo_polytrope_1D : public Eos {
+	// Data :
+    // -----
+	
+	Tbl* coefs;
+    double gamma_low, kappa_low, n_lim, ent_lim, m_n, mu_0;
+	int n_coefs ;
+	Eos_poly* eos_low ;
+	
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    
+	/** Standard constructor.
+	 *  
+	 *  @param coefs : 1D Tbl where the coefficients are stored
+	 * 
+	 *  @param n_lim : Limiting density between "core" and "crust" in Lorene units [0.1 fm^-3].
+	 * 
+	 *  @param m_B : mass of the baryons [MeV]
+	 */
+	Pseudo_polytrope_1D(const Tbl&, double, double) ;	
+
+	Pseudo_polytrope_1D(const Pseudo_polytrope_1D& ) ;	///< Copy constructor	
+
+    protected:
+	/** Constructor from a binary file (created by the function 
+	 *  \c sauve(FILE*) ). 
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function 
+	 *  \c Eos::eos_from_file(FILE*) . 
+	 */
+	Pseudo_polytrope_1D(FILE* ) ; 
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function 
+	 *  \c Eos::eos_from_file(ifstream&) . 
+	 */
+	Pseudo_polytrope_1D(ifstream& ) ; 
+	
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ; 
+	friend Eos* Eos::eos_from_file(ifstream& ) ; 
+
+
+    public:
+	virtual ~Pseudo_polytrope_1D() ;			///< Destructor
+
+    // Assignment
+    // ----------
+	/// Assignment to another \c Pseudo_polytrope_1D 
+	void operator=(const Pseudo_polytrope_1D& ) ;
+
+    // Miscellaneous
+    // -------------
+
+    public : 
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ; 
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ; 
+    
+	/** Returns a number to identify the sub-classe of \c Eos the
+	 *  object belongs to. 
+	 */
+	virtual int identify() const ; 
+
+    // Outputs
+    // -------
+
+    public: 
+	virtual void sauve(FILE* ) const ;	///< Save in a file
+
+    protected: 
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+    public: 
+	/** Computes the baryon density from the specific enthalpy.
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 * 
+	 */
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ; 
+    
+ 	/** Computes the total energy density from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ; 
+       
+ 	/** Computes the pressure from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ; 
+       
+	/** Computes the logarithmic derivative \f$d\ln n/d\ln h\f$ 
+	 * from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return dln(n)/dln(h)
+	 */
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
+       
+	/** Computes the logarithmic derivative \f$d\ln e/d\ln h\f$ 
+	 * from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return dln(e)/dln(h)
+	 */
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
+       
+	/** Computes the logarithmic derivative \f$d\ln p/d\ln h\f$ 
+	 * from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return dln(p)/dln(h)
+	 */
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
+    
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const ;
+	
+	double get_ent_lim() const { return ent_lim ;} ;
+};
+
+			//------------------------------------//
+			//		class Piecewise_polytrope_1D  //
+			//------------------------------------//
+
+/*
+	Pseudo-polytropic fit of cold EoS
+	[Doc to be written]
+*/
+class Piecewise_polytrope_1D : public Eos {
+	// Data :
+    // -----
+	
+	Tbl *gamma_high, *kappa_high, *Lambda_high, *a_high, *n_lim_high, *ent_lim_high;
+    double gamma_low, kappa_low, n_lim, ent_lim;
+	int n_param_high ;
+	Eos_poly* eos_low ;
+	
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    
+	/** Standard constructor.
+	 *  
+	 *  @param gamma_high : 1D Tbl where the Gamma coefficients of piecewise polytropes are stored
+   * 
+	 *  @param kappa_high : 1D Tbl where the Kappa coefficients of piecewise polytropes are stored
+   *
+	 *  @param Lambda_high : 1D Tbl where the Lamba coefficients of piecewise polytropes are stored
+   * 
+	 *  @param a_high : 1D Tbl where the a coefficients of piecewise polytropes are stored
+	 * 
+	 *  @param n_lim_high : 1D Tbl where the limiting densities of piecewise polytropes are stored in Lorene units [0.1 fm^-3]
+   * 
+	 *  @param ent_lim_high : 1D Tbl where the limiting enthalpies of piecewise polytropes are stored
+   * 
+	 *  @param n_lim : Limiting density between "core" and "crust" in Lorene units [0.1 fm^-3].
+	 * 
+	 */
+	Piecewise_polytrope_1D(const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, const Tbl&, double, double, double) ;	
+
+	Piecewise_polytrope_1D(const Piecewise_polytrope_1D& ) ;	///< Copy constructor	
+
+    protected:
+	/** Constructor from a binary file (created by the function 
+	 *  \c sauve(FILE*) ). 
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function 
+	 *  \c Eos::eos_from_file(FILE*) . 
+	 */
+	Piecewise_polytrope_1D(FILE* ) ; 
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function 
+	 *  \c Eos::eos_from_file(ifstream&) . 
+	 */
+	Piecewise_polytrope_1D(ifstream& ) ; 
+	
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ; 
+	friend Eos* Eos::eos_from_file(ifstream& ) ; 
+
+
+    public:
+	virtual ~Piecewise_polytrope_1D() ;			///< Destructor
+
+    // Assignment
+    // ----------
+	/// Assignment to another \c Piecewise_polytrope_1D 
+	void operator=(const Piecewise_polytrope_1D& ) ;
+
+    // Miscellaneous
+    // -------------
+
+    public : 
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ; 
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ; 
+    
+	/** Returns a number to identify the sub-classe of \c Eos the
+	 *  object belongs to. 
+	 */
+	virtual int identify() const ; 
+
+    // Outputs
+    // -------
+
+    public: 
+	virtual void sauve(FILE* ) const ;	///< Save in a file
+
+    protected: 
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+    public: 
+	/** Computes the baryon density from the specific enthalpy.
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
+	 * 
+	 */
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ; 
+    
+ 	/** Computes the total energy density from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ; 
+       
+ 	/** Computes the pressure from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return pressure \e p [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
+	 */
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ; 
+       
+	/** Computes the logarithmic derivative \f$d\ln n/d\ln h\f$ 
+	 * from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return dln(n)/dln(h)
+	 */
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
+       
+	/** Computes the logarithmic derivative \f$d\ln e/d\ln h\f$ 
+	 * from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return dln(e)/dln(h)
+	 */
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
+       
+	/** Computes the logarithmic derivative \f$d\ln p/d\ln h\f$ 
+	 * from the specific enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: \f$c^2\f$] specific enthalpy \e H  defined by
+	 *				     Eq. (4)
+	 *
+	 *  @return dln(p)/dln(h)
+	 */
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
+    
+	/** Computes the sound speed squared \f$ c_s^2 = c^2 \frac{dp}{de}\f$
+	 *  from the enthapy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
+	 *  @param ent [input, unit: \e c^2]
+	 *         enthalpy 
+	 *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return \f$c_s^2 \f$ [unit: \e c^2]
+	 */
+	virtual double csound_square_ent_p(double, const Param*) const ;
+	
+	double get_ent_lim() const { return ent_lim ;} ;
+  Tbl* get_gamma_high() const { return gamma_high;} ;
+  Tbl* get_kappa_high() const { return kappa_high;} ;
+  Tbl* get_n_lim_high() const { return n_lim_high;} ;
+  Tbl* get_ent_lim_high() const { return ent_lim_high;} ;
+  Tbl* get_Lambda_high() const { return Lambda_high;} ;
+  Tbl* get_a_high() const { return a_high;} ;
+};
 
 		    //------------------------------------//
 		    //		class Eos_incomp	  //
