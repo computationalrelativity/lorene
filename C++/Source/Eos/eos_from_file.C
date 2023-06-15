@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2023/06/15 08:04:05  g_servignat
+ * Added identifier for Pseudo_polytrope_1D and Piecewise_polytrope_1D
+ *
  * Revision 1.18  2022/04/15 13:39:24  j_novak
  * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
  *
@@ -169,6 +172,10 @@ int Eos_Fermi::identify() const	{ return 19; }
 
 int Eos_consistent::identify() const	{ return 20; }
 
+int Pseudo_polytrope_1D::identify() const	{ return 21; }
+
+int Piecewise_polytrope_1D::identify() const	{ return 22; }
+
 int MEos::identify() const	{ return 100; }
 
 int Eos_multi_poly::identify() const	{ return 110; }
@@ -280,6 +287,16 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 20 : {
 	    p_eos = new Eos_consistent(fich) ;
+	    break ;
+	}
+
+	case 21 : {
+	    p_eos = new Pseudo_polytrope_1D(fich) ;
+	    break ;
+	}
+
+	case 22 : {
+	    p_eos = new Piecewise_polytrope_1D(fich) ;
 	    break ;
 	}
 
@@ -454,6 +471,16 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	  else 
 	    p_eos = new Eos_consistent(fich ) ;
 	  break ;
+	}
+
+	case 21 : {
+	    p_eos = new Pseudo_polytrope_1D(fich) ;
+	    break ;
+	}
+
+	case 22 : {
+	    p_eos = new Piecewise_polytrope_1D(fich) ;
+	    break ;
 	}
 
 	case 100 : {
