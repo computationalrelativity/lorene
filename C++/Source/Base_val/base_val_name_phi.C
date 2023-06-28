@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2023/06/28 10:04:32  j_novak
+ * Use of C++ strings and flows instead of C types.
+ *
  * Revision 1.5  2016/12/05 16:17:44  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -55,24 +58,27 @@
 #include <cstring>
 #include <cstdlib>
 
+// Header C++
+#include <sstream>
+
 // Lorene headers
 #include "base_val.h"
 
 // Local prototypes
 namespace Lorene {
-void basename_p_unknown(int, char*) ; 
-void basename_p_cossin(int, char*) ; 
-void basename_p_cossin_p(int, char*) ; 
-void basename_p_cossin_i(int, char*) ; 
+void basename_p_unknown(int, string&) ; 
+void basename_p_cossin(int, string&) ; 
+void basename_p_cossin_p(int, string&) ; 
+void basename_p_cossin_i(int, string&) ; 
 
 			//----------------------------//
 			//      Base_val method       //
 			//----------------------------//
 
-void Base_val::name_phi(int l, int k, char* name) const {
+void Base_val::name_phi(int l, int k, string& name) const {
 
 	// Array of actual base name functions
-    static void(*vbasename_p[MAX_BASE_2])(int, char*) ;  
+    static void(*vbasename_p[MAX_BASE_2])(int, string&) ;  
 
     static bool first_call = true ;
 
@@ -108,99 +114,91 @@ void Base_val::name_phi(int l, int k, char* name) const {
             //  individual basis functions   //
 			//-------------------------------//
 	
-void basename_p_unknown(int, char*) {
+void basename_p_unknown(int, string&) {
 	cout << "Base_val::name_phi : unknwon basis !" << endl ; 
 	abort() ; 
 } 
 
 
-void basename_p_cossin(int k, char* name) {
+void basename_p_cossin(int k, string& name) {
 
-	assert( k>=0 ) ; 
+	assert( k>=0 ) ;
+
+	ostringstream ostr ;
 
 	if (k%2 == 0) {
-		strcpy(name, "cos") ; 
+	  ostr << "cos" ; 
 	}		
 	else {
-		if (k == 1) {
-			strcpy(name, "unused") ; 
-			return ;
-		}
-		else { 
-			strcpy(name, "sin") ; 
-		}
+	  if (k == 1) {
+	    name = "unused" ; 
+	    return ;
+	  }
+	  else { 
+	    ostr << "sin" ; 
+	  }
 	}
 		
 	int m = k / 2 ; 
-		
-	char cm[4] ;
-	assert( m < 1000) ; 
-	sprintf(cm, "%d", m) ; 
-	strcat(name, cm) ; 
-	strcat(name, "p") ; 
 
+	ostr << m << 'p' << flush ;
+	name = ostr.str() ;
 }	
 
 	
 	
-void basename_p_cossin_p(int k, char* name) {
+void basename_p_cossin_p(int k, string& name) {
 
 	assert( k>=0 ) ; 
 
+	ostringstream ostr ;
 	if (k%2 == 0) {
-		strcpy(name, "cos") ; 
+	  ostr << "cos" ; 
 	}		
 	else {
 		if (k == 1) {
-			strcpy(name, "unused") ; 
-			return ;
+		  name = "unused" ; 
+		  return ;
 		}
 		else { 
-			strcpy(name, "sin") ; 
+		  ostr << "sin" ; 
 		}
 	}
 		
 	int m = 2 * (k / 2) ; 
-		
-	char cm[4] ;
-	assert( m < 1000) ; 
-	sprintf(cm, "%d", m) ; 
-	strcat(name, cm) ; 
-	strcat(name, "p") ; 
 
+	ostr << m << 'p' << flush ;
+	name = ostr.str() ;
 } 
 
 
-void basename_p_cossin_i(int k, char* name) {
+void basename_p_cossin_i(int k, string& name) {
 
 	assert( k>=0 ) ; 
 
+	ostringstream ostr ;
 	if (k == 0) {
-		strcpy(name, "cos1p") ; 
-		return  ; 		
+	  name = "cos1p" ; 
+	  return  ; 		
 	}
 
 	if (k%2 == 0) {
-		strcpy(name, "sin") ; 
+	  ostr << "sin" ; 
 	}		
 	else {
-		if (k == 1) {
-			strcpy(name, "unused") ; 
-			return ;
-		}
-		else { 
-			strcpy(name, "cos") ; 
-		}
+	  if (k == 1) {
+	    name = "unused" ; 
+	    return ;
+	  }
+	  else { 
+	    ostr << "cos" ; 
+	  }
 	}
 		
 	int m = 2 * ((k-1) / 2) + 1 ; 
-		
-	char cm[4] ;
-	assert( m < 1000) ; 
-	sprintf(cm, "%d", m) ; 
-	strcat(name, cm) ; 
-	strcat(name, "p") ; 
-
+	ostr << m << 'p' << flush ;
+	name = ostr.str() ;
+	
 } 
 
 

@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2023/06/28 10:04:32  j_novak
+ * Use of C++ strings and flows instead of C types.
+ *
  * Revision 1.23  2014/10/13 08:52:31  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -433,11 +436,8 @@ class Base_val {
 	 *		the theta index)
 	 *	@param i [input] r index
 	 *  @param basename [output] string containing the name of the basis function;
-	 *		this \c char  array must have a size of (at least) 8 elements
-	 *		and must have been allocated before the call
-	 *		to \c name_r .
 	 */
-	void name_r(int l, int k, int j, int i, char* basename) const ; 
+	void name_r(int l, int k, int j, int i, string& basename) const ; 
 
 	/** Name of the basis function in \f$\theta\f$
 	 *
@@ -446,22 +446,16 @@ class Base_val {
 	 *		the phi index)
 	 *	@param j [input] theta index
 	 *  @param basename [output] string containing the name of the basis function;
-	 *		this \c char  array must have a size of (at least) 8 elements
-	 *		and must have been allocated before the call
-	 *		to \c name_theta .
 	 */
-	void name_theta(int l, int k, int j, char* basename) const ; 
+	void name_theta(int l, int k, int j, string& basename) const ; 
 
 	/** Name of the basis function in \f$\varphi\f$
 	 *
 	 *	@param l [input] domain index
 	 *	@param k [input] phi index
 	 *  @param basename [output] string containing the name of the basis function;
-	 *		this \c char  array must have a size of (at least) 8 elements
-	 *		and must have been allocated before the call
-	 *		to \c name_phi .
 	 */
-	void name_phi(int l, int k, char* basename) const ; 
+	void name_phi(int l, int k, string& basename) const ; 
 
 
 	/** Values of the theta basis functions at the theta collocation points.

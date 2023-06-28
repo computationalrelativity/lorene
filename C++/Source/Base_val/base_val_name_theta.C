@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2023/06/28 10:04:32  j_novak
+ * Use of C++ strings and flows instead of C types.
+ *
  * Revision 1.10  2016/12/05 16:17:44  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -76,48 +79,51 @@
 #include <cstring>
 #include <cstdlib>
 
+// Header C++
+#include <sstream>
+
 // Lorene headers
 #include "type_parite.h"
 #include "base_val.h"
 
 // Local prototypes
 namespace Lorene {
-void basename_t_unknown(int, int, char*) ; 
-void basename_t_cos(int, int, char*) ; 
-void basename_t_sin(int, int, char*) ; 
-void basename_t_cos_p(int, int, char*) ; 
-void basename_t_sin_p(int, int, char*) ; 
-void basename_t_cos_i(int, int, char*) ; 
-void basename_t_sin_i(int, int, char*) ; 
-void basename_t_cossin_cp(int, int, char*) ; 
-void basename_t_cossin_sp(int, int, char*) ;
-void basename_t_cossin_c(int, int, char*) ; 
-void basename_t_cossin_s(int, int, char*) ; 
-void basename_t_cossin_ci(int, int, char*) ; 
-void basename_t_cossin_si(int, int, char*) ; 
-void basename_t_leg_p(int, int, char*) ; 
-void basename_t_leg(int, int, char*) ; 
-void basename_t_leg_mp(int, int, char*) ; 
-void basename_t_leg_mi(int, int, char*) ; 
-void basename_t_leg_pp(int, int, char*) ; 
-void basename_t_leg_i(int, int, char*) ; 
-void basename_t_leg_ip(int, int, char*) ; 
-void basename_t_leg_pi(int, int, char*) ; 
-void basename_t_leg_ii(int, int, char*) ; 
-void basename_t_cl_cos_p(int, int, char*) ; 
-void basename_t_cl_sin_p(int, int, char*) ; 
-void basename_t_cl_cos_i(int, int, char*) ; 
-void basename_t_cl_sin_i(int, int, char*) ; 
+  void basename_t_unknown(int, int, string&) ; 
+  void basename_t_cos(int, int, string&) ; 
+  void basename_t_sin(int, int, string&) ; 
+  void basename_t_cos_p(int, int, string&) ; 
+  void basename_t_sin_p(int, int, string&) ; 
+  void basename_t_cos_i(int, int, string&) ; 
+  void basename_t_sin_i(int, int, string&) ; 
+  void basename_t_cossin_cp(int, int, string&) ; 
+  void basename_t_cossin_sp(int, int, string&) ;
+  void basename_t_cossin_c(int, int, string&) ; 
+  void basename_t_cossin_s(int, int, string&) ; 
+  void basename_t_cossin_ci(int, int, string&) ; 
+  void basename_t_cossin_si(int, int, string&) ; 
+  void basename_t_leg_p(int, int, string&) ; 
+  void basename_t_leg(int, int, string&) ; 
+  void basename_t_leg_mp(int, int, string&) ; 
+  void basename_t_leg_mi(int, int, string&) ; 
+  void basename_t_leg_pp(int, int, string&) ; 
+  void basename_t_leg_i(int, int, string&) ; 
+  void basename_t_leg_ip(int, int, string&) ; 
+  void basename_t_leg_pi(int, int, string&) ; 
+  void basename_t_leg_ii(int, int, string&) ; 
+  void basename_t_cl_cos_p(int, int, string&) ; 
+  void basename_t_cl_sin_p(int, int, string&) ; 
+  void basename_t_cl_cos_i(int, int, string&) ; 
+  void basename_t_cl_sin_i(int, int, string&) ; 
 
 
-			//----------------------------//
-			//      Base_val method       //
-			//----------------------------//
+  //----------------------------//
+  //      Base_val method       //
+  //----------------------------//
 
-void Base_val::name_theta(int l, int k, int j, char* name) const {
+  void Base_val::name_theta(int l, int k, int j, string& name) const {
 
-	// Array of actual base name functions
-    static void(*vbasename_t[MAX_BASE])(int, int, char*) ;  
+    // Array of actual base name functions
+    static void(*vbasename_t[MAX_BASE])(int, int, string&) ;  
 
     static bool first_call = true ;
 
@@ -125,644 +131,466 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
     // -----------------------------
     if ( first_call ) {
 
-		first_call = false ;
+      first_call = false ;
 
-		for (int i=0 ; i<MAX_BASE ; i++) {
-	    	vbasename_t[i] = basename_t_unknown ;
-		}
+      for (int i=0 ; i<MAX_BASE ; i++) {
+	vbasename_t[i] = basename_t_unknown ;
+      }
 
-		vbasename_t[T_COS >> TRA_T] = basename_t_cos ;
-		vbasename_t[T_SIN >> TRA_T] = basename_t_sin ;
-		vbasename_t[T_COS_P >> TRA_T] = basename_t_cos_p ;
-		vbasename_t[T_SIN_P >> TRA_T] = basename_t_sin_p ;
-		vbasename_t[T_COS_I >> TRA_T] = basename_t_cos_i ;
-		vbasename_t[T_SIN_I >> TRA_T] = basename_t_sin_i ;
-		vbasename_t[T_COSSIN_CP >> TRA_T] = basename_t_cossin_cp ;
-		vbasename_t[T_COSSIN_SP >> TRA_T] = basename_t_cossin_sp ;
-		vbasename_t[T_COSSIN_CI >> TRA_T] = basename_t_cossin_ci ;
-		vbasename_t[T_COSSIN_SI >> TRA_T] = basename_t_cossin_si ;
-		vbasename_t[T_COSSIN_C >> TRA_T] = basename_t_cossin_c ;
-		vbasename_t[T_COSSIN_S >> TRA_T] = basename_t_cossin_s ;
-		vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
-		vbasename_t[T_LEG_MP >> TRA_T] = basename_t_leg_mp ;
-		vbasename_t[T_LEG_MI >> TRA_T] = basename_t_leg_mi ;
-		vbasename_t[T_LEG >> TRA_T] = basename_t_leg ;
-		vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
-		vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
-		vbasename_t[T_LEG_IP >> TRA_T] = basename_t_leg_ip ;
-		vbasename_t[T_LEG_PI >> TRA_T] = basename_t_leg_pi ;
-		vbasename_t[T_LEG_II >> TRA_T] = basename_t_leg_ii ;
-		vbasename_t[T_CL_COS_P >> TRA_T] = basename_t_cl_cos_p ;
-		vbasename_t[T_CL_SIN_P >> TRA_T] = basename_t_cl_sin_p ;
-		vbasename_t[T_CL_COS_I >> TRA_T] = basename_t_cl_cos_i ;
-		vbasename_t[T_CL_SIN_I >> TRA_T] = basename_t_cl_sin_i ;
+      vbasename_t[T_COS >> TRA_T] = basename_t_cos ;
+      vbasename_t[T_SIN >> TRA_T] = basename_t_sin ;
+      vbasename_t[T_COS_P >> TRA_T] = basename_t_cos_p ;
+      vbasename_t[T_SIN_P >> TRA_T] = basename_t_sin_p ;
+      vbasename_t[T_COS_I >> TRA_T] = basename_t_cos_i ;
+      vbasename_t[T_SIN_I >> TRA_T] = basename_t_sin_i ;
+      vbasename_t[T_COSSIN_CP >> TRA_T] = basename_t_cossin_cp ;
+      vbasename_t[T_COSSIN_SP >> TRA_T] = basename_t_cossin_sp ;
+      vbasename_t[T_COSSIN_CI >> TRA_T] = basename_t_cossin_ci ;
+      vbasename_t[T_COSSIN_SI >> TRA_T] = basename_t_cossin_si ;
+      vbasename_t[T_COSSIN_C >> TRA_T] = basename_t_cossin_c ;
+      vbasename_t[T_COSSIN_S >> TRA_T] = basename_t_cossin_s ;
+      vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
+      vbasename_t[T_LEG_MP >> TRA_T] = basename_t_leg_mp ;
+      vbasename_t[T_LEG_MI >> TRA_T] = basename_t_leg_mi ;
+      vbasename_t[T_LEG >> TRA_T] = basename_t_leg ;
+      vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
+      vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
+      vbasename_t[T_LEG_IP >> TRA_T] = basename_t_leg_ip ;
+      vbasename_t[T_LEG_PI >> TRA_T] = basename_t_leg_pi ;
+      vbasename_t[T_LEG_II >> TRA_T] = basename_t_leg_ii ;
+      vbasename_t[T_CL_COS_P >> TRA_T] = basename_t_cl_cos_p ;
+      vbasename_t[T_CL_SIN_P >> TRA_T] = basename_t_cl_sin_p ;
+      vbasename_t[T_CL_COS_I >> TRA_T] = basename_t_cl_cos_i ;
+      vbasename_t[T_CL_SIN_I >> TRA_T] = basename_t_cl_sin_i ;
 
     }
 	
-	// Call to the function adapted to the basis in domain l
-	//------------------------------------------------------
+    // Call to the function adapted to the basis in domain l
+    //------------------------------------------------------
 	
-	assert( (l>=0) && (l<nzone) ) ; 
+    assert( (l>=0) && (l<nzone) ) ; 
 	
     int base_t = ( b[l] & MSQ_T ) >> TRA_T ;
 	
-	vbasename_t[base_t](k, j, name) ; 
+    vbasename_t[base_t](k, j, name) ; 
 
-}
+  }
 	
 	
-			//-------------------------------//
-            //  individual basis functions   //
-			//-------------------------------//
+  //-------------------------------//
+  //  individual basis functions   //
+  //-------------------------------//
 	
-void basename_t_unknown(int, int, char*) {
-	cout << "Base_val::name_theta : unknwon basis !" << endl ; 
-	abort() ; 
-} 
+  void basename_t_unknown(int, int, string&) {
+    cout << "Base_val::name_theta : unknwon basis !" << endl ; 
+    abort() ; 
+  } 
 
 
-void basename_t_cos(int , int j, char* name) {
+  void basename_t_cos(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cos") ; 
-		
-	int xt = j ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    ostr << "cos" << j << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_t_sin(int , int j, char* name) {
+  void basename_t_sin(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "sin") ; 
-		
-	int xt = j ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    ostr << "sin" << j << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_cos_p(int , int j, char* name) {
+  void basename_t_cos_p(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cos") ; 
-		
-	int xt = 2*j ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    ostr << "cos" << 2*j << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_sin_p(int , int j, char* name) {
+  void basename_t_sin_p(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
-
-	if (j == 0) {
-		strcpy(name, "unused") ; 
-		return ;
-	}
-
-	strcpy(name, "sin") ; 
-		
-	int xt = 2*j ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}
+    assert( j>=0 ) ; 
+  
+    if (j == 0) {
+      name = "unused" ; 
+      return ;
+    }
+  
+    ostringstream ostr ;
+    ostr << "sin" << 2*j << 't' << flush ;
+    name = ostr.str() ;
+  }
 	
-void basename_t_cl_cos_p(int , int j, char* name) {
+  void basename_t_cl_cos_p(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cl_cos") ; 
-		
-	int xt = 2*j ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}
+    ostringstream ostr ;
+    ostr << "cl_cos" << 2*j << 't' << flush ;
+    name = ostr.str() ;
+  }
 
-void basename_t_cl_sin_p(int , int j, char* name) {
+  void basename_t_cl_sin_p(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cl_sin") ; 
-		
-	int xt = 2*j ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}
+    ostringstream ostr ;
+    ostr << "cl_sin" << 2*j << 't' << flush ;
+    name = ostr.str() ;
+  }
 	
-void basename_t_cos_i(int , int j, char* name) {
+  void basename_t_cos_i(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cos") ; 
-		
-	int xt = 2*j + 1 ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    ostr << "cos" << (2*j + 1) << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_t_cl_cos_i(int , int j, char* name) {
+  void basename_t_cl_cos_i(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cl_cos") ; 
-		
-	int xt = 2*j + 1 ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}
+    ostringstream ostr ;
+    ostr << "cl_cos" << (2*j + 1) << 't' << flush ;
+    name = ostr.str() ;
+  }
 
-void basename_t_sin_i(int , int j, char* name) {
+  void basename_t_sin_i(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "sin") ; 
-		
-	int xt = 2*j + 1 ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}
+    ostringstream ostr ;
+    ostr << "sin" << (2*j + 1) << 't' << flush ;
+    name = ostr.str() ;
+  }
 	
-void basename_t_cl_sin_i(int , int j, char* name) {
+  void basename_t_cl_sin_i(int , int j, string& name) {
 
-	assert( j>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	strcpy(name, "cl_sin") ; 
-		
-	int xt = 2*j + 1 ; 
-		
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    ostr << "cl_sin" << (2*j + 1) << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
 	
-void basename_t_cossin_cp(int k, int j, char* name) {
+  void basename_t_cossin_cp(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xt ; 
-	if (m%2 == 0) {
-		strcpy(name, "cos") ; 
-		xt = 2*j ; 
-	}
-	else {
-		strcpy(name, "sin") ; 
-		xt = 2*j + 1 ; 
-	}
-	
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    int m = k / 2 ; 
+    int xt ; 
+    if (m%2 == 0) {
+      ostr << "cos" ; 
+      xt = 2*j ; 
+    }
+    else {
+      ostr << "sin" ; 
+      xt = 2*j + 1 ; 
+    }
+    ostr << xt << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_cossin_sp(int k, int j, char* name) {
+  void basename_t_cossin_sp(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xt ; 
-	if (m%2 == 0) {
-		if (j == 0) {
-			strcpy(name, "unused") ;
-			return ;  
-		}
-		else {
-			strcpy(name, "sin") ; 
-			xt = 2*j ;
-		} 
-	}
-	else {
-		strcpy(name, "cos") ; 
-		xt = 2*j + 1 ; 
-	}
-	
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    int m = k / 2 ; 
+    int xt ; 
+    if (m%2 == 0) {
+      if (j == 0) {
+	name = "unused" ;
+	return ;  
+      }
+      else {
+	ostr << "sin" ; 
+	xt = 2*j ;
+      } 
+    }
+    else {
+      ostr << "cos" ; 
+      xt = 2*j + 1 ; 
+    }
+    ostr << xt << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_t_cossin_c(int k, int j, char* name) {
+  void basename_t_cossin_c(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xt ; 
-	if (m%2 == 0) {
-		strcpy(name, "cos") ; 
-		xt = j ; 
-	}
-	else {
-	  if (j == 0) {
-	    strcpy(name, "unused") ;
-	    return ;  
-	  } else {
-	    strcpy(name, "sin") ; 
-	    xt = j ;
-	  } 
-	}
-	
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    int m = k / 2 ; 
+    int xt ; 
+    if (m%2 == 0) {
+      ostr << "cos" ; 
+      xt = j ; 
+    }
+    else {
+      if (j == 0) {
+	name = "unused" ;
+	return ;  
+      } else {
+	ostr << "sin" ; 
+	xt = j ;
+      } 
+    }
+    ostr << xt << 't' << flush ;
+    name = ostr.str() ;
+  }
 
 
-void basename_t_cossin_s(int k, int j, char* name) {
+  void basename_t_cossin_s(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xt ; 
-	if (m%2 == 0) {
-		if (j == 0) {
-			strcpy(name, "unused") ;
-			return ;  
-		}
-		else {
-			strcpy(name, "sin") ; 
-			xt = j ;
-		} 
-	}
-	else {
-		strcpy(name, "cos") ; 
-		xt = j ; 
-	}
-	
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    int m = k / 2 ; 
+    int xt ; 
+    if (m%2 == 0) {
+      if (j == 0) {
+	name = "unused" ;
+	return ;  
+      }
+      else {
+	ostr << "sin" ; 
+	xt = j ;
+      } 
+    }
+    else {
+      ostr << "cos" ; 
+      xt = j ; 
+    }
+    ostr << xt << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_cossin_ci(int k, int j, char* name) {
+  void basename_t_cossin_ci(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xt ; 
-	if (m%2 == 0) {
-		strcpy(name, "cos") ; 
-		xt = 2*j + 1; 
-	}
-	else {
-		if (j == 0) {
-			strcpy(name, "unused") ;
-			return ;  
-		}
-		else {
-			strcpy(name, "sin") ; 
-			xt = 2*j ; 
-		}
-	}
-	
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    int m = k / 2 ; 
+    int xt ; 
+    if (m%2 == 0) {
+      ostr << "cos" ; 
+      xt = 2*j + 1; 
+    }
+    else {
+      if (j == 0) {
+	name = "unused" ;
+	return ;  
+      }
+      else {
+	ostr << "sin" ; 
+	xt = 2*j ; 
+      }
+    }
+    ostr << xt << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_cossin_si(int k, int j, char* name) {
+  void basename_t_cossin_si(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xt ; 
-	if (m%2 == 0) {
-		strcpy(name, "sin") ; 
-		xt = 2*j + 1; 
-	}
-	else {
-		strcpy(name, "cos") ; 
-		xt = 2*j ; 
-	}
-	
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "t") ; 
-}	
+    ostringstream ostr ;
+    int m = k / 2 ; 
+    int xt ; 
+    if (m%2 == 0) {
+      ostr << "sin" ; 
+      xt = 2*j + 1; 
+    }
+    else {
+      ostr << "cos" ; 
+      xt = 2*j ; 
+    }
+    ostr << xt << 't' << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_t_leg(int k, int j, char* name) {
+  void basename_t_leg(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ;
+    int m = k / 2 ;
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
-	
-	strcpy(name, "P_") ; 
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
 
-	int xt = j; 
+    ostringstream ostr ;
+    ostr << "P_" << j << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
+  void basename_t_leg_mp(int k, int j, string& name) {
 
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-void basename_t_leg_mp(int k, int j, char* name) {
-
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
-
-	int m = 2 * (k / 2) ;
+    int m = 2 * (k / 2) ;
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
-	
-	strcpy(name, "P_") ; 
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
+    ostringstream ostr ;
+    ostr << "P_" << j << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
-	int xt = j; 
+  void basename_t_leg_mi(int k, int j, string& name) {
 
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
-
-void basename_t_leg_mi(int k, int j, char* name) {
-
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
-
-	int m = 2 * ((k-1) / 2) + 1 ;
+    int m = 2 * ((k-1) / 2) + 1 ;
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
 	
-	strcpy(name, "P_") ; 
+    ostringstream ostr ;
+    ostr << "P_" << j << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
-	int xt = j; 
+  void basename_t_leg_p(int k, int j, string& name) {
 
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
-
-void basename_t_leg_p(int k, int j, char* name) {
-
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
-
-	int m = k / 2 ;
+    int m = k / 2 ;
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
-	
-	strcpy(name, "P_") ; 
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
 
-	int xt = (m%2 == 0) ? 2*j : 2*j + 1 ; 
-
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
-
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
+    int xt = (m%2 == 0) ? 2*j : 2*j + 1 ; 
+    ostringstream ostr ;
+    ostr << "P_" << xt << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_leg_pp(int k, int j, char* name) {
+  void basename_t_leg_pp(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = 2 * (k / 2) ; 
+    int m = 2 * (k / 2) ; 
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
 	
-	strcpy(name, "P_") ; 
-
-	int xt = 2*j ; 
-
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
-
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
+    ostringstream ostr ;
+    ostr << "P_" << 2*j << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_leg_i(int k, int j, char* name) {
+  void basename_t_leg_i(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = k / 2 ;
+    int m = k / 2 ;
 	 
-	if (j < m/2 + m%2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
+    if (j < m/2 + m%2) {
+      name = "unused" ; 
+      return ; 
+    }
 	
-	strcpy(name, "P_") ; 
-
-	int xt = (m%2 == 0) ? 2*j + 1 : 2*j ; 
-
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
-
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
+    int xt = (m%2 == 0) ? 2*j + 1 : 2*j ; 
+    ostringstream ostr ;
+    ostr << "P_" << xt << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 	
 
-void basename_t_leg_ip(int k, int j, char* name) {
+  void basename_t_leg_ip(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = 2 * (k / 2) ; 
+    int m = 2 * (k / 2) ; 
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
 	
-	strcpy(name, "P_") ; 
-
-	int xt = 2*j + 1 ; 
-
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
-
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
+    ostringstream ostr ;
+    ostr << "P_" << (2*j + 1) << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_leg_pi(int k, int j, char* name) {
+  void basename_t_leg_pi(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = 2 * ((k-1) / 2) + 1 ; 
+    int m = 2 * ((k-1) / 2) + 1 ; 
 	 
-	if (j < m/2) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
+    if (j < m/2) {
+      name = "unused" ; 
+      return ; 
+    }
 	
-	strcpy(name, "P_") ; 
-
-	int xt = 2*j + 1 ; 
-
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
-
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
+    ostringstream ostr ;
+    ostr << "P_" << (2*j + 1) << '^' << m << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_t_leg_ii(int k, int j, char* name) {
+  void basename_t_leg_ii(int k, int j, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( j>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( j>=0 ) ; 
 
-	int m = 2 * ((k-1) / 2) + 1 ; 
+    int m = 2 * ((k-1) / 2) + 1 ; 
 	 
-	if (j < m/2 + 1) {
-		strcpy (name, "unused") ; 
-		return ; 
-	}
+    if (j < m/2 + 1) {
+      name = "unused" ; 
+      return ; 
+    }
 	
-	strcpy(name, "P_") ; 
+    ostringstream ostr ;
+    ostr << "P_" << 2*j << '^' << m << flush ;
+    name = ostr.str() ;
 
-	int xt = 2*j ; 
+  }	
 
-	char cxt[4] ;
-	assert( xt < 1000) ; 
-	sprintf(cxt, "%d", xt) ; 
-	strcat(name, cxt) ; 
-	strcat(name, "^") ; 
-
-	assert( m < 1000) ; 
-	sprintf(cxt, "%d", m) ; 
-	strcat(name, cxt) ; 
-}	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }

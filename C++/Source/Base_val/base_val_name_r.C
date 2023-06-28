@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2023/06/28 10:04:32  j_novak
+ * Use of C++ strings and flows instead of C types.
+ *
  * Revision 1.7  2016/12/05 16:17:44  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -62,32 +65,35 @@
 #include <cstring>
 #include <cstdlib>
 
+// Header C++
+#include <sstream>
+
 // Lorene headers
 #include "base_val.h"
 
 // Local prototypes
 namespace Lorene {
-void basename_r_unknown(int, int, int, char*) ; 
-void basename_r_cheb(int, int, int, char*) ; 
-void basename_r_chebp(int, int, int, char*) ; 
-void basename_r_chebi(int, int, int, char*) ; 
-void basename_r_chebpim_p(int, int, int, char*) ; 
-void basename_r_chebpim_i(int, int, int, char*) ; 
-void basename_r_chebpi_p(int, int, int, char*) ; 
-void basename_r_chebpi_i(int, int, int, char*) ; 
-void basename_r_leg(int, int, int, char*) ; 
-void basename_r_legp(int, int, int, char*) ; 
-void basename_r_legi(int, int, int, char*) ; 
-void basename_r_jaco02(int, int, int, char*) ;
+  void basename_r_unknown(int, int, int, string&) ; 
+  void basename_r_cheb(int, int, int, string&) ; 
+  void basename_r_chebp(int, int, int, string&) ; 
+  void basename_r_chebi(int, int, int, string&) ; 
+  void basename_r_chebpim_p(int, int, int, string&) ; 
+  void basename_r_chebpim_i(int, int, int, string&) ; 
+  void basename_r_chebpi_p(int, int, int, string&) ; 
+  void basename_r_chebpi_i(int, int, int, string&) ; 
+  void basename_r_leg(int, int, int, string&) ; 
+  void basename_r_legp(int, int, int, string&) ; 
+  void basename_r_legi(int, int, int, string&) ; 
+  void basename_r_jaco02(int, int, int, string&) ;
 
-			//----------------------------//
-			//      Base_val method       //
-			//----------------------------//
+  //----------------------------//
+  //      Base_val method       //
+  //----------------------------//
 
-void Base_val::name_r(int l, int k, int j, int i, char* name) const {
+  void Base_val::name_r(int l, int k, int j, int i, string& name) const {
 
-	// Array of actual base name functions
-    static void(*vbasename_r[MAX_BASE])(int, int, int, char*) ;  
+    // Array of actual base name functions
+    static void(*vbasename_r[MAX_BASE])(int, int, int, string&) ;  
 
     static bool first_call = true ;
 
@@ -95,211 +101,166 @@ void Base_val::name_r(int l, int k, int j, int i, char* name) const {
     // -----------------------------
     if ( first_call ) {
 
-		first_call = false ;
+      first_call = false ;
 
-		for (int ib=0 ; ib<MAX_BASE ; ib++) {
-	    	vbasename_r[ib] = basename_r_unknown ;
-		}
+      for (int ib=0 ; ib<MAX_BASE ; ib++) {
+	vbasename_r[ib] = basename_r_unknown ;
+      }
 
-		vbasename_r[R_CHEB >> TRA_R] = basename_r_cheb ;
-		vbasename_r[R_CHEBP >> TRA_R] = basename_r_chebp ;
-		vbasename_r[R_CHEBI >> TRA_R] = basename_r_chebi ;
-		vbasename_r[R_CHEBPIM_P >> TRA_R] = basename_r_chebpim_p ;
-		vbasename_r[R_CHEBPIM_I >> TRA_R] = basename_r_chebpim_i ;
-		vbasename_r[R_CHEBU >> TRA_R] = basename_r_cheb ;
-		vbasename_r[R_CHEBPI_P >> TRA_R] = basename_r_chebpi_p ;
-		vbasename_r[R_CHEBPI_I >> TRA_R] = basename_r_chebpi_i ;
-		vbasename_r[R_LEG >> TRA_R] = basename_r_leg ;
-		vbasename_r[R_LEGP >> TRA_R] = basename_r_legp ;
-		vbasename_r[R_LEGI >> TRA_R] = basename_r_legi ;
-		vbasename_r[R_JACO02 >> TRA_R] = basename_r_jaco02 ;
+      vbasename_r[R_CHEB >> TRA_R] = basename_r_cheb ;
+      vbasename_r[R_CHEBP >> TRA_R] = basename_r_chebp ;
+      vbasename_r[R_CHEBI >> TRA_R] = basename_r_chebi ;
+      vbasename_r[R_CHEBPIM_P >> TRA_R] = basename_r_chebpim_p ;
+      vbasename_r[R_CHEBPIM_I >> TRA_R] = basename_r_chebpim_i ;
+      vbasename_r[R_CHEBU >> TRA_R] = basename_r_cheb ;
+      vbasename_r[R_CHEBPI_P >> TRA_R] = basename_r_chebpi_p ;
+      vbasename_r[R_CHEBPI_I >> TRA_R] = basename_r_chebpi_i ;
+      vbasename_r[R_LEG >> TRA_R] = basename_r_leg ;
+      vbasename_r[R_LEGP >> TRA_R] = basename_r_legp ;
+      vbasename_r[R_LEGI >> TRA_R] = basename_r_legi ;
+      vbasename_r[R_JACO02 >> TRA_R] = basename_r_jaco02 ;
     }
 	
-	// Call to the function adapted to the basis in domain l
-	//------------------------------------------------------
+    // Call to the function adapted to the basis in domain l
+    //------------------------------------------------------
 	
-	assert( (l>=0) && (l<nzone) ) ; 
+    assert( (l>=0) && (l<nzone) ) ; 
 	
     int base_r = ( b[l] & MSQ_R ) >> TRA_R ;
 	
-	vbasename_r[base_r](k, j, i, name) ; 
+    vbasename_r[base_r](k, j, i, name) ; 
 
-}
+  }
 	
 	
-			//-------------------------------//
-            //  individual basis functions   //
-			//-------------------------------//
+  //-------------------------------//
+  //  individual basis functions   //
+  //-------------------------------//
 	
-void basename_r_unknown(int, int, int, char*) {
-	cout << "Base_val::name_r : unknwon basis !" << endl ; 
-	abort() ; 
-} 
+  void basename_r_unknown(int, int, int, string&) {
+    cout << "Base_val::name_r : unknwon basis !" << endl ; 
+    abort() ; 
+  } 
 
 
-void basename_r_cheb(int, int, int i, char* name) {
+  void basename_r_cheb(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ;
 
-	strcpy(name, "T") ; 
-		
-	char cxr[4] ;
-	assert( i < 1000) ; 
-	sprintf(cxr, "%d", i) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << i << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_chebp(int, int, int i, char* name) {
+  void basename_r_chebp(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	strcpy(name, "T") ; 
-		
-	int xr = 2*i ; 
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << 2*i << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_chebi(int, int, int i, char* name) {
+  void basename_r_chebi(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	strcpy(name, "T") ; 
-		
-	int xr = 2*i + 1 ; 
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << (2*i+1) << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_chebpim_p(int k, int, int i, char* name) {
+  void basename_r_chebpim_p(int k, int, int i, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( i>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xr = (m%2 == 0) ? 2*i : 2*i + 1 ; 
+    int m = k / 2 ; 
+    int xr = (m%2 == 0) ? 2*i : 2*i + 1 ; 
 
-	strcpy(name, "T") ; 
-		
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << xr << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_chebpim_i(int k, int, int i, char* name) {
+  void basename_r_chebpim_i(int k, int, int i, string& name) {
 
-	assert( k>=0 ) ; 
-	assert( i>=0 ) ; 
+    assert( k>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	int m = k / 2 ; 
-	int xr = (m%2 == 0) ? 2*i + 1 : 2*i ; 
+    int m = k / 2 ; 
+    int xr = (m%2 == 0) ? 2*i + 1 : 2*i ; 
 
-	strcpy(name, "T") ; 
-		
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << xr << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_r_chebpi_p(int , int j, int i, char* name) {
+  void basename_r_chebpi_p(int , int j, int i, string& name) {
 
-	assert( j>=0 ) ; 
-	assert( i>=0 ) ; 
+    assert( j>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	int xr = (j%2 == 0) ? 2*i : 2*i + 1 ; 
+    int xr = (j%2 == 0) ? 2*i : 2*i + 1 ; 
 
-	strcpy(name, "T") ; 
-		
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << xr << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_chebpi_i(int , int j, int i, char* name) {
+  void basename_r_chebpi_i(int , int j, int i, string& name) {
 
-	assert( j>=0 ) ; 
-	assert( i>=0 ) ; 
+    assert( j>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	int xr = (j%2 == 0) ? 2*i + 1 : 2*i ; 
+    int xr = (j%2 == 0) ? 2*i + 1 : 2*i ; 
 
-	strcpy(name, "T") ; 
-		
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << xr << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_r_leg(int, int, int i, char* name) {
+  void basename_r_leg(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	strcpy(name, "P") ; 
-		
-	char cxr[4] ;
-	assert( i < 1000) ; 
-	sprintf(cxr, "%d", i) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'P' << i << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_legp(int, int, int i, char* name) {
+  void basename_r_legp(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	strcpy(name, "P") ; 
-		
-	int xr = 2*i ; 
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'P' << 2*i << flush ;
+    name = ostr.str() ;
+  }	
 
 
-void basename_r_legi(int, int, int i, char* name) {
+  void basename_r_legi(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	strcpy(name, "P") ; 
-		
-	int xr = 2*i + 1 ; 
-	char cxr[4] ;
-	assert( xr < 1000) ; 
-	sprintf(cxr, "%d", xr) ; 
-	strcat(name, cxr) ; 
-}	
+    ostringstream ostr ;
+    ostr << 'T' << (2*i + 1)  << flush ;
+    name = ostr.str() ;
+  }	
 
-void basename_r_jaco02(int, int, int i, char* name) {
+  void basename_r_jaco02(int, int, int i, string& name) {
 
-	assert( i>=0 ) ; 
+    assert( i>=0 ) ; 
 
-	strcpy(name, "J") ; 
-		
-	char cxr[4] ;
-	assert( i < 1000) ; 
-	sprintf(cxr, "%d", i) ; 
-	strcat(name, cxr) ; 
-}	
-
-
-
-
-
-
-
-
+    ostringstream ostr ;
+    ostr << 'J' << i << flush ;
+    name = ostr.str() ;
+  }	
 
 }
