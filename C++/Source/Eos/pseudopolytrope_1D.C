@@ -51,7 +51,8 @@
 namespace Lorene {
 Pseudo_polytrope_1D::Pseudo_polytrope_1D(const Tbl& coefs0, double n_lim0, double m_n0): 
 	      n_lim(n_lim0), m_n(m_n0) {
-
+	
+	cerr << "Deprecated constructor, please do not use ! Aborting..." << endl; abort() ;
     set_name("Pseudo-polytropic fit of cold, beta-equilibrated EoS") ; 
     
 	assert(coefs0.get_ndim() == 1) ;
@@ -65,8 +66,7 @@ Pseudo_polytrope_1D::Pseudo_polytrope_1D(const Tbl& coefs0, double n_lim0, doubl
 		sum_poly     += (*coefs)(i)*pow(x_lim, double(i)) ;
 		sum_der_poly += (i == 0) ? 0. : (*coefs)(i)*double(i)*pow(x_lim, double(i-1)) ;
 	} 
-    ent_lim = log(1. + exp(alpha*x_lim)*((alpha+1)*sum_poly + sum_der_poly)) ;
-	// ATTENTION IL MANQUE PLEIN DE CHOSES ICI !!! Il faudrait calculer kappa_low et gamma_low !!
+    ent_lim = log1p(mu_0 + exp(alpha*x_lim)*((alpha+1)*sum_poly + sum_der_poly)) ;
 
 }  
 
@@ -88,19 +88,19 @@ Pseudo_polytrope_1D::Pseudo_polytrope_1D(FILE* fich): Eos(fich) {
 	fread_be(&n_lim, sizeof(double), 1, fich) ;
 	fread_be(&ent_lim, sizeof(double), 1, fich) ;
 	fread_be(&m_n, sizeof(double), 1, fich) ;
+	fread_be(&mu_0, sizeof(double), 1, fich) ;
+	fread_be(&Lambda, sizeof(double), 1, fich) ;
 	
-	mu_0 = m_n/Unites::m_u_mev ;
-	
-	eos_low = new Eos_poly(gamma_low, kappa_low, mu_0, mu_0) ;
+	eos_low = new Eos_poly(gamma_low, kappa_low) ;
 }
 	       
 // Constructor from a formatted file
 // ---------------------------------
 Pseudo_polytrope_1D::Pseudo_polytrope_1D(ifstream& fich): Eos(fich) {
-	
+
 	fich >> n_coefs ; fich.ignore(1000, '\n') ;
 	coefs = new Tbl(n_coefs) ; coefs->set_etat_qcq() ;
-	
+
 	for (int i=0; i < n_coefs; i++)
 		fich >> coefs->set(i) ;
 	fich.ignore(1000, '\n') ;
@@ -112,6 +112,10 @@ Pseudo_polytrope_1D::Pseudo_polytrope_1D(ifstream& fich): Eos(fich) {
 	fich >> gamma_low ; fich.ignore(1000, '\n') ;
 	
 	fich >> m_n ; fich.ignore(1000, '\n') ;
+
+	fich >> mu_0 ; fich.ignore(1000, '\n') ;
+	
+	fich >> Lambda ; fich.ignore(1000, '\n') ;
 	
 	double x_lim = log(n_lim*0.1) ;
 	double alpha = (*coefs)(n_coefs-1) ;
@@ -120,11 +124,10 @@ Pseudo_polytrope_1D::Pseudo_polytrope_1D(ifstream& fich): Eos(fich) {
 		sum_poly     += (*coefs)(i)*pow(x_lim, double(i)) ;
 		sum_der_poly += (i == 0) ? 0. : (*coefs)(i)*double(i)*pow(x_lim, double(i-1)) ;
 	} 
-    ent_lim = log(1. + exp(alpha*x_lim)*((alpha+1)*sum_poly + sum_der_poly)) ;
+    ent_lim = log1p(mu_0 + exp(alpha*x_lim)*((alpha+1)*sum_poly + sum_der_poly)) ;
 	
-	mu_0 = m_n/Unites::m_u_mev ;
 	
-	eos_low = new Eos_poly(gamma_low, kappa_low, mu_0, mu_0) ;
+	eos_low = new Eos_poly(gamma_low, kappa_low) ;
 	
 }
 	       
@@ -155,6 +158,7 @@ void Pseudo_polytrope_1D::operator=(const Pseudo_polytrope_1D& eosi) {
 	m_n       = eosi.m_n ;
 	ent_lim   = eosi.ent_lim ;
     mu_0      = eosi.mu_0 ;
+	Lambda    = eosi.Lambda ;
 	eos_low   = eosi.eos_low ;
     
 }
@@ -252,6 +256,8 @@ void Pseudo_polytrope_1D::sauve(FILE* fich) const {
 	fwrite_be(&n_lim, sizeof(double), 1, fich) ;
 	fwrite_be(&ent_lim, sizeof(double), 1, fich) ;
 	fwrite_be(&m_n, sizeof(double), 1, fich) ;
+	fwrite_be(&mu_0, sizeof(double), 1, fich) ;
+	fwrite_be(&Lambda, sizeof(double), 1, fich) ;
 	
        
 }
@@ -261,6 +267,7 @@ ostream& Pseudo_polytrope_1D::operator>>(ostream & ost) const {
     ost << setprecision(16) << "EOS of class Pseudo_polytrope_1D (analytical fit of cold EoS): " << '\n' ; 
     ost << "   Coefficients:            " << *coefs << '\n' ; 
 	ost << setprecision(16) << "   Baryon mass:             " << m_n << " [MeV]" << '\n' ;
+	ost << setprecision(16) << "   mu_0-1: " << mu_0 << " and Lambda: " << Lambda << '\n' ;
 	ost << "Low densities polytrope :" << '\n' ;
 	cout << *eos_low << '\n' ;
     ost << setprecision(16) << "   Limiting density n_lim:  " << 0.1*n_lim << " [fm^-3]" << '\n' ; 
@@ -291,11 +298,11 @@ double Pseudo_polytrope_1D::nbar_ent_p(double ent, const Param* ) const {
 				double cc2 = (i == n_coefs - 2) ? 0. : double(i+1)*(*coefs)(i+1) ;
 				sum_poly  += (cc1 + cc2)*pow(xx, double(i));
 			}
-			double arg = exp(alpha*xx)*sum_poly ;
-			return log(1. + arg) - ent ;
+			double arg = exp(alpha*xx)*sum_poly + mu_0 ;
+			return log1p(arg) - ent ;
 		} ;
 		
-		double a = n_lim/2., b = max(100.*ent, 10.*n_lim) ;
+		double a = n_lim/2., b = max(100.*ent, 50.*n_lim) ;
 		double f0 = ent_nb_p(a), f1 = ent_nb_p(b) ;
 		double c=1., c_old=2., f2 ;
 		double eps = 5e-16 ;
@@ -314,7 +321,6 @@ double Pseudo_polytrope_1D::nbar_ent_p(double ent, const Param* ) const {
 				f0 = f2 ;
 			}
 		}
-		
 	    return c ;
     }
     else if ( (0 < ent) && (ent < ent_lim)){
@@ -339,7 +345,7 @@ double Pseudo_polytrope_1D::ener_ent_p(double ent, const Param* ) const {
 		double sum_poly = 0.;
 		for (int i=0; i < n_coefs-1; i++)
 			sum_poly += (*coefs)(i)*pow(xx, double(i));
-	    return m_n*Unites::mevpfm3*(exp(xx) + exp((alpha+1) * xx)*sum_poly) ;
+	    return m_n*Unites::mevpfm3*(exp(xx)*(1.+mu_0) + exp((alpha+1) * xx)*sum_poly) - Lambda ;
     }
     else if ( (0 < ent) && (ent < ent_lim)){
 		
@@ -357,6 +363,7 @@ double Pseudo_polytrope_1D::press_ent_p(double ent, const Param* ) const {
 	if (ent > ent_lim ) {
 		
 		double nbar = nbar_ent_p(ent) ;
+
 		double xx = log(nbar*0.1) ;
 		
 		double alpha = (*coefs)(n_coefs-1) ;
@@ -367,11 +374,10 @@ double Pseudo_polytrope_1D::press_ent_p(double ent, const Param* ) const {
 			sum_poly  += (cc1 + cc2)*pow(xx, double(i));
 		}
 		
-	    return m_n*Unites::mevpfm3*exp((alpha+1.)*xx) * sum_poly ;
+	    return m_n*Unites::mevpfm3*(exp((alpha+1.)*xx) * sum_poly) + Lambda;
     }
     else if ( (0 < ent) && (ent < ent_lim)){
-		
-		return eos_low->press_ent_p(ent) ;
+		  return eos_low->press_ent_p(ent) ;
     }
     else{
 	return 0 ;
@@ -412,7 +418,7 @@ double Pseudo_polytrope_1D::csound_square_ent_p(double ent, const Param*) const 
 			sum_der2_poly += (i < 2)  ? 0. : double(i) * double(i-1) * (*coefs)(i) * pow(xx, double(i-2)) ;
 		}
 		double num   = (alpha*(alpha+1.) * sum_poly + (2.*alpha+1.) * sum_der_poly + sum_der2_poly)*exp(alpha*xx) ;
-		double denom = 1. + ((alpha+1.) * sum_poly + sum_der_poly)*exp(alpha*xx) ;
+		double denom = 1. + mu_0 + ((alpha+1.) * sum_poly + sum_der_poly)*exp(alpha*xx) ;
 		
 		return num/denom ;
 	}
