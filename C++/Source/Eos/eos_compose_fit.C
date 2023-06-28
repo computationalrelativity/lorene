@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2023/06/28 10:03:49  j_novak
+ * Changed error message in the constructor.
+ *
  * Revision 1.6  2023/04/21 14:51:51  j_novak
  * The analytic part for low densities has been changed to a new model with one parameter more than the polytrope, allowing for a smooth transition of all quantities (p, e, nB AND cs2). More checks need to be done...
  *
@@ -74,6 +77,11 @@ namespace Lorene {
     log_cs2(nullptr)
   {
     ifstream para_file(par_file_name) ;
+    if (!para_file.good()) {
+      cerr << "Eos_compose_fit : standard constructor " << endl ;
+      cerr << "Parameter file not correct, aborting ... " << endl ;
+      abort() ;
+    }
     para_file.ignore(1000, '\n') ;
     para_file.ignore(1000, '\n') ;
     read_and_compute(para_file) ;
@@ -237,7 +245,6 @@ void Eos_compose_fit::sauve(FILE* fich) const {
 			
 void Eos_compose_fit::read_and_compute(ifstream& para_file) {
 
-  cout << para_file.good() << endl ;
   para_file >> tablename ;
   para_file >> nb_mid >> nb_min ;
   para_file.ignore(1000, '\n') ;
