@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2023/06/28 13:27:31  g_servignat
+ * Updated eos_from_file constructor and data of Pseudo_polytrope_1D to support GPP-like formalism in the fitted region
+ *
  * Revision 1.26  2023/06/14 15:52:09  g_servignat
  * Files that implement the analytical formulae for the Pseudo-polytrope and Generalised Piecewise-polytrope (not fully working yet)
  *
@@ -1276,7 +1279,7 @@ class Pseudo_polytrope_1D : public Eos {
     // -----
 	
 	Tbl* coefs;
-    double gamma_low, kappa_low, n_lim, ent_lim, m_n, mu_0;
+    double gamma_low, kappa_low, n_lim, ent_lim, m_n, mu_0, Lambda;
 	int n_coefs ;
 	Eos_poly* eos_low ;
 	
@@ -1428,6 +1431,7 @@ class Pseudo_polytrope_1D : public Eos {
 	virtual double csound_square_ent_p(double, const Param*) const ;
 	
 	double get_ent_lim() const { return ent_lim ;} ;
+	double get_n_lim() const { return n_lim ;} ;
 };
 
 			//------------------------------------//
