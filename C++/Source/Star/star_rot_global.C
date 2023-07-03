@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2023/07/03 14:32:31  j_novak
+ * Added method "r_pol_circ()", to compute polar circumferential radius, with a circumference along a meridian.
+ *
  * Revision 1.9  2021/10/06 09:41:28  j_novak
  * Corrected quadrupole computation from Friedman & Stergioulas book
  *
@@ -368,6 +371,51 @@ double Star_rot::r_circ() const {
     }
     
     return *p_r_circ ; 
+
+}
+
+double Star_rot::r_pol_circ() const {
+
+    if (p_r_pol_circ == 0x0) {    // a new computation is required
+      const Mg3d& mg = *(mp.get_mg()) ; 
+      int np = mg.get_np(0) ;
+      int nt = mg.get_nt(0) ;
+      assert(np == 1) ; //Only valid for axisymmetric configurations
+      
+      const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&mp) ;
+      assert(mp_rad != 0x0) ;
+
+      Valeur va_r(mg.get_angu()) ;
+      va_r.annule_hard() ;
+      Itbl lsurf = l_surf() ;
+      Tbl xisurf = xi_surf() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  int l_star = lsurf(k, j) ;
+	  double xi_star = xisurf(k, j) ;
+	  va_r.set(0, k, j, 0) = mp_rad->val_r_jk(l_star, xi_star, j, k) ;
+	}
+      }
+      va_r.std_base_scal() ;
+      
+      Valeur integ(mg.get_angu()) ;
+      Valeur dr = va_r.dsdt() ;
+      integ = sqrt(va_r*va_r + dr*dr) ;
+      Valeur a2 = get_a_car().get_spectral_va() ; a2.std_base_scal() ;
+      int k = 0 ;
+      for (int j=0; j<nt; j++) {
+	integ.set(0, k, j, 0)
+	  *= sqrt(a2.val_point_jk(lsurf(k, j), xisurf(k, j), j, k)) ;
+      }
+      integ.std_base_scal() ;
+      integ.coef() ;
+      double surftot = (*integ.c_cf)(0, k, 0, 0) ; // Only j=0 has a nonvanishing 
+                                                   // integral
+      p_r_pol_circ = new double(surftot ) ; 
+
+    }
+    
+    return *p_r_pol_circ ; 
 
 }
 

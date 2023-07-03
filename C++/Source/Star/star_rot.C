@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2023/07/03 14:32:31  j_novak
+ * Added method "r_pol_circ()", to compute polar circumferential radius, with a circumference along a meridian.
+ *
  * Revision 1.12  2021/10/08 13:10:14  j_novak
  * Corrected a bug in Star_rot::fait_shift) in the np=1 case
  *
@@ -310,6 +313,7 @@ void Star_rot::del_deriv() const {
     if (p_grv2 != 0x0) delete p_grv2 ; 
     if (p_grv3 != 0x0) delete p_grv3 ; 
     if (p_r_circ != 0x0) delete p_r_circ ; 
+    if (p_r_pol_circ != 0x0) delete p_r_pol_circ ; 
     if (p_area != 0x0) delete p_area ; 
     if (p_aplat != 0x0) delete p_aplat ; 
     if (p_z_eqf != 0x0) delete p_z_eqf ; 
@@ -336,6 +340,7 @@ void Star_rot::set_der_0x0() const {
     p_grv2 = 0x0 ;
     p_grv3 = 0x0 ;
     p_r_circ = 0x0 ;
+    p_r_pol_circ = 0x0 ;
     p_area = 0x0 ;
     p_aplat = 0x0 ;
     p_z_eqf = 0x0 ;
@@ -513,6 +518,8 @@ ostream& Star_rot::operator>>(ostream& ost) const {
     ost << "Ratio T/W :            " << tsw() << endl ; 
     ost << "Circumferential equatorial radius R_circ :     " 
 	<< r_circ()/km << " km" << endl ;  
+    ost << "Circumferential polar (meridional) radius R_pol_circ :     " 
+	<< r_pol_circ()/km << " km" << endl ;  
     if (mp.get_mg()->get_np(0) == 1) {
       ost << "Surface area :   " << area()/(km*km) << " km^2" << endl ;
       ost << "Mean radius :    " << mean_radius()/km << " km" << endl ;
@@ -520,7 +527,8 @@ ostream& Star_rot::operator>>(ostream& ost) const {
     ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km" 
 	 << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 
-
+    ost << "Flattening r_circ_pole/r_circ_eq :        "
+	<< r_pol_circ() / r_circ() << endl ; 
 
     int lsurf = nzet - 1; 
     int nt = mp.get_mg()->get_nt(lsurf) ; 
@@ -642,6 +650,8 @@ void Star_rot::partial_display(ostream& ost) const {
 	<< "Coordinate equatorial radius r_eq =    " 
 	<< ray_eq()/km << " km" << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 
+    ost << "Flattening r_circ_pole/r_circ_eq :        "
+	<< r_pol_circ() / r_circ() << endl ; 
 
 }
 
@@ -696,6 +706,7 @@ void Star_rot::display_poly(ostream& ost) const {
 	ost << "  J	  : " << angu_mom() / j_poly << endl ; 
 	ost << "  r_eq	  : " << ray_eq() / r_poly << endl ; 
 	ost << "  R_circ  : " << r_circ() / r_poly << endl ; 
+	ost << "  R_pol_circ  : " << r_pol_circ() / r_poly << endl ; 
 	ost << "  R_mean  : " << mean_radius() / r_poly << endl ;
     
     }
