@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2023/07/04 08:59:53  j_novak
+ * Added method "r_circ_merid()" to compute the circumferential meridional radius.
+ *
  * Revision 1.9  2021/04/13 11:24:53  j_novak
  * Corrected a bug in Etoile_rot::fait_shift() which was missing the np=1 case.
  *
@@ -347,6 +350,7 @@ void Etoile_rot::del_deriv() const {
     if (p_grv2 != 0x0) delete p_grv2 ; 
     if (p_grv3 != 0x0) delete p_grv3 ; 
     if (p_r_circ != 0x0) delete p_r_circ ; 
+    if (p_r_circ_merid != 0x0) delete p_r_circ_merid ; 
     if (p_area != 0x0) delete p_area ;
     if (p_aplat != 0x0) delete p_aplat ; 
     if (p_z_eqf != 0x0) delete p_z_eqf ; 
@@ -376,6 +380,7 @@ void Etoile_rot::set_der_0x0() const {
     p_grv2 = 0x0 ;
     p_grv3 = 0x0 ;
     p_r_circ = 0x0 ;
+    p_r_circ_merid = 0x0 ;
     p_area = 0x0 ;
     p_aplat = 0x0 ;
     p_z_eqf = 0x0 ;
@@ -541,15 +546,19 @@ ostream& Etoile_rot::operator>>(ostream& ost) const {
     }
 
     ost << "Ratio T/W :            " << tsw() << endl ; 
-    ost << "Circumferential equatorial radius R_circ :     " 
+    ost << "Circumferential equatorial radius R_circ_eq :     " 
 	<< r_circ()/km << " km" << endl ; 
     if (mp.get_mg()->get_np(0) == 1) {
+      ost << "Circumferential meridional radius R_circ_merid :     " 
+	  << r_circ_merid()/km << " km" << endl ;
+      ost << "Flattening r_circ_merid/r_circ_eq :        "
+	  << r_circ_merid() / r_circ() << endl ; 
       ost << "Surface area :   " << area()/(km*km) << " km^2" << endl ;
       ost << "Mean radius R_mean :    " 
 	  << mean_radius()/km << " km" << endl ;
     } else {
       ost << 
-    "Skipping surface statements due to number of points in phi direction np == 1" 
+    "Skipping polar radius / surface statements due to number of points in phi direction np > 1" 
 	  << endl;
     }
     ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km" 
@@ -679,6 +688,9 @@ void Etoile_rot::partial_display(ostream& ost) const {
 	<< "Coordinate equatorial radius r_eq =    " 
 	<< ray_eq()/km << " km" << endl ;  
     ost << "Flattening r_pole/r_eq :        " << aplat() << endl ; 
+    if (mp.get_mg()->get_np(0) == 1)
+      ost << "Flattening r_circ_pole/r_circ_eq :        "
+	  << r_circ_merid() / r_circ() << endl ; 
 
 }
 

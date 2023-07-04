@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2023/07/04 08:59:53  j_novak
+ * Added method "r_circ_merid()" to compute the circumferential meridional radius.
+ *
  * Revision 1.35  2015/06/12 12:38:24  j_novak
  * Implementation of the corrected formula for the quadrupole momentum.
  *
@@ -1632,7 +1635,8 @@ class Etoile_rot : public Etoile {
 	mutable double* p_tsw ;		///< Ratio T/W
 	mutable double* p_grv2 ;	///< Error on the virial identity GRV2
 	mutable double* p_grv3 ;	///< Error on the virial identity GRV3
-	mutable double* p_r_circ ;	///< Circumferential radius
+	mutable double* p_r_circ ;	///< Circumferential equatorial radius
+	mutable double* p_r_circ_merid ;	///< Circumferential meridional radius
 	mutable double* p_area ;	///< Surface area 
 	mutable double* p_aplat ;	///< Flatening r_pole/r_eq
 	mutable double* p_z_eqf ;	///< Forward redshift factor at equator
@@ -1849,8 +1853,9 @@ class Etoile_rot : public Etoile {
 	 */
 	virtual double grv3(ostream* ost = 0x0) const ;	
 
-	virtual double r_circ() const ;		///< Circumferential radius
-	virtual double area() const ;		///< Surface area
+	virtual double r_circ() const ;	    ///< Circumferential equatorial radius
+        virtual double r_circ_merid() const ; ///< Circumferential meridional radius
+        virtual double area() const ;	    ///< Surface area
 	virtual double mean_radius() const ;	///< Mean radius
 	virtual double aplat() const ;		///< Flatening r_pole/r_eq
 	virtual double z_eqf() const ;		///< Forward redshift factor at equator

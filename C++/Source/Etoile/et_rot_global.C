@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2023/07/04 08:59:53  j_novak
+ * Added method "r_circ_merid()" to compute the circumferential meridional radius.
+ *
  * Revision 1.11  2017/10/06 12:36:34  a_sourie
  * Cleaning of tabulated 2-fluid EoS class + superfluid rotating star model.
  *
@@ -418,6 +421,53 @@ double Etoile_rot::r_circ() const {
     return *p_r_circ ; 
 
 }
+  
+double Etoile_rot::r_circ_merid() const {
+
+    if (p_r_circ_merid == 0x0) {    // a new computation is required
+      const Mg3d& mg = *(mp.get_mg()) ; 
+      int np = mg.get_np(0) ;
+      int nt = mg.get_nt(0) ;
+      assert(np == 1) ; //Only valid for axisymmetric configurations
+      
+      const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&mp) ;
+      assert(mp_rad != 0x0) ;
+
+      Valeur va_r(mg.get_angu()) ;
+      va_r.annule_hard() ;
+      Itbl lsurf = l_surf() ;
+      Tbl xisurf = xi_surf() ;
+      for (int k=0; k<np; k++) {
+	for (int j=0; j<nt; j++) {
+	  int l_star = lsurf(k, j) ;
+	  double xi_star = xisurf(k, j) ;
+	  va_r.set(0, k, j, 0) = mp_rad->val_r_jk(l_star, xi_star, j, k) ;
+	}
+      }
+      va_r.std_base_scal() ;
+      
+      Valeur integ(mg.get_angu()) ;
+      Valeur dr = va_r.dsdt() ;
+      integ = sqrt(va_r*va_r + dr*dr) ;
+      Cmp aaaa = get_a_car()() ;
+      Valeur a2 = aaaa.va ; a2.std_base_scal() ;
+      int k = 0 ;
+      for (int j=0; j<nt; j++) {
+	integ.set(0, k, j, 0)
+	  *= sqrt(a2.val_point_jk(lsurf(k, j), xisurf(k, j), j, k)) ;
+      }
+      integ.std_base_scal() ;
+      integ.coef() ;
+      double surftot = (*integ.c_cf)(0, k, 0, 0) ; // Only j=0 has a nonvanishing 
+                                                   // integral
+      p_r_circ_merid = new double(surftot ) ; 
+
+    }
+    
+    return *p_r_circ_merid ; 
+
+}
+
 
 			//----------------------------//
 			//	  Surface area	      //
