@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2023/07/04 09:01:09  j_novak
+ * Changed the name r_pol_circ -> r_circ_merid to explicitly show the radius is a circumferential one, along a meridian.
+ *
  * Revision 1.10  2023/07/03 14:32:31  j_novak
  * Added method "r_pol_circ()", to compute polar circumferential radius, with a circumference along a meridian.
  *
@@ -374,9 +377,9 @@ double Star_rot::r_circ() const {
 
 }
 
-double Star_rot::r_pol_circ() const {
+double Star_rot::r_circ_merid() const {
 
-    if (p_r_pol_circ == 0x0) {    // a new computation is required
+    if (p_r_circ_merid == 0x0) {    // a new computation is required
       const Mg3d& mg = *(mp.get_mg()) ; 
       int np = mg.get_np(0) ;
       int nt = mg.get_nt(0) ;
@@ -411,11 +414,11 @@ double Star_rot::r_pol_circ() const {
       integ.coef() ;
       double surftot = (*integ.c_cf)(0, k, 0, 0) ; // Only j=0 has a nonvanishing 
                                                    // integral
-      p_r_pol_circ = new double(surftot ) ; 
+      p_r_circ_merid = new double(surftot ) ; 
 
     }
     
-    return *p_r_pol_circ ; 
+    return *p_r_circ_merid ; 
 
 }
 

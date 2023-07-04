@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2023/07/04 09:01:09  j_novak
+ * Changed the name r_pol_circ -> r_circ_merid to explicitly show the radius is a circumferential one, along a meridian.
+ *
  * Revision 1.9  2023/07/04 07:28:34  j_novak
  * Added method "r_pol_circ()", to compute polar circumferential radius, with a circumference along a meridian.
  *
@@ -243,7 +246,7 @@ class Star_rot : public Star {
 	mutable double* p_grv2 ;	///< Error on the virial identity GRV2
 	mutable double* p_grv3 ;	///< Error on the virial identity GRV3
 	mutable double* p_r_circ ;	///< Circumferential radius (equator)
-	mutable double* p_r_pol_circ ;	///< Polar circumferential radius (meridian)
+	mutable double* p_r_circ_merid ;	///< Circumferential radius (meridian)
 	mutable double* p_aplat ;	///< Flatening r_pole/r_eq
 	mutable double* p_area ;        ///< Integrated surface area 
 	mutable double* p_z_eqf ;	///< Forward redshift factor at equator
@@ -464,8 +467,8 @@ class Star_rot : public Star {
 	 */
 	virtual double grv3(ostream* ost = 0x0) const ;	
 
-	virtual double r_circ() const ;	///< Circumferential radius
-        virtual double r_pol_circ() const ; ///< Polar circumferential (meridian) radius
+	virtual double r_circ() const ;	///< Circumferential equatorial radius
+        virtual double r_circ_merid() const ; ///< Crcumferential meridional radius
 	virtual double aplat() const ;	///< Flatening r_pole/r_eq
 	virtual double area() const ;   ///< Integrated surface area in \f${\rm km}^2\f$
 	/// Mean star radius from the area \f$ r_{\rm mean} = \sqrt{\mathcal{A}} / 4\pi\f$
