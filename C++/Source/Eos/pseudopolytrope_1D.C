@@ -389,13 +389,15 @@ double Pseudo_polytrope_1D::press_ent_p(double ent, const Param* ) const {
 
 double Pseudo_polytrope_1D::der_nbar_ent_p(double , const Param* ) const {
 	c_est_pas_fait("Pseudo_polytrope_1D::der_nbar_ent_p") ;
+	return 0.;
 }
 
 // dln(e)/ln(h) from enthalpy
 //---------------------------
 
-double Pseudo_polytrope_1D::der_ener_ent_p(double ent, const Param* ) const {
+double Pseudo_polytrope_1D::der_ener_ent_p(double, const Param* ) const {
     c_est_pas_fait("Pseudo_polytrope_1D::der_ener_ent_p") ;
+    return 0.;
 }
 
 // dln(p)/ln(h) from enthalpy 
@@ -403,6 +405,7 @@ double Pseudo_polytrope_1D::der_ener_ent_p(double ent, const Param* ) const {
 
 double Pseudo_polytrope_1D::der_press_ent_p(double, const Param* ) const {
 	c_est_pas_fait("Pseudo_polytrope_1D::der_press_ent_p") ;
+	return 0. ;
 }
 
 double Pseudo_polytrope_1D::csound_square_ent_p(double ent, const Param*) const {
