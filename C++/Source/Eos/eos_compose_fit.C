@@ -32,11 +32,8 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2023/06/28 10:03:49  j_novak
- * Changed error message in the constructor.
- *
- * Revision 1.6  2023/04/21 14:51:51  j_novak
- * The analytic part for low densities has been changed to a new model with one parameter more than the polytrope, allowing for a smooth transition of all quantities (p, e, nB AND cs2). More checks need to be done...
+ * Revision 1.8  2023/07/12 15:39:30  j_novak
+ * Reversed order of matching the EoS fit: it now starts from the crust (polytrope) and adjusts the kappa of this crust so as to have the right pressure at the highest density in the original table.
  *
  * Revision 1.5  2023/03/17 08:36:59  j_novak
  * Output of "middle" enthalpy (boundary between domains).
@@ -72,16 +69,11 @@ namespace Lorene {
 // Standard constructor
 // --------------------			
   Eos_compose_fit::Eos_compose_fit(const string& par_file_name) :
-    Eos("EoS fitted from CompOSE data"), p_eos_high(nullptr),
+    Eos("EoS fitted from CompOSE data"), p_eos_low(nullptr), p_eos_high(nullptr),
     mg(nullptr), mp(nullptr), log_p(nullptr), log_e(nullptr), log_nb(nullptr),
     log_cs2(nullptr)
   {
     ifstream para_file(par_file_name) ;
-    if (!para_file.good()) {
-      cerr << "Eos_compose_fit : standard constructor " << endl ;
-      cerr << "Parameter file not correct, aborting ... " << endl ;
-      abort() ;
-    }
     para_file.ignore(1000, '\n') ;
     para_file.ignore(1000, '\n') ;
     read_and_compute(para_file) ;
@@ -92,36 +84,33 @@ namespace Lorene {
 // Constructor from binary file
 // ----------------------------
   Eos_compose_fit::Eos_compose_fit(FILE* fich) :
-    Eos(fich), p_eos_high(nullptr), mg(nullptr),
+    Eos(fich), p_eos_low(nullptr), p_eos_high(nullptr), mg(nullptr),
     mp(nullptr), log_p(nullptr), log_e(nullptr), log_nb(nullptr), log_cs2(nullptr)
   {
 
     char tmp_string[160] ;
-    size_t res = fread(tmp_string, sizeof(char), 160, fich) ;
-    if (res != 0)
-      tablename = tmp_string ;
-    else {
-      cerr << "Eos_compose_fit: constructor from a binary file: " << endl ;
-      cerr << "Error reading tablename... aborting." << endl ;
-      abort() ;
-    }
+    fread(tmp_string, sizeof(char), 160, fich) ;
+    tablename = tmp_string ;
+    
     fread_be(&n_coefs, sizeof(int), 1, fich) ;
     fread_be(&nb_min, sizeof(double), 1, fich) ;
     fread_be(&nb_mid, sizeof(double), 1, fich) ;
     fread_be(&nb_max, sizeof(double), 1, fich) ;
     fread_be(&hmin, sizeof(double), 1, fich) ;
     fread_be(&hmax, sizeof(double), 1, fich) ;
-    double gamma_high, kappa_high, m0_high, mu0_high ;
+    double gamma_low, gamma_high, kappa_low, kappa_high;
+    double m0_low, m0_high, mu0_low, mu0_high ;
+    fread_be(&gamma_low, sizeof(double), 1, fich) ;
     fread_be(&gamma_high, sizeof(double), 1, fich) ;
+    fread_be(&kappa_low, sizeof(double), 1, fich) ;
     fread_be(&kappa_high, sizeof(double), 1, fich) ;
+    fread_be(&m0_low, sizeof(double), 1, fich) ;
     fread_be(&m0_high, sizeof(double), 1, fich) ;
+    fread_be(&mu0_low, sizeof(double), 1, fich) ;
     fread_be(&mu0_high, sizeof(double), 1, fich) ;
-    fread_be(&k_low, sizeof(double), 1, fich) ;
-    fread_be(&c_low, sizeof(double), 1, fich) ;
-    fread_be(&alpha_low, sizeof(double), 1, fich) ;
-
+    
+    p_eos_low = new Eos_poly(gamma_low, kappa_low, m0_low, mu0_low) ;
     p_eos_high = new Eos_poly(gamma_high, kappa_high, m0_high, mu0_high) ;
-
     mg = new Mg3d(fich) ;
     mp = new Map_af(*mg, fich) ;
     
@@ -129,6 +118,7 @@ namespace Lorene {
     log_e = new Scalar(*mp, *mg, fich) ;
     log_nb = new Scalar(*mp, *mg, fich) ;
     log_cs2 = new Scalar(*mp, *mg, fich) ;
+    
   }
 
 
@@ -137,7 +127,7 @@ namespace Lorene {
 // ---------------------------------
 
   Eos_compose_fit::Eos_compose_fit(ifstream& para_file) :
-    Eos(para_file), p_eos_high(nullptr),
+    Eos(para_file), p_eos_low(nullptr), p_eos_high(nullptr),
     mg(nullptr), mp(nullptr), log_p(nullptr), log_e(nullptr), log_nb(nullptr),
     log_cs2(nullptr) 
   {
@@ -150,6 +140,7 @@ namespace Lorene {
 			//--------------//
 
 Eos_compose_fit::~Eos_compose_fit(){
+  if (p_eos_low != nullptr) delete p_eos_low ;
   if (p_eos_high != nullptr) delete p_eos_high ;
   if (mg != nullptr) delete mg ;
   if (mp != nullptr) delete mp ;
@@ -197,17 +188,22 @@ void Eos_compose_fit::sauve(FILE* fich) const {
   fwrite_be(&nb_max, sizeof(double), 1, fich) ;
   fwrite_be(&hmin, sizeof(double), 1, fich) ;
   fwrite_be(&hmax, sizeof(double), 1, fich) ;
+  double gamma_low = p_eos_low->get_gam() ;
+  double kappa_low = p_eos_low->get_kap() ;
+  double m0_low = p_eos_low->get_m_0() ;
+  double mu0_low = p_eos_low->get_mu_0() ;
   double gamma_high = p_eos_high->get_gam() ;
   double kappa_high = p_eos_high->get_kap() ;
   double m0_high = p_eos_high->get_m_0() ;
   double mu0_high = p_eos_high->get_mu_0() ;
+  fwrite_be(&gamma_low, sizeof(double), 1, fich) ;
   fwrite_be(&gamma_high, sizeof(double), 1, fich) ;
+  fwrite_be(&kappa_low, sizeof(double), 1, fich) ;
   fwrite_be(&kappa_high, sizeof(double), 1, fich) ;
+  fwrite_be(&m0_low, sizeof(double), 1, fich) ;
   fwrite_be(&m0_high, sizeof(double), 1, fich) ;
+  fwrite_be(&mu0_low, sizeof(double), 1, fich) ;
   fwrite_be(&mu0_high, sizeof(double), 1, fich) ;
-  fwrite_be(&k_low, sizeof(double), 1, fich) ;
-  fwrite_be(&c_low, sizeof(double), 1, fich) ;
-  fwrite_be(&alpha_low, sizeof(double), 1, fich) ;
   
   mg->sauve(fich) ;
   mp->sauve(fich) ;
@@ -229,10 +225,7 @@ void Eos_compose_fit::sauve(FILE* fich) const {
     	<< ", nb_max = " << nb_max << " [fm^-3]" << endl ;
     ost << "hmin = " << hmin << ", hmid = " << exp(mp->val_r_jk(0, 1., 0, 0))
 	<< ", hmax = " << hmax << endl ;
-    ost << "EoS for low density part: " << endl ;
-    ost << " of the form p = kappa(1 - exp(alpha H))^(1/(alpha C))" << endl ;
-    ost << "kappa = " << k_low << ", C = " << c_low << ", alpha = " << alpha_low
-	<< endl ;
+    ost << "EoS for low density part: " << *p_eos_low ;
     ost << "EoS for high density part: " << *p_eos_high ;
     ost << *mg << endl ;
     return ost ;
@@ -245,6 +238,7 @@ void Eos_compose_fit::sauve(FILE* fich) const {
 			
 void Eos_compose_fit::read_and_compute(ifstream& para_file) {
 
+  cout << para_file.good() << endl ;
   para_file >> tablename ;
   para_file >> nb_mid >> nb_min ;
   para_file.ignore(1000, '\n') ;
@@ -390,16 +384,8 @@ double Eos_compose_fit::nbar_ent_p(double ent, const Param* ) const {
     }
   }
   else{
-    if (ent > 0.) {
-      double expam1 = expm1(alpha_low*ent) ;
-      double expmam1 = expm1(-alpha_low*ent) ;
-      double ppp = k_low*pow(fabs(expam1), 1./(alpha_low*c_low)) ;
-      double yyy = -c_low*expmam1 ;
-      double nba = ppp / (yyy*exp(ent)) ;
-      return nba ;
-    }
-    else
-      return 0. ;
+    assert(p_eos_low != nullptr) ;
+    return p_eos_low->nbar_ent_p(ent) ;
   }
 }
 
@@ -419,15 +405,8 @@ double Eos_compose_fit::ener_ent_p(double ent, const Param* ) const {
     }
   }
   else{
-    if (ent > 0.) {
-      double expam1 = expm1(alpha_low*ent) ;
-      double expmam1 = expm1(-alpha_low*ent) ;
-      double ppp = k_low*pow(fabs(expam1), 1./(alpha_low*c_low)) ;
-      double yyy = -c_low*expmam1 ;
-      return ppp*(1-yyy) / yyy ;
-    }
-    else
-      return 0. ;
+    assert(p_eos_low != nullptr) ;
+    return p_eos_low->ener_ent_p(ent) ;
   }
 }
 
@@ -447,12 +426,8 @@ double Eos_compose_fit::press_ent_p(double ent, const Param* ) const {
     }
   }
   else{
-    if (ent > 0.) {
-      double expam1 = fabs(expm1(alpha_low*ent)) ;
-      return k_low*pow(expam1, 1./(alpha_low*c_low)) ;
-    }
-    else
-      return 0. ;
+    assert(p_eos_low != nullptr) ;
+    return p_eos_low->press_ent_p(ent) ;
   }
 }
 
@@ -461,10 +436,7 @@ double Eos_compose_fit::press_ent_p(double ent, const Param* ) const {
 
 double Eos_compose_fit::der_nbar_ent_p(double ent, const Param* ) const {
 
-  if (ent > 0.) 
-    return ent / csound_square_ent_p(ent) ;
-  else
-    return 1./(c_low*alpha_low) - 1. ;
+  return ent / csound_square_ent_p(ent) ;
 }
 
 
@@ -473,15 +445,11 @@ double Eos_compose_fit::der_nbar_ent_p(double ent, const Param* ) const {
 
 double Eos_compose_fit::der_ener_ent_p(double ent, const Param* ) const {
 
-  if (ent > 0.) {
-    double ener = ener_ent_p(ent) ;
-    double press = press_ent_p(ent) ;
-    double cs2 = csound_square_ent_p(ent) ;
-    
-    return (ener + press)*ent / (ener * cs2) ;
-  }
-  else
-    return  1./(c_low*alpha_low) - 1. ;
+  double ener = ener_ent_p(ent) ;
+  double press = press_ent_p(ent) ;
+  double cs2 = csound_square_ent_p(ent) ;
+
+  return (ener + press)*ent / (ener * cs2) ;
 }
 
 
@@ -489,15 +457,11 @@ double Eos_compose_fit::der_ener_ent_p(double ent, const Param* ) const {
 //---------------------------
 
 double Eos_compose_fit::der_press_ent_p(double ent, const Param* ) const {
-  
-  if (ent > 0.) {
-    double ener = ener_ent_p(ent) ;
-    double press = press_ent_p(ent) ;
-    
-    return ent*(ener + press)/press ;
-  }
-  else
-    return 1./(c_low*alpha_low) ;
+
+  double ener = ener_ent_p(ent) ;
+  double press = press_ent_p(ent) ;
+
+  return ent*(ener + press)/press ;
   
 }
 
@@ -507,14 +471,10 @@ double Eos_compose_fit::der_press_ent_p(double ent, const Param* ) const {
 
 double Eos_compose_fit::der_press_nbar_p(double ent, const Param*) const {
 
-  if (ent > 0.) {
-    double dlpsdlh0 = der_press_ent_p(ent) ;
-    double dlnsdlh0 = der_nbar_ent_p(ent) ;
-    
-    return dlpsdlh0 / dlnsdlh0  ;
-  }
-  else
-    return 1./ (1. - alpha_low*c_low) ;
+  double dlpsdlh0 = der_press_ent_p(ent) ;
+  double dlnsdlh0 = der_nbar_ent_p(ent) ;
+  
+  return dlpsdlh0 / dlnsdlh0  ;
 
 }
 
@@ -531,13 +491,8 @@ double Eos_compose_fit::csound_square_ent_p(double ent, const Param*) const {
     }
   }
   else{
-    if (ent > 0.) {
-      double expmam1 = expm1(-alpha_low*ent) ;
-      double yyy = -c_low*expmam1 ;
-      return yyy / (1 - c_low*(1 + alpha_low-1)*exp(-alpha_low*ent)) ;
-    }
-    else
-      return 0. ;
+    assert(p_eos_low != nullptr) ;
+    return p_eos_low->csound_square_ent_p(ent) ;
   }
 }
 

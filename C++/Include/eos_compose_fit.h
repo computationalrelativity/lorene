@@ -30,8 +30,8 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.5  2023/04/21 14:51:51  j_novak
- * The analytic part for low densities has been changed to a new model with one parameter more than the polytrope, allowing for a smooth transition of all quantities (p, e, nB AND cs2). More checks need to be done...
+ * Revision 1.6  2023/07/12 15:39:30  j_novak
+ * Reversed order of matching the EoS fit: it now starts from the crust (polytrope) and adjusts the kappa of this crust so as to have the right pressure at the highest density in the original table.
  *
  * Revision 1.4  2023/01/27 16:10:35  j_novak
  * A polytrope (class Eos_poly) is used for low and high enthalpies.
@@ -116,8 +116,8 @@ class Eos_compose_fit : public Eos {
   /// Values of enthalpy corresponding to nb_min and nb_max
   double hmin, hmax ;
 
-  /// Parameters for the low density EoS.
-  double k_low, c_low, alpha_low ;
+  /// Pointer on a polytropic EoS for the description of low densities (nb<nb_min)
+  const Eos_poly* p_eos_low ;
 
   /// Pointer on a polytropic EoS for the description of high densities (nb>nb_max)
   const Eos_poly* p_eos_high ;
@@ -211,6 +211,14 @@ protected:
   void adiabatic_index_fit(int i_min, int i_max, const Tbl& logh_read,
 			   const Tbl& logp_read, const Tbl& loge_read,
 			   const Tbl& lognb_read, const Tbl& gam1_read) ;
+
+  /** Integrates the differential system giving all thermo quantities from 
+   *  the adiabatic index.
+   * 
+   *  @return pressure at the highest entropy of the original table
+   */
+  double integrate_equations(double kappa, double mean_gam, const Scalar& gamma1,
+			     const Scalar& log_ent, const Scalar& ent, Scalar& YYY) ;
   
   // Outputs
   // -------
