@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2023/08/03 09:13:07  j_novak
+ * Corrected the name of the output file
+ *
  * Revision 1.1  2019/10/02 13:56:30  j_novak
  * New code for computing sequences of rotating stars
  *
@@ -73,7 +76,7 @@ int main(){
     nt, np, mer_triax, n_conf ;
   double entc_min, entc_max, fact_omega, mbar_wanted, precis, freq_min_si,
     freq_max_si, thres_adapt, aexp_mass, relax, relax_poisson,
-    ampli_triax, precis_adapt, rrot_km, arot ;  
+    ampli_triax, precis_adapt ;  
   
   ifstream fpar("par_seq.d") ;
   if ( !fpar.good() ) {
@@ -443,7 +446,7 @@ int main(){
     //-----------------------------------------------
 
     ostringstream oo ;
-    oo << "calcul" << setw(4) << setfill('0') << jj << oo.str() << ".d" ;
+    oo << "calcul" << setw(4) << setfill('0') << jj << ".d" ;
     cout << endl << "File name : " << oo.str() << endl ;
 
     ofstream fichfinal(oo.str().data()) ;
