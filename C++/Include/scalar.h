@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.95  2023/08/28 09:53:33  g_servignat
+ * Added ylm filter for Tensor and Scalar in theta + phi directions
+ *
  * Revision 1.94  2015/12/18 15:52:51  j_novak
  * New method is_nan() for class Scalar.
  *
@@ -1021,6 +1024,16 @@ class Scalar : public Tensor {
    * regularity problems at the origin if applied in a nucleus.
    */
   void sarra_filter_r_all_domains(double p, double alpha=1E-16) ;
+  
+  /**
+   * Applies an exponential filter to the spectral coefficients in the angular directions.
+   * The filter is of the type: 
+   * \f$ \forall \ell \leq \ell_{\rm max},\, \forall m,\, b_{\ell m} = \sigma(\ell/\ell_{\rm max} ) a_{\ell m}\f$, with 
+   * \f$ \sigma(x) \f$ defined for \c Scalar::exponential_filter_r and 
+   * \f$\ell_{\rm max}\f$ the number of spherical harmonics used.
+   */
+  virtual void exponential_filter_ylm(int lzmin, int lzmax, int p,
+			    double alpha= -16.) ;
 
   /**
    * Applies an exponential filter to the spectral coefficients in the angular directions.
@@ -1029,7 +1042,7 @@ class Scalar : public Tensor {
    * \f$ \sigma(x) \f$ defined for \c Scalar::exponential_filter_r and 
    * \f$\ell_{\rm max}\f$ the number of spherical harmonics used.
    */
-  virtual void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+  virtual void exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
 			    double alpha= -16.) ;
 
   /**
@@ -1104,6 +1117,24 @@ class Scalar : public Tensor {
    *                stored (together with their LU decomposition).
    */
   void match_tau(Param& par_bc, Param* par_mat=0x0) ;
+
+  /**
+   * Method for matching accross domains and imposing boundary condition.
+   * Matching of the field represented by \c this accross domains and imposition of the
+   * boundary condition using the tau method for a grid with Map_star mapping.
+   * @param par_bc [input] \c Param to control the boundary conditions
+   *	par_bc must contain (at a minimum)
+   *	a modifiable Tbl which specifies a physical boundary
+   *    two integers, one specifying the domain that has the boundary
+   *		      the other specifying the number of conditions 
+   *			1 -> Dirichlet
+   *			2 -> Robin (which may reduce to von Neumann, see below)
+   *	two doubles, specifying the Robin BC parameters. If the first is zero, we see that 
+   *    Robin will reduce to von Neumann
+   * @param par_mat [input/output] optional \c Param in which the matching matrices are
+   *                stored (together with their LU decomposition).
+   */
+  void match_tau_star(Param& par_bc, Param* par_mat=0x0) ;
 
   /**
    * Method for matching accross domains and imposing boundary condition.
@@ -1983,6 +2014,12 @@ Tbl diffrelmax(const Scalar& a, const Scalar& b) ;
  * (see \c Scalar:exponential_filter_ylm ).
  */
 void exp_filter_ylm_all_domains(Scalar& ss, int p, double alpha=-16.) ;
+
+/**
+ * Applies an exponential filter in angular directions in all domains.
+ * (see \c Scalar:exponential_filter_ylm_phi ).
+ */
+void exp_filter_ylm_all_domains(Scalar& ss, int p_tet, int p_phi, double alpha=-16.) ;
 
 /** @} */
 }

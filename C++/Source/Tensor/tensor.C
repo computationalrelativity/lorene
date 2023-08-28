@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.45  2023/08/28 09:53:33  g_servignat
+ * Added ylm filter for Tensor and Scalar in theta + phi directions
+ *
  * Revision 1.44  2016/12/05 16:18:17  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -1084,6 +1087,19 @@ void Tensor::exponential_filter_ylm(int lzmin, int lzmax, int p,
     if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
 	for (int i=0; i<n_comp; i++)
 	    cmp[i]->exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+    else {
+	cout << "Tensor::exponential_filter_ylm : " << endl ;
+	cout << "Only Cartesian triad is implemented!" << endl ;
+	cout << "Exiting..." << endl ;
+	abort() ;
+    }
+}
+
+void Tensor::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_ylm_phi(lzmin, lzmax, p_tet, p_phi, alpha) ;
     else {
 	cout << "Tensor::exponential_filter_ylm : " << endl ;
 	cout << "Only Cartesian triad is implemented!" << endl ;

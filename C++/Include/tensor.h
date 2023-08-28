@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.62  2023/08/28 09:53:33  g_servignat
+ * Added ylm filter for Tensor and Scalar in theta + phi directions
+ *
  * Revision 1.61  2014/10/13 08:52:37  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -673,11 +676,18 @@ class Tensor {
 	virtual void  exponential_filter_r(int lzmin, int lzmax, int p, 
 			    double alpha= -16.) ;
 
-	/** Applies exponential filters to all components 
+  /** Applies exponential filters to all components 
 	 * (see \c Scalar::exponential_filter_ylm ). Works only for Cartesian 
 	 * components.
 	 */
-	virtual void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+	virtual void exponential_filter_ylm(int lzmin, int lzmax, int p,
+			    double alpha= -16.) ;
+
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_ylm_phi ). Works only for Cartesian 
+	 * components.
+	 */
+	virtual void exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
 			    double alpha= -16.) ;
 
     // Computational methods

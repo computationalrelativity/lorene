@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2023/08/28 09:53:33  g_servignat
+ * Added ylm filter for Tensor and Scalar in theta + phi directions
+ *
  * Revision 1.6  2016/12/05 16:18:18  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -81,7 +84,7 @@ void Scalar::exponential_filter_r(int lzmin, int lzmax, int p,
 		for (int j=0; j<mgrid.get_nt(lz); j++) {
 		    int nr = mgrid.get_nr(lz) ;
 		    for (int i=0; i<nr; i++) {
-			double eta = double(i)/double(nr) ;
+			double eta = double(i)/double(nr-1) ;
 			va.c_cf->set(lz, k, j, i) *= exp(alp*pow(eta, 2*p)) ;
 		    }
 		}
@@ -143,6 +146,50 @@ void Scalar::sarra_filter_r_all_domains( double p, double alpha ) {
 }
 
 void Scalar::exponential_filter_ylm(int lzmin, int lzmax, int p, 
+               double alpha) {
+     assert(lzmin >= 0) ;
+     const Mg3d& mgrid = *mp->get_mg() ;
+ #ifndef NDEBUG
+     int nz = mgrid.get_nzone() ;
+ #endif
+     assert(lzmax < nz) ;
+     assert(etat != ETATNONDEF) ;
+     if (etat == ETATZERO) return ;
+     double alp = log(pow(10., alpha)) ;
+     va.ylm() ;
+     assert(va.c_cf != 0x0) ;
+     const Base_val& base = va.base ;
+     int l_q, m_q, base_r ;
+     
+     for (int lz=lzmin; lz<=lzmax; lz++) 
+     if ((*va.c_cf)(lz).get_etat() == ETATQCQ) {
+         int np = mgrid.get_np(lz) ;
+         int nt = mgrid.get_nt(lz) ;
+         int nr = mgrid.get_nr(lz) ;
+         int lmax = base.give_lmax(mgrid, lz) ; 
+         for (int k=0; k<np; k++) 
+         for (int j=0; j<nt; j++) {
+             base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+             if (nullite_plm(j, nt, k, np, base) == 1 ) {
+             double eta = double(l_q) / double(lmax) ;
+             double sigma = exp(alp*pow(eta, 2*p)) ;
+             for (int i=0; i<nr; i++) 
+                 va.c_cf->set(lz, k, j, i) *= sigma ;
+             }
+         }
+     }
+     
+     va.ylm_i() ;
+     if (va.c != 0x0) {
+     delete va.c ;
+     va.c = 0x0 ;
+     }
+     va.del_deriv() ;
+     del_deriv() ;
+     return ;
+ }
+
+void Scalar::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
 			  double alpha) {
     assert(lzmin >= 0) ;
     const Mg3d& mgrid = *mp->get_mg() ;
@@ -164,22 +211,24 @@ void Scalar::exponential_filter_ylm(int lzmin, int lzmax, int p,
 	    int nt = mgrid.get_nt(lz) ;
 	    int nr = mgrid.get_nr(lz) ;
 	    int lmax = base.give_lmax(mgrid, lz) ; 
-	    for (int k=0; k<np; k++) 
+	    for (int k=0; k<np+1; k++) 
 		for (int j=0; j<nt; j++) {
 		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
 		    if (nullite_plm(j, nt, k, np, base) == 1 ) {
-			double eta = double(l_q) / double(lmax) ;
-			double sigma = exp(alp*pow(eta, 2*p)) ;
+			double eta_theta = double(l_q) / double(lmax) ;
+			double sigma_theta = exp(alp*pow(eta_theta, 2*p_tet)) ;
+
+      double eta_phi = (np>1) ? double(m_q) / double(np) : 0. ;
+      double sigma_phi = exp(alp*pow(eta_phi, 2*p_phi)) ;
 			for (int i=0; i<nr; i++) 
-			    va.c_cf->set(lz, k, j, i) *= sigma ;
+			    va.c_cf->set(lz, k, j, i) *= sigma_theta * sigma_phi ;
 		    }
 		}
 	}
-    
     va.ylm_i() ;
     if (va.c != 0x0) {
- 	delete va.c ;
- 	va.c = 0x0 ;
+      delete va.c ;
+      va.c = 0x0 ;
     }
     va.del_deriv() ;
     del_deriv() ;
@@ -189,6 +238,12 @@ void Scalar::exponential_filter_ylm(int lzmin, int lzmax, int p,
 void exp_filter_ylm_all_domains(Scalar& ss, int p, double alpha ) {
     int nz = ss.get_mp().get_mg()->get_nzone() ;
     ss.exponential_filter_ylm(0, nz-1, p, alpha) ;
+    return ;
+}
+
+void exp_filter_ylm_all_domains_phi(Scalar& ss, int p_tet, int p_phi, double alpha ) {
+    int nz = ss.get_mp().get_mg()->get_nzone() ;
+    ss.exponential_filter_ylm_phi(0, nz-1, p_tet, p_phi, alpha) ;
     return ;
 }
 
