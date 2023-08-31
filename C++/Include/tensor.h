@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.63  2023/08/31 08:27:26  g_servignat
+ * Added the possibility to filter in the r direction within the ylm filter. An order filtering of 0 means no filtering (for all 3 directions).
+ *
  * Revision 1.62  2023/08/28 09:53:33  g_servignat
  * Added ylm filter for Tensor and Scalar in theta + phi directions
  *
@@ -687,7 +690,7 @@ class Tensor {
 	 * (see \c Scalar::exponential_filter_ylm_phi ). Works only for Cartesian 
 	 * components.
 	 */
-	virtual void exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
+	virtual void exponential_filter_ylm_phi(int lzmin, int lzmax, int p_r, int p_tet, int p_phi,
 			    double alpha= -16.) ;
 
     // Computational methods

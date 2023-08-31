@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.46  2023/08/31 08:27:26  g_servignat
+ * Added the possibility to filter in the r direction within the ylm filter. An order filtering of 0 means no filtering (for all 3 directions).
+ *
  * Revision 1.45  2023/08/28 09:53:33  g_servignat
  * Added ylm filter for Tensor and Scalar in theta + phi directions
  *
@@ -1095,11 +1098,11 @@ void Tensor::exponential_filter_ylm(int lzmin, int lzmax, int p,
     }
 }
 
-void Tensor::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
+void Tensor::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_r, int p_tet, int p_phi,
 			  double alpha) {
     if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
 	for (int i=0; i<n_comp; i++)
-	    cmp[i]->exponential_filter_ylm_phi(lzmin, lzmax, p_tet, p_phi, alpha) ;
+	    cmp[i]->exponential_filter_ylm_phi(lzmin, lzmax, p_r, p_tet, p_phi, alpha) ;
     else {
 	cout << "Tensor::exponential_filter_ylm : " << endl ;
 	cout << "Only Cartesian triad is implemented!" << endl ;

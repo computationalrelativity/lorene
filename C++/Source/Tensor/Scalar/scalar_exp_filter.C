@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2023/08/31 08:27:26  g_servignat
+ * Added the possibility to filter in the r direction within the ylm filter. An order filtering of 0 means no filtering (for all 3 directions).
+ *
  * Revision 1.7  2023/08/28 09:53:33  g_servignat
  * Added ylm filter for Tensor and Scalar in theta + phi directions
  *
@@ -189,7 +192,7 @@ void Scalar::exponential_filter_ylm(int lzmin, int lzmax, int p,
      return ;
  }
 
-void Scalar::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_phi,
+void Scalar::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_r, int p_tet, int p_phi,
 			  double alpha) {
     assert(lzmin >= 0) ;
     const Mg3d& mgrid = *mp->get_mg() ;
@@ -216,12 +219,16 @@ void Scalar::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_tet, int p_p
 		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
 		    if (nullite_plm(j, nt, k, np, base) == 1 ) {
 			double eta_theta = double(l_q) / double(lmax) ;
-			double sigma_theta = exp(alp*pow(eta_theta, 2*p_tet)) ;
+			double sigma_theta = (p_tet != 0) ? exp(alp*pow(eta_theta, 2*p_tet)) : 1. ;
 
       double eta_phi = (np>1) ? double(m_q) / double(np) : 0. ;
-      double sigma_phi = exp(alp*pow(eta_phi, 2*p_phi)) ;
+      double sigma_phi = (p_phi != 0) ? exp(alp*pow(eta_phi, 2*p_phi)) : 1. ;
 			for (int i=0; i<nr; i++) 
-			    va.c_cf->set(lz, k, j, i) *= sigma_theta * sigma_phi ;
+      {
+        double eta_r = double(i) / double(nr-1) ;
+        double sigma_r = (p_r != 0) ? exp(alp*pow(eta_r, 2*p_r)) : 1. ;
+        va.c_cf->set(lz, k, j, i) *= sigma_r * sigma_theta * sigma_phi ;
+      }
 		    }
 		}
 	}
@@ -241,9 +248,9 @@ void exp_filter_ylm_all_domains(Scalar& ss, int p, double alpha ) {
     return ;
 }
 
-void exp_filter_ylm_all_domains_phi(Scalar& ss, int p_tet, int p_phi, double alpha ) {
+void exp_filter_ylm_all_domains_phi(Scalar& ss, int p_r, int p_tet, int p_phi, double alpha ) {
     int nz = ss.get_mp().get_mg()->get_nzone() ;
-    ss.exponential_filter_ylm_phi(0, nz-1, p_tet, p_phi, alpha) ;
+    ss.exponential_filter_ylm_phi(0, nz-1, p_r, p_tet, p_phi, alpha) ;
     return ;
 }
 
