@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2023/09/01 11:40:14  g_servignat
+ * Absolute value of m_q is taken in phi filter
+ *
  * Revision 1.8  2023/08/31 08:27:26  g_servignat
  * Added the possibility to filter in the r direction within the ylm filter. An order filtering of 0 means no filtering (for all 3 directions).
  *
@@ -221,7 +224,7 @@ void Scalar::exponential_filter_ylm_phi(int lzmin, int lzmax, int p_r, int p_tet
 			double eta_theta = double(l_q) / double(lmax) ;
 			double sigma_theta = (p_tet != 0) ? exp(alp*pow(eta_theta, 2*p_tet)) : 1. ;
 
-      double eta_phi = (np>1) ? double(m_q) / double(np) : 0. ;
+      double eta_phi = (np>1) ? double(abs(m_q)) / double(np) : 0. ;
       double sigma_phi = (p_phi != 0) ? exp(alp*pow(eta_phi, 2*p_phi)) : 1. ;
 			for (int i=0; i<nr; i++) 
       {
