@@ -7,7 +7,7 @@
 1	Conductivity (0: isolator, 1: perfect conductor)
 #################### MAGNETIC PARAMETERS ######################################
 0.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]
-25000.	Requested CFA (current function amplitude) [Lorene unit]
+28000.	Requested CFA (current function amplitude) [Lorene unit]
 0.	Initial charge (mer =< mer_mag) [Lorene unit]
 8000.	Initial CFA    (mer =< mer_mag) [Lorene unit]
 5	mer_mag : step at which magnetic quantites are plugged.
@@ -29,7 +29,7 @@
 16       mermax_poisson : maximum number of steps in Map_et::poisson
 1.5     relax_poisson :  relaxation factor in Map_et::poisson
 1.e-15  precis_adapt : precision in Map_et::adapt
-1       graph : 1 = graphical outputs during the computation 
+0       graph : 1 = graphical outputs during the computation 
 #################### MULTI-GRID PARAMETERS ###################################
 3	nz : total number of domains
 1	nzet : number of domains inside the star

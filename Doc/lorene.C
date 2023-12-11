@@ -61,7 +61,14 @@ namespace Lorene {}
  *
  */
   
-
+/**
+ * \defgroup map_cart Mapping grid -> physical space (Cartesian coordinates)
+ *
+ * These classes implement the mapping for a 3-diemsional Cartesian
+ * system (box).
+ *
+ */
+  
 /**\defgroup tensor Tensorial fields
  *
  * These classes implement the tensorial calculus in Lorene. 

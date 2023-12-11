@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2023/12/11 09:12:38  j_novak
+ * New representation of 3D functions in Cartesian coordinates in Champ_cart.
+ *
  * Revision 1.17  2017/11/06 11:03:51  m_bejger
  * Update the gyoto output file: 4-acceleration on the surface
  *
@@ -605,7 +608,7 @@ int main(){
 
 	int nzdes = star.get_nzet() ; 
 
-	des_coupe_y(star.get_ent(), 0., nzdes, "Log-enthalpy", &surf) ; 
+	des_coupe_y(star.get_ent(), 0., nzdes, "Log-enthalpy", &surf, 1.03, false) ; 
 
 	cout << endl << "Plot of the coefficients of the cos(j theta) expansion of the function G(theta) defining the stellar surface:" << endl ; 
 	des_map_et(mp, star.get_nzet()-1) ; 
