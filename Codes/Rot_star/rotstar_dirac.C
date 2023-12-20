@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2023/12/20 10:16:19  j_novak
+ * New options in Star_rot_Dirac/rotstar_dirac: a flag to choose between GR, CFC and CFC+ A^{ij}_{TT}=0 (as described n Cordero_Carrion et al. 2009).
+ *
  * Revision 1.13  2023/03/13 11:18:41  j_novak
  * Added new plots of themro quantities (H, e, nB) + minor changes.
  *
@@ -108,7 +111,7 @@ int main(){
   //	    Parameters of the computation 
   //------------------------------------------------------------------
 
-  int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
+  int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
     delta_mer_kep, mer_mass, graph, nz, nzet, nzadapt,
     nt, np, filter_order, mer_hij ; 
   double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
@@ -123,7 +126,7 @@ int main(){
   int n_ignore = 120 ;
   
   fich.ignore(n_ignore, '\n') ;
-  fich.ignore(n_ignore, '\n') ;
+  fich >> relat_i; fich.ignore(n_ignore, '\n') ;
   fich >> ent_c ; fich.ignore(n_ignore, '\n') ;
     fich >> freq_si ; fich.ignore(n_ignore, '\n') ;
     fich >> fact_omega ; fich.ignore(n_ignore, '\n') ;
@@ -283,7 +286,7 @@ int main(){
     //		Construction of the star
     //-----------------------------------------------------------------------
     
-    Star_rot_Dirac star(mp, nzet, eos, filter_order) ; 
+    Star_rot_Dirac star(mp, nzet, eos, relat_i, filter_order) ; 
     
 
     //-----------------------------------------------------------------------
@@ -447,11 +450,11 @@ int main(){
     if (graph == 1) {
       
       double rr = star.ray_eq() ; 
-      des_meridian_log(star.get_ent(), 0., rr, "H", 1) ; 
-      des_meridian_log(star.get_ener(), 0., rr, "e", 2) ; 
-      des_meridian_log(star.get_nbar(), 0., rr, "n\\dB\\u", 3) ;
-      cout << "Type <RETURN> for next page:" << endl ;
-      cin.get() ;
+      // des_meridian_log(star.get_ent(), 0., rr, "H", 1) ; 
+      // des_meridian_log(star.get_ener(), 0., rr, "e", 2) ; 
+      // des_meridian_log(star.get_nbar(), 0., rr, "n\\dB\\u", 3) ;
+      // cout << "Type <RETURN> for next page:" << endl ;
+      // cin.get() ;
       
       // Cmp defining the surface of the star (via the enthalpy field)
       Cmp surf(star.get_ent()) ; 

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2023/12/20 10:16:18  j_novak
+ * New options in Star_rot_Dirac/rotstar_dirac: a flag to choose between GR, CFC and CFC+ A^{ij}_{TT}=0 (as described n Cordero_Carrion et al. 2009).
+ *
  * Revision 1.14  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -455,7 +458,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
 
  Sym_tensor_trans hij_new(mp, mp.get_bvect_spher(), flat) ;
 
- if (mer > mer_hij )
+ if ((mer > mer_hij) && (relat_type == 1))
    solve_hij( hij_new ) ;
  else
    hij_new.set_etat_zero() ;

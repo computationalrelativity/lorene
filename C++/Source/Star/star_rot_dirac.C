@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2023/12/20 10:16:18  j_novak
+ * New options in Star_rot_Dirac/rotstar_dirac: a flag to choose between GR, CFC and CFC+ A^{ij}_{TT}=0 (as described n Cordero_Carrion et al. 2009).
+ *
  * Revision 1.11  2016/12/05 16:18:15  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -93,8 +96,9 @@
 // Standard constructor
 //-------------------------
 namespace Lorene {
-Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i, int filter)
+  Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i, int relat_i, int filter)
                    : Star(mpi, nzet_i, eos_i),
+		     relat_type(relat_i),
 		     spectral_filter(filter),
 		     psi4(mpi),
 		     psi2(mpi),
@@ -109,9 +113,14 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i, int filte
 		     aa_quad(mpi),
 		     hh(mpi, mpi.get_bvect_spher(), flat) 
 {
-    assert (spectral_filter>=0) ;
-    assert (spectral_filter<1000) ;
+  assert ((relat_type >= 0) && (relat_type <4)) ;
+  assert ((spectral_filter>=0) && (spectral_filter<100)) ;
 
+  if (relat_type == 0) {
+    cerr << "Star_rot_Dirac::Star_rot_Dirac (standard constructor)\n"
+	 << "The Newtonian case is not implemented... aborting." << endl ;
+    abort() ;
+  }
   // Initialization to a static state
   omega = 0 ;
   v2 = 0 ;
@@ -184,6 +193,7 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, const Eos& eos_i, FILE* fich)
   //----------------------------------------------------
   set_der_0x0() ;
 
+  fread_be(&relat_type, sizeof(int), 1, fich) ;
   fread_be(&spectral_filter, sizeof(int), 1, fich) ;
 
   // Metric fields are read in the file:
@@ -272,6 +282,7 @@ void Star_rot_Dirac::operator=(const Star_rot_Dirac& star) {
      Star::operator=(star) ;
 
      // Assignment of proper quantities of class Star_rot_Dirac
+     relat_type = star.relat_type ;
      spectral_filter = star.spectral_filter ;
      omega = star.omega ;
      psi4 = star.psi4 ;
@@ -305,6 +316,7 @@ void Star_rot_Dirac::sauve(FILE* fich) const {
 
       qqq.sauve(fich) ;
       hh.sauve(fich) ;
+      fwrite_be(&relat_type, sizeof(int), 1, fich) ;
       fwrite_be(&spectral_filter, sizeof(int), 1, fich) ;
       fwrite_be(&omega, sizeof(double), 1, fich) ;
       beta.sauve(fich) ;
@@ -321,7 +333,31 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
 
      Star::operator>>(ost) ;
 
-     ost << "Rotating star in Dirac gauge" << endl ;
+     ost << "Rotating star " ;
+     switch (relat_type) {
+     case 0 : {
+       ost << "in Newtonian theory" << endl ;
+       break;
+     }
+     case 1 : {
+       ost << "in Dirac gauge" << endl ;
+       break ;
+     }
+     case 2 : {
+       ost << "in Conformal Flatness Condition (CFC)" << endl ;
+       break ;
+     }
+     case 3: {
+       ost << "in Conformal Flatness Condition (CFC), with hat{A}^{ij}_{TT} = 0\n"
+	   << "(see Cordero-Carrion et al. (2009) for details" << endl ;
+       break ;
+     }
+     default: {
+       cerr << "Star_rot_Dirac::operator>> : unknown value for 'relat_type'" << endl ;
+       cerr << "relat_type = " << relat_type << endl ;
+       abort() ;
+     }
+     }
 
      // Only uniformly rotating star for the moment....
      ost << endl ;

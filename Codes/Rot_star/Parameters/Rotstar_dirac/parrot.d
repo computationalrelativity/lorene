@@ -1,5 +1,5 @@
 #################### PHYSICAL PARAMETERS ######################################
-1     Relativity parameter: 1 = relativistic computation , 0 = Newtonian
+1    Relativity parameter: 3 = CFC & A^ij_TT=0 , 2 = CFC, 1 = full GR, 0 = Newtonian
 0.228    ent_c : central enthalpy [c^2]
 550.     freq_si : rotation frequency [Hz]
 1.    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.

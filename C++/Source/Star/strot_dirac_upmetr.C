@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2023/12/20 10:16:19  j_novak
+ * New options in Star_rot_Dirac/rotstar_dirac: a flag to choose between GR, CFC and CFC+ A^{ij}_{TT}=0 (as described n Cordero_Carrion et al. 2009).
+ *
  * Revision 1.5  2016/12/05 16:18:16  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -59,67 +62,76 @@
 #include "unites.h" 
 
 namespace Lorene {
-void Star_rot_Dirac::update_metric(){
+  void Star_rot_Dirac::update_metric(){
 
-  // Lapse function 
-  // ---------------
+    // Lapse function 
+    // ---------------
+    
+    nn = exp( logn ) ;
+    
+    nn.std_spectral_base() ; // set the bases for spectral expansions
+    
+    
+    // Quantity log(Q)
+    //----------------
+    
+    lnq = log(qqq) ;
+    lnq.std_spectral_base() ;
+    
+    // Comformal factor $\Psi^4$
+    // -------------------------
+    
+    psi4 = (qqq * qqq) / (nn * nn) ;
+    
+    psi4.std_spectral_base() ;
+    
+    // Factor $\Psi^2$
+    // ----------------
+    
+    psi2 = sqrt( psi4 ) ;
+    
+    psi2.std_spectral_base() ;
+    
+    // Quantity $ln( \Psi )$
+    // ---------------------
+    
+    ln_psi = 0.5*log( psi2 ) ;
+    
+    ln_psi.std_spectral_base() ;
+    
+    // Conformal metric $\tilde{\gamma}$ 
+    // --------------------------------------
+    
+    tgamma = flat.con() + hh ;   // contravariant representation 
+                                 // $\tilde{\gamma}^{ij}$ 
+    
+    // Physical metric $\gamma$
+    // -----------------------------
+    
+    gamma = tgamma.con() / psi4 ;    // contravariant representation
+                                     //  $\gamma^{ij}$
 
-  nn = exp( logn ) ;
 
-  nn.std_spectral_base() ; // set the bases for spectral expansions
+    // Quantities $A^{ij}$, $\tilde{A}_{ij}, and $\tilde{A}_{ij} A^{ij}$
+    // -----------------------------------------------------------------
 
+    aa = ( beta.ope_killing_conf(flat) - hh.derive_lie(beta)) 
+      / ( 2*nn ) ;
 
-  // Quantity log(Q)
-  //----------------
-
-  lnq = log(qqq) ;
-  lnq.std_spectral_base() ;
-
-  // Comformal factor $\Psi^4$
-  // -------------------------
-
-  psi4 = (qqq * qqq) / (nn * nn) ;
-
-  psi4.std_spectral_base() ;
-
-  // Factor $\Psi^2$
-  // ----------------
-
-  psi2 = sqrt( psi4 ) ;
-
-  psi2.std_spectral_base() ;
-
-  // Quantity $ln( \Psi )$
-  // ---------------------
-
-  ln_psi = 0.5*log( psi2 ) ;
-
-  ln_psi.std_spectral_base() ;
-
-  // Conformal metric $\tilde{\gamma}$ 
-  // --------------------------------------
-
-  tgamma = flat.con() + hh ;   // contravariant representation 
-                               // $\tilde{\gamma}^{ij}$ 
-
-  // Physical metric $\gamma$
-  // -----------------------------
-
-  gamma = tgamma.con() / psi4 ;    // contravariant representation
-                                 //  $\gamma^{ij}$
-
-
-  // Quantities $A^{ij}$, $\tilde{A}_{ij}, and $\tilde{A}_{ij} A^{ij}$
-  // -----------------------------------------------------------------
-
-  aa = ( beta.ope_killing_conf(flat) - hh.derive_lie(beta)) 
-    / ( 2*nn ) ;
-
-  taa = aa.up_down(tgamma) ;
-
-  aa_quad = contract(taa, 0, 1, aa, 0, 1) ;
-
-  aa_quad.std_spectral_base() ;
+    if (relat_type == 3) {
+      // Computation of \hat{A}^{ij}
+      Sym_tensor aa_tmp = psi4*psi2*aa ; // \hat{A}^{ij} = \psi^6 A^{ij}
+      aa_tmp.inc_dzpuis() ;
+      
+      // We take only the longitudinal part to set \hat{A}^{ij}_{TT} = 0
+      Vector xi = aa_tmp.longit_pot(flat) ;
+      aa = xi.ope_killing_conf(flat)/(psi4*psi2) ;
+    }
+    taa = aa.up_down(tgamma) ;
+    
+    aa_quad = contract(taa, 0, 1, aa, 0, 1) ;
+    
+    aa_quad.std_spectral_base() ;
 
 
   // The derived quantities are no longer up to date :
