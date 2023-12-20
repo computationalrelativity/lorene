@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2023/12/20 09:47:16  j_novak
+ * Changed the test on dzpuis in Sym_tensor::longit_pot to correctly treat the case of a null component.
+ *
  * Revision 1.15  2016/12/05 16:18:17  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -165,7 +168,7 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par,
         // If dpzuis is 5, it should be decreased to 4 for the Poisson equation:
         bool dzp5 = false ; 
         for (int i=1; i<=3; i++) {
-            dzp5 = dzp5 || hhh(i).check_dzpuis(5) ;
+	  dzp5 = dzp5 || (hhh(i).get_dzpuis() == 5);
         }
         if (dzp5) hhh.dec_dzpuis() ; 
                 
