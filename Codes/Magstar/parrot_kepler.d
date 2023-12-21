@@ -3,7 +3,7 @@
 0.225   ent_c : central enthalpy [c^2]
 650.     freq_si : rotation frequency [Hz]
 1.01    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
-1.60    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
+1.60    Requested baryon mass [M_sol] (effective only if mer_mass < mer_max)
 1	Conductivity (0: isolator, 1: perfect conductor)
 #################### MAGNETIC PARAMETERS ######################################
 0.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]

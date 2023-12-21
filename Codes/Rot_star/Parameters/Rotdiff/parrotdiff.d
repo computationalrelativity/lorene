@@ -5,7 +5,7 @@
 1	type of choice of R0 [F(Omega) = R0^2 (Omegac - Omega)]: 0 -> fixed R0, 1 -> R0 = a^{-1} R_eq
 2.	depending on the above line: R0 [km] or coefficient a, NB: a = {\hat A}^{-1} of Baumgarte et al., ApJ 528, L29 (2000)
 1.      fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
-3.2    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
+3.2    Requested baryon mass [M_sol] (effective only if mer_mass < mer_max)
 #################### COMPUTATIONAL PARAMETERS #################################
 200      mer_max : maximum number of steps
 1.e-7   precis : threshold on the enthalpy relative change for ending the computation

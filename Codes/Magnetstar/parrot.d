@@ -3,7 +3,7 @@
 0.1155520093   ent_c : central enthalpy [c^2]
 0.     freq_si : rotation frequency [Hz]
 1.    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
-1.60    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
+1.60    Requested baryon mass [M_sol] (effective only if mer_mass < mer_max)
 #################### MAGNETIC PARAMETERS ######################################
 1.0e-6  m_max deformation amplitude M_max * 6.673e-11 (see Gabler et al 2012)
 1.	a0_j  deformation amplitude coefficient a_0 
