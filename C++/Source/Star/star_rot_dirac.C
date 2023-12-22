@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2023/12/22 14:37:12  j_novak
+ * Correction of the copy constructor
+ *
  * Revision 1.12  2023/12/20 10:16:18  j_novak
  * New options in Star_rot_Dirac/rotstar_dirac: a flag to choose between GR, CFC and CFC+ A^{ij}_{TT}=0 (as described n Cordero_Carrion et al. 2009).
  *
@@ -148,6 +151,7 @@ namespace Lorene {
 //-----------------
 Star_rot_Dirac::Star_rot_Dirac(const Star_rot_Dirac& star)
                    : Star(star),
+		     relat_type(star.relat_type),
 		     spectral_filter(star.spectral_filter),
 		     psi4(star.psi4),
 		     psi2(star.psi2),
