@@ -30,7 +30,7 @@ SRC6 = rotstar_dirac.C
 OBJ6 = $(SRC6:.C=.o)
 EXE6 = $(SRC6:.C=)
 
-SRC7 = rotstar_dirac_diff.C
+SRC7 = rotstar_cfc.C
 OBJ7 = $(SRC7:.C=.o)
 EXE7 = $(SRC7:.C=)
 
@@ -38,9 +38,9 @@ SRC8 = examrot_dirac.C
 OBJ8 = $(SRC8:.C=.o)
 EXE8 = $(SRC8:.C=)
 
-SRC9 = examrot_diff.C
-OBJ9 = $(SRC9:.C=.o)
-EXE9 = $(SRC9:.C=)
+SRC8 = examrot_cfc.C
+OBJ8 = $(SRC8:.C=.o)
+EXE8 = $(SRC8:.C=)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -67,9 +67,8 @@ $(EXE8): $(OBJ8)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ8) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 $(EXE9): $(OBJ9)
-	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ9) $(LIB_G) $(LIB_LAPACK) \
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ8) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
-
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
