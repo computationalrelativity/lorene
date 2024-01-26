@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.31  2016/12/05 16:18:18  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -407,9 +410,9 @@ const Vector_divfree Vector::curl() const {
 	if ( triad->identify() == (mp->get_bvect_cart()).identify() ) {
 	const Metric_flat& metc = mp->flat_met_cart() ;
 	Vector_divfree resu(*mp, mp->get_bvect_cart(), metc) ;
-	resu.set(1)= cmp[3]->dsdy() - cmp[2]->dsdz();
-	resu.set(2)= cmp[1]->dsdz() - cmp[3]->dsdx();
-	resu.set(3)= cmp[2]->dsdx() - cmp[1]->dsdy();
+	resu.set(1)= cmp[2]->dsdy() - cmp[1]->dsdz();
+	resu.set(2)= cmp[0]->dsdz() - cmp[2]->dsdx();
+	resu.set(3)= cmp[1]->dsdx() - cmp[0]->dsdy();
 	resu.pseudo_spectral_base();
 	return resu ;
 	}
@@ -417,19 +420,19 @@ const Vector_divfree Vector::curl() const {
 		assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
 		const Metric_flat& mets = mp->flat_met_spher() ;
 		Vector_divfree resu(*mp, mp->get_bvect_spher(), mets);
-		Scalar tmp = *cmp[3] ;
+		Scalar tmp = *cmp[2] ;
 		tmp.div_tant();
-		tmp += cmp[3]->dsdt();
+		tmp += cmp[2]->dsdt();
 		tmp.div_r();
-		resu.set(1) = tmp - cmp[2]->srstdsdp() ;
-		tmp = *cmp[3] ;
+		resu.set(1) = tmp - cmp[1]->srstdsdp() ;
+		tmp = *cmp[2] ;
 		tmp.mult_r();
 		tmp = tmp.dsdr();
 		tmp.div_r();
-		resu.set(2) = cmp[1]->srstdsdp() - tmp ;
-		tmp = *cmp[2];
+		resu.set(2) = cmp[0]->srstdsdp() - tmp ;
+		tmp = *cmp[1];
 		tmp.mult_r();	
-		resu.set(3) = tmp.dsdr() - cmp[1]->dsdt() ;
+		resu.set(3) = tmp.dsdr() - cmp[0]->dsdt() ;
 		resu.set(3).div_r(); 
 		resu.pseudo_spectral_base();
 		return resu ;

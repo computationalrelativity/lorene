@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.5  2016/12/05 16:18:18  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -81,7 +84,10 @@ const Scalar& Vector::eta() const {
 	Scalar sou_eta = *cmp[1] ;  //V^th
 	sou_eta.div_tant() ;
 	sou_eta += cmp[1]->dsdt() + cmp[2]->stdsdp();
-		
+		// cout << "sou_eta: " << *sou_eta.get_spectral_va().c << endl;
+		// sou_eta.set_spectral_va().ylm() ;
+		// sou_eta.spectral_display(" ", 1e-10) ;
+		// abort() ;
 	// Resolution of the angular Poisson equation for eta
 	// --------------------------------------------------
 	p_eta = new Scalar( sou_eta.poisson_angu() ) ; 

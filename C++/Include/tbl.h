@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.13  2014/10/13 08:52:37  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -206,7 +209,24 @@ class Tbl {
 	 *		  innermost index in the storage of the array \c t. 
 	 *		  Will be assigned to \c dim.dim[0].
 	 */ 
-	Tbl(int size2, int size1, int size0) ;		
+	Tbl(int size2, int size1, int size0) ;	
+
+	/**
+	 * 4D constructor
+	 * @param size3 [input] Defines the range [0, size3-1]  of the 
+	 *		  outermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[3].
+	 * @param size2  [input] Defines the range [0, size2-1]  of the 
+	 *		  outermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[2].
+	 * @param size1  [input] Defines the range [0, size1-1] of the 
+	 *		  intermediate index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[1].
+	 * @param size0  [input] Defines the range [0, size0-1] of the 
+	 *		  innermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[0].
+	 */ 
+	Tbl(int size3, int size2, int size1, int size0) ;		
 	/**
 	 * N-dimensional constructor 
 	 * @param sizes  [input] the sizes of each dimensions 

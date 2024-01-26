@@ -459,7 +459,7 @@ double Piecewise_polytrope_1D::csound_square_ent_p(double ent, const Param*) con
     huntm(*ent_lim_high, ent, i_low) ;
     Tbl& AA    = *a_high ;
     Tbl& Gamma = *gamma_high ;
-      
+
 		return (Gamma(i_low)-1.)*(1.-exp(-ent)*(1.+AA(i_low))) ;
 	}
 	else if ( (0 < ent) && (ent < ent_lim)){

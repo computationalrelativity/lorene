@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.27  2023/06/28 13:27:31  g_servignat
  * Updated eos_from_file constructor and data of Pseudo_polytrope_1D to support GPP-like formalism in the fitted region
  *
@@ -1279,7 +1282,7 @@ class Pseudo_polytrope_1D : public Eos {
     // -----
 	
 	Tbl* coefs;
-    double gamma_low, kappa_low, n_lim, ent_lim, m_n, mu_0, Lambda;
+    double gamma_low, kappa_low, n_lim1, n_lim2, ent_lim1, ent_lim2, m_n, Lambda, ddd, Kappa_GPP, Gamma_GPP, Lambda_GPP, ddd_GPP;
 	int n_coefs ;
 	Eos_poly* eos_low ;
 	
@@ -1430,8 +1433,10 @@ class Pseudo_polytrope_1D : public Eos {
 	 */
 	virtual double csound_square_ent_p(double, const Param*) const ;
 	
-	double get_ent_lim() const { return ent_lim ;} ;
-	double get_n_lim() const { return n_lim ;} ;
+	double get_ent_lim1() const { return ent_lim1 ;} ;
+	double get_n_lim1() const { return n_lim1 ;} ;
+	double get_ent_lim2() const { return ent_lim2 ;} ;
+	double get_n_lim2() const { return n_lim2 ;} ;
 };
 
 			//------------------------------------//

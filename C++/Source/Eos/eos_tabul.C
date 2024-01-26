@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.25  2022/03/22 13:36:00  j_novak
  * Added declaration of compute_derivative to utilitaires.h
  *
@@ -608,7 +611,7 @@ double Eos_tabul::csound_square_ent_p(double ent, const Param*) const {
     double log_csound0 ;
     
     interpol_linear(*logh, *log_cs2, log_ent0, i_near, log_csound0) ;
-    
+
     return pow(10., log_csound0) ;
   }
   else

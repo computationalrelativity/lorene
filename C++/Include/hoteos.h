@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.8  2022/05/06 09:51:29  g_servignat
  * Removed chi2 computation function from Ye EoS representation
  *
@@ -1011,6 +1014,9 @@ class Eos ;
 
     /// Table of \f$\mu_l\f$, the electronic chemical potential (MeV)
     Tbl* mu_l ;
+
+    /// Table of \f$n_B\f the baryon number density
+    Tbl* nnn ;
     
     /// Table of pressure $P$
     Tbl* ppp ;

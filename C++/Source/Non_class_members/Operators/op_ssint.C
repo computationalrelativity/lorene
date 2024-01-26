@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.9  2016/12/05 16:18:08  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -427,7 +430,20 @@ void _ssint_t_cos_p(Tbl* tb, int & b)
     int nt = (tb->dim).dim[1] ;
     int np = (tb->dim).dim[2] ;
     np = np - 2 ;
-    
+
+    // // Regularisation
+    // for (int k=0; k<np+1; k++)
+    // {
+    //   if (k==1) continue;
+    //   for (int i=0; i<nr; i++)
+    //   {
+    //     double val_axis = 0.;
+    //     for (int j=0; j<nt-1; j++)
+    //       val_axis += (*tb)(k, j, i);
+    //     tb->set(k, nt-1, i) = -val_axis;
+    //   }
+    // }
+     
     // zone de travail
     double* som = new double [nr] ;
     

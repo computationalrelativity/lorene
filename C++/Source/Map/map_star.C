@@ -321,6 +321,24 @@ void Map_star::set_alpha(const Tbl& alpha0, int l) {
     
 }
 
+void Map_star::set_alpha(const Valeur& alpha0) {
+    
+    alpha = alpha0 ;
+    alpha.std_base_scal() ;
+    
+    reset_coord() ; 
+    
+}
+
+void Map_star::set_beta(const Valeur& beta0) {
+    
+    beta = beta0 ;
+    beta.std_base_scal() ;
+
+    reset_coord() ; 
+    
+}
+
 void Map_star::set_beta(const Tbl& beta0, int l) {
     
     assert(l>=0) ; 

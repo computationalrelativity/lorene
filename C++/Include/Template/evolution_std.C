@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.10  2014/10/13 08:52:38  j_novak
  * Lorene classes and functions now belong to the namespace Lorene.
  *
@@ -173,7 +176,7 @@ void Evolution_std<TyT>::update(const TyT& new_value, int j, double time_j) {
 
     if (is_known(j)) {   // Case of a time step already stored
                          //-----------------------------------
-        int pos = position(j) ; 
+        int pos = position(j) ;
         assert( fabs(the_time[pos] - time_j) < 1.e-14 ) ;   
         assert( val[pos] != &new_value ) ; // to avoid self assignment
         delete val[pos] ; 

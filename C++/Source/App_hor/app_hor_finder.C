@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.12  2016/12/05 16:17:44  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -276,6 +279,8 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
       
       double h_min = min(h)(0) ;
       double h_max = max(h)(0) ;
+    //   cout << "r_min : " << r_min << " h_min : " << h_min << " h_max : " << h_max << " r_max : " << r_max << endl;
+    //   cout << "cdt : " << ( (r_min < h_min) && (h_max < r_max) ) << endl;
       if ( (r_min < h_min) && (h_max < r_max) ) { 
 	  
 	  for (int l=0; l<nz; l++) {
@@ -339,8 +344,8 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 	  cout << "    " << endl ;
 	  
 	  cout << "Difference in h : " << diff_h << endl ;
-	  
-	  // Check: calculate the difference between ex_fcn and ex_fcn_old
+
+ 	  // Check: calculate the difference between ex_fcn and ex_fcn_old
 	  Tbl diff_exfcn_tbl = diffrel( ex_fcn, ex_fcn_old ) ;
 	  diff_exfcn = diff_exfcn_tbl(0) ;
 	  for (int l=1; l<nz; l++) {

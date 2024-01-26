@@ -94,6 +94,7 @@ namespace Lorene {
   void Ye_eos_tabul::set_arrays_0x0() {
     hhh = 0x0 ;
     Y_e = 0x0 ;
+    nnn = 0x0 ;
     c_sound2 = 0x0 ;
     mu_l = 0x0 ;
     ppp = 0x0 ;
@@ -110,6 +111,7 @@ namespace Lorene {
   Ye_eos_tabul::~Ye_eos_tabul(){
     if (hhh != 0x0) delete hhh ;
     if (Y_e != 0x0) delete Y_e ;
+    if (nnn != 0x0) delete nnn ;
     if (ppp != 0x0) delete ppp ;
     if (dpdh != 0x0) delete dpdh ;
     if (dpdye != 0x0) delete dpdye ;
@@ -138,7 +140,7 @@ namespace Lorene {
     ost << "Authors : " << authors << endl ;
     ost << "Number of points in file : " << hhh->get_dim(0) 
 	<< " in enthalpy, and " << hhh->get_dim(1) 
-	<< " in electronic fraction." << endl ;
+	<< " in electron fraction." << endl ;
 
     return ost ;
 }
@@ -185,6 +187,7 @@ namespace Lorene {
     ppp = new Tbl(nbp2, nbp1) ;
     hhh = new Tbl(nbp2, nbp1) ;
     Y_e = new Tbl(nbp2, nbp1) ;
+    nnn = new Tbl(nbp2, nbp1) ;
     mu_l = new Tbl(nbp2, nbp1) ;
     c_sound2 = new Tbl(nbp2, nbp1) ;
     dpdh = new Tbl(nbp2, nbp1) ;
@@ -195,6 +198,7 @@ namespace Lorene {
     ppp->set_etat_qcq() ;
     hhh->set_etat_qcq() ;
     Y_e->set_etat_qcq() ;
+    nnn->set_etat_qcq() ;
     mu_l->set_etat_qcq() ;
     c_sound2->set_etat_qcq() ;
     dpdh->set_etat_qcq() ;
@@ -209,12 +213,13 @@ namespace Lorene {
 
     for (int j=0; j<nbp2; j++) {
       for (int i=0; i<nbp1; i++) {
-	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> mul >> der2 >> source_d ;
-
+	fich >> no >> nb_fm3>> rho_cgs >> p_cgs>> ent >> ye >> cs2 >> mul >> der2 ; //>> source_d ;
+  
 	fich.ignore(1000,'\n') ;
 	if ( (nb_fm3<0) || (rho_cgs<0) || (p_cgs < 0) ){
 	  cerr << "Ye_eos_tabul::read_table(): " << endl ;
 	  cerr << "Negative value in table!" << endl ;
+	  cerr << "At entry no : " << no << endl;
 	  cerr << "nb = " << nb_fm3 << ", rho = " << rho_cgs <<
 	    ", p = " << p_cgs << endl ;
 	  cerr << "Aborting..." << endl ;
@@ -231,6 +236,7 @@ namespace Lorene {
 	ppp->set(j, i) = psc2/rhonuc_si ; 
 	hhh->set(j, i) = h_new ;
 	Y_e->set(j, i) = ye ;
+  nnn->set(j, i) = 10.*nb_fm3 ;
   c_sound2->set(j, i) = cs2 ;
   mu_l->set(j, i) = mul*mev_si*1e44/(rhonuc_si*c2) ;
 	dpdh->set(j, i) = (rho_si + psc2)/rhonuc_si ;
@@ -299,7 +305,7 @@ namespace Lorene {
 			//    Computational routines    //
 			//------------------------------//
 
-// Baryon density from enthalpy and electronic fraction
+// Baryon density from enthalpy and electron fraction
 //------------------------------------------
 
 double Ye_eos_tabul::nbar_Hs_p(double ent, double ye) const {
@@ -329,6 +335,60 @@ double Ye_eos_tabul::nbar_Hs_p(double ent, double ye) const {
 		     dpdye_int, dpdh_int) ;
 
     double nbar_int = dpdh_int * exp(-ent) ;
+
+    // Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+    // for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+    //   ye_1D.set(i) = (*Y_e)(i,0) ;
+    // }
+    // int i_low = ye_1D.get_taille()/2;
+    // huntm(ye_1D, ye, i_low) ;
+
+    // double mu = (ye - ye_1D(i_low)) / (ye_1D(i_low+1) - ye_1D(i_low)) ;
+
+    // Tbl entha1(Y_e->get_dim(0)) ; entha1.set_etat_qcq() ;
+    // Tbl entha2(Y_e->get_dim(0)) ; entha2.set_etat_qcq() ;
+    // for (int i=0 ; i<Y_e->get_dim(0) ; i++){
+    //   entha1.set(i) = (*hhh)(i_low, i) ;
+    //   entha2.set(i) = (*hhh)(i_low+1, i) ;
+    // }
+
+    // int j1_low = entha1.get_taille()/2 ;
+    // int j2_low = entha2.get_taille()/2 ;
+    // huntm(entha1, ent, j1_low) ;
+    // huntm(entha2, ent, j2_low) ;
+
+    // double ent_low_l, ent_high_l, ent_low_r, ent_high_r ;
+    // double lambda, lambda1, lambda2 ;
+    // int jj_low ;
+    // if (j1_low == j2_low){
+    //   ent_low_l  = entha1(j1_low) ;
+    //   ent_low_r  = entha2(j1_low) ;
+    //   ent_high_l = entha1(j1_low+1) ;
+    //   ent_high_r = entha2(j1_low+1) ;
+
+    //   lambda = (ent - mu*ent_low_r - (1.-mu)*ent_low_l) / (mu*(ent_high_r - ent_low_r) + (1.-mu)*(ent_high_l - ent_low_l)) ;
+    //   jj_low = j1_low ;
+    // }
+    // else {// if (abs(j1_low - j2_low) == 1){
+    //   ent_low_l  = entha1(j1_low) ;
+    //   ent_low_r  = entha2(j1_low) ;
+    //   ent_high_l = entha1(j1_low+1) ;
+    //   ent_high_r = entha2(j1_low+1) ;
+
+    //   lambda1 = (ent - mu*ent_low_r - (1.-mu)*ent_low_l) / (mu*(ent_high_r - ent_low_r) + (1.-mu)*(ent_high_l - ent_low_l)) ;
+
+    //   ent_low_l  = entha1(j2_low) ;
+    //   ent_low_r  = entha2(j2_low) ;
+    //   ent_high_l = entha1(j2_low+1) ;
+    //   ent_high_r = entha2(j2_low+1) ;
+
+    //   lambda2 = (ent - mu*ent_low_r - (1.-mu)*ent_low_l) / (mu*(ent_high_r - ent_low_r) + (1.-mu)*(ent_high_l - ent_low_l)) ;
+
+    //   lambda = (0. < lambda1 && lambda1 < 1.) ? (lambda1) : (lambda2) ;
+    //   jj_low = (0. < lambda1 && lambda1 < 1.) ? (j1_low) : (j2_low) ;
+    // }
+
+    // double nbar_int = (1.-lambda)*(*nnn)(i_low, jj_low) + lambda*(*nnn)(i_low, jj_low+1) ;
     return nbar_int ;
   }
   else{
@@ -337,10 +397,12 @@ double Ye_eos_tabul::nbar_Hs_p(double ent, double ye) const {
 }
 
 
-// Energy density from enthalpy and electronic fraction
+// Energy density from enthalpy and electron fraction
 //-----------------------------------------
 
 double Ye_eos_tabul::ener_Hs_p(double ent, double ye) const {
+  static int i_near = hhh->get_dim(0) / 2 ;
+  static int j_near = Y_e->get_dim(1) / 2 ;
 
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
@@ -368,6 +430,18 @@ double Ye_eos_tabul::ener_Hs_p(double ent, double ye) const {
 
     double f_int = - p_int + dpdh_int;
 
+    // // double nbar = nbar_Hs_p(ent, ye) ;
+    // Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+    // for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+    //   ye_1D.set(i) = (*Y_e)(i,0) ;
+    // }
+    // Tbl enthalpy = extract_column(*hhh,ye_1D,ye) ;
+
+    // double f_int ;
+    // Tbl ener = -(*ppp) + (*dpdh) ;
+    // interpol_linear_2d(enthalpy, ye_1D, ener, ent, ye, i_near, j_near, f_int) ;
+
+
     return f_int ;
   }
   else{
@@ -376,6 +450,8 @@ double Ye_eos_tabul::ener_Hs_p(double ent, double ye) const {
 }
 
 double Ye_eos_tabul::press_Hs_p(double ent, double ye) const {
+  static int i_near = hhh->get_dim(0) / 2 ;
+  static int j_near = Y_e->get_dim(1) / 2 ;
 
   if ((ent > hmin - 1.e-12) && (ent < hmin))
     ent = hmin ;
@@ -399,6 +475,17 @@ double Ye_eos_tabul::press_Hs_p(double ent, double ye) const {
     double p_int, dpdye_int, dpdh_int ;
     interpol_herm_2d(*Y_e, *hhh, *ppp, *dpdye, *dpdh, *d2p, ye, ent, p_int,
 		     dpdye_int, dpdh_int) ;
+
+    // // double nbar = nbar_Hs_p(ent, ye) ;
+    // Tbl ye_1D(Y_e->get_dim(1)) ; ye_1D.set_etat_qcq() ;
+    // for (int i=0 ; i<Y_e->get_dim(1) ; i++){
+    //   ye_1D.set(i) = (*Y_e)(i,0) ;
+    // }
+    // Tbl enthalpy = extract_column(*hhh,ye_1D,ye) ;
+
+    // double p_int ;
+    // interpol_linear_2d(enthalpy, ye_1D, *ppp, ent, ye, i_near, j_near, p_int) ;
+
 
     return p_int ;
   }
@@ -434,7 +521,7 @@ double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
           abort() ;
         }
         double csound0 ;
-            
+        // double nbar = nbar_Hs_p(ent ,ye) ;
         
         interpol_linear_2d(enthalpy, ye_1D, *c_sound2, ent, ye, i_near, j_near, csound0) ;
 
@@ -444,7 +531,7 @@ double Ye_eos_tabul::csound_square_Hs_p(double ent, double ye) const {
       else
         {
           double csound0 ;
-          interpol_linear_2d(enthalpy, ye_1D, *c_sound2, hmin, ye, i_near, j_near, csound0) ;
+          interpol_linear_2d(enthalpy, ye_1D, *c_sound2, enthalpy(0), ye, i_near, j_near, csound0) ;
     return csound0 ; 
         }
 	}
@@ -488,15 +575,16 @@ double Ye_eos_tabul::mul_Hs_p(double ent, double ye) const {
         }
         
         double mul0 ;
+        // double nbar = nbar_Hs_p(ent ,ye) ;
 
         interpol_linear_2d(enthalpy, ye_1D, *mu_l, ent, ye, i_near, j_near, mul0) ;
-      
+
         return mul0 ;
       }
       else
         {
           double mul0 ;
-          interpol_linear_2d(enthalpy, ye_1D, *mu_l, hmin, ye, i_near, j_near, mul0) ;
+          interpol_linear_2d(enthalpy, ye_1D, *mu_l, enthalpy(0), ye, i_near, j_near, mul0) ;
     return mul0 ; 
         }
 	}
@@ -531,6 +619,7 @@ double Ye_eos_tabul::mul_Hs_p(double ent, double ye) const {
         }
         
         double sigma0 ;
+        // double nbar = nbar_Hs_p(ent ,ye) ;
 
         interpol_linear_2d(enthalpy, ye_1D, *Sourcetbl, ent, ye, i_near, j_near, sigma0) ;
       
@@ -539,7 +628,7 @@ double Ye_eos_tabul::mul_Hs_p(double ent, double ye) const {
       else
         {
           double sigma0 ;
-          interpol_linear_2d(enthalpy, ye_1D, *Sourcetbl, hmin, ye, i_near, j_near, sigma0) ;
+          interpol_linear_2d(enthalpy, ye_1D, *Sourcetbl, enthalpy(0), ye, i_near, j_near, sigma0) ;
     return sigma0 ; 
         }
 	}

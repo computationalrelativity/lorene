@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.18  2022/03/22 13:19:53  g_servignat
  * Modified row and column extraction of 2D Tbl's
  *
@@ -180,7 +183,7 @@ namespace Lorene {
     double a  = (y1-y2)/x12 ;
     double b  = (x1*y2-y1*x2)/x12 ;
 	
-    y  = x*a+b ; 
+    y  = x*a+b ;
     
   }
 

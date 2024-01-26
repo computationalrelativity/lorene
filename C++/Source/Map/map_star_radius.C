@@ -1,4 +1,4 @@
-/*
+ /*
  *  Methods of the class Map_star relative to the function
  *	    r = R_l(xi, theta', phi')
  */
@@ -94,7 +94,6 @@ void Map_star::val_lx(double rr, double theta, double pphi, int& lz, double& xi)
         rmax = alpha.val_point(l,1.,theta,pphi) ;
     }
 	if (mg->get_type_r(l) == FIN) {
-		// cout << "BONJOUR" << endl;
 	    rmin = beta.val_point(l,1.,theta,pphi) - alpha.val_point(l,1,theta,pphi) ;
 		rmax = beta.val_point(l,1.,theta,pphi) + alpha.val_point(l,1,theta,pphi) ;
 	}
@@ -157,10 +156,10 @@ void Map_star::val_lx(double rr, double theta, double pphi, int& lz, double& xi)
 } 
 
 
-void Map_star::val_lx(double rr, double theta, double phi, const Param&,  
+void Map_star::val_lx(double rr, double theta, double pphi, const Param&,  
 			    int& lz, double& xi) const {
 
-    val_lx(rr, theta, phi, lz, xi) ;
+    val_lx(rr, theta, pphi, lz, xi) ;
 
 }
 

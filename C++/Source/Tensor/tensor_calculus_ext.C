@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.15  2016/12/05 16:18:17  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -222,7 +225,7 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2,
 	    	jeux_indice_t1.set(ind1) = j ;
 	    	jeux_indice_t2.set(ind2) = j ;
             if (desaliasing) {
-	    	    work += t1(jeux_indice_t1) % t2(jeux_indice_t2) ;
+	    	    work += t1(jeux_indice_t1) | t2(jeux_indice_t2) ;
             }
             else {
 	    	    work += t1(jeux_indice_t1) * t2(jeux_indice_t2) ;
@@ -324,7 +327,7 @@ Tensor contract(const Tensor& t1, int i1, int j1,
 	    	    jeux_indice_t2.set(j2) = j ;
             
                 if (desaliasing) {
-	    	        work += t1(jeux_indice_t1) % t2(jeux_indice_t2) ;
+	    	        work += t1(jeux_indice_t1) | t2(jeux_indice_t2) ;
                 }
                 else {
 	    	        work += t1(jeux_indice_t1) * t2(jeux_indice_t2) ;

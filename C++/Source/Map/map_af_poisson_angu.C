@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2024/01/26 17:44:25  g_servignat
+ * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
+ *
  * Revision 1.5  2016/12/05 16:17:57  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -100,5 +103,4 @@ void Map_af::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
 	
     uu.set_dzpuis( source.get_dzpuis() ) ;  // dzpuis unchanged
 }
-
 }
