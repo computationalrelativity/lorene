@@ -31,7 +31,11 @@ namespace Lorene {
 
   /** 
    * Class for representing functions of 3 variables, supposed to be Cartesian
-   * coordinates (x, y, z). \ingroup (map_cart)
+   * coordinates \f$ f(x, y, z)\f$. \ingroup (map_cart)
+   * 
+   * It relies on a Chebyshev decomposition along all three coordinates,
+   * and an affine mapping for each one: e.g. 
+   * \f$ [-1,1] \to [\mathrm{xmin}, \mathrm{xmax}] \f$.
    */
   class FuncSpec {
   
@@ -56,7 +60,7 @@ namespace Lorene {
     explicit FuncSpec(const TabSpec&) ;
     /** Constructor from files.'coord_name' is a prefix for files containing 
      *  coordinate data (coord_namex.dat, coord_namey.dat, coord_namez.dat);
-     *  'field', is the complete name of the fiel containing the field data.*/
+     *  'field', is the complete name of the file containing the field data.*/
     explicit FuncSpec(const string& coord_name, const string& field) ; 
     FuncSpec(const FuncSpec&) ; ///< Copy constructor
 
@@ -81,11 +85,23 @@ namespace Lorene {
     void compute_coefs() const ;
     double compute_in_xyz(double, double, double) const ;
     void compute_values() const ;
-    FuncSpec get_partial_x() const ;
+
+    /// Computes partial derivative \f$ \partial f \ \partial x\f$
+    FuncSpec get_partial_x() const ; 
+    /// Computes partial derivative \f$ \partial f \ \partial y\f$
     FuncSpec get_partial_y() const ;
+    /// Computes partial derivative \f$ \partial f \ \partial z\f$
     FuncSpec get_partial_z() const ;
 
+    /** Computes the primitive with respect to \f$x\f$ which is 0 
+     *  at the left boundary of the \f$x\f$ interval (\c xmin ). */
     FuncSpec primitive_x() const ;
+    /** Computes the primitive with respect to \f$y\f$ which is 0 
+     *  at the left boundary of the \f$x\f$ interval (\c ymin ). */
+    FuncSpec primitive_y() const ;
+    /** Computes the primitive with respect to \f$z\f$ which is 0 
+     *  at the left boundary of the \f$x\f$ interval (\c zmin ). */
+    FuncSpec primitive_z() const ;
 
     // Saving into files
     //-------------------
