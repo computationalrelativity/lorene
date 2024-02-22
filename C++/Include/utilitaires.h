@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2024/02/22 16:51:35  j_novak
+ * Added new function to read CompOSE table.
+ *
  * Revision 1.19  2022/04/15 13:39:24  j_novak
  * New class Eos_compose_fit to generate fitted EoSs from CompOSE tables.
  *
@@ -415,6 +418,12 @@ void c_est_pas_fait(const char * ) ;
 /// after the found pattern. It returns 'false' if the pattern is not found.
  bool search_file(ifstream& infile, const string& pattern) ;
  
+  /// A function to read CompOSE table and return themro quantities in
+  /// Lorene units.
+  bool read_compose_table(const string& tablename, Tbl*& p_ental, Tbl*& p_entro,
+			  Tbl*& p_press, Tbl*& p_ener, Tbl*& p_nb, Tbl*& p_temp,
+			  Tbl*& p_ye) ;
+
 /** @} */
     
 }
