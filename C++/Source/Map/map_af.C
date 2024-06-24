@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2024/06/24 14:11:43  j_novak
+ * Removed parameter names to avoid compilation warnings.
+ *
  * Revision 1.25  2023/05/26 15:39:31  g_servignat
  * Added c_est_pas_fait() to poisson_angu(Cmp)
  *
@@ -802,10 +805,10 @@ void Map_af::adapt(const Cmp&, const Param&, int) {
     c_est_pas_fait(f) ;
 }
 
-void Map_af::poisson_angu(const Cmp& source, Param& par, 
-					Cmp& uu, double lambda) const {
-                        c_est_pas_fait("Map_af::poisson_angu(Cmp)") ;
-                    }
+void Map_af::poisson_angu(const Cmp&, Param&, Cmp&, double) const
+{
+  c_est_pas_fait("Map_af::poisson_angu(Cmp)") ;
+}
 
 
 
