@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2024/06/24 14:10:51  j_novak
+ * Back to previous version.
+ *
  * Revision 1.9  2023/05/26 15:42:30  g_servignat
  * Added c_est_pas_fait() to poisson_angu(Cmp)
  *
@@ -622,56 +625,24 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
 // 	zec = true ;
 //     }
 
-    //-------------------------------
-    // Computation of the prefactor a  ---> Cmp apre
-    //-------------------------------
-
-    Mtbl unjj = 1 + srdrdt*srdrdt + srstdrdp*srstdrdp ;
-
-    Mtbl apre1(*mg) ; 
-    apre1.set_etat_qcq() ; 
-    for (int l=0; l<nz; l++) {
-	*(apre1.t[l]) = alpha[l]*alpha[l] ; 
-    }
-
-    apre1 = apre1 * dxdr * dxdr * unjj ;
-
-    Cmp apre(*this) ; 
-    apre = apre1 ; 
-    
-    Tbl amax0 = max(apre1) ;	// maximum values in each domain
-
-    // The maximum values of a in each domain are put in a Mtbl
-    Mtbl amax1(*mg) ; 
-    amax1.set_etat_qcq() ; 
-    for (int l=0; l<nz; l++) {
-	*(amax1.t[l]) = amax0(l) ; 
-    }
-
-    Cmp amax(*this) ; 
-    amax = amax1 ; 
-
     //-------------------
     //  Initializations 
     //-------------------
     
-    int nitermax = 200 ; //par.get_int() ; 
-    int niter ; //= par.get_int_mod() ; 
-    double relax = 0.5 ; //= par.get_double() ; 
-    double unmrelax = 1. - lambda;
-    double precis = 1e-8 ; //par.get_double(1) ;     
+    int nitermax = par.get_int() ; 
+    int& niter = par.get_int_mod() ; 
+    double relax = par.get_double() ; 
+    double precis = par.get_double(1) ;     
     
-    // Cmp& ssjcmp = par.get_cmp_mod() ; 
+    Cmp& ssjcmp = par.get_cmp_mod() ; 
     
-    Cmp ssj (source) ;
-    Cmp ssjm1 (ssj) ;
-    Cmp ssjm2 (ssjm1) ;
+    Scalar ssj (ssjcmp) ;
+    Scalar ssjm1 (ssj) ;
  
     int dzpuis = source.get_dzpuis() ;
     ssj.set_dzpuis(dzpuis) ;
     uu.set_dzpuis(dzpuis) ;
     ssjm1.set_dzpuis(dzpuis) ;
-    ssjm2.set_dzpuis(dzpuis) ;
 
     Valeur& vuu = uu.set_spectral_va() ;
 
@@ -727,7 +698,7 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
     //  The result is put in uu (via vuu)
     //---------------------------------------
 
-    unjj = srdrdt*srdrdt + srstdrdp*srstdrdp ;
+    Mtbl unjj = srdrdt*srdrdt + srstdrdp*srstdrdp ;
 
     Base_val sauve_base = vuu.base ; 
 
@@ -752,30 +723,23 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
     //     Poisson equation 
     //====================================================================
 
-//    uu.filtre_r(nrm6) ;
+    uu.filtre_r(nrm6) ;
 //    uu.filtre_phi(1) ;
 //    uu.filtre_theta(1) ;
     
-    ssj = relax * ssjm1 + unmrelax * ssjm2 ; 
-    
-    Cmp sum_tmp = source + uu ;
-    ssj = ( sum_tmp + (amax - apre) * ssj ) / amax ; 
-    
-    // ssj = source + uu ; 
+    ssj = source + uu ; 
 
-    // ssj = (1-relax) * ssj + relax * ssjm1 ; 
+    ssj = (1-relax) * ssj + relax * ssjm1 ; 
  
-    (ssj.va).set_base((source.get_spectral_va()).base) ; 
+    (ssj.set_spectral_va()).set_base((source.get_spectral_va()).base) ; 
 
 
     //====================================================================
     //   Resolution of the ``affine'' Poisson equation 
     //====================================================================
     
-    Cmp uu_cmp = uu ;
-    
-    mpaff.poisson_angu(ssj, par_nul, uu_cmp) ; 
-    uu = uu_cmp ;
+    mpaff.poisson_angu(ssj, par_nul, uu) ; 
+
     tdiff = diffrel(vuu, vuujm1) ; 
 
     diff = max(tdiff) ;
@@ -791,9 +755,8 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
     //  Updates for the next iteration
     //=================================
     
-    ssjm2 = ssjm1 ;
-    ssjm1 = ssj ;
     vuujm1 = vuu ; 
+    ssjm1 = ssj ;
  
     niter++ ; 
     
@@ -810,9 +773,8 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
 
 }
 
-void Map_et::poisson_angu(const Cmp& source, Param& par, Cmp& uu,
-    double lambda) const {
-        cout << "Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu, double lambda) pas fait" << endl; abort() ;
+void Map_et::poisson_angu(const Cmp& , Param&, Cmp&, double) const {
+        cout << "Map_et::poisson_angu(const Cmp&, Param&, Cmp&, double) pas fait" << endl; abort() ;
     }
 
 
