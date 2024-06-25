@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2024/06/25 14:03:31  j_novak
+ * Minor changes
+ *
  * Revision 1.8  2024/01/26 17:44:26  g_servignat
  * Updated the Pseudopolytrope_1D class to be consistent with the paper (i.e. with a GPP in the middle)
  *
@@ -651,19 +654,11 @@ void Scalar::match_tau_star(Param& par_bc, Param* par_mat) {
 
     bool need_matrices = true ;
     if (par_mat != 0x0)
-	if (par_mat->get_n_matrice_mod() == 4) 
-	    need_matrices = false ;
+      if (par_mat->get_n_matrice_mod() == 4) 
+	need_matrices = false ;
     
-	// int *sizes_01, *sizes ; sizes01 = new double[4] ; sizes = new double[4] ;
-	// sizes[0] = np ; sizes[1] = nt ; sizes[2] = system_size ; sizes[3] = system_size ;
-	// sizes_01[0] = np ; sizes_01[1] = nt ; sizes_01[2] = system01_size ; sizes_01[3] = system01_size ;
-
-	// Dim_tbl dim_01(4,sizes_01) ; Dim_tbl dimdim(4,sizes) ;
-
-	// ITbl itbl_01(dim_01) ; Itbl itbl_dim(dimdim) ;
-
-	int npp2 = np ;
-	Mg3d mg_01(npp2, system01_size, system01_size, nt, SYM, SYM) ; Mg3d mgmg(npp2, system_size, system_size, nt, SYM, SYM) ;
+    int npp2 = np ;
+    Mg3d mg_01(npp2, system01_size, system01_size, nt, SYM, SYM) ; Mg3d mgmg(npp2, system_size, system_size, nt, SYM, SYM) ;
 
     Valeur system_l0(mg_01) ;
     Valeur system_l1(mg_01) ;
