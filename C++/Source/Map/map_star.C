@@ -49,7 +49,7 @@
 // Constructor from a grid
 // -----------------------
 namespace Lorene {
-Map_star::Map_star(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille),alpha(mgrille.get_angu()),beta(mgrille.get_angu())
+Map_star::Map_star(const Mg3d& mgrille, const double*) : Map_radial(mgrille),alpha(mgrille.get_angu()),beta(mgrille.get_angu())
 {
     c_est_pas_fait("Map_star::Map_star(const Mg3d&,  const double*)") ;
 }
@@ -152,7 +152,7 @@ void Map_star::operator=(const Map_star & mpi) {
 
 //Assignment to a Map_af.
 
-void Map_star::operator=(const Map_af & mpi) {
+void Map_star::operator=(const Map_af &) {
     
     c_est_pas_fait("Map_star::operator=(const Map_af)") ;    
 }

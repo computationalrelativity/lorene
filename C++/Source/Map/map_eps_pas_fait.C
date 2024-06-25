@@ -137,6 +137,7 @@ void Map_eps::poisson_tau (const Cmp&, Param&, Cmp&) const {
 
 const Map_af& Map_eps::mp_angu(int) const {
     pas_fait_eps() ;
+    return dynamic_cast<const Map_af&>(*this) ; //## to be modified!!
 }
 
 void Map_eps::primr(const Scalar&, Scalar&, bool) const {

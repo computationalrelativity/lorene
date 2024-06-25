@@ -137,6 +137,7 @@ void Map_star::poisson_tau (const Cmp&, Param&, Cmp&) const {
 
 const Map_af& Map_star::mp_angu(int) const {
     pas_fait_star() ;
+    return dynamic_cast<const Map_af&>(*this) ; //## to be modified!!
 }
 
 void Map_star::primr(const Scalar&, Scalar&, bool) const {

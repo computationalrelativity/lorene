@@ -1236,7 +1236,7 @@ Mtbl* map_star_fait_sstd2rdpdx(const Map* cvi) {
 	int nr = mg->get_nr(l);
 	int nt = mg->get_nt(l) ;
 	int np = mg->get_np(l) ;
-	const Grille3d* g = mg->get_grille3d(l) ;
+	//	const Grille3d* g = mg->get_grille3d(l) ;
 	Tbl* tb = (mti->t)[l] ;
 	tb->set_etat_qcq() ;
 	double* p_r = tb->t ;

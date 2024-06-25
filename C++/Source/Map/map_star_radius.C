@@ -87,24 +87,25 @@ void Map_star::val_lx(double rr, double theta, double pphi, int& lz, double& xi)
     lz = - 1 ;
     
     for (int l=0; l<nz; l++) {
-	double rmin,rmax ; 
+      double rmin = 0. ;
+      double rmax = 0. ; 
 
-	if (mg->get_type_r(l) == RARE){
+      if (mg->get_type_r(l) == RARE){
         rmin = 0. ;
         rmax = alpha.val_point(l,1.,theta,pphi) ;
-    }
-	if (mg->get_type_r(l) == FIN) {
-	    rmin = beta.val_point(l,1.,theta,pphi) - alpha.val_point(l,1,theta,pphi) ;
-		rmax = beta.val_point(l,1.,theta,pphi) + alpha.val_point(l,1,theta,pphi) ;
-	}
-	// if (mg->get_type_r(l) == UNSURR) {
-	//     rmin = double(1)/rmin ; 
-	//     rmax = double(1)/rmax ; 
-	// }		
-	if ((rr - rmin >= -1.e-14*fabs(rmin)) && ( rr <= rmax )) { 
-	    lz = l ;
-	    break ; 
-	}	
+      }
+      if (mg->get_type_r(l) == FIN) {
+	rmin = beta.val_point(l,1.,theta,pphi) - alpha.val_point(l,1,theta,pphi) ;
+	rmax = beta.val_point(l,1.,theta,pphi) + alpha.val_point(l,1,theta,pphi) ;
+      }
+      // if (mg->get_type_r(l) == UNSURR) {
+      //     rmin = double(1)/rmin ; 
+      //     rmax = double(1)/rmax ; 
+      // }		
+      if ((rr - rmin >= -1.e-14*fabs(rmin)) && ( rr <= rmax )) { 
+	lz = l ;
+	break ; 
+      }	
     }		// fin de la boucle sur les zones
     
     if (lz == -1) {		    // On n'a pas trouve la zone 
@@ -179,7 +180,7 @@ double Map_star::val_r_jk(int l, double xi, int j, int k) const {
 			//	    val_lx_jk		        //
 			//------------------------------// 
 
-void Map_star::val_lx_jk(double rr, int j, int k, const Param& par,
+void Map_star::val_lx_jk(double rr, int j, int k, const Param&,
 			    int& l, double& xi) const {
 			   
     val_lx(rr, (+tet)(l,k,j,0), (+phi)(l,k,j,0), l, xi) ; 

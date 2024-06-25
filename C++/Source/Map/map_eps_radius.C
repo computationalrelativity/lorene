@@ -87,7 +87,8 @@ void Map_eps::val_lx(double rr, double theta, double pphi, int& lz, double& xi) 
     lz = - 1 ;
     
     for (int l=0; l<nz; l++) {
-	double rmin,rmax ; 
+      double rmin = 0. ;
+      double rmax = 0. ; 
 
 	if (mg->get_type_r(l) == RARE){
         rmin = 0. ;
@@ -179,7 +180,7 @@ double Map_eps::val_r_jk(int l, double xi, int j, int k) const {
 			//	    val_lx_jk		        //
 			//------------------------------// 
 
-void Map_eps::val_lx_jk(double rr, int j, int k, const Param& par,
+void Map_eps::val_lx_jk(double rr, int j, int k, const Param&,
 			    int& l, double& xi) const {
 			   
     val_lx(rr, (+tet)(l,k,j,0), (+phi)(l,k,j,0), l, xi) ; 
