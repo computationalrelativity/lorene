@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.53  2024/07/03 09:54:34  j_novak
+ * New functions for computing spectral summations for the \xi(r) variable.
+ *
  * Revision 1.52  2021/11/24 13:12:17  g_servignat
  * Addition of new method mult_xm1_shell(int) to multiply by (\xi +1) in a given shell.
  *
@@ -667,6 +670,17 @@ void som_r_legp
     (double*, const int, const int, const int, const double, double*) ;
 void som_r_jaco02
     (double*, const int, const int, const int, const double, double*) ;
+
+  // 1D version of sums in r
+  double som_r_1d_pas_prevu(const double*, int, double) ;
+  double som_r_1d_cheb(const double*, int, double) ;
+  double som_r_1d_chebp(const double*, int, double) ;
+  double som_r_1d_chebi(const double*, int, double) ;
+  double som_r_1d_leg(const double*, int, double) ;
+  double som_r_1d_legp(const double*, int, double) ;
+  double som_r_1d_legi(const double*, int, double) ;
+  double som_r_1d_jaco02(const double*, int, double) ;
+
     
 // Les sommations en theta :
 void som_tet_pas_prevu
