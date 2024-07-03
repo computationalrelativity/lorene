@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2024/07/03 09:53:00  j_novak
+ * Added the declaration of admissible_fft.
+ *
  * Revision 1.20  2024/02/22 16:51:35  j_novak
  * Added new function to read CompOSE table.
  *
@@ -423,6 +426,11 @@ void c_est_pas_fait(const char * ) ;
   bool read_compose_table(const string& tablename, Tbl*& p_ental, Tbl*& p_entro,
 			  Tbl*& p_press, Tbl*& p_ener, Tbl*& p_nb, Tbl*& p_temp,
 			  Tbl*& p_ye) ;
+  
+  /** Checks whether or not a given number of degrees of freedom is compatible with
+   * the FFT transform.
+   */
+  bool admissible_fft(int ) ; 
 
 /** @} */
     
