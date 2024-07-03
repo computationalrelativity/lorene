@@ -1,19 +1,25 @@
-			//------------------------------------//
+
+#ifndef __MAP_STAR_H_
+#define __MAP_STAR_H_
+
+namespace Lorene {
+
+                        //------------------------------------//
 			//         class Map_star             //
 			//------------------------------------//
 
 /*
- * Affine and starlike radial mapping to describe 3D star. \ingroup (map)
+ * Affine and starlike radial mapping to describe 3D star. \ingroup(map)
  * 
  * The affine radial mapping is the simplest one between the grid coordinates
- * \f$(\xi, \theta', \phi')\f$ and the physical coordinates \f$(r, \theta, \phi)\f$. It comprises a single domain (nucleus, shells to be added in the future)
+ * \f$(\xi, \theta', \phi')\f$ and the physical coordinates \f$(r, \theta, \phi)\f$. 
+ * It comprises a single domain (nucleus, shells to be added in the future)
  * It is defined by \f$\theta=\theta'\f$, \f$\phi=\phi'\f$ and 
  *  \li \f$r=\alpha \xi + \beta\f$, in non-compactified domains, 
  * where \f$\alpha\f$ and \f$\beta\f$ depend upon the angular direction. 
  * 
  *
  */
-
 class Map_star : public Map_radial{
 
 
@@ -192,6 +198,13 @@ class Map_star : public Map_radial{
 	 */
 	virtual void stdsdp (const Scalar&, Scalar&) const ;
 
+        /** Interpolates from a \c Scalar defined on a \c Map_af and returns the new \c Scalar
+	 * defined on \c *this.
+	 * @param f_a [input] the field to be interpolated (must be defined on a \c Map_af)
+	 * @return the interpolated field (\c Scalar defined on \c *this)
+	 */
+         Scalar interpolate_from_map_af(const Scalar& f_a) const ;
+
     // Outputs
     // -------
     public:
@@ -296,7 +309,7 @@ class Map_star : public Map_radial{
 			//------------------------------------//
 
 /*
- * Affine and starlike radial mapping to describe 3D star. \ingroup (map)
+ * Affine and starlike radial mapping to describe 3D star. \ingroup(map)
  * 
  * The affine radial mapping is the simplest one between the grid coordinates
  * \f$(\xi, \theta', \phi')\f$ and the physical coordinates \f$(r, \theta, \phi)\f$. It comprises a single domain (nucleus, shells to be added in the future)
@@ -306,7 +319,6 @@ class Map_star : public Map_radial{
  * 
  *
  */
-
 class Map_eps : public Map_radial{
 
 
@@ -587,3 +599,5 @@ class Map_eps : public Map_radial{
 		Mtbl* map_eps_fait_sstd2rdpdx(const Map* ) ;
 		Mtbl* map_eps_fait_sr2d2rdt2(const Map* ) ;
 
+}
+#endif

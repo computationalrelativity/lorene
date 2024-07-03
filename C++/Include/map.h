@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.65  2024/07/03 13:51:02  j_novak
+ * Added methods to interpolate a Scalar between Map_af and Map_star efficiently.
+ *
  * Revision 1.64  2024/06/25 13:56:24  j_novak
  * Split map.h into map.h and map_star.h.
  *
@@ -2672,6 +2675,13 @@ class Map_af : public Map_radial {
 	virtual void dalembert(Param& par, Scalar& fJp1, const Scalar& fJ, 
 			       const Scalar& fJm1, const Scalar& source) const ;
 
+        /** Interpolates from a \c Scalar defined on a \c Map_star and returns the new \c Scalar
+	 * defined on \c *this.
+	 * @param f_s [input] the field to be interpolated (must be defined on a \c Map_star)
+	 * @return the interpolated field (\c Scalar defined on \c *this)
+	 */
+         Scalar interpolate_from_map_star(const Scalar& f_s) const ;
+
     // Building functions for the Coord's
     // ----------------------------------
     friend Mtbl* map_af_fait_r(const Map* ) ;
@@ -3901,6 +3911,12 @@ Mtbl* map_log_fait_sr2d2rdt2(const Map* ) ;
 
 Mtbl* map_log_fait_dxdlnr (const Map*) ;
 
-  #include "map_star.h"
 }
+
+                      //------------------------//
+                      //  Remaining Mappings    //     
+                      //------------------------//
+
+#include "map_star.h"
+
 #endif
