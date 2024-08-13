@@ -1,0 +1,7 @@
+# ARA system Jena FSU
+
+# ara_2022 does not work anymore after the ARA software upgrade in 2024, it is kept only for reference.
+
+module load compiler/gcc/10.2.0 libs/blas/gcc-7.3.0 libs/boost/1.75.0-gcc-10.2.0 libs/fftw/3.3.10-gcc-10.2.0-openmpi-4.1.2-gcc-10.2.0 libs/gsl/2.4-intel-2018
+
+

@@ -1,0 +1,11 @@
+# ARA system Jena FSU
+
+# ara_2024_ho23kag is based on a custom installation by SB (user ho23kag) of the following libraries:
+#
+# /beegfs/ho23kag/fftw-3.3.10/install   # https://www.fftw.org/fftw3_doc/Installation-and-Customization.html
+# /beegfs/ho23kag/GSL/install           # https://gcc.gnu.org/install/ # https://coral.ise.lehigh.edu/jild13/2016/07/11/hello/
+# /beegfs/ho23kag/BLAS-3.12.0           # https://www.netlib.org/blas/
+# /beegfs/ho23kag/lapack-3.12.0         # https://www.netlib.org/lapack/
+#
+# These are all built with the default GNU compiler, there is no module to load
+
