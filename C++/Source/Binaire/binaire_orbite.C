@@ -827,6 +827,8 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
     double x1 = ori_x1 - x_rot ;
     double x2 = ori_x2 - x_rot ;
 
+    const double EPS = 1e-24;
+    
     if (relat == 1) {
 
       double andan_1 = 0.5 * dasn2_1 + asn2_1 * dnulg_1 ;
@@ -838,19 +840,18 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
       double cpc_1 = 0.5 * dnpnso2_1 + x1 * (1. - dnyso_1) - nyso_1 ;
       double cpc_2 = 0.5 * dnpnso2_2 + x2 * (1. - dnyso_2) - nyso_2 ;
 
-      om2_star1 = dnulg_1 / (andan_1 * bpb_1 + asn2_1 * cpc_1) ;
-      om2_star2 = dnulg_2 / (andan_2 * bpb_2 + asn2_2 * cpc_2) ;
+      om2_star1 = dnulg_1 / (andan_1 * bpb_1 + asn2_1 * cpc_1 + EPS) ;
+      om2_star2 = dnulg_2 / (andan_2 * bpb_2 + asn2_2 * cpc_2 + EPS) ;
 
     }
     else {
 
-      om2_star1 = dnulg_1 / x1 ;
-      om2_star2 = dnulg_2 / x2 ;
+      om2_star1 = dnulg_1 / (x1 + EPS);
+      om2_star2 = dnulg_2 / (x2 + EPS);
 
     }
 
-    return om2_star1 - om2_star2 ;
-
+    return 1.0/om2_star1 - 1.0/om2_star2;
 }
 
 //*****************************************************************************
