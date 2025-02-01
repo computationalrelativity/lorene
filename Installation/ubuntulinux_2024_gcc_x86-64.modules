@@ -1,0 +1,241 @@
+# Ubuntu 24.04 system (and others similar)
+
+# No modules needed.
+# Uses APT packages from default APT repos (`apt-get install ...`)
+# Details on installation and versions follows
+
+
+
+# System version
+# --------------
+
+# $ uname -a
+# Linux localhost 6.8.0-51-generic #52-Ubuntu SMP PREEMPT_DYNAMIC Thu Dec  5 13:09:44 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+
+# $ lsb_release -a
+# No LSB modules are available.
+# Distributor ID:	Ubuntu
+# Description:	Ubuntu 24.04.1 LTS
+# Release:	24.04
+# Codename:	noble
+
+
+
+# GCC
+# ---
+
+# $ gcc -v
+# Using built-in specs.
+# COLLECT_GCC=gcc
+# COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+# OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+# OFFLOAD_TARGET_DEFAULT=1
+# Target: x86_64-linux-gnu
+# Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+# Thread model: posix
+# Supported LTO compression algorithms: zlib zstd
+# gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+
+
+
+# Install GSL, BLAS, LAPACK
+# -------------------------
+
+# $ sudo apt-get install libgsl-dev
+# libgsl-dev is already the newest version (2.7.1+dfsg-6ubuntu2).
+
+# $ sudo apt-get install libblas-dev
+# libblas-dev is already the newest version (3.12.0-3build1.1).
+
+# $ sudo apt-get install liblapack-dev
+# liblapack-dev is already the newest version (3.12.0-3build1.1).
+
+# OpenBLAS, faster alternative:
+# $ sudo apt-get install libopenblas-dev
+# libopenblas-dev is already the newest version (0.3.26+ds-1).
+
+
+# Check for linker:
+
+# $ pkg-config --libs gsl
+# -lgsl -lgslcblas -lm 
+# $ pkg-config --libs lapack
+# -L/usr/lib/x86_64-linux-gnu/openblas-pthread -llapack 
+
+
+# Libs and header locations (linking and include should be auto):
+
+# $ dpkg -L libblas3
+# /.
+# /usr
+# /usr/lib
+# /usr/lib/x86_64-linux-gnu
+# /usr/lib/x86_64-linux-gnu/blas
+# /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0
+# /usr/share
+# /usr/share/doc
+# /usr/share/doc/libblas3
+# /usr/share/doc/libblas3/changelog.Debian.gz
+# /usr/share/doc/libblas3/copyright
+# /usr/share/lintian
+# /usr/share/lintian/overrides
+# /usr/share/lintian/overrides/libblas3
+# /usr/lib/x86_64-linux-gnu/blas/libblas.so.3
+
+# $ dpkg -L liblapack3
+# /.
+# /usr
+# /usr/lib
+# /usr/lib/x86_64-linux-gnu
+# /usr/lib/x86_64-linux-gnu/lapack
+# /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0
+# /usr/share
+# /usr/share/doc
+# /usr/share/doc/liblapack3
+# /usr/share/doc/liblapack3/copyright
+# /usr/share/lintian
+# /usr/share/lintian/overrides
+# /usr/share/lintian/overrides/liblapack3
+# /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3
+# /usr/share/doc/liblapack3/changelog.Debian.gz
+
+
+
+# Install FFTW3
+# -------------
+
+# $ sudo apt-get install libfftw3-dev
+
+
+# Check for linker:
+
+# $ pkg-config --libs fftw3
+# -lfftw3 
+
+
+# Libs and header locations (linking and include should be auto):
+
+# $ dpkg -L libfftw3-dev
+# /.
+# /usr
+# /usr/include
+# /usr/include/fftw3.f
+# /usr/include/fftw3.f03
+# /usr/include/fftw3.h
+# /usr/include/fftw3l.f03
+# /usr/include/fftw3q.f03
+# /usr/lib
+# /usr/lib/x86_64-linux-gnu
+# /usr/lib/x86_64-linux-gnu/libfftw3.a
+# /usr/lib/x86_64-linux-gnu/libfftw3_omp.a
+# /usr/lib/x86_64-linux-gnu/libfftw3_threads.a
+# /usr/lib/x86_64-linux-gnu/libfftw3f.a
+# /usr/lib/x86_64-linux-gnu/libfftw3f_omp.a
+# /usr/lib/x86_64-linux-gnu/libfftw3f_threads.a
+# /usr/lib/x86_64-linux-gnu/libfftw3l.a
+# /usr/lib/x86_64-linux-gnu/libfftw3l_omp.a
+# /usr/lib/x86_64-linux-gnu/libfftw3l_threads.a
+# /usr/lib/x86_64-linux-gnu/libfftw3q.a
+# /usr/lib/x86_64-linux-gnu/libfftw3q_omp.a
+# /usr/lib/x86_64-linux-gnu/libfftw3q_threads.a
+# /usr/lib/x86_64-linux-gnu/pkgconfig
+# /usr/lib/x86_64-linux-gnu/pkgconfig/fftw3.pc
+# /usr/lib/x86_64-linux-gnu/pkgconfig/fftw3f.pc
+# /usr/lib/x86_64-linux-gnu/pkgconfig/fftw3l.pc
+# /usr/lib/x86_64-linux-gnu/pkgconfig/fftw3q.pc
+# /usr/share
+# /usr/share/doc
+# /usr/share/doc/libfftw3-dev
+# /usr/share/doc/libfftw3-dev/copyright
+# /usr/lib/x86_64-linux-gnu/libfftw3.so
+# /usr/lib/x86_64-linux-gnu/libfftw3_omp.so
+# /usr/lib/x86_64-linux-gnu/libfftw3_threads.so
+# /usr/lib/x86_64-linux-gnu/libfftw3f.so
+# /usr/lib/x86_64-linux-gnu/libfftw3f_omp.so
+# /usr/lib/x86_64-linux-gnu/libfftw3f_threads.so
+# /usr/lib/x86_64-linux-gnu/libfftw3l.so
+# /usr/lib/x86_64-linux-gnu/libfftw3l_omp.so
+# /usr/lib/x86_64-linux-gnu/libfftw3l_threads.so
+# /usr/lib/x86_64-linux-gnu/libfftw3q.so
+# /usr/lib/x86_64-linux-gnu/libfftw3q_omp.so
+# /usr/lib/x86_64-linux-gnu/libfftw3q_threads.so
+# /usr/share/doc/libfftw3-dev/NEWS.gz
+# /usr/share/doc/libfftw3-dev/README
+# /usr/share/doc/libfftw3-dev/README.Debian
+# /usr/share/doc/libfftw3-dev/changelog.Debian.gz
+
+
+
+
+# Install PGPLOT
+# --------------
+
+# $ sudo apt install pgplot5
+
+# $ dpkg -L pgplot5
+# /.
+# /usr
+# /usr/bin
+# /usr/bin/pgxwin_server
+# /usr/include
+# /usr/include/cpgplot.h
+# /usr/lib
+# /usr/lib/libcpgplot.a
+# /usr/lib/libcpgplot.so.5.2.2
+# /usr/lib/libpgplot.a
+# /usr/lib/libpgplot.so.5.2.2
+# /usr/lib/pgplot5
+# /usr/lib/pgplot5/grexec.f
+# /usr/lib/pgplot5/grfont.dat
+# /usr/lib/pgplot5/grpckg1.inc
+# /usr/lib/pgplot5/rgb.txt
+# /usr/share
+# /usr/share/doc
+# /usr/share/doc/pgplot5
+# /usr/share/doc/pgplot5/README.Debian
+# /usr/share/doc/pgplot5/TODO.Debian
+# /usr/share/doc/pgplot5/aaaread.me
+# /usr/share/doc/pgplot5/changelog.Debian.gz
+# /usr/share/doc/pgplot5/copyright
+# /usr/share/doc/pgplot5/cpgplot.doc.gz
+# /usr/share/doc/pgplot5/drivers.list.gz
+# /usr/share/doc/pgplot5/examples
+# /usr/share/doc/pgplot5/examples/cpgdemo.c
+# /usr/share/doc/pgplot5/examples/pgdemo1.f
+# /usr/share/doc/pgplot5/examples/pgdemo10.f
+# /usr/share/doc/pgplot5/examples/pgdemo11.f
+# /usr/share/doc/pgplot5/examples/pgdemo12.f
+# /usr/share/doc/pgplot5/examples/pgdemo13.f
+# /usr/share/doc/pgplot5/examples/pgdemo14.f
+# /usr/share/doc/pgplot5/examples/pgdemo15.f
+# /usr/share/doc/pgplot5/examples/pgdemo16.f
+# /usr/share/doc/pgplot5/examples/pgdemo17.f
+# /usr/share/doc/pgplot5/examples/pgdemo2.f
+# /usr/share/doc/pgplot5/examples/pgdemo3.f
+# /usr/share/doc/pgplot5/examples/pgdemo4.f
+# /usr/share/doc/pgplot5/examples/pgdemo5.f
+# /usr/share/doc/pgplot5/examples/pgdemo6.f
+# /usr/share/doc/pgplot5/examples/pgdemo7.f
+# /usr/share/doc/pgplot5/examples/pgdemo8.f
+# /usr/share/doc/pgplot5/examples/pgdemo9.f
+# /usr/share/doc/pgplot5/pgplot-routines.tex.gz
+# /usr/share/doc/pgplot5/pgplot.doc.gz
+# /usr/share/doc/pgplot5/pgplot.html
+# /usr/share/doc/pgplot5/ver500.txt.gz
+# /usr/share/doc/pgplot5/ver501.txt.gz
+# /usr/share/doc/pgplot5/ver502.txt.gz
+# /usr/share/doc/pgplot5/ver503.txt.gz
+# /usr/share/doc/pgplot5/ver510.txt.gz
+# /usr/share/doc/pgplot5/ver511.txt.gz
+# /usr/share/doc/pgplot5/ver520.txt.gz
+# /usr/share/doc/pgplot5/ver521.txt
+# /usr/share/doc/pgplot5/ver522.txt
+# /usr/share/doc-base
+# /usr/share/doc-base/pgplot5.pgplot5
+# /usr/share/man
+# /usr/share/man/man1
+# /usr/share/man/man1/pgxwin_server.1.gz
+# /usr/lib/libcpgplot.so
+# /usr/lib/libcpgplot.so.5
+# /usr/lib/libpgplot.so
+# /usr/lib/libpgplot.so.5
