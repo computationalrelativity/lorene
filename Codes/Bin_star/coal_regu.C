@@ -28,8 +28,8 @@
  
 
 /*
- * $Id$
- * $Log$
+ * $Id: coal_regu.C,v 1.13 2016/12/05 16:18:23 j_novak Exp $
+ * $Log: coal_regu.C,v $
  * Revision 1.13  2016/12/05 16:18:23  j_novak
  * Suppression of some global variables (file names, loch, ...) to prevent redefinitions
  *
@@ -91,7 +91,7 @@
  * *** empty log message ***
  *
  *
- * $Header$
+ * $Header: /cvsroot/Lorene/Codes/Bin_star/coal_regu.C,v 1.13 2016/12/05 16:18:23 j_novak Exp $
  *
  */
 
@@ -801,38 +801,41 @@ int main(){
     // ----------------
     
     if ( (graph==1) && (mer % 5 == 0) ) {
-	double xdes_min = - star(1).ray_eq_pi() + star(1).get_mp().get_ori_x() ; 
-	xdes_min *= 1.5 ; 
-	double xdes_max = star(2).ray_eq_pi() + star(2).get_mp().get_ori_x() ; 
-	xdes_max *= 1.5 ; 
-	double ydes_min = - 2.5 * star(1).ray_eq_pis2() ; 
-	double ydes_max =  2.5 * star(2).ray_eq_pis2() ; 
 
-	Cmp surf1 = star(1).get_ent()() ; 
-	Cmp surf1_ext(mp1) ; 
-	surf1_ext = - 0.2 * surf1(0, 0, 0, 0) ; 
-	surf1_ext.annule(0, star(1).get_nzet()-1) ; 
-	surf1.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
-	surf1 = surf1 + surf1_ext ;
+      //##
+      // double xdes_min = - star(1).ray_eq_pi() + star(1).get_mp().get_ori_x() ; 
+      // 	xdes_min *= 1.5 ; 
+      // 	double xdes_max = star(2).ray_eq_pi() + star(2).get_mp().get_ori_x() ; 
+      // 	xdes_max *= 1.5 ; 
+      // 	double ydes_min = - 2.5 * star(1).ray_eq_pis2() ; 
+      // 	double ydes_max =  2.5 * star(2).ray_eq_pis2() ; 
+
+      // 	Cmp surf1 = star(1).get_ent()() ; 
+      // 	Cmp surf1_ext(mp1) ; 
+      // 	surf1_ext = - 0.2 * surf1(0, 0, 0, 0) ; 
+      // 	surf1_ext.annule(0, star(1).get_nzet()-1) ; 
+      // 	surf1.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
+      // 	surf1 = surf1 + surf1_ext ;
     
-	surf1 = raccord_c1(surf1, star(1).get_nzet()) ; 
+      // 	surf1 = raccord_c1(surf1, star(1).get_nzet()) ; 
 
-	Cmp surf2 = star(2).get_ent()() ; 
-	Cmp surf2_ext(mp2) ; 
-	surf2_ext = - 0.2 * surf2(0, 0, 0, 0) ; 
-	surf2_ext.annule(0, star(2).get_nzet()-1) ; 
-	surf2.annule(star(2).get_nzet(), mg2.get_nzone()-1) ; 
-	surf2 = surf2 + surf2_ext ;
+      // 	Cmp surf2 = star(2).get_ent()() ; 
+      // 	Cmp surf2_ext(mp2) ; 
+      // 	surf2_ext = - 0.2 * surf2(0, 0, 0, 0) ; 
+      // 	surf2_ext.annule(0, star(2).get_nzet()-1) ; 
+      // 	surf2.annule(star(2).get_nzet(), mg2.get_nzone()-1) ; 
+      // 	surf2 = surf2 + surf2_ext ;
 
-	surf2 = raccord_c1(surf2, star(2).get_nzet()) ; 
+      // 	surf2 = raccord_c1(surf2, star(2).get_nzet()) ; 
 
-	des_coupe_bin_z(star(1).get_nbar()(), star(2).get_nbar()(), 0., 
-		    xdes_min, xdes_max, ydes_min, ydes_max, 
-		    "Baryon density (z=0)", &surf1, &surf2 ) ; 
+      // 	des_coupe_bin_z(star(1).get_nbar()(), star(2).get_nbar()(), 0., 
+      // 		    xdes_min, xdes_max, ydes_min, ydes_max, 
+      // 		    "Baryon density (z=0)", &surf1, &surf2 ) ; 
 
-	des_coupe_bin_y(star(1).get_nbar()(), star(2).get_nbar()(), 0., 
-		    xdes_min, xdes_max, ydes_min, ydes_max, 
-		    "Baryon density (y=0)", &surf1, &surf2 ) ; 
+      // 	des_coupe_bin_y(star(1).get_nbar()(), star(2).get_nbar()(), 0., 
+      // 		    xdes_min, xdes_max, ydes_min, ydes_max, 
+      // 		    "Baryon density (y=0)", &surf1, &surf2 ) ; 
+      //##
     }
 
     
